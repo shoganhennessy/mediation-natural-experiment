@@ -1,0 +1,173 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Appendix section
+% Set-up the section.
+%\newpage
+\appendix
+\setcounter{table}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{A\arabic{figure}}
+
+% Start appendix
+\section{Appendix}
+\label{appendix}
+This project used computational tools which are fully open-source.
+%As such, all code and data involved in this project are available at this project's Github repository, available at \url{https://github.com/shoganhennessy/state-faculty-composition}.
+%They may be used for replication, or as the basis for further work, as needed.
+Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu}{\nolinkurl{seh325@cornell.edu}}, or raised as an issue on the Github project.
+
+A number of statistical packages, for the R language \citep{R2023}, made the empirical analysis for this paper possible.
+\begin{itemize}
+    \item \textit{Tidyverse} \citep{tidyverse} collected tools for data analysis in the R language.
+    \item \textit{DoubleML} \citep{DoubleML2020} implemented doubly robust methods used in the empirical analysis. 
+    \item \textit{GRF} \citep{athey2019generalized,grf} compiled forest computational tools for the R language.
+    \item \textit{Stargazer} \citep{stargazer} provided methods to efficiently convert empirical results into presentable output in \LaTeX.
+\end{itemize}
+
+\subsection{Identification in Causal Mediation}
+\label{appendix:identification}
+\citet[Theorem~1]{imai2010identification} states that the direct and indirect effects are identified under sequential ignorability, at each level of $Z_i = 0,1$.
+For $z' = 0,1$: \\
+\makebox[\textwidth]{\parbox{1.25\textwidth}{
+\begin{align*}
+    \E{ Y_i(1, D_i(z')) - Y_i(0, D_i(z'))}
+    &= \int \int 
+    \Big( \Egiven{ Y_i }{Z_i = 1, D_i, \vec X_i}
+        - \Egiven{ Y_i }{Z_i = 0, D_i, \vec X_i} \Big)
+            dF_{D_i \, | \, Z_i = z', \vec X_i} dF_{\vec X_i}, \\
+    \E{ Y_i(z', D_i(1)) - Y_i(z', D_i(0))}
+    &= \int \int \Egiven{ Y_i }{Z_i = z', D_i, \vec X_i}
+    \Big( dF_{D_i \, | \, Z_i = 1, \vec X_i}
+        - dF_{D_i \, | \, Z_i = 0, \vec X_i} \Big) dF_{\vec X_i}.
+\end{align*}
+}}
+I focus on the averages, which are identified by consequence of the above.
+\begin{align*}
+    \E{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
+    &= \E[Z_i]{\Egiven{ Y_i(1, D_i(z')) - Y_i(0, D_i(z'))}{Z_i = z'}} \\
+    \E{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
+    & = \E[Z_i]{\Egiven{ Y_i(z', D_i(1)) - Y_i(z', D_i(0))}{Z_i = z'}}
+\end{align*}
+My estimand for the average direct effect is a simple rearrangement of the above.
+The estimand for the average indirect effect relies on a different sequence, relying on (1) sequential ignorability, (2) conditional monotonicity.
+These give (1) identification of, and equivalence between, LADE conditional on $\vec X_i$ and ADE conditional on $\vec X_i$, (2) identification of the complier score.
+
+\begin{align*}
+    & \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{\vec X_i} \\
+    & = \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}
+        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i} \\
+    & = \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}
+        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{\vec X_i} \\
+    & = \Big( \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}
+        \Big) \; \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{\vec X_i} \\
+    & = \Big( \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}
+        \Big)
+        \Big( \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i}
+            - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)
+\end{align*}
+Monotonicity is not technically required for the above.
+Breaking monotonicity would not change the identification of any of the above; it would be the same except replacing the complier score with a complier or defier score, $\Probgiven{D_i(1) \neq D_i(0)}{\vec X_i} = \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$.
+
+\subsection{Continuous Average Causal Responses}
+\label{appendix:continuous}
+Section here relating the approach to the average causal response function (see e.g., Angrist Imbens JASA 1996, Andrew Bacon for DiD 2023).
+
+\subsection{Previous Literature}
+\label{appendix:mediation-review}
+
+Create a table in this section that surveys previous research which employs mediation methods while having a clear causal design for $Z_i$, but not $D_i$.
+
+\begin{tabular}{l l l l l}
+    Paper & Field & Research Design for $Z_i$ & Research Design for $D_i$ & Selection bias? \\ \hline
+    Paper name 1.    
+\end{tabular}
+
+\subsection{Selection Bias in Mediation Estimates}
+\label{appendix:selection-bias}
+Write the proof in here.
+It is long....
+
+\subsection{Proof of the Selection Model Representation}
+\label{appendix:selection-model}
+Write the proof in here, following \cite{vytlacil2002independence} construction in the forward direction.
+Note that the notation needs updating for no exclusion restriction.
+
+\subsection{A Regression Framework for Direct and Indirect Effects}
+\label{appendix:regression-model}
+Put $\mu_{D}(Z; \vec X) = \Egiven{Y_i(Z, D)}{\vec X}$, so we have the following expressions.
+\[ Y_i(Z_i, 0)
+        = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
+    Y_i(Z_i, 1)
+        = \mu_{1}(Z_i; \vec X_i) + U_{1,i} \]
+
+$U_{0,i}, U_{1,i}$ are error terms with unknown distributions, mean independent of $Z_i, \vec X_i$ by definition --- but possibly correlated with $D_i$.
+
+$Z_i$ is assumed randomly assigned, independent of potential outcomes, so that $U_{0,i}, U_{1,i} \indep Z_i$.
+Thus, the first-stage $Z \to Y$ leads to unbiased estimates.
+\begin{align*}
+    D_i &= Z_i D_i(1) + (1 - Z_i) D_i(0) \\
+        &= D_i(0) +
+            Z_i \left[ D_i(1) - D_i(0) \right] \\
+        &= \underbrace{\E{D_i(0)}}_{\text{Intercept}} +
+            \underbrace{Z_i \E{ D_i(1) - D_i(0)}}_{
+                \text{Regressor}} \\
+            & \;\;\;\; + \underbrace{D_i(0) - \E{D_i(0)}
+                + Z_i \big( D_i(1) - D_i(0) - \E{ D_i(1) - D_i(0)}\big)}_{
+                \text{Mean-zero, independent error term}} \\
+        &\eqqcolon \phi_i + \pi_i Z_i + \eta_i \\
+    \implies \Egiven{D_i}{Z_i}&=
+        \E{\phi_i} + \E{\phi_i} Z_i + \E{\eta_i}
+        \text{, and thus unbiased estimates since } Z_i \indep \phi_i, \eta_i.
+\end{align*}
+$Z_i$ is also assumed independent of potential outcomes $Y_i(,.,)$, so that $U_{0,i}, U_{1,i} \indep Z_i$.
+Thus, the reduced form regression $Z \to Y$ also leads to unbiased estimates.
+
+The same cannot be said of the regression that estimates direct and indirect effects, without further assumptions.
+\begin{align*}
+    Y_i &= Z_i Y_i(1, D_i(1)) + (1 - Z_i) Y_i(0, D_i(0)) \\
+        &= Z_i D_i Y_i(1, 1) \\
+        & \;\;\;\; + (1 - Z_i) D_i Y_i(0, 1) \\
+        & \;\;\;\; + Z_i (1 - D_i) Y_i(1, 0) \\
+        & \;\;\;\; + (1 - Z_i) (1 - D_i) Y_i(0, 0) \\
+        &= Y_i(0, 0) \\
+        & \;\;\;\; + Z_i \left[Y_i(1, 0) - Y_i(0, 0) \right] \\
+        & \;\;\;\; + D_i \left[Y_i(0, 1) - Y_i(0, 0) \right] \\
+        & \;\;\;\; + Z_i D_i \left[Y_i(1, 1) - Y_i(1, 0)
+            - \left( Y_i(0, 1) - Y_i(0, 0) \right)\right]
+\end{align*}
+And so $Y_i$ can be written as a regression equation in terms of the observed factors and error terms.
+\begin{align*}
+    \Egiven{Y_i}{Z_i, D_i, \vec X_i}
+        &= \mu_0(0; \vec X_i) \\
+        & \;\;\;\; + Z_i \left[\mu_0(1; \vec X_i) - \mu_0(0; \vec X_i) \right] \\
+        & \;\;\;\; + D_i \left[\mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right] \\
+        & \;\;\;\; + Z_i D_i \left[\mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)
+            - \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)\right] \\
+        & \;\;\;\; + U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right) \\
+        &\eqqcolon
+            \alpha_i + \beta_i D_i + \gamma_i Z_i + \delta_i Z_i D_i
+            + \underbrace{U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)}_{
+                = \varepsilon_i}
+\end{align*}
+$\alpha_i, \beta_i, \delta_i$ are the relevant direct effect under $D_i = 1$, indirect effect under $Z_i = 1$, $\delta_i$ the interaction effect, and $\varepsilon_i$ the remaining error term.
+Collecting for the expressions of the direct and indirect effects:\footnote{
+    These equations have simpler expressions after assuming constant treatment effects in a linear framework;
+    I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
+}
+\begin{align*}
+    \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
+        &= \E{\pi_i \left( \beta_i +  Z_i \delta_i \right)} \\
+    \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
+        &= \E{\gamma_i + \delta_i D_i}
+\end{align*}
+If sequential ignorability does not hold, then the regression estimates from estimating the mediation equations (without adjusting for the contaminated bias term) suffer from omitted variables bias:
+\begin{align*}
+    \E{\hat \alpha} &= \E{\alpha_i} + \E{D_i \left( U_{1,i} - U_{0,i} \right)} \\
+    \E{\hat \beta} &= \E{\beta_i} + \frac{
+        \Cov{D_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{D_i}} \\
+    \E{\hat \gamma} &= \E{\gamma_i} + \frac{
+        \Cov{Z_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{Z_i}} \\
+    \E{\hat \delta} &= \E{\delta_i} + \frac{
+        \Cov{Z_i D_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{Z_i D_i}}
+\end{align*}
+And so the direct and indirect effect estimates are contaminated by these bias terms.

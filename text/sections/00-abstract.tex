@@ -1,0 +1,20 @@
+\noindent
+Natural experiments are a cornerstone of applied economics, providing settings for estimating causal effects of a treatment with a compelling argument for treatment ignorability.
+Economists are often interested in understanding the mechanisms through which causal effects operate, and mediation methods aim to estimate these components.
+However, conventional mediation methods rely on a selection-on-observables assumption, assuming the mediator is conditionally ignorable --- in addition to the natural experiment for the original treatment.
+This paper shows that conventional estimates of mediation effects are contaminated by selection bias when the mediator is not ignorable.
+Using the case of a Roy model for a mediator, I show that individuals' selection based on expected gains and costs is inconsistent with mediator ignorability without implausible behavioural assumptions.
+I develop a control function approach, which correctly estimates mediation effects when selection into the mediator follows a selection model, using cost of mediator take-up as an instrument.
+Simulations confirm that this method corrects for selection bias in conventional mediation estimates, and performs comparably to a selection-on-observables approach when the mediator selection does not follow a selection model.
+I illustrate the approach by estimating the proportion of the causal effect of genes associated with education that operates via a direct genetic channel versus indirectly through extended schooling.
+Finally, I provide an implementation of this method in the \textit{R} package \textit{mediate-controlfun}, offering an accessible tool for robust mediation analysis in natural experiment settings.
+
+\vspace{0.5cm}
+\noindent
+\textbf{Keywords:}
+Causal Mediation.
+
+\vspace{0.1cm}
+\noindent
+\textbf{JEL Codes:}
+D31, D91, I24, J24, Z00.

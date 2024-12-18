@@ -1,0 +1,91 @@
+\section{Direct and Indirect Effects Under Selection}
+\label{sec:metrics}
+This section connects causal mediation, without assuming the mediator is randomly assigned (i.e., under selection), with classic labour economics models for selection into treatment.
+
+\subsection{Selection Model Representation}
+\label{sec:selection-model}
+The IV literature assumes a first-stage monotonicity condition, where randomised $Z_i$ influences mediator $D_i$ in at most one direction.
+\begin{definition}
+    \label{dfn:firststage-monotonicity}
+    First-stage Monotonicity \citep{imbens1994identification}.
+    \begin{equation}
+        \label{eqn:firststage-monotonicity}
+        \Prob{ D_i(1) \geq D_i(0)} = 1    
+    \end{equation}
+\end{definition}
+
+Assuming \ref{dfn:firststage-monotonicity}\eqref{eqn:firststage-monotonicity}
+in a mediation setting opens mediation to the wide literature on IV and selection models for identification in the presence of selection. 
+\begin{theorem}
+    \label{thm:selection-model}
+    Under monotonicity, mediator $D_i$ can be represented by a selection model. \\
+    Suppose \ref{dfn:firststage-monotonicity}\eqref{eqn:firststage-monotonicity} holds, then there is a function $\mu(.)$ and random variable $U_i$ such that $D_i$ takes the following form.
+    \[ D_i(z) = \indicator{ \mu(z) \geq U_i}, \;\; \forall z = 0,1 \]
+\end{theorem}
+\begin{proof}
+    Special case of the \cite{vytlacil2002independence} equivalence result; see \autoref{appendix:selection-model}.
+\end{proof}
+
+\autoref{thm:selection-model} is a powerful result: it says that at the cost of assuming monotonicity (as is done in the IV literature), then selection into $D_i$ takes a latent index form, and opens up identification in a mediation context to the wide literature on identifying treatment effects in selection models.
+
+\subsection{A Regression Framework for Direct and Indirect Effects}
+Inference for direct and direct effects can be written in a regression framework, showing how correlation between the error term and the mediator persistently biases estimates.
+And thus, selection models can be used to adjust for unobserved confounding.
+
+To motivate a regression framework with unobserved confounding, write $Y_i(Z, D)$ as a sum of observed factors $Z_i, \vec X_i$ and unobserved factors, (following the notation of \citealt{heckman2005structural}).
+First, define the following unobserved error terms
+\[ U_{0,i} = Y_i(Z_i, 0) - \Egiven{Y_i(Z_i, 0)}{\vec X},\;\;\;\;
+U_{1,i} = Y_i(Z_i, 1) - \Egiven{Y_i(Z_i, 1)}{\vec X} \]
+
+Then observed data take the following representation, which characterises direct effects, indirect effects, and the selection problem (see \autoref{appendix:regression-model} for all definitions).
+\begin{align*}
+    D_i &= \phi_i + \pi_i Z_i + \eta_i  \\
+    Y_i &= \alpha_i + \beta_i D_i + \gamma_i Z_i + \delta_i Z_i D_i
+    + \underbrace{U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)}_{
+        \text{Correlated error term.}}
+\end{align*}
+And the average direct and indirect effects are given by the following
+\begin{align*}
+    \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
+        &= \E{\left( \beta_i +  Z_i \delta_i \right) \times \pi_i}, \\
+    \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
+        &= \E{\gamma_i + \delta_i D_i}.
+\end{align*}
+
+By assumption $Z_i \indep Y_i(.,.), D_i(.)$, so that the regression only gives unbiased estimates if $D_i$ is also conditionally random: $D_i \indep U_{0, i} - U_{1, i} \; | \; \vec X_i$.
+If not, then the regression estimates (without adjusting for the contaminated bias term) suffer from omitted variables bias.
+
+\subsection{Selection into Education}
+In the education context, point identifying direct and indirect effects requires the \textit{researcher controls for all sources of selection-into-education}.
+
+While this assumption may hold true in two-way randomised experiments (e.g., in a laboratory or two-way RCT), it is unlikely to hold in the case of quasi-experimental variation in $Z$, or when modelling education as a mediator --- absent a separate identification strategy for education $D$.
+To expand this point in an econometric selection-into-treatment framework, suppose selection follows a Roy model, where individual $i$ weighs the costs and benefits of completing education.
+\[ D_i(Z_i) = \indicator{
+    \underbrace{C_i(Z_i)}_{\text{Costs}}
+    \leq
+    \underbrace{Y_i(Z_i, 1) - Y_i(Z_i, 0)}_{\text{Gains}}} \]
+Education choice $D_i(z)$ is clearly related to $Y_i(z, d)$ in this model, so let's see what the equation looks like in terms of sequential ignorability.
+As above, decompose costs into observed and unobserved factors.
+\[ C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i} \]
+
+And so we can write the first-stage selection equation in full.
+\begin{align*}
+    D_i(z) &= \indicator{
+        \underbrace{U_{C, i} + U_{0, i} - U_{1, i}}_{\text{Unobserved}}
+        \leq
+        \underbrace{
+            \mu_1(z; \vec X_i) - \mu_0(z; \vec X_i)- \mu_C(z; \vec X_i)}_{\text{Observed}}}
+\end{align*}
+Sequential ignorability, where $Y_i(z, d) \indep D_i(z') \; | \; \vec X_i$, would then require that $\Egiven{U_{0, i} - U_{1, i}}{D_i} = 0$.
+In the Roy model above, this would assume every single contribution for returns to education is contained in $\vec X_i$; if there are any unobserved sources by which people have systematically different returns to education, then they would select into education based on this, and bias na\"ive mediation estimates.
+This is unlikely to hold true, unless there is another identification strategy for $D_i$ --- in addition to the one used for $Z_i$.
+
+\subsection{Estimating Direct and Indirect Effects}
+
+Quasi-experimental work does not take the assumption of ``selection-on-observables'' at face value without an explicit research design \citep{angrist2009mostly} or modelling approach to address this issue.
+
+A classical approach to modelling this issue, is a selection model approach \citep{heckman1974shadow,heckman1979sample}.
+The approach assume $U_0, U_1$ follow a known distribution (e.g, bivariate normal), and estimates the regression via maximum likelihood.
+Alternatively, a control function approach estimates the system in two stages, avoiding (some) distributional assumptions if an instrument is used, at the cost of efficiency.
+In the following, I estimate direct and indirect effects first by OLS (assuming sequential ignorability), and then via both variants of the sample selection models, to compare estimates.
+Future work will consider estimates by using an alternative instrument for education, in the framework of \cite{frolich2017direct} to avoid the modelling assumptions inherent to sample selection models.

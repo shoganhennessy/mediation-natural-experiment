@@ -1,0 +1,153 @@
+% Page settings
+\documentclass[notitlepage,12pt]{article}
+\usepackage{fancyvrb, verbatim, listings}                                  % Various for inserting/hosting code
+\usepackage{setspace}                                                      % Space between lines (customisable)
+\usepackage[margin=2.54cm]{geometry}                                       % Set margins (standard is 2.54cm)
+\usepackage[UKenglish,cleanlook]{isodate}                                  % Set default date and date display
+\usepackage{fancyhdr} \pagestyle{fancy}                                    % Line the top of the page
+\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
+\microtypecontext{spacing=nonfrench}                                       % Change font and minor spacings to look nicer
+\setlength{\parskip}{0.5\baselineskip}                                     % Set default paragraph behaviour: skip a line
+%\setlength{\parindent}{0pt}                                                % Set default paragraph behaviour: no indent
+%% Packages to use:
+% Tables + figures
+\usepackage{graphicx}                                                      % control over the import of graphics
+\usepackage[table,dvipsnames]{xcolor}                                      % Define tables (with colour control)
+\usepackage{float}                                                         % Control over graphics + tables float
+\usepackage[justify]{ragged2e}                                             % control over text alignment
+\usepackage{booktabs}                                                      % caption graphics + tables (with name in bold)
+\usepackage[labelfont=bf]{caption} 
+\usepackage{subcaption}
+\usepackage[shortlabels]{enumitem}                                         % Customisable lists
+% caption graphics + tables (with name in bold)
+\usepackage{tikz}
+\usetikzlibrary{shapes,decorations,decorations.pathreplacing,arrows,calc,arrows.meta,fit,positioning}
+\tikzset{
+    auto,node distance =1 cm and 1 cm,semithick,
+    state/.style ={ellipse, draw, minimum width = 0.7 cm},
+    point/.style = {circle, draw, inner sep=0.04cm,fill,node contents={}},
+    bidirected/.style={Latex-Latex,dashed},
+    el/.style = {inner sep=2pt, align=left, sloped}
+}
+%\usepackage{pgfplots} \pgfplotsset{compat=1.16}                            % Automatic graphing, read https://www.overleaf.com/learn/latex/pgfplots_package for examples
+% Maths + numbers
+\usepackage{mathtools}                                                     % Various maths functions
+\usepackage{amssymb}                                                       % Various maths functions
+\usepackage{amsmath}                                                       % Various maths functions
+\usepackage{dsfont}                                                        % Various maths functions
+\usepackage{centernot}                                                     % center \not usage
+\usepackage{siunitx} \sisetup{round-mode=places, round-precision=3}        % Formalise use of units and numbers among text
+\usepackage{amsthm}                                                        % NEvrionemtn for theorems.
+\newtheorem{theorem}{Theorem}                                              % Define theorem environment.
+\newtheorem{assumption}{Assumption}                                        % Define assumptions environment ahead of theorems.
+\newtheorem{definition}{Definition}                                        % Define definitions environment ahead of theorems.
+\DeclareMathOperator{\eps}{\varepsilon}                                    % epsilon short hand shortcut
+\DeclareMathOperator{\st}{\text{ s.t. }}                                   % "such that" short hand shortcut
+\DeclareMathOperator{\then}{\text{ then }}                                 % "then" in equation shortcut
+\DeclareMathOperator{\ifeq}{\text{ if }}                                   % "if" in equation shortcut
+\DeclareMathOperator{\oreq}{\text{ or }}                                   % "or" in equation shortcut
+\DeclareMathOperator{\andeq}{\text{ and }}                                 % "and" in equation shortcut
+\DeclareMathOperator{\all}{,\; \text{ for }}                                    % all (with spacing) in equation shortcut
+\DeclareMathOperator{\N}{\mathbb{N}}                                       % N, natural number, shortcut
+\DeclareMathOperator{\R}{\mathbb{R}}                                       % R, real number, shortcut
+\DeclareMathOperator{\Ll}{\mathcal{L}}                                     % L, Lagrangian, shortcut
+\renewcommand{\vec}[1]{\boldsymbol{\mathit{#1}}}                           % vector notation shortcut
+\newcommand{\mat}[1]{\boldsymbol{\mathit{#1}}}                             % matrix notation shortcut
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}                                % absolute value notation shortcut
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}                               % norm notation shortcut
+\newcommand{\Prob}[1]{\Pr\left( #1 \right)}                         % SHortcut for probability notation
+\newcommand{\Probgiven}[2]{\Pr\left( #1 \, \middle\vert \, #2 \right)} % SHortcut for probability notation, given
+\newcommand{\E}[2][]{\mathbb{E}_{#1} \left[ #2 \right]}                    % Expectation (with optional subscript) shortcut
+\newcommand{\Egiven}[3][]{\mathbb{E}_{#1} \left[ #2 \, \middle\vert \, #3 \right]} % Expectation given (with optional subscript) shortcut
+\newcommand{\Var}[2][]{\text{Var}_{#1} \left( #2 \right)}                  % Variation (with optional subscript) shortcut
+\newcommand{\Cov}[1]{\text{Cov} \left( #1 \right)}                         % Covariance (with optional subscript) shortcut
+\newcommand{\median}[1]{\text{median} \left( #1 \right)}                   % Median (with optional subscript) shortcut
+\newcommand{\indicator}[1]{\mathds{1}\left\{ #1 \right\}}                  % SHortcut for indicator function
+\newcommand{\diff}[2][]{\frac{d#1}{d#2}}                                   % SHortcut for differential fraction as a function
+\newcommand{\partialdiff}[2][]{\frac{\partial#1}{\partial#2}}              % SHortcut for partial differential fraction as a function
+\newcommand{\converge}[1]{\xrightarrow{ #1 \to\infty}}                     % SHortcut for convergence arrow
+\renewcommand{\hat}[1]{\widehat{#1}}                                       % Default estimator notation is widehat
+\renewcommand{\bar}[1]{\overline{#1}}                                      % Make over bar look nicer
+\renewcommand{\tilde}[1]{\widetilde{#1}}                                   % Make over tilde look better
+\newcommand{\indep}{\, \raisebox{0.05em}{\rotatebox[origin=c]{90}{$\models$}} \,}% Statistical independence symbol.
+\definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}                              % Define dark green colour 
+% Citations
+\usepackage{natbib} %[longnamesfirst]                                  % Citation package, see https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management#Natbib
+\usepackage[backref=page]{hyperref}                                        % Allow for links across the text, with colour options
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, filecolor=magenta, urlcolor=blue}
+\def\sectionautorefname~#1\null{Section~#1\null}                           % Fix autoref for sections
+\def\subsectionautorefname~#1\null{Subsection~#1\null}                     % Fix autoref for subsections
+\def\subsubsectionautorefname~#1\null{Subsubsection~#1\null}               % Fix autoref for subsubsections
+\def\equationautorefname~#1\null{Equation~(#1)\null}                       % Fix autoref for equations
+% IMPORTANT: follow style guide here https://github.com/Wookai/paper-tips-and-tricks
+\usepackage{epigraph}                                                      % Package for quoting from elsewhere.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Title page
+% Author
+\author{Senan Hogan-Hennessy\thanks{
+    % This work has been supported by research grants from the Centre for the Study of Inequality and Economics Department, Cornell University.
+    For helpful comments I thank
+    Neil Cholli,
+    Luk\'a\u{s} Laff\'ers,
+    Yiqi Liu,
+    Douglas Miller,
+    Zhuan Pei,
+    and
+    Brenda Prallon.
+    % I thank seminar participants at Cornell University (2023, 2024), Norway School of Economics (2024) for helpful discussion.
+    Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu}{\nolinkurl{seh325@cornell.edu}}.
+    %, or raised as an issue on the Github project.
+    } \\
+    \vspace{0.1cm}
+    Economics Department, Cornell University\footnote{
+        Address: Uris Hall \#447, Economics Department, Cornell University NY 14853 USA.
+    }
+}
+% Title
+\title{Causal Mediation in Natural Experiments}
+\date{This version: \today \\ \vspace{0.25cm}
+    \textbf{\textit{Aspirational Abstract, please do not circulate.}}
+    %\textbf{\textit{Work-in-Progress, please do not circulate.}}
+    %\href{https://github.com/shoganhennessy/mr-education}{Newest version available here.}
+    \vspace{-0.5cm}
+}
+\rhead{\today}
+\lhead{Causal Mediation in Natural Experiments.}
+% Begin
+\begin{document}
+\clearpage
+\maketitle
+\thispagestyle{empty}
+% Abstract
+\begin{abstract}
+    \input{sections/00-abstract.tex}
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Starting the paper
+\newpage
+\setcounter{page}{1}
+\doublespacing
+% Introduction section
+\noindent
+\input{sections/01-introduction.tex}
+% Conceptual Framework
+\input{sections/03-concepts.tex}
+% Econometric Framework, mediation under selection
+\input{sections/04-selection.tex}
+% Discussion Section
+\input{sections/06-discussion.tex}
+% Conclusion Section
+%\input{sections/07-conclusion.tex}
+
+% Bibliography
+\singlespacing
+\bibliographystyle{agsm}
+\bibliography{sections/08-bibliography.bib}
+%\bibliography{sections/08-bibliography-doi.bib}
+% Appendix
+\newpage
+\input{sections/09-appendix.tex}
+\end{document}
