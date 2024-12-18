@@ -1,6 +1,6 @@
-# direct-selection-education
+# mediation-natural-experiment
 
-Senan Hogan-Hennessy, most recent update 15 November 2024
+Senan Hogan-Hennessy, most recent update 18 December 2024.
 
 ## Explanation
 
