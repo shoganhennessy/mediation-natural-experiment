@@ -1,23 +1,24 @@
-\section{Introduction}
-\label{sec:intro}
-
-
+%\section{Introduction}
+%\label{sec:intro}
 Conventional CM methods rely on a selection-on-observables assumption, which may not hold true in observational work.
 I explicitly connect the assumptions behind CM methods to those of selection into treatment in classic labour and observation economic research \citep{heckman2005structural}.
 When a mediator, here education, is not randomly assigned then conventional CM methods for estimating direct and indirect effects are contaminated by selection bias.
 I write this as both a non-parametric non-identification result, and with a model-based regression framework with a correlated error term(e.g., as in the \citealt{imai2010identification} linear model approach).
 Structural assumptions could solve the identification problem, for example if selection into education follows a Roy model or errors terms have a known distribution \citep{heckman1979sample}.
-Adjusting indirect and direct estimates with sample selection models gives estimates for the direct genetic channel indistinguishable from zero, assigning roughly all the association for Ed PGI to earnings by the education channel.
 
-This work adds to a growing literature of genetics in economics \citep{barth2020genetic}, and expands on mediation methods \citep{imai2010identification} which are rarely used in empirical economic research \citep{huber2020mediation}.
-The most similar papers have studied the association between Ed PGI and earnings \citep{papageorge2020genes}, and socioeconomic status \citep{carvalho2024genetics}.
-Another has considered a similar topic from the view of genes as instruments, when the exclusion restriction is violated \citep{spiller2019detecting,van2018pleiotropy}.
-To the best of my knowledge, this is the first paper to connect mediation methods (and its selection-on-observables assumptions) to the labour economics literature for selection into treatment.
 
-%This paper proceeds as follows.
-%\autoref{sec:data} describes the HRS, including labour market and genetic data, and the biological context behind Mendelian randomisation.
-%\autoref{sec:concepts} presents the conceptual framework for estimating treatment effects when the genetic scores may affect outcomes independently (without the exclusion restriction).
-%\autoref{sec:results} presents empirical results for direct and indirect effects.
-%%\autoref{sec:discussion} discusses the approach, and its applicability to other topics;
-%\autoref{sec:discussion} concludes, with a discussion of the future steps and work in progress.
+Intro paragraph on the selection bias term.
+These are similar, in spirit, to selection bias of \cite{heckman1998characterizing}.
+Also give a result closely related to bad control bias (also known as M-bias, Ding 2015, Cinelli 2022).
+Also similar to the non-identification result of Bugni Canay McBride (2024).
+
+
+
+
+
+This paper proceeds as follows.
+\autoref{sec:mediation} introduces causal mediation, and develops selection bias in mediation estimates in natural experiments.
+\autoref{sec:selection} describes the selection bias in applied settings, a regression framework and a natural experiment with selection based on costs and benefits.
+\autoref{sec:controlfun} identifies and estimates average direct and indirect effects under a selection model, with simulation evidence that this approach purges bias in mediation estimates.
+\autoref{sec:conclusion} concludes.
 % \textbf{Re-write with this, \url{https://blogs.ubc.ca/khead/research/research-advice/formula}.}

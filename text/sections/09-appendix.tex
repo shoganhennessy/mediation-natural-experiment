@@ -82,10 +82,151 @@ Create a table in this section that surveys previous research which employs medi
     Paper name 1.    
 \end{tabular}
 
-\subsection{Selection Bias in Mediation Estimates}
-\label{appendix:selection-bias}
-Write the proof in here.
-It is long....
+\subsection{Bias in Mediation Estimates}
+\label{appendix:mediation-bias}
+Suppose that $Z_i$ is ignorable conditional on $\vec X_i$, but $D_i$ is not.
+
+\subsubsection{Bias in Direct Effect Estimates}
+To show that the conventional approach to mediation gives an estimate for the ADE with selection and non-complier bias, start with the components of the conventional estimands.
+This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$.
+For each $d' =0, 1$.
+\begin{align*}
+    \Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i}
+    =& \Egiven{Y_i(1, D_i(Z_i))}{D_i(1) = d', \vec X_i}, \\
+    \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i}
+    =& \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d', \vec X_i}
+\end{align*}
+And so
+\begin{align*}
+    &  \Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i}
+    - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i} \\
+    =& \Egiven{Y_i(1, D_i(Z_i))}{D_i(1) = d', \vec X_i}
+    - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d', \vec X_i} \\
+    =& \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\
+    &+ \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i}
+        - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d', \vec X_i} 
+\end{align*}
+The final term is a sum of the ADE, conditional on $D_i(1) = d'$, and a selection bias term --- difference in baseline terms between the (partially overlapping) groups for whom $D_i(1) = d'$ and $D_i(0) = d'$.
+
+To reach the final term, note the following.
+\begin{align*}
+    &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{\vec X_i} \\    
+    =& \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\
+    &+ \Big(1 - \Probgiven{D_i(1) = d'}{\vec X_i}\Big)
+    \left( \begin{aligned}
+        &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\ 
+        & - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1 - d', \vec X_i}
+    \end{aligned} \right) 
+\end{align*}
+The second term is a difference term between the average and the average for relevant complier groups.
+
+Collect everything together, as follows.
+\begin{align*}
+    &  \Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i}
+    - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i} \\
+    =& \underbrace{
+        \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{\vec X_i}}_{
+            \text{ADE, conditional on }\vec X_i} \\
+    &+ \underbrace{
+        \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i}
+            - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d', \vec X_i}}_{
+                \text{Selection bias}} \\
+    &+ \underbrace{\Big(1 - \Probgiven{D_i(1) = d'}{\vec X_i}\Big)
+    \left( \begin{aligned}
+        &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\ 
+        & - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1 - d', \vec X_i}
+    \end{aligned} \right)}_{
+        \text{Non-complier bias}}
+\end{align*}
+The proof is achieved by applying the expectation across $D_i = 0, 1$, and $\vec X_i$.
+
+\subsubsection{Bias in Indirect Effect Estimates}
+To show that the conventional approach to mediation gives an estimate for the AIE with selection and non-complier bias, start with the definition of the ADE --- the direct effect among compliers times the size of the complier group.
+
+This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$.
+\begin{align*}
+    &\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{\vec X_i} \\
+    =& \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}
+        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i}
+\end{align*}
+When $D_i$ is not ignorable, the bias comes from estimating the second term, $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i}$.
+
+For each $z' =0, 1$.
+\begin{align*}
+    \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i}
+    =& \Egiven{Y_i(z', 1)}{D_i = 1, \vec X_i}, \\
+    \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i}
+    =& \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i}
+\end{align*}
+So compose the CM estimand, as follows.
+\begin{align*}
+    & \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i}
+    - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i} \\
+    =& \Egiven{Y_i(z', 1)}{D_i = 1, \vec X_i}
+        - \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i} \\
+    =& \Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 1, \vec X_i}
+    + \Egiven{Y_i(z', 0)}{D_i = 1, \vec X_i} - \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i}
+\end{align*}
+The final term is a sum of the AIE, among the treated group $D_i = 1$, and a selection bias term --- difference in baseline terms between the groups $D_i = 1$ and $D_i = 0$.
+
+The AIE is the direct effect among compliers times the size of the complier group, so we need to compensate for the difference between the treated group $D_i = 1$ and complier group $D_i(1)= 1, D_i(0) = 0$.
+
+Start with the difference between treated group's average and overall average.
+\begin{align*}
+    & \Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 1, \vec X_i} \\
+    =& \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i} \\
+    &+ \Big(1 - \Probgiven{D_i = 1}{\vec X_i} \Big)
+    \left( \begin{aligned}
+        &\Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 1, \vec X_i} \\ 
+        &  - \Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 0, \vec X_i}
+    \end{aligned} \right)
+\end{align*}
+Then the difference between the compliers' average and the overall average.
+\begin{align*}
+    & \Egiven{ Y_i(z', 1) - Y_i(z', 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i} \\
+    =& \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i} \\
+    & + \frac{1 - \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i} }{
+        \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}}
+    \left( \begin{aligned}
+        &\Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i(1) = 0 \text{ or } D_i(0)=1, \vec X_i} \\ 
+        &  - \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i}
+    \end{aligned} \right)
+\end{align*}
+
+Collect everything together, as follows.
+\begin{align*}
+    &  \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i}
+    - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i} \\
+    =& \underbrace{
+        \Egiven{Y_i(z', D_i(1)) - Y_i(z', D_i(0))}{\vec X_i}}_{
+            \text{AIE, conditional on }\vec X_i, Z_i = z'} \\
+    &+ \underbrace{
+        \Egiven{Y_i(z', 0)}{D_i = 1, \vec X_i}
+            - \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i}}_{
+                \text{Selection bias}} \\
+    &+ \underbrace{\left[ \begin{aligned}
+        &\Big(1 - \Probgiven{D_i = 1}{\vec X_i} \Big)
+        \left( \begin{aligned}
+            &\Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 1, \vec X_i} \\ 
+            &  - \Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 0, \vec X_i}
+        \end{aligned} \right) \\
+        &+ \frac{1 - \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i} }{
+            \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}} 
+        \left( \begin{aligned}
+            &\Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i(1) = 0 \text{ or } D_i(0)=1, \vec X_i} \\ 
+            &  - \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i}
+        \end{aligned} \right)
+    \end{aligned} \right] }_{
+        \text{Non-complier bias}}
+\end{align*}
+The proof is finally achieved by multiplying by the complier score, 
+$\Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}$
+$= \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$,
+then applying the expectation across $Z_i = 0, 1$, and $\vec X_i$.
+
+
+
+
 
 \subsection{Proof of the Selection Model Representation}
 \label{appendix:selection-model}
@@ -103,7 +244,7 @@ Put $\mu_{D}(Z; \vec X) = \Egiven{Y_i(Z, D)}{\vec X}$, so we have the following 
 $U_{0,i}, U_{1,i}$ are error terms with unknown distributions, mean independent of $Z_i, \vec X_i$ by definition --- but possibly correlated with $D_i$.
 
 $Z_i$ is assumed randomly assigned, independent of potential outcomes, so that $U_{0,i}, U_{1,i} \indep Z_i$.
-Thus, the first-stage $Z \to Y$ leads to unbiased estimates.
+Thus, the first-stage regression of $Z \to Y$ has to unbiased estimates.
 \begin{align*}
     D_i &= Z_i D_i(1) + (1 - Z_i) D_i(0) \\
         &= D_i(0) +
@@ -113,7 +254,7 @@ Thus, the first-stage $Z \to Y$ leads to unbiased estimates.
                 \text{Regressor}} \\
             & \;\;\;\; + \underbrace{D_i(0) - \E{D_i(0)}
                 + Z_i \big( D_i(1) - D_i(0) - \E{ D_i(1) - D_i(0)}\big)}_{
-                \text{Mean-zero, independent error term}} \\
+                \text{Mean-zero independent error term, since }Z_i \indep D_i} \\
         &\eqqcolon \phi_i + \pi_i Z_i + \eta_i \\
     \implies \Egiven{D_i}{Z_i}&=
         \E{\phi_i} + \E{\phi_i} Z_i + \E{\eta_i}
@@ -137,8 +278,7 @@ The same cannot be said of the regression that estimates direct and indirect eff
 \end{align*}
 And so $Y_i$ can be written as a regression equation in terms of the observed factors and error terms.
 \begin{align*}
-    \Egiven{Y_i}{Z_i, D_i, \vec X_i}
-        &= \mu_0(0; \vec X_i) \\
+    Y_i &= \mu_0(0; \vec X_i) \\
         & \;\;\;\; + Z_i \left[\mu_0(1; \vec X_i) - \mu_0(0; \vec X_i) \right] \\
         & \;\;\;\; + D_i \left[\mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right] \\
         & \;\;\;\; + Z_i D_i \left[\mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)
@@ -146,11 +286,10 @@ And so $Y_i$ can be written as a regression equation in terms of the observed fa
         & \;\;\;\; + U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right) \\
         &\eqqcolon
             \alpha_i + \beta_i D_i + \gamma_i Z_i + \delta_i Z_i D_i
-            + \underbrace{U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)}_{
-                = \varepsilon_i}
+            + U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)
 \end{align*}
 $\alpha_i, \beta_i, \delta_i$ are the relevant direct effect under $D_i = 1$, indirect effect under $Z_i = 1$, $\delta_i$ the interaction effect, and $\varepsilon_i$ the remaining error term.
-Collecting for the expressions of the direct and indirect effects:\footnote{
+Taking the conditional expectation, and collecting for the expressions of the direct and indirect effects:\footnote{
     These equations have simpler expressions after assuming constant treatment effects in a linear framework;
     I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
 }
@@ -160,7 +299,14 @@ Collecting for the expressions of the direct and indirect effects:\footnote{
     \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
         &= \E{\gamma_i + \delta_i D_i}
 \end{align*}
-If sequential ignorability does not hold, then the regression estimates from estimating the mediation equations (without adjusting for the contaminated bias term) suffer from omitted variables bias:
+These terms are conventionally estimated in a regression \citep{imai2010identification}.
+
+\textbf{Senan note:} write here the $\Egiven{Y_i}{Z_i, D_i, \vec X_i}$ expression.
+
+If sequential ignorability does not hold, then the regression estimates from estimating the mediation equations (without adjusting for the contaminated bias term) suffer from omitted variables bias.
+
+Rearrange the following to be
+$\Egiven{Y_i}{Z_i =1, D_i} - \Egiven{Y_i}{Z_i =0, D_i}$ and such. 
 \begin{align*}
     \E{\hat \alpha} &= \E{\alpha_i} + \E{D_i \left( U_{1,i} - U_{0,i} \right)} \\
     \E{\hat \beta} &= \E{\beta_i} + \frac{
@@ -171,3 +317,6 @@ If sequential ignorability does not hold, then the regression estimates from est
         \Cov{Z_i D_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{Z_i D_i}}
 \end{align*}
 And so the direct and indirect effect estimates are contaminated by these bias terms.
+
+\textbf{Senan note:} write here OLS estimates of CM estimands, with the OVB terms.
+
