@@ -235,7 +235,7 @@ Note that the notation needs updating for no exclusion restriction.
 
 \subsection{A Regression Framework for Direct and Indirect Effects}
 \label{appendix:regression-model}
-Put $\mu_{D}(Z; \vec X) = \Egiven{Y_i(Z, D)}{\vec X}$, so we have the following expressions.
+Put $\mu_{D}(Z; \vec X) = \Egiven{Y_i(Z, D)}{\vec X}$ and $U_{D, i} = Y_i(Z,D) - \mu_D(Z; \vec X)$, so we have the following expressions.
 \[ Y_i(Z_i, 0)
         = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
     Y_i(Z_i, 1)
@@ -243,23 +243,26 @@ Put $\mu_{D}(Z; \vec X) = \Egiven{Y_i(Z, D)}{\vec X}$, so we have the following 
 
 $U_{0,i}, U_{1,i}$ are error terms with unknown distributions, mean independent of $Z_i, \vec X_i$ by definition --- but possibly correlated with $D_i$.
 
-$Z_i$ is assumed randomly assigned, independent of potential outcomes, so that $U_{0,i}, U_{1,i} \indep Z_i$.
-Thus, the first-stage regression of $Z \to Y$ has to unbiased estimates.
+$Z_i$ is independent of potential outcomes, so that $U_{0,i}, U_{1,i} \indep Z_i$.
+Thus, the first-stage regression of $Z \to Y$ has unbiased estimates.
 \begin{align*}
     D_i &= Z_i D_i(1) + (1 - Z_i) D_i(0) \\
         &= D_i(0) +
             Z_i \left[ D_i(1) - D_i(0) \right] \\
-        &= \underbrace{\E{D_i(0)}}_{\text{Intercept}} +
+        &= \underbrace{\Egiven{D_i(0)}{\vec X_i}        
+        }_{\text{Intercept}} +
             \underbrace{Z_i \E{ D_i(1) - D_i(0)}}_{
                 \text{Regressor}} \\
-            & \;\;\;\; + \underbrace{D_i(0) - \E{D_i(0)}
-                + Z_i \big( D_i(1) - D_i(0) - \E{ D_i(1) - D_i(0)}\big)}_{
-                \text{Mean-zero independent error term, since }Z_i \indep D_i} \\
-        &\eqqcolon \phi_i + \pi_i Z_i + \eta_i \\
-    \implies \Egiven{D_i}{Z_i}&=
-        \E{\phi_i} + \E{\phi_i} Z_i + \E{\eta_i}
-        \text{, and thus unbiased estimates since } Z_i \indep \phi_i, \eta_i.
+            & \;\;\;\; + \underbrace{
+                D_i(0) - \Egiven{D_i(0)}{\vec X_i}
+                + Z_i \big( D_i(1) - D_i(0) - \Egiven{ D_i(1) - D_i(0)}{\vec X_i}\big)}_{
+                \text{Mean-zero independent error term, since }Z_i \indep D_i \; | \; \vec X_i} \\
+        &\eqqcolon \phi + \pi Z_i + \varphi(\vec X_i) + \eta_i \\
+    \implies \Egiven{D_i}{Z_i, \vec X_i}&=
+        \phi + \pi Z_i + \varphi(\vec X_i)
+        \text{, and thus unbiased estimates since } Z_i \indep \phi, \eta_i.
 \end{align*}
+
 $Z_i$ is also assumed independent of potential outcomes $Y_i(,.,)$, so that $U_{0,i}, U_{1,i} \indep Z_i$.
 Thus, the reduced form regression $Z \to Y$ also leads to unbiased estimates.
 
@@ -279,44 +282,69 @@ The same cannot be said of the regression that estimates direct and indirect eff
 And so $Y_i$ can be written as a regression equation in terms of the observed factors and error terms.
 \begin{align*}
     Y_i &= \mu_0(0; \vec X_i) \\
-        & \;\;\;\; + Z_i \left[\mu_0(1; \vec X_i) - \mu_0(0; \vec X_i) \right] \\
         & \;\;\;\; + D_i \left[\mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right] \\
+        & \;\;\;\; + Z_i \left[\mu_0(1; \vec X_i) - \mu_0(0; \vec X_i) \right] \\
         & \;\;\;\; + Z_i D_i \left[\mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)
             - \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)\right] \\
         & \;\;\;\; + U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right) \\
         &\eqqcolon
-            \alpha_i + \beta_i D_i + \gamma_i Z_i + \delta_i Z_i D_i
+            \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
+            + \zeta(\vec X_i)
             + U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)
 \end{align*}
-$\alpha_i, \beta_i, \delta_i$ are the relevant direct effect under $D_i = 1$, indirect effect under $Z_i = 1$, $\delta_i$ the interaction effect, and $\varepsilon_i$ the remaining error term.
+With the following definitions:
+\begin{itemize}
+    \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\zeta(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
+    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the indirect effect under $Z_i = 0$
+    \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the direct effect under $D_i = 0$.
+    \item $\gamma = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)- \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)$ is the interaction effect.
+    \item $U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)$ is the remaining error term.
+\end{itemize}
+This sequence gives us the resulting regression equation:
+\[ \Egiven{Y_i}{Z_i, D_i, \vec X_i} =
+    \alpha
+    + \beta D_i
+    + \gamma Z_i
+    + \delta Z_i D_i
+    + \zeta(\vec X_i)
+    + \Egiven{D_i \left( U_{1,i} - U_{0,i} \right)}{\vec X_i} \]
 Taking the conditional expectation, and collecting for the expressions of the direct and indirect effects:\footnote{
     These equations have simpler expressions after assuming constant treatment effects in a linear framework;
     I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
 }
 \begin{align*}
     \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{\pi_i \left( \beta_i +  Z_i \delta_i \right)} \\
+        &= \E{\pi \left( \beta +  Z_i \delta \right)} \\
     \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
-        &= \E{\gamma_i + \delta_i D_i}
+        &= \E{\gamma + \delta D_i}
 \end{align*}
-These terms are conventionally estimated in a regression \citep{imai2010identification}.
-
-\textbf{Senan note:} write here the $\Egiven{Y_i}{Z_i, D_i, \vec X_i}$ expression.
+These terms are conventionally estimated in a simultaneous regression \citep{imai2010identification}.
 
 If sequential ignorability does not hold, then the regression estimates from estimating the mediation equations (without adjusting for the contaminated bias term) suffer from omitted variables bias.
 
-Rearrange the following to be
-$\Egiven{Y_i}{Z_i =1, D_i} - \Egiven{Y_i}{Z_i =0, D_i}$ and such. 
 \begin{align*}
-    \E{\hat \alpha} &= \E{\alpha_i} + \E{D_i \left( U_{1,i} - U_{0,i} \right)} \\
-    \E{\hat \beta} &= \E{\beta_i} + \frac{
+    \E[\vec X_i]{\Egiven{Y_i}{Z_i = D_i = 0, \vec X_i}}
+        &= \alpha + \E{D_i \left( U_{1,i} - U_{0,i} \right)} \\
+    \E[\vec X_i]{\Egiven{Y_i}{Z_i = 0, D_i = 1, \vec X_i}
+        - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i}}
+        &= \beta + \frac{
         \Cov{D_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{D_i}} \\
-    \E{\hat \gamma} &= \E{\gamma_i} + \frac{
+    \E[\vec X_i]{\Egiven{Y_i}{Z_i = 1, D_i = 0, \vec X_i}
+        - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i}}
+        &= \gamma + \frac{
         \Cov{Z_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{Z_i}} \\
-    \E{\hat \delta} &= \E{\delta_i} + \frac{
+    \E[\vec X_i]{\begin{aligned}
+        &\Egiven{Y_i}{Z_i = 1, D_i = 1, \vec X_i}
+            - \Egiven{Y_i}{Z_i = 1, D_i = 0, \vec X_i} \\
+            &- \left( \Egiven{Y_i}{Z_i = 0, D_i = 1, \vec X_i}
+                - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i} \right)
+        \end{aligned}}
+    &= \delta + \frac{
         \Cov{Z_i D_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{Z_i D_i}}
 \end{align*}
 And so the direct and indirect effect estimates are contaminated by these bias terms.
 
 \textbf{Senan note:} write here OLS estimates of CM estimands, with the OVB terms.
 
+Rearrange the above to be
+$\Egiven{Y_i}{Z_i =1, D_i} - \Egiven{Y_i}{Z_i =0, D_i}$ and such. 
