@@ -1,4 +1,4 @@
-\section{Control Function Estimates}
+\section{Solving Identification with a Control Function}
 \label{sec:controlfun}
 
 If you could control for $U_i$, then you would.
@@ -6,22 +6,27 @@ Laffers et al, for example, tests sequential ignoability.
 
 
 
-\section{Discussion and Future Work}
-\label{sec:discussion}
 
-This project aims to achieve two main goals:
-first, to test the claims that genetics (specifically Ed PGI) is associated with labour market outcomes independently, and secondly to connect the mediation literature to classical labour economic methods for adjusting for selection bias.
-Adjusting conventional mediation methods via a structural selection model for education reduces estimates for the direct channel in the genetic association from $~50\%$ to $~0\%$.
-These results bring into question previous claims, in the context of Ed PGI, that genetics affect outcomes independently of education.
+The IV literature assumes a first-stage monotonicity condition, where randomised $Z_i$ influences mediator $D_i$ in at most one direction.
+\begin{definition}
+    \label{dfn:firststage-monotonicity}
+    First-stage Monotonicity \citep{imbens1994identification}.
+    \begin{equation}
+        \label{eqn:firststage-monotonicity}
+        \Prob{ D_i(1) \geq D_i(0)} = 1    
+    \end{equation}
+\end{definition}
 
-This work so far has focused on genetic association, and not causal effects, because the HRS data have no clear research design for random variation in Ed PGI.
-This means that the above estimates are only correlational because the EA Score is heritable, and not randomized.
-However, there is opportunity to analyse random genetic variation, thanks to Mendelian independent assortment.
-If a father has an Ed PGI of $X$ and a mother $Y$, then genetic mixing at conception means their child is expected to have an EA Score of $\frac{X+Y}{2}$.
-Thanks to genetic mixing, their child may have EA Score above or below the expected value, as they randomly inherited more/fewer genes in the EA Score from the parent with a higher score (a.k.a. random Mendelian segregation, \citealt{young2018relatedness}).
-The HRS has no data on parental genetic information, so the estimates above did not control for parents' scores and are thus not causal \citep{young2022mendelian}.
-In-progress work is expanding on the above, using UK Biobank data on genetic data after controlling for parents genes, expanding these results from genetic associations to genetic effects.
+Assuming \ref{dfn:firststage-monotonicity}\eqref{eqn:firststage-monotonicity}
+in a mediation setting opens mediation to the wide literature on IV and selection models for identification in the presence of selection. 
+\begin{theorem}
+    \label{thm:selection-model}
+    Under monotonicity, mediator $D_i$ can be represented by a selection model. \\
+    Suppose \ref{dfn:firststage-monotonicity}\eqref{eqn:firststage-monotonicity} holds, then there is a function $\mu(.)$ and random variable $U_i$ such that $D_i$ takes the following form.
+    \[ D_i(z) = \indicator{ \mu(z) \geq U_i}, \;\; \forall z = 0,1 \]
+\end{theorem}
+\begin{proof}
+    Special case of the \cite{vytlacil2002independence} equivalence result; see \autoref{appendix:selection-model}.
+\end{proof}
 
-Secondly, this project has so far connected causal mediation to classical approaches to selection into treatment, using a Roy model as a key structural example for which selection models can overcome selection bias in mediation analyses.
-However, an explicit research design for years of education (in addition to Ed PGI) is necessary for realistic estimates --- in the sense of a causally identified analysis \citep{angrist2009mostly}.
-An overlapping instrument for years of education is necessary to compare to the results of classical sample selection models.
+\autoref{thm:selection-model} is a powerful result: it says that at the cost of assuming monotonicity (as is done in the IV literature), then selection into $D_i$ takes a latent index form, and opens up identification in a mediation context to the wide literature on identifying treatment effects in selection models.

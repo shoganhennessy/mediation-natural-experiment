@@ -138,7 +138,7 @@ Collect everything together, as follows.
     \end{aligned} \right)}_{
         \text{Non-complier bias}}
 \end{align*}
-The proof is achieved by applying the expectation across $D_i = 0, 1$, and $\vec X_i$.
+The proof is achieved by applying the expectation across $D_i = d'$, and $\vec X_i$.
 
 \subsubsection{Bias in Indirect Effect Estimates}
 To show that the conventional approach to mediation gives an estimate for the AIE with selection and non-complier bias, start with the definition of the ADE --- the direct effect among compliers times the size of the complier group.
@@ -149,7 +149,7 @@ This proof starts with the relevant expectations, conditional on a specific valu
     =& \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}
         \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i}
 \end{align*}
-When $D_i$ is not ignorable, the bias comes from estimating the second term, $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i}$.
+When $D_i$ is not ignorable, the bias comes from estimating the second term,\\ $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i}$.
 
 For each $z' =0, 1$.
 \begin{align*}
@@ -222,7 +222,7 @@ Collect everything together, as follows.
 The proof is finally achieved by multiplying by the complier score, 
 $\Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}$
 $= \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$,
-then applying the expectation across $Z_i = 0, 1$, and $\vec X_i$.
+then applying the expectation across $Z_i = z'$, and $\vec X_i$.
 
 
 
@@ -324,14 +324,14 @@ If sequential ignorability does not hold, then the regression estimates from est
 
 \begin{align*}
     \E[\vec X_i]{\Egiven{Y_i}{Z_i = D_i = 0, \vec X_i}}
-        &= \alpha + \E{D_i \left( U_{1,i} - U_{0,i} \right)} \\
+        &= \E\alpha + \E{D_i \left( U_{1,i} - U_{0,i} \right)} \\
     \E[\vec X_i]{\Egiven{Y_i}{Z_i = 0, D_i = 1, \vec X_i}
         - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i}}
-        &= \beta + \frac{
+        &= \E\beta + \frac{
         \Cov{D_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{D_i}} \\
     \E[\vec X_i]{\Egiven{Y_i}{Z_i = 1, D_i = 0, \vec X_i}
         - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i}}
-        &= \gamma + \frac{
+        &= \E\gamma + \frac{
         \Cov{Z_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{Z_i}} \\
     \E[\vec X_i]{\begin{aligned}
         &\Egiven{Y_i}{Z_i = 1, D_i = 1, \vec X_i}
@@ -339,12 +339,9 @@ If sequential ignorability does not hold, then the regression estimates from est
             &- \left( \Egiven{Y_i}{Z_i = 0, D_i = 1, \vec X_i}
                 - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i} \right)
         \end{aligned}}
-    &= \delta + \frac{
+    &= \E\delta + \frac{
         \Cov{Z_i D_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{Z_i D_i}}
 \end{align*}
 And so the direct and indirect effect estimates are contaminated by these bias terms.
 
-\textbf{Senan note:} write here OLS estimates of CM estimands, with the OVB terms.
-
-Rearrange the above to be
-$\Egiven{Y_i}{Z_i =1, D_i} - \Egiven{Y_i}{Z_i =0, D_i}$ and such. 
+% Senan note: should write CM estimand = \E{\gamma + \delta D_i} + bias, where bias is some Cov term.

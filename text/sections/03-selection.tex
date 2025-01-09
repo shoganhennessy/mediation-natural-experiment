@@ -28,9 +28,11 @@ With this notation, observed data $Z_i, D_i, Y_i$ take the following representat
     + \underbrace{U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)}_{
         \text{Correlated error term.}}
 \end{align}
-First-stage \eqref{eqn:parametric-firststage} is identified.
+First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi, \varphi(\vec X_i)$ the intercept, and $\pi$ the average rate of compliance (which may depend on $\vec X_i$).
+Second-stage \eqref{eqn:parametric-secondstage} is not identified without further assumptions.
 $\alpha, \zeta(\vec X_i)$ are the intercept terms, and $\beta, \gamma, \delta$ are values that comprise mediation effects --- all whose values may depend on $\vec X_i$, see \autoref{appendix:regression-model} for full definitions.
-The average direct and indirect effects are averages of these terms, across the distribution of $\vec X_i$.
+$U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)$ is the possibly correlated error term, which disrupts identification.
+The average direct and indirect effects are averages of these coefficients.
 \begin{align*}
     \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
         &= \E{\pi \left( \beta +  Z_i \delta \right)}, \\
@@ -43,32 +45,38 @@ If not, then regression estimates suffer from omitted variables bias if they do 
 
 \subsection{Selection on Costs and Benefits}
 The key to noting that CM is at risk of bias is noting that $D_i \indep  U_i$ is unlikely to hold in applied settings.
-Without an identification strategy for $D_i$, in addition to that for $Z_i$, bias will persist, given how we conventionally think of selection into treatment.
+Without an identification strategy for $D_i$, in addition one for $Z_i$, bias will persist, given how we conventionally think of selection into treatment.
 
-Consider a model where individual $i$ selects into a mediator after $Z_i, \vec X_i$, based on costs and benefits.
-The model has $i$ taking the mediator if the benefits of doing so exceed the costs.
+Consider a model where individual $i$ selects into a mediator based on costs and benefits, after $Z_i, \vec X_i$ have been assigned.
 Write $C_i$ for individual $i$'s costs of taking mediator $D_i$, and $\indicator{.}$ for the indicator function.
+The Roy model has $i$ taking the mediator if the benefits exceed the costs.
 \[ D_i \left( z' \right) = \indicator{
     \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
-    \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1\]
+    \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1 \]
 Paragraph here talking about why the Roy model is useful.
 \citep{roy1951some,heckman1990empirical}.
 
-Write in here with the updated notation of the above, and lead to the $D_i \not\indep U_i$ statement, unless $\vec X_i$ is incredibly rich.
-
-
-\[ C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i} \]
-
-And so we can write the first-stage selection equation in full.
+Decompose the costs into its mean and unobserved error, as above $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, and collect the mean costs and benefits, $\mu \coloneqq \mu_1 - \mu_0 - \mu_C$.
+So we can write the first-stage selection equation in full.
 \begin{align*}
-    D_i(z) &= \indicator{
-        \underbrace{U_{C, i} + U_{0, i} - U_{1, i}}_{\text{Unobserved}}
-        \leq
-        \underbrace{
-            \mu_1(z; \vec X_i) - \mu_0(z; \vec X_i)- \mu_C(z; \vec X_i)}_{\text{Observed}}}
+    D_i(z') &= \indicator{
+        \mu(z'; \vec X_i) \geq U_{C,i} - U_i }
+        , \;\;\; \text{for } z'=0,1
 \end{align*}
 
+Theorem: if selection is Roy style, and sequential ignorability holds, then unobserved benefits play no part in selection.
+The only driver in differences in selection are differences in costs (and not benefits).
+\[ \Egiven{ D_i(z') }{ U_i = u} = \Egiven{ D_i(z') }{ U_i = u'} \]
+For all $u', u$ in the range of the distribution of $U_i$.
+Proof: by contradiction, add to the appendix.
+This could, for example, hold if $U_{1,i} - U_{0,i}$ is degenerate conditional on $\vec X_i$.
 
+Short paragraph on why this means $\vec X_i$ must be incredibly rich.
+Write about if $D_i$ is the choice to attend education, then $\vec X_i$ must soak up all gains to education.
+Or assuming that all variation in $D_i$ comes from unobserved differences in take-up costs.
+This is unlikely to hold true, absent a separate research design for $D_i$, limiting the selection to an information restricted version of the Roy model.
+
+If not, then selection bias propagates, including writing here for what the selection bias term is equal to. 
 
 \subsection{Applied Settings}
 
@@ -78,78 +86,3 @@ Survey the papers, and speak about it heavily in one paragraph.
 table:
 
 name | $Z \to Y$ | design for $Z$ | Primary mediatory | controls | Possible $U$.
-
-
-
-
-
-
-\newpage
-\subsection{Older Writing}
-
-
-
-This section connects causal mediation, without assuming the mediator is randomly assigned (i.e., under selection), with classic labour economics models for selection into treatment.
-
-\subsection{Selection Model Representation}
-\label{sec:selection-model}
-The IV literature assumes a first-stage monotonicity condition, where randomised $Z_i$ influences mediator $D_i$ in at most one direction.
-\begin{definition}
-    \label{dfn:firststage-monotonicity}
-    First-stage Monotonicity \citep{imbens1994identification}.
-    \begin{equation}
-        \label{eqn:firststage-monotonicity}
-        \Prob{ D_i(1) \geq D_i(0)} = 1    
-    \end{equation}
-\end{definition}
-
-Assuming \ref{dfn:firststage-monotonicity}\eqref{eqn:firststage-monotonicity}
-in a mediation setting opens mediation to the wide literature on IV and selection models for identification in the presence of selection. 
-\begin{theorem}
-    \label{thm:selection-model}
-    Under monotonicity, mediator $D_i$ can be represented by a selection model. \\
-    Suppose \ref{dfn:firststage-monotonicity}\eqref{eqn:firststage-monotonicity} holds, then there is a function $\mu(.)$ and random variable $U_i$ such that $D_i$ takes the following form.
-    \[ D_i(z) = \indicator{ \mu(z) \geq U_i}, \;\; \forall z = 0,1 \]
-\end{theorem}
-\begin{proof}
-    Special case of the \cite{vytlacil2002independence} equivalence result; see \autoref{appendix:selection-model}.
-\end{proof}
-
-\autoref{thm:selection-model} is a powerful result: it says that at the cost of assuming monotonicity (as is done in the IV literature), then selection into $D_i$ takes a latent index form, and opens up identification in a mediation context to the wide literature on identifying treatment effects in selection models.
-
-\subsection{A Regression Framework for Direct and Indirect Effects}
-
-\subsection{Selection into Education}
-In the education context, point identifying direct and indirect effects requires the \textit{researcher controls for all sources of selection-into-education}.
-
-While this assumption may hold true in two-way randomised experiments (e.g., in a laboratory or two-way RCT), it is unlikely to hold in the case of quasi-experimental variation in $Z$, or when modelling education as a mediator --- absent a separate identification strategy for education $D$.
-To expand this point in an econometric selection-into-treatment framework, suppose selection follows a Roy model, where individual $i$ weighs the costs and benefits of completing education.
-\[ D_i(Z_i) = \indicator{
-    \underbrace{C_i(Z_i)}_{\text{Costs}}
-    \leq
-    \underbrace{Y_i(Z_i, 1) - Y_i(Z_i, 0)}_{\text{Gains}}} \]
-Education choice $D_i(z)$ is clearly related to $Y_i(z, d)$ in this model, so let's see what the equation looks like in terms of sequential ignorability.
-As above, decompose costs into observed and unobserved factors.
-\[ C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i} \]
-
-And so we can write the first-stage selection equation in full.
-\begin{align*}
-    D_i(z) &= \indicator{
-        \underbrace{U_{C, i} + U_{0, i} - U_{1, i}}_{\text{Unobserved}}
-        \leq
-        \underbrace{
-            \mu_1(z; \vec X_i) - \mu_0(z; \vec X_i)- \mu_C(z; \vec X_i)}_{\text{Observed}}}
-\end{align*}
-Sequential ignorability, where $Y_i(z, d) \indep D_i(z') \; | \; \vec X_i$, would then require that $\Egiven{U_{0, i} - U_{1, i}}{D_i} = 0$.
-In the Roy model above, this would assume every single contribution for returns to education is contained in $\vec X_i$; if there are any unobserved sources by which people have systematically different returns to education, then they would select into education based on this, and bias na\"ive mediation estimates.
-This is unlikely to hold true, unless there is another identification strategy for $D_i$ --- in addition to the one used for $Z_i$.
-
-\subsection{Estimating Direct and Indirect Effects}
-
-Quasi-experimental work does not take the assumption of ``selection-on-observables'' at face value without an explicit research design \citep{angrist2009mostly} or modelling approach to address this issue.
-
-A classical approach to modelling this issue, is a selection model approach \citep{heckman1974shadow,heckman1979sample}.
-The approach assume $U_0, U_1$ follow a known distribution (e.g, bivariate normal), and estimates the regression via maximum likelihood.
-Alternatively, a control function approach estimates the system in two stages, avoiding (some) distributional assumptions if an instrument is used, at the cost of efficiency.
-In the following, I estimate direct and indirect effects first by OLS (assuming sequential ignorability), and then via both variants of the sample selection models, to compare estimates.
-Future work will consider estimates by using an alternative instrument for education, in the framework of \cite{frolich2017direct} to avoid the modelling assumptions inherent to sample selection models.
