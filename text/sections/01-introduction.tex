@@ -1,5 +1,62 @@
 %\section{Introduction}
 %\label{sec:intro}
+% \textbf{The introduction formula \url{https://blogs.ubc.ca/khead/research/research-advice/formula}.}
+\textbf{Hook:}
+Economists use natural experiments to credibly answer social questions, without the trouble of guiding randomisation of what they study.
+Did Vietnam-era military service lead to income losses?
+Does access to health insurance lead to employment gains?
+Do transfer payment  lead to measurable long-run economic gains?
+Quasi-experimental variation gives methods to answer these questions well, but give no indication of how these effects came about.
+Causal Mediation (CM) aims to estimate the mechanisms behind causal treatment effects, by estimating how much of the treatment effect operates through a proposed mediator.
+For example, how much of the (causal) gain from a transfer payment came from individuals choosing to attend higher education?
+This paper shows that the most famous approach to estimating CM effects is inappropriate in a natural experiment setting, giving a theoretical framework for how large bias terms are in the real world, and an approach to correctly estimate CM effects under minimal structural assumptions.
+
+
+\textbf{Question:}
+This paper starts by answering the following question: what does a selection-on-observables CM approach actually estimate when the mediator is not ignorable?
+The answer is CM effects, the average direct effect and indirect effects restively, plus bias terms.
+These bias terms a selection bias term, plus additional terms for noting group differences.
+I then show a regression framework, with bias coming from a correlated error term, showing that the bias term grows larger with the degree of unexplained selection.
+If individuals have been choosing whether to partake in a mediator based on expected costs and benefits (i.e., following a rational maximisation process), then assuming the mediator is ignorable places incredibly unlikely implications for choice behaviour.
+% I develop a testable assumption, that $R^2_u = 1$, in this framework, which is likely to be rejected in the majority of applied examples.
+Based on this insight, I consider an alternative control function approach to estimating mediation effects.
+This solving the identification problem by instead placing a structural assumption for selection into the mediator (monotonicity), and assumes the researcher has a valid instrument for mediator take-up.
+This approach is not perfect: it provides no harbour for estimating CM effects if these assumptions do not hold true, though performs no worse than conventional CM methods in this case.
+
+\textbf{Antecedents:}
+Identify the prior work that is critical for understanding the contribution this paper will make. The key mistake to avoid here are discussing papers that are not essential parts of the intellectual narrative leading up to your own paper. Give credit where due but establish, in a non-insulting way, that the prior work is incomplete or otherwise deficient in some important way.
+
+\textbf{Value-Added:}
+State that this is the first paper to consider the mediation assumptions related to economic theory (Roy model), and for thinking about selection-into-mediator.
+
+This paper proceeds as follows.
+\autoref{sec:mediation} introduces causal mediation, and develops expressions for the bias in mediation estimates in natural experiments.
+\autoref{sec:selection} describes this bias in applied settings with (1) a regression framework, (2) a setting with selection based on costs and benefits, (3) a short survey of empirical practice.
+\autoref{sec:controlfun} solves the identification problem when a mediator follows a selection model and a researcher observes exogenous variation in cost of mediator take-up.
+\autoref{sec:conclusion} concludes.
+
+
+\subsection{Intro plan}
+
+\begin{enumerate}
+    \item Intro paragraph, saying why do CM? HOOK
+    \item Introduce the selection-on-observables approach to CM, and say why it is biased in a natural experiment setting
+    \item Explain the applied settings
+    \item Explain the control function approach
+    \item Literature review paragraph
+    \item Finish the lit review by saying how this approach to CM gives a way to do this under structural assumptions.  It does not solve the general problem of CM, but does give a new way to do it when the most popular methods (Imai) exhibit persistent bias. 
+\end{enumerate}
+
+main approach 
+
+
+Natural experiments gives lead 
+
+
+Causal Mediation (CM)
+
+
+
 Conventional CM methods rely on a selection-on-observables assumption, which may not hold true in observational work.
 I explicitly connect the assumptions behind CM methods to those of selection into treatment in classic labour and observation economic research \citep{heckman2005structural}.
 When a mediator, here education, is not randomly assigned then conventional CM methods for estimating direct and indirect effects are contaminated by selection bias.
@@ -7,18 +64,4 @@ I write this as both a non-parametric non-identification result, and with a mode
 Structural assumptions could solve the identification problem, for example if selection into education follows a Roy model or errors terms have a known distribution \citep{heckman1979sample}.
 
 
-Intro paragraph on the selection bias term.
-These are similar, in spirit, to selection bias of \cite{heckman1998characterizing}.
-Also give a result closely related to bad control bias (also known as M-bias, Ding 2015, Cinelli 2022).
 Also similar to the non-identification result of Bugni Canay McBride (2024).
-
-
-
-
-
-This paper proceeds as follows.
-\autoref{sec:mediation} introduces causal mediation, and develops expressions for the bias in mediation estimates in natural experiments.
-\autoref{sec:selection} describes this bias in applied settings with (1) a regression framework, (2) a setting with selection based on costs and benefits, (3) a short survey of empirical practice.
-\autoref{sec:controlfun} solves the identification problem when a mediator follows a selection model and a researcher observes exogenous variation in cost of mediator take-up.
-\autoref{sec:conclusion} concludes.
-% \textbf{Re-write with this, \url{https://blogs.ubc.ca/khead/research/research-advice/formula}.}

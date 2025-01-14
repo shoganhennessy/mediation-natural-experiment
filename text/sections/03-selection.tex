@@ -40,7 +40,7 @@ The average direct and indirect effects are averages of these coefficients.
         &= \E{\gamma + \delta D_i}.
 \end{align*}
 By construction, $U_i = U_{1, i} - U_{0, i}$ is an unobserved confounder.
-The regression estimates of \autoref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  U_i$.
+The regression estimates of second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  U_i$.
 If not, then regression estimates suffer from omitted variables bias if they do not adjust for the unobserved confounder $U_i$.
 
 \subsection{Selection on Costs and Benefits}

@@ -87,7 +87,7 @@ Create a table in this section that surveys previous research which employs medi
 Suppose that $Z_i$ is ignorable conditional on $\vec X_i$, but $D_i$ is not.
 
 \subsubsection{Bias in Direct Effect Estimates}
-To show that the conventional approach to mediation gives an estimate for the ADE with selection and non-complier bias, start with the components of the conventional estimands.
+To show that the conventional approach to mediation gives an estimate for the ADE with selection and group difference-bias, start with the components of the conventional estimands.
 This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$.
 For each $d' =0, 1$.
 \begin{align*}
@@ -136,12 +136,12 @@ Collect everything together, as follows.
         &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\ 
         & - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1 - d', \vec X_i}
     \end{aligned} \right)}_{
-        \text{Non-complier bias}}
+        \text{group difference-bias}}
 \end{align*}
 The proof is achieved by applying the expectation across $D_i = d'$, and $\vec X_i$.
 
 \subsubsection{Bias in Indirect Effect Estimates}
-To show that the conventional approach to mediation gives an estimate for the AIE with selection and non-complier bias, start with the definition of the ADE --- the direct effect among compliers times the size of the complier group.
+To show that the conventional approach to mediation gives an estimate for the AIE with selection and group difference-bias, start with the definition of the ADE --- the direct effect among compliers times the size of the complier group.
 
 This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$.
 \begin{align*}
@@ -217,7 +217,7 @@ Collect everything together, as follows.
             &  - \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i}
         \end{aligned} \right)
     \end{aligned} \right] }_{
-        \text{Non-complier bias}}
+        \text{group difference-bias}}
 \end{align*}
 The proof is finally achieved by multiplying by the complier score, 
 $\Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}$
@@ -307,7 +307,7 @@ This sequence gives us the resulting regression equation:
     + \gamma Z_i
     + \delta Z_i D_i
     + \zeta(\vec X_i)
-    + \Egiven{D_i \left( U_{1,i} - U_{0,i} \right)}{\vec X_i} \]
+    + D_i \Egiven{\left( U_{1,i} - U_{0,i} \right)}{D_i = 1, \vec X_i} \]
 Taking the conditional expectation, and collecting for the expressions of the direct and indirect effects:\footnote{
     These equations have simpler expressions after assuming constant treatment effects in a linear framework;
     I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
