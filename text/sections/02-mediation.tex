@@ -15,7 +15,10 @@ The outcomes are a sum of their potential outcomes.
 \end{align*}
 
 %Write $\vec X_i$ for a set of control variables, and assume $Z_i$ is ignorable --- possibly conditional on $\vec X_i$.
-Assume $Z_i$ is ignorable.
+Assume $Z_i$ is ignorable.\footnote{
+    This assumption can hold conditional on covariates.
+    To simplify notation in this section, leave the conditional part unsaid, as it changes no part of the identification framework.
+}
 \[ Z_i \indep  D_i(z), Y_i(z', d), \textnormal{ for } z, z', d = 0, 1 \]
 
 There are only two average effects which are identified (without additional assumptions).
@@ -197,7 +200,7 @@ For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differ
 \end{align*}
 
 The selection bias terms come from systematic differences between the treated and untreated groups, differences not fully unexplained by $\vec X_i$.
-These selection bias terms would equal to zero if the mediator was ignorable \eqref{eqn:seq-ign-D}, but do not necessarily average to zero if not.
+These selection bias terms would equal to zero if the mediator was ignorable \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, but do not necessarily average to zero if not.
 The group differences represent the fact that a matching estimator gives an average effect on the treated group and, when selection-on-observables does not hold, this is systematically different from the average effect \citep{heckman1998characterizing}.\footnote{
     The group differences term is a non-parametric framing of the bias from controlling for intermediate outcomes, previously studied only in a linear setting.
     These are referred to as bad controls by \cite{cinelli2024crash}, or M-bias by \cite{ding2015adjust}.
