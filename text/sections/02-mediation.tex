@@ -87,7 +87,7 @@ These effects are not separately identified without further assumptions.
     \autoref{sec:regression} formally defines $U$ in this set-up.
 \end{figure}
 
-\subsection{Causal Mediation (CM) Estimands}
+\subsection{Identifying Causal Mediation (CM) Effects}
 The conventional approach to estimating direct and indirect effects assumes both $Z_i$ and $D_i$ are ignorable, conditional on a set of control variables $\vec X_i$.
 \begin{definition}
     \label{dfn:seq-ign}
@@ -120,7 +120,7 @@ If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:
 \[ = \underbrace{\E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}}_{\text{Average Indirect Effect (AIE)}} \]
 }}
 I refer to the estimands on the left-hand side as Causal Mediation (CM) estimands.
-These estimands are typically estimated with linear models, and CM estimates are composed from OLS estimates \citep{imai2010identification}.
+These estimands are typically estimated with linear models, with resulting estimates composed from OLS estimates \citep{imai2010identification}.
 %\begin{align*}
 %    D_i &= \phi + \pi Z_i
 %        + \vec \psi_1' \vec X_i+ \eta_i \\
@@ -138,10 +138,10 @@ This section focuses on problems that plague CM in practice, regardless of estim
 
 \subsection{Bias in Causal Mediation Estimates}
 Applied research may use a natural experiment to justify the treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
-Rarely does research relying on a quasi-experimental research design employ an additional, overlapping identification design for $D_i$ as part of the analysis.
-One might consider using conventional CM methods to estimate direct and indirect effects, and learn about the mechanisms behind the treatment effect under study.\footnote{
-    \cite{imai2013experimental} call attention to the need for a separate research design to isolate causal effects of $D_i$ in randomised controlled trials; \autoref{appendix:mediation-review} overviews literature, finding many papers that employ mediation methods with a research design for $Z_i$, but not for $D_i$.
-}
+Rarely does research relying on a quasi-experimental research design employ an additional, overlapping identification design for $D_i$ to justify assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} as part of the analysis.
+One might consider using conventional CM methods to estimate direct and indirect effects, and learn about the mechanisms behind the treatment effect under study.%\footnote{
+%    \cite{imai2013experimental} call attention to the need for a separate research design to isolate causal effects of $D_i$ in randomised controlled trials; \autoref{appendix:mediation-review} overviews literature, finding many papers that employ mediation methods with a research design for $Z_i$, but not for $D_i$.
+%}
 This approach leads to biased estimates, and contaminates inference regarding direct and indirect effects. %(in the same manner as \citealt{heckman1998characterizing}).
 
 \begin{theorem}

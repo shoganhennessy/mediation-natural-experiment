@@ -1,32 +1,48 @@
 \section{Solving Identification with a Control Function}
 \label{sec:controlfun}
+If your goal is to estimate CM effects, and you could control for unobserved selection into $D_i$, then you would.
+% Alas, $U_i$ is by definition unobserved.
+The control function method takes this insight seriously, and provides minimal conditions to model and control for the implied unobserved confounder, $U_i$.\footnote{
+    This section does not improve on the control function approach, instead only noting its utility to solve the identification problem of CM in a natural experiment setting.
+}
 
-If you could control for $U_i$, then you would.
-Laffers et al, for example, tests sequential ignoability.
+For notation purposes, suppose the vector of control variables $\vec X_i$ has at least two entries.
+Denote $\vec X_i^+$ as one entry in the vector, and $\vec X_i^-$ as the remaining rows.
 
-
-
-
-The IV literature assumes a first-stage monotonicity condition, where randomised $Z_i$ influences mediator $D_i$ in at most one direction.
 \begin{definition}
-    \label{dfn:firststage-monotonicity}
-    First-stage Monotonicity \citep{imbens1994identification}.
-    \begin{equation}
+    \label{dfn:controlfun-assumptions}
+    Control function assumptions.
+    \begin{align}
         \label{eqn:firststage-monotonicity}
-        \Prob{ D_i(1) \geq D_i(0)} = 1    
-    \end{equation}
+        &\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1    \\
+        \label{eqn:controlfun-iv}
+        &\vec X_i^+, \text{ has the property }
+        \partialdiff[\mu(\vec X_i)]{\vec X_i^+} = 0 < \partialdiff[D_i(z')]{\vec X_i^+}, \textnormal{ for } z' = 0, 1.
+    \end{align}
 \end{definition}
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} is the (conditional) monotonicity assumption \citep{imbens1994identification}, which is untestable but accepted in many empirical applications.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} is assuming that an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu$), and has a non-zero influence on the mediator (i.e., strong first-stage).
+The exclusion restriction is untestable, and must be guided by domain-specific knowledge; strength of the first-stage is testable, and must be justified with data by methods common in the IV literature.
 
-Assuming \ref{dfn:firststage-monotonicity}\eqref{eqn:firststage-monotonicity}
-in a mediation setting opens mediation to the wide literature on IV and selection models for identification in the presence of selection. 
+Write $K_i$ for the mediator propensity score, as a function of the instrument $\vec X_i^+$ and remaining controls $\vec X_i^-$.
+$K_i$ serves as the control function in this setting.
+\[ K_i = \Probgiven{D_i = 1}{Z_i, \vec X_i^+, \vec X_i^-} \]
+
 \begin{theorem}
-    \label{thm:selection-model}
-    Under monotonicity, mediator $D_i$ can be represented by a selection model. \\
-    Suppose \ref{dfn:firststage-monotonicity}\eqref{eqn:firststage-monotonicity} holds, then there is a function $\mu(.)$ and random variable $U_i$ such that $D_i$ takes the following form.
-    \[ D_i(z) = \indicator{ \mu(z) \geq U_i}, \;\; \forall z = 0,1 \]
+    \label{thm:controlfun}
+    If \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} and \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} hold, then the average potential outcomes (and thus, the ADE and AIE) are identified by a control function approach .
+    \[ \Egiven{Y_i}{Z_i = z', D_i = d', \vec X_i^-, K_i}
+        = \Egiven{Y_i(z', d')}{\vec X_i^-, K_i}
+        , \;\; \text{ for } z', d' = 0,1 \]
 \end{theorem}
 \begin{proof}
-    Special case of the \cite{vytlacil2002independence} equivalence result; see \autoref{appendix:selection-model}.
+    Special case of \citet[Theorem~1]{imbens2009identification}; see \autoref{appendix:controlfun-proof}.
 \end{proof}
 
-\autoref{thm:selection-model} is a powerful result: it says that at the cost of assuming monotonicity (as is done in the IV literature), then selection into $D_i$ takes a latent index form, and opens up identification in a mediation context to the wide literature on identifying treatment effects in selection models.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} guarantees that mediator $D_i(.)$ can be represented by a selection model \citep{vytlacil2002independence}, and \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} pins down a control function to identify the selection model.
+
+\subsection{Relationship to the Roy Model}
+
+Writing here about how the Roy model is solves with this, and the instrument impacts costs of mediator take-up.
+
+\subsection{Simulation Evidence}

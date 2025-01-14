@@ -68,19 +68,19 @@ These give (1) identification of, and equivalence between, LADE conditional on $
 Monotonicity is not technically required for the above.
 Breaking monotonicity would not change the identification of any of the above; it would be the same except replacing the complier score with a complier or defier score, $\Probgiven{D_i(1) \neq D_i(0)}{\vec X_i} = \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$.
 
-\subsection{Continuous Average Causal Responses}
-\label{appendix:continuous}
-Section here relating the approach to the average causal response function (see e.g., Angrist Imbens JASA 1996, Andrew Bacon for DiD 2023).
+%\subsection{Continuous Average Causal Responses}
+%\label{appendix:continuous}
+%Section here relating the approach to the average causal response function (see e.g., Angrist Imbens JASA 1996, Andrew Bacon for DiD 2023).
 
-\subsection{Previous Literature}
-\label{appendix:mediation-review}
-
-Create a table in this section that surveys previous research which employs mediation methods while having a clear causal design for $Z_i$, but not $D_i$.
-
-\begin{tabular}{l l l l l}
-    Paper & Field & Research Design for $Z_i$ & Research Design for $D_i$ & Selection bias? \\ \hline
-    Paper name 1.    
-\end{tabular}
+% \subsection{Previous Literature}
+% \label{appendix:mediation-review}
+% 
+% Create a table in this section that surveys previous research which employs mediation methods while having a clear causal design for $Z_i$, but not $D_i$.
+%
+%\begin{tabular}{l l l l l}
+%    Paper & Field & Research Design for $Z_i$ & Research Design for $D_i$ & Selection bias? \\ \hline
+%    Paper name 1.    
+%\end{tabular}
 
 \subsection{Bias in Mediation Estimates}
 \label{appendix:mediation-bias}
@@ -224,15 +224,6 @@ $\Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}$
 $= \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$,
 then applying the expectation across $Z_i = z'$, and $\vec X_i$.
 
-
-
-
-
-\subsection{Proof of the Selection Model Representation}
-\label{appendix:selection-model}
-Write the proof in here, following \cite{vytlacil2002independence} construction in the forward direction.
-Note that the notation needs updating for no exclusion restriction.
-
 \subsection{A Regression Framework for Direct and Indirect Effects}
 \label{appendix:regression-model}
 Put $\mu_{D}(Z; \vec X) = \Egiven{Y_i(Z, D)}{\vec X}$ and $U_{D, i} = Y_i(Z,D) - \mu_D(Z; \vec X)$, so we have the following expressions.
@@ -344,4 +335,13 @@ If sequential ignorability does not hold, then the regression estimates from est
 \end{align*}
 And so the direct and indirect effect estimates are contaminated by these bias terms.
 
-% Senan note: should write CM estimand = \E{\gamma + \delta D_i} + bias, where bias is some Cov term.
+% Senan note: should write CM estimand = \E{\gamma + \delta D_i} + bias, where bias is some E[ U | D = 1] term.
+
+
+
+\subsection{Control Function Identification}
+\label{appendix:controlfun-proof}
+Write the proof in here, following \cite{vytlacil2002independence} construction in the forward direction.
+Note that the notation needs updating for no exclusion restriction.
+
+And then 

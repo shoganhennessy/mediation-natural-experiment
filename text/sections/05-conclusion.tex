@@ -3,13 +3,14 @@
 \section{Summary and Concluding Remarks}
 \label{sec:conclusion}
 
-This paper studies the returns to higher education, using IV methods from the epidemiology literature and adjustments from the causal mediation literature to tackle violations of the exclusion restriction.
-First, I derive identification of the average mechanism effect under a selection-on-observables type assumption, and partial identification when unobserved selection confounding.
-I apply these methods to a sample of retirement age Americans in the years 1990--2021, using genetic information to instrument for higher education, estimating that higher education leads to roughly 40\% higher earnings (point estimates), or between 8--44\% higher earnings (partial bounds).
-Additionally, women had significantly higher returns to higher education over this time period.
+This paper has studied a selection-on-observables approach to CM in a natural experiment setting.
+I have shown the pitfalls of using the most popular methods for estimating direct and indirect effects without a clear case for the mediator being ignorable.
+Using the Roy model as a benchmark, a mediator is unlikely to be ignorable in natural experiment settings, and the bias terms likely crowd out inference regarding CM effects.
 
-The methods here provide alternatives to assuming the exclusion restriction in empirical applications of IV models, so can be useful in sensitivity analyses for any application of IV methods.
-Mendelian randomisation is a particularly useful application of IV methods, though the exclusion restriction is particularly problematic in practice.
-The approach allows researchers to use MR to study effects of both health conditions and behaviours with significant selection-into-treatment concerns, such as higher education.
+This paper has contributed to the growing CM literature in economics, integrating labour economic theory for how individuals select into as a way of judging CM methods.
+It has drawn on the classic literature, and pointed to already-in-use control function methods as a compelling way of estimating direct and indirect effects in a natural experiment.
+Further research could build on this approach by suggesting efficiency improvements, adjustments for common statistical irregularities (say, cluster dependence), or integrating the control function as an additional robustness in the growing double robustness literature \citep{huber2019review,bia2024double}.
 
-The approach could be used in AB tests, where a firm randomises a treatment and costs of a suspected mediator (if they do not want to also randomise a mediator fully).
+This paper has not lit the way for applied researchers to use mediation methods unabashedly; the structural assumptions are strong, and if broken, the control function method does not improve on a na\"ive selection-on-observables approach.
+If the structural assumptions are credible in the natural experiment setting, however, then this method opens the door to identifying mechanisms behind treatment effects in natural experiment settings.
+% The approach could be used in AB tests, where a firm randomises a treatment and costs of a suspected mediator (if they do not want to also randomise a mediator fully).
