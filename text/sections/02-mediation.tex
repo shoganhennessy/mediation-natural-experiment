@@ -110,13 +110,13 @@ If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:
 }
 
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
-\[ \E[D_i, \vec X_i]{
-    \underbrace{\Egiven{Y_i}{Z_i = 1, D_i, \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i, \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i$ constant}}}
+\[ \E[D_i = d', \vec X_i]{
+    \underbrace{\Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i$ constant}}}
     = \underbrace{\E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}}_{\text{Average Direct Effect (ADE)}} \]
-\[ \E[Z_i, \vec X_i]{ \underbrace{\Big(
+\[ \E[Z_i = z', \vec X_i]{ \underbrace{\Big(
     \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i} \Big)}_{\text{First-stage regression, $D_i$ on $Z_i$}}
     \times \underbrace{\Big(
-    \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i$ constant}} } \]
+    \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i$ constant}} } \]
 \[ = \underbrace{\E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}}_{\text{Average Indirect Effect (AIE)}} \]
 }}
 I refer to the estimands on the left-hand side as Causal Mediation (CM) estimands.
@@ -159,17 +159,17 @@ Below I present the relevant selection bias and group difference terms, omitting
 For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differences.
 \vspace{-0.5cm}
 \begin{align*}
-    & \mathbb E_{D_i} \Big[
-        \Egiven{Y_i}{Z_i = 1, D_i} - \Egiven{Y_i}{Z_i = 0, D_i} \Big] \\
+    & \mathbb E_{D_i = d'} \Big[
+        \Egiven{Y_i}{Z_i = 1, D_i = d'} - \Egiven{Y_i}{Z_i = 0, D_i = d'} \Big] \\
     & = \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))} \\
-    & \;\;\;\; + \mathbb E_{D_i} \Big[
-        \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d} 
-        - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d} \Big] \\
-    & \;\;\;\; + \E[D_i ]{
-        \Big(1 - \Prob{D_i(1) = d} \Big)
+    & \;\;\;\; + \mathbb E_{D_i = d'} \Big[
+        \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d'} 
+        - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d'} \Big] \\
+    & \;\;\;\; + \E[D_i = d']{
+        \Big(1 - \Prob{D_i(1) = d'} \Big)
         \left( \begin{aligned}
-            &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d} \\ 
-            &  - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(0) = 1- d}
+            &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d'} \\ 
+            &  - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(0) = 1 - d'}
             \end{aligned} \right) }
 \end{align*}
 
@@ -177,9 +177,9 @@ For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differen
 For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differences.
 \vspace{-0.5cm}
 \begin{align*}
-    &\E[Z_i]{
+    &\E[Z_i = z']{
         \Big( \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0} \Big) \times
-        \Big( \Egiven{Y_i}{Z_i, D_i = 1} - \Egiven{Y_i}{Z_i, D_i = 0} \Big) } \\
+        \Big( \Egiven{Y_i}{Z_i = z', D_i = 1} - \Egiven{Y_i}{Z_i = z', D_i = 0} \Big) } \\
     & = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
     & \;\;\;\; + \Prob{D_i(1) = 1, D_i(0) = 0} \Big(
         \Egiven{Y_i(Z_i, 0)}{D_i = 1} - \Egiven{Y_i(Z_i, 0)}{D_i = 0} \Big) \\
@@ -202,13 +202,12 @@ For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differ
 The selection bias terms come from systematic differences between the treated and untreated groups, differences not fully unexplained by $\vec X_i$.
 These selection bias terms would equal to zero if the mediator was ignorable \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, but do not necessarily average to zero if not.
 The group differences represent the fact that a matching estimator gives an average effect on the treated group and, when selection-on-observables does not hold, this is systematically different from the average effect \citep{heckman1998characterizing}.\footnote{
-    The group differences term is a non-parametric framing of the bias from controlling for intermediate outcomes, previously studied only in a linear setting.
-    These are referred to as bad controls by \cite{cinelli2024crash}, or M-bias by \cite{ding2015adjust}.
+    The group differences term is longer for the AIE estimate, because the indirect effect is comprised from the effect of $D_i$ local to $Z_i$ compliers; a matching estimator gets the average effect on treated, and the longer term adjusts for differences with the complier average effect.
 }$^{,}$\footnote{
     The selection-on-observables approach could, instead, focus on the average effect on treated populations (as do \citealt{keele2015identifying}).
     This runs into a problem of comparisons: CM estimates would give average effects on different treated groups.
     The CM estimand for the ADE on treated gives the ADE local to the $Z_i = 1$ treated group, and local to the $D_i = 1$ group for the AIE.
     In this way, these ADE and AIE on treated terms are not comparable to each other, so I focus on the true averages to avoid these misaligned comparisons.
-}$^{,}$\footnote{
-    The group differences term is longer for the AIE estimate, because the indirect effect is comprised from the effect of $D_i$ local to $Z_i$ compliers; a matching estimator gets the average effect on treated, and the longer term adjusts for differences with the complier average effect.
 }
+The group differences term is a non-parametric framing of the bias from controlling for intermediate outcomes, previously studied only in a linear setting.
+These are referred to as bad controls by \cite{cinelli2024crash}, or M-bias by \cite{ding2015adjust}.

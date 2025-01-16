@@ -34,10 +34,10 @@ $\alpha, \zeta(\vec X_i)$ are the intercept terms, and $\beta, \gamma, \delta$ a
 $U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)$ is the possibly correlated error term, which disrupts identification.
 The average direct and indirect effects are averages of these coefficients.
 \begin{align*}
-    \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{\pi \left( \beta +  Z_i \delta \right)}, \\
     \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
-        &= \E{\gamma + \delta D_i}.
+        &= \E{\gamma + \delta D_i}, \\
+    \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
+        &= \E{\pi \left( \beta +  \delta Z_i \right)}.
 \end{align*}
 By construction, $U_i = U_{1, i} - U_{0, i}$ is an unobserved confounder.
 The regression estimates of second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  U_i$.

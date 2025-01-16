@@ -281,24 +281,27 @@ And so $Y_i$ can be written as a regression equation in terms of the observed fa
         &\eqqcolon
             \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
             + \zeta(\vec X_i)
-            + U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)
+            + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}
 \end{align*}
 With the following definitions:
-\begin{itemize}
+\begin{enumerate}[label=\textbf{(\alph*)}]
     \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\zeta(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
     \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the indirect effect under $Z_i = 0$
     \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the direct effect under $D_i = 0$.
     \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)- \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)$ is the interaction effect.
-    \item $U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)$ is the remaining error term.
-\end{itemize}
+    \item $\left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}$ is the remaining error term.
+\end{enumerate}
 This sequence gives us the resulting regression equation:
-\[ \Egiven{Y_i}{Z_i, D_i, \vec X_i} =
-    \alpha
-    + \beta D_i
-    + \gamma Z_i
-    + \delta Z_i D_i
-    + \zeta(\vec X_i)
-    + D_i \Egiven{\left( U_{1,i} - U_{0,i} \right)}{D_i = 1, \vec X_i} \]
+\begin{align*}
+    \Egiven{Y_i}{Z_i, D_i, \vec X_i} =&
+        \alpha
+        + \beta D_i
+        + \gamma Z_i
+        + \delta Z_i D_i
+        + \zeta(\vec X_i) \\
+        & +\left( 1 - D_i \right) \Egiven{ U_{0,i} }{D_i = 0, \vec X_i}
+            + D_i \Egiven{ U_{1,i} }{D_i = 1, \vec X_i}
+\end{align*}
 Taking the conditional expectation, and collecting for the expressions of the direct and indirect effects:\footnote{
     These equations have simpler expressions after assuming constant treatment effects in a linear framework;
     I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
@@ -313,26 +316,26 @@ These terms are conventionally estimated in a simultaneous regression \citep{ima
 
 If sequential ignorability does not hold, then the regression estimates from estimating the mediation equations (without adjusting for the contaminated bias term) suffer from omitted variables bias.
 
+\makebox[\textwidth]{\parbox{1.25\textwidth}{
 \begin{align*}
     \E[\vec X_i]{\Egiven{Y_i}{Z_i = D_i = 0, \vec X_i}}
-        &= \E\alpha + \E{D_i \left( U_{1,i} - U_{0,i} \right)} \\
+        &= \E\alpha + \Egiven{ U_{0,i} }{D_i = 0} \\
     \E[\vec X_i]{\Egiven{Y_i}{Z_i = 0, D_i = 1, \vec X_i}
         - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i}}
-        &= \E\beta + \frac{
-        \Cov{D_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{D_i}} \\
+        &= \E\beta + 
+            \left( \Egiven{ U_{1,i} }{D_i = 1} - \Egiven{ U_{0,i} }{D_i = 0} \right) \\
     \E[\vec X_i]{\Egiven{Y_i}{Z_i = 1, D_i = 0, \vec X_i}
         - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i}}
-        &= \E\gamma + \frac{
-        \Cov{Z_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{Z_i}} \\
+        &= \E\gamma + \Egiven{ U_{0,i} }{D_i = 0} \\
     \E[\vec X_i]{\begin{aligned}
         &\Egiven{Y_i}{Z_i = 1, D_i = 1, \vec X_i}
             - \Egiven{Y_i}{Z_i = 1, D_i = 0, \vec X_i} \\
             &- \left( \Egiven{Y_i}{Z_i = 0, D_i = 1, \vec X_i}
                 - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i} \right)
         \end{aligned}}
-    &= \E\delta + \frac{
-        \Cov{Z_i D_i,\; D_i \left( U_{1,i} - U_{0,i} \right)}}{\Var{Z_i D_i}}
+    &= \E\delta
 \end{align*}
+}}
 And so the direct and indirect effect estimates are contaminated by these bias terms.
 
 % Senan note: should write CM estimand = \E{\gamma + \delta D_i} + bias, where bias is some E[ U | D = 1] term.

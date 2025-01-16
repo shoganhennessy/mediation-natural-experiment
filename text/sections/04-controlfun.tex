@@ -7,7 +7,7 @@ The control function method takes this insight seriously, and provides minimal c
 }
 
 For notation purposes, suppose the vector of control variables $\vec X_i$ has at least two entries.
-Denote $\vec X_i^+$ as one entry in the vector, and $\vec X_i^-$ as the remaining rows.
+Denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as the remaining rows.
 
 \begin{definition}
     \label{dfn:controlfun-assumptions}
@@ -16,17 +16,17 @@ Denote $\vec X_i^+$ as one entry in the vector, and $\vec X_i^-$ as the remainin
         \label{eqn:firststage-monotonicity}
         &\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1    \\
         \label{eqn:controlfun-iv}
-        &\vec X_i^+, \text{ has the property }
-        \partialdiff[\mu(\vec X_i)]{\vec X_i^+} = 0 < \partialdiff[D_i(z')]{\vec X_i^+}, \textnormal{ for } z' = 0, 1.
+        &\vec X_i^{\text{IV}} \text{ has the property }
+        \partialdiff[\mu(\vec X_i)]{\vec X_i^{\text{IV}}} = 0 < \partialdiff[D_i(z')]{\vec X_i^{\text{IV}}}, \textnormal{ for } z' = 0, 1.
     \end{align}
 \end{definition}
 Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} is the (conditional) monotonicity assumption \citep{imbens1994identification}, which is untestable but accepted in many empirical applications.
 Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} is assuming that an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu$), and has a non-zero influence on the mediator (i.e., strong first-stage).
 The exclusion restriction is untestable, and must be guided by domain-specific knowledge; strength of the first-stage is testable, and must be justified with data by methods common in the IV literature.
 
-Write $K_i$ for the mediator propensity score, as a function of the instrument $\vec X_i^+$ and remaining controls $\vec X_i^-$.
+Write $K_i$ for the mediator propensity score, as a function of the instrument $\vec X_i^{\text{IV}}$ and remaining controls $\vec X_i^-$.
 $K_i$ serves as the control function in this setting.
-\[ K_i = \Probgiven{D_i = 1}{Z_i, \vec X_i^+, \vec X_i^-} \]
+\[ K_i = \Probgiven{D_i = 1}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-} \]
 
 \begin{theorem}
     \label{thm:controlfun}
@@ -45,4 +45,35 @@ Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} g
 
 Writing here about how the Roy model is solves with this, and the instrument impacts costs of mediator take-up.
 
-\subsection{Simulation Evidence}
+\subsection{Estimation and Simulation Evidence}
+
+Write first about how to estimate this practically, focus on OLS.
+
+The following simulation gives an example to show how the control function works in practice.
+Data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from the following data generating processes, for $i = 1, \hdots, N$.
+\begin{align*}
+    Z_i \sim \text{Binom}\left( \frac 12 \right),
+    \;\; \vec X_i^- \sim N(0, 1),
+    \;\; \vec X_i^{\text{IV}} \sim \text{Binom}\left( \frac 12 \right), \\
+    \begin{bmatrix} U_{1,i} \\ U_{0,i} \end{bmatrix} \sim
+    \text{BivariateNormal}\left( 
+        \begin{bmatrix} 0, 0 \end{bmatrix},
+        \begin{bmatrix} 1, \rho \\ \rho, 1 \end{bmatrix} \right),
+    \;\; U_{C,i} = 0.
+\end{align*}
+In this setting, $\rho \in [-1, 1]$ controls the correlation in unobserved errors, and the degree of unobserved confounding.
+Additionally, suppose each $i$ chooses to take mediator $D_i$ based on the costs and benefits (i.e., a Roy model), with following definitions for each $z', d' = 0, 1$.
+\begin{align*}
+    \mu_{d'}\left(z' ; \vec X_i \right) = \vec X_i^- + \left( z' + d' + z' d' \right),
+    \;\; \mu_{C}\left(z' ; \vec X_i \right) = \frac{z'}{2} + \vec X_i^- \vec X_i^{\text{IV}}.
+\end{align*}
+Following \autoref{sec:selection}, the observed data have the following outcome equations:
+\begin{align*}
+    D_i &= \indicator{\frac{Z_i}{2} - \vec X_i^- \vec X_i^{\text{IV}} \geq U_{0,i} - U_{1,i}}  \\
+    Y_i &= D_i + Z_i + Z_i D_i + \vec X_i^-
+        + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
+\end{align*}
+
+
+
+
