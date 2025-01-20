@@ -6,7 +6,9 @@
 # Folder for simulation evidence
 cd simulations
 # Run the first one.
-R CMD BATCH --no-save mediation-simulation.R
+R CMD BATCH --no-save roy-sim.R
+# Present the results
+R CMD BATCH --no-save roy-plot.R
 # Go back to base folder.
 cd ..
 
@@ -14,4 +16,4 @@ cd ..
 cd ../text
 latexmk -pdf paper.tex
 latexmk -c
-cp paper.pdf ../mr-education.pdf
+cp paper.pdf ../mediation-natural-experiment.pdf

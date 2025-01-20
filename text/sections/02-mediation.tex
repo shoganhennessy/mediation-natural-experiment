@@ -67,7 +67,7 @@ These effects are not separately identified without further assumptions.
         \path[->, thick] (instrument) edge[bend right=45] (outcome);
         % Label direct and indirect effect
         \node[color=orange] [below left=-0.2cm and 0.2cm of treatment] {First-stage};
-        \node[color=orange] [below right=-0.2cm and 0.5cm of treatment] {LATE};
+        \node[color=orange] [below right=-0.2cm and 0.5cm of treatment] {LAIE};
         \node[color=orange] [below=1.2cm of treatment] {ADE};
         % Add in the confounders
         %\node[state,RoyalPurple] (confounderX) [above=1.5cm of treatment] {$\vec{X}$};
@@ -82,7 +82,7 @@ These effects are not separately identified without further assumptions.
     \footnotesize
     \textbf{Note}:
     This figures shows the structural causal model behind causal mediation.
-    LATE refers to the effect $D \to Y$ local to $Z$ compliers, so that AIE $=$ average first-stage $\times$ LATE.
+    LAIE refers to the AIE (i.e., effect of the mediator $D \to Y$) local to $Z$ compliers, so that AIE $=$ average first-stage $\times$ LAIE.
     Unobserved confounder $U$ represents this paper's focus on the case that $D_i$ is not ignorable, by showing an implied unobserved confounder.
     \autoref{sec:regression} formally defines $U$ in this set-up.
 \end{figure}
