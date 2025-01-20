@@ -294,13 +294,13 @@ print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 
 # Get bootstrapped SEs for the CF approach
-boot.reps <- 100
+boot.reps <- 1000
 boot.est <- estimated.bootstrap(boot.reps, simulated.data)
 print(boot.est)
 
 
 ################################################################################
-## Compare estimation methods, across different values.
+## Compare estimation methods, across different rho values.
 
 # Define an empty dataframe, to start adding to.
 boot.values <- estimated.bootstrap(1, simulated.data)
@@ -315,16 +315,53 @@ i <- 0
 
 # Start the rho loop
 for (rho in rho.values){
-    print(paste0(rho, " in [-1, 1], ", i / length(rho.values), "% done."))
     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
     rho_sim.data <- simulate.data(rho, 1, 2, 0.25)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
     rho.boot  <- estimated.bootstrap(boot.reps, simulated.data, print.progress = FALSE)
     rho.boot$rho <- rho
     # Add to the dataframe.
-    i <- i + 1
     rho.data[i, ] <- rho.boot
+    # SHow far we are.
+    i <- i + 1
+    print(paste0(rho, " in [-1, 1], ", i / length(rho.values), "% done."))
+    #rm(rho_sim.data, rho.boot)
+    gc()
 }
 
 ## Save the output data.
 rho.data %>% write_csv(file.path(output.folder, "rho-sim-data.csv"))
+
+
+################################################################################
+## Compare estimation methods, across different sigma values.
+
+# Define an empty dataframe, to start adding to.
+boot.values <- estimated.bootstrap(1, simulated.data)
+boot.values$sigma_1 <- NA
+sigma_1.data <- boot.values[0, ]
+print(rho.data)
+# Define values in rho \in [-1, 1] to go across
+sigma.values <- seq(0, 2, by = 0.25)
+# Define the number of boot reps for each
+boot.reps <- 1000
+i <- 0
+
+# Start the rho loop
+for (sigma in sigma.values){
+    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
+    sigma_sim.data <- simulate.data(0.5, 1, sigma, 0.25)
+    # Get the truth + estimates + bootstrapped SEs, and save rho value
+    sigma.boot  <- estimated.bootstrap(boot.reps, simulated.data, print.progress = FALSE)
+    sigma.boot$sigma <- sigma
+    # Add to the dataframe.
+    sigma.data[i, ] <- sigma.boot
+    # SHow far we are.
+    i <- i + 1
+    print(paste0(sigma, " in [0, 2], ", i / length(simga.values), "% done."))
+    #rm(rho_sim.data, rho.boot)
+    gc()
+}
+
+## Save the output data.
+sigma.data %>% write_csv(file.path(output.folder, "sigma-sim-data.csv"))
