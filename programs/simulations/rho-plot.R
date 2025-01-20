@@ -88,7 +88,7 @@ directeffect_bias.plot <- rho.data %>%
     scale_x_continuous(
         name = TeX("$\\rho$"),
         expand = c(0, 0),
-        breaks = seq(-1, 1, by = 0.2),
+        breaks = seq(-1, 1, by = 0.25),
         limits = c(-1.05, 1.05)) +
     scale_y_continuous(name = "",
         breaks = seq(0, 2.25, by = 0.25),
@@ -126,7 +126,7 @@ indirecteffect_bias.plot <- rho.data %>%
     scale_x_continuous(
         name = TeX("$\\rho$"),
         expand = c(0, 0),
-        breaks = seq(-1, 1, by = 0.2),
+        breaks = seq(-1, 1, by = 0.25),
         limits = c(-1.05, 1.05)) +
     scale_y_continuous(name = "",
         breaks = seq(0, 2.25, by = 0.25),
