@@ -9,7 +9,7 @@ Do transfer payment  lead to measurable long-run economic gains?
 Quasi-experimental variation gives methods to answer these questions, but give no indication of how these effects came about.
 Causal Mediation (CM) aims to estimate the mechanisms behind causal treatment effects, by estimating how much of the treatment effect operates through a proposed mediator.
 For example, how much of the (causal) gain from a transfer payment came from individuals choosing to attend higher education?
-This paper shows that the conventional approach to estimating CM effects is inappropriate in a natural experiment setting, giving a theoretical framework for how large bias terms are in the real world, and an approach to correctly estimate CM effects under minimal structural assumptions.
+This paper shows that the conventional approach to estimating CM effects is inappropriate in a natural experiment setting, giving a theoretical framework for how large bias terms are in the real world, and an approach to correctly estimate CM effects under structural assumptions.
 
 %\textbf{Question:}
 This paper starts by answering the following question: what does a selection-on-observables CM approach actually estimate when the mediator is not ignorable?
@@ -27,7 +27,8 @@ Mediator monotonicity is in-line with conventional theories for selection-into-t
 The existence of a valid instrument is a stronger assumption, which will not hold in every applied example, though is important to avoid parametric assumptions. %on unexplained mediator selection.
 The most compelling example is using data on the cost of mediator take-up as a first-stage instrument, if it varies between individuals for exogenous reasons and is strong in explaining compliance.
 Using an instrument avoids parametric assumptions on unexplained mediator selection, though limits the wider applicability of the method.
-This approach is not perfect: it provides no harbour for estimating CM effects if these structural assumptions do not hold true, though performs no worse than conventional CM methods in this case.
+This approach is not perfect: it is computationally demanding, and requires large sample sizes for non-parametric estimation steps.
+Additionally, it provides no harbour for estimating CM effects if the core structural assumptions do not hold true.
 
 %\textbf{Antecedents:}
 The most popular approach to CM estimates direct and indirect effects by assuming that a treatment is ignorable, and then assuming that a mediator is ignorable conditional on the treatment assignment \citep{imai2010identification}.

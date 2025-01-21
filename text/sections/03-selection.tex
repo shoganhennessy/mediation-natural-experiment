@@ -25,21 +25,25 @@ With this notation, observed data $Z_i, D_i, Y_i$ take the following representat
     \label{eqn:parametric-secondstage}
     Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
     + \zeta(\vec X_i)
-    + \underbrace{U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)}_{
+    + \underbrace{\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}_{
         \text{Correlated error term.}}
 \end{align}
 First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi, \varphi(\vec X_i)$ the intercept, and $\pi$ the average rate of compliance (which may depend on $\vec X_i$).
 Second-stage \eqref{eqn:parametric-secondstage} is not identified without further assumptions.
 $\alpha, \zeta(\vec X_i)$ are the intercept terms, and $\beta, \gamma, \delta$ are values that comprise mediation effects --- all whose values may depend on $\vec X_i$, see \autoref{appendix:regression-model} for full definitions.
-$U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right)$ is the possibly correlated error term, which disrupts identification.
-The average direct and indirect effects are averages of these coefficients.
+$\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}$ is the possibly correlated error term, which disrupts identification.
+The ADE and AIE are averages of these coefficients.\footnote{
+    The AIE, in fact, refers only to treatment gains among $D_i(z)$ compliers, so has the more complicated form $\mathbb E \Big[ 
+        \pi \times \Egiven{\beta +  \delta Z_i}{D_i(1) = 1, D_i(0) = 0} \Big]$.
+    The formula above skips the local to compliers part, to keep with standard regression notation.
+}
 \begin{align*}
-    \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
+    \text{ADE:} \;\; \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
         &= \E{\gamma + \delta D_i}, \\
-    \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{\pi \left( \beta +  \delta Z_i \right)}.
+    \text{AIE:} \;\; \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
+        &= \E{ \pi \left( \beta +  \delta Z_i \right)}.
 \end{align*}
-By construction, $U_i = U_{1, i} - U_{0, i}$ is an unobserved confounder.
+By construction, $U_i = U_{0, i} - U_{1, i}$ is an unobserved confounder.
 The regression estimates of second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  U_i$.
 If not, then regression estimates suffer from omitted variables bias if they do not adjust for the unobserved confounder $U_i$.
 
@@ -53,8 +57,14 @@ The Roy model has $i$ taking the mediator if the benefits exceed the costs.
 \[ D_i \left( z' \right) = \indicator{
     \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
     \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1 \]
-Paragraph here talking about why the Roy model is useful.
-\citep{roy1951some,heckman1990empirical}.
+The Roy model provides a robust and intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome observed \citep{roy1951some,heckman1990empirical}.
+If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking education, then it models an individual choice to attend more education in terms of gaining a higher income.\footnote{
+    If the choice is made for a sum of outcomes, then a simple extension of the framework to a utility maximisation model maintains the same spirit.
+    See \cite{heckman1990empirical} for this approach.
+}
+This makes it particularly useful as a base case when studying causal mediation, where selection into the mediator may be driven by private information (unobserved by the researcher).
+Additionally, the Roy model aligns well with many real-world settings, such as education, labour market participation, and migration, where decisions are based on a comparison of expected outcomes across alternatives.  
+By using the Roy model as a benchmark, I explore the practical limits of the mediator ignorability assumption.
 
 Decompose the costs into its mean and unobserved error, as above $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, and collect the mean benefits, $\mu \coloneqq \mu_1 - \mu_0$.
 So we can write the first-stage selection equation separated by observed means and unobserved errors.
@@ -64,20 +74,22 @@ So we can write the first-stage selection equation separated by observed means a
         , \;\;\; \text{for } z'=0,1
 \end{align*}
 
-Theorem: if selection is Roy style, and sequential ignorability holds, then unobserved benefits play no part in selection.
+If selection is Roy style, and the mediator is ignorable, then unobserved benefits play no part in selection.
 The only driver in differences in selection are differences in costs (and not benefits).
 \[ \Egiven{ D_i(z') }{ U_i = u} = \Egiven{ D_i(z') }{ U_i = u'} \]
-For all $u', u$ in the range of the distribution of $U_i$.
-Proof: by contradiction, add to the appendix.
-This could, for example, hold if $U_{1,i} - U_{0,i}$ is degenerate conditional on $\vec X_i$.
+For all $u', u$ in the range of the distribution of $U_i = U_{1,i} - U_{0,i}$.
+This could, for example, hold if $U_{0,i}, U_{1,i}$ are degenerate conditional on $\vec X_i$.\footnote{
+    This statement holds by a simple proof by contradiction: suppose there are $u', u$ such that the statement does not hold, then $D_i$ cannot be ignorable.
+}
 
-Short paragraph on why this means $\vec X_i$ must be incredibly rich.
-Mention the Laffers result.
-Write about if $D_i$ is the choice to attend education, then $\vec X_i$ must soak up all gains to education.
-Or assuming that all variation in $D_i$ comes from unobserved differences in take-up costs.
-This is unlikely to hold true, absent a separate research design for $D_i$, limiting the selection to an information restricted version of the Roy model.
-
-If not, then selection bias propagates, including writing here for what the selection bias term is equal to.
+This means than the vector of control variables $\vec X_i$ must be incredibly rich.
+Together, $\vec X_i$ and unobserved cost differences $U_{C,i}$ must explain selection into $D_i$ one hundred percent.
+In the Roy model framework, however, individuals make decisions about mediator take-up based on gains, which the researcher may not observe fully. 
+These unobservables are unlikely to be fully captured by any observable control set $\vec{X}_i$.
+Consequently, the assumption of mediator ignorability --- that $D_i$ is independent of $Y_i$ given $\vec{X}_i$ --- is implausible in most practical settings.\footnote{
+    In a similar sense, \cite{huber2024testing} give a method to  test the implications of sequential ignorability (requiring an instrument).
+}
+This assumption is unlikely to hold true, leading to persistent bias in CM estimates, absent a separate research design for $D_i$.
 
 % \subsection{Applied Settings}
 % 

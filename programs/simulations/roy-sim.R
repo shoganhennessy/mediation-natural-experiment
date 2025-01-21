@@ -283,15 +283,31 @@ summary(cf_secondstage.reg)
 print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 
-#! Test:
-simulated.data$K_0 <- (1 - simulated.data$D) * cf_firststage.reg$residuals
-simulated.data$K_1 <- simulated.data$D * cf_firststage.reg$residuals
-cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    bs(K_0, knots = seq(-0.1, 1.1, by = 0.2)) +
-    bs(K_1, knots = seq(-0.1, 1.1, by = 0.2)), data = simulated.data)
-summary(cf_secondstage.reg)
-print(theoretical.values(simulated.data))
-print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
+#! Test: note the difference between AIE and LAIE.
+# show gains to D, on average
+print(mean(simulated.data$Z * (simulated.data$Y_1_1 - simulated.data$Y_1_0) +
+    (1 - simulated.data$Z) * (simulated.data$Y_0_1 - simulated.data$Y_0_0)))
+# show gains to D, among compliers
+print(mean((simulated.data$Z * (simulated.data$Y_1_1 - simulated.data$Y_1_0) +
+    (1 - simulated.data$Z) * (simulated.data$Y_0_1 - simulated.data$Y_0_0))[
+        simulated.data$D_1 == 1 & simulated.data$D_0 == 0]))
+# Todo: estimate the AIE by a kappa-weighted second-stage.
+# Requires writing an R function for accepting the possible -ve kappa weight.
+library(LARF)
+est_probZ <- glm(Z ~ 1 + poly(X_minus, 3) * X_IV, data = simulated.data)
+hat_probZ <- est_probZ$fitted
+hat_probZ <- 0.5
+Z <- simulated.data$Z
+D <- simulated.data$D
+
+kappa_1 <- D * ((Z - hat_probZ) / ((1 - hat_probZ) * hat_probZ))
+kappa_0 <- (1 - D) * (((1 - Z) - (1 - hat_probZ)) / ((1 - hat_probZ) * hat_probZ))
+kappa <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
+table(kappa_0, kappa_1)
+# Code from LARF package for estimating OLS with possibly negative kappa weights.
+solve ( t(cbind(d,X) * kappa) %*% cbind(d,X)) %*% t(cbind(d,X) * kappa)  %*% y
+
+
 
 # Get bootstrapped SEs for the CF approach
 boot.reps <- 1000

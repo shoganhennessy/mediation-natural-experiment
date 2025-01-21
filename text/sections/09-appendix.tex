@@ -11,6 +11,11 @@
 % Start appendix
 \section{Appendix}
 \label{appendix}
+% This project used computational tools which are fully open-source.
+%As such, all code and data involved in this project are available at this project's Github repository, available at \url{https://github.com/shoganhennessy/state-faculty-composition}.
+%They may be used for replication, or as the basis for further work, as needed.
+Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu}{\nolinkurl{seh325@cornell.edu}}, or raised as an issue on the Github project.
+
 
 \subsection{Identification in Causal Mediation}
 \label{appendix:identification}
@@ -335,16 +340,11 @@ And so the direct and indirect effect estimates are contaminated by these bias t
 Write the proof in here, following \cite{vytlacil2002independence} construction in the forward direction.
 Note that the notation needs updating for no exclusion restriction.
 
-And then 
-This project used computational tools which are fully open-source.
-%As such, all code and data involved in this project are available at this project's Github repository, available at \url{https://github.com/shoganhennessy/state-faculty-composition}.
-%They may be used for replication, or as the basis for further work, as needed.
-Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu}{\nolinkurl{seh325@cornell.edu}}, or raised as an issue on the Github project.
-
 
 \subsection{Control Function Simulation}
-A number of statistical packages, for the R language \citep{R2023}, made the empirical analysis for this paper possible.
+A number of statistical packages, for the R language \citep{R2023}, made the simulation analysis for this paper possible.
 \begin{itemize}
     \item \textit{Tidyverse} \citep{tidyverse} collected tools for data analysis in the R language.
-    \item \textit{Splines} 
+    \item \textit{Splines} \citep{wang2021shape} allows semi-parametric estimation, using splines, in the R language.
+    \item \textit{Mediate} \citep{imai2010causal} automates the sequential-ignorability estimates of CM effects \citep{imai2010identification} in the R language.
 \end{itemize}
