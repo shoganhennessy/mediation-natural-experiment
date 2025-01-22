@@ -5,20 +5,22 @@ Second, I show how selection bias operates in an applied model for selection int
 
 \subsection{Regression Framework}
 \label{sec:regression}
-Inference for direct and direct effects can be written in a regression framework, showing how correlation between the error term and the mediator persistently biases estimates.
+Inference for CM effects can be written in a regression framework, showing how correlation between the error term and the mediator persistently biases estimates.
 Write $Y_i(Z, D)$ as a sum of observed factors $Z_i, \vec X_i$ and unobserved factors, $U_{1,i}, U_{0,i}$ (following the notation of \citealt{heckman2005structural}).
-Put $\mu_D(Z; \vec X_i) = \Egiven{Y_i(Z_i, 0)}{\vec X}$, to give a representation of the average direct and indirect effects.
+For $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec X}$, to give a representation of the ADE and AIE.
 \begin{align*}
-    \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
+    \text{ADE}
+    = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
     &= \mathbb{E} \Big[ \Big( D_i(1) - D_i(0) \Big)
         \times \Big( \mu_1(Z_i; \vec X_i) - \mu_0(Z_i; \vec X_i) \Big) \Big], \\
-    \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
+    \text{AIE}    
+    = \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
         &= \mathbb{E} \Big[ \mu_{D_i}(1; \vec X_i) - \mu_{D_i}(0; \vec X_i) \Big].
 \end{align*}
 Then define the error terms.
 \[ U_{0,i} = Y_i(Z_i, 0) - \mu_0(Z_i; \vec X_i),\;\;\;\;
 U_{1,i} = Y_i(Z_i, 1) - \mu_1(Z_i; \vec X_i) \]
-With this notation, observed data $Z_i, D_i, Y_i$ take the following representation, which characterises direct effects, indirect effects, and bias from selection.
+With this notation, observed data $Z_i, D_i, Y_i$ take the following representation, which characterises direct effects, indirect effects, and selection bias.
 \begin{align}
     \label{eqn:parametric-firststage}
     D_i &= \phi + \pi Z_i + \varphi(\vec X_i) + \eta_i  \\
@@ -29,13 +31,13 @@ With this notation, observed data $Z_i, D_i, Y_i$ take the following representat
         \text{Correlated error term.}}
 \end{align}
 First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi, \varphi(\vec X_i)$ the intercept, and $\pi$ the average rate of compliance (which may depend on $\vec X_i$).
-Second-stage \eqref{eqn:parametric-secondstage} is not identified without further assumptions.
+Second-stage \eqref{eqn:parametric-secondstage} is not identified thanks to omitted variables bias.
 $\alpha, \zeta(\vec X_i)$ are the intercept terms, and $\beta, \gamma, \delta$ are values that comprise mediation effects --- all whose values may depend on $\vec X_i$, see \autoref{appendix:regression-model} for full definitions.
 $\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}$ is the possibly correlated error term, which disrupts identification.
 The ADE and AIE are averages of these coefficients.\footnote{
     The AIE, in fact, refers only to treatment gains among $D_i(z)$ compliers, so has the more complicated form $\mathbb E \Big[ 
         \pi \times \Egiven{\beta +  \delta Z_i}{D_i(1) = 1, D_i(0) = 0} \Big]$.
-    The formula above skips the local to compliers part, to keep with standard regression notation.
+    The formula above skips the local to compliers part, to keep with regression notation.
 }
 \begin{align*}
     \text{ADE:} \;\; \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
@@ -48,8 +50,8 @@ The regression estimates of second-stage \eqref{eqn:parametric-secondstage} give
 If not, then regression estimates suffer from omitted variables bias if they do not adjust for the unobserved confounder $U_i$.
 
 \subsection{Selection on Costs and Benefits}
-The key to noting that CM is at risk of bias is noting that $D_i \indep  U_i$ is unlikely to hold in applied settings.
-Without an identification strategy for $D_i$, in addition to one for $Z_i$, bias will persist, given how we conventionally think of selection into treatment.
+CM is at risk of bias because $D_i \indep  U_i$ is unlikely to hold in applied settings.
+Without an identification strategy for $D_i$ (in addition to one for $Z_i$), bias will persist, given how we conventionally think of selection into treatment.
 
 Consider a model where individual $i$ selects into a mediator based on costs and benefits, after $Z_i, \vec X_i$ have been assigned.
 Write $C_i$ for individual $i$'s costs of taking mediator $D_i$, and $\indicator{.}$ for the indicator function.
@@ -63,7 +65,7 @@ If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking
     See \cite{heckman1990empirical} for this approach.
 }
 This makes it particularly useful as a base case when studying causal mediation, where selection into the mediator may be driven by private information (unobserved by the researcher).
-Additionally, the Roy model aligns well with many real-world settings, such as education, labour market participation, and migration, where decisions are based on a comparison of expected outcomes across alternatives.  
+Additionally, the Roy model aligns well with many real-world settings, such as education or labour market participation, where decisions are based on a comparison of expected outcomes across alternatives.  
 By using the Roy model as a benchmark, I explore the practical limits of the mediator ignorability assumption.
 
 Decompose the costs into its mean and unobserved error, as above $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, and collect the mean benefits, $\mu \coloneqq \mu_1 - \mu_0$.
@@ -85,11 +87,10 @@ This could, for example, hold if $U_{0,i}, U_{1,i}$ are degenerate conditional o
 This means than the vector of control variables $\vec X_i$ must be incredibly rich.
 Together, $\vec X_i$ and unobserved cost differences $U_{C,i}$ must explain selection into $D_i$ one hundred percent.
 In the Roy model framework, however, individuals make decisions about mediator take-up based on gains, which the researcher may not observe fully. 
-These unobservables are unlikely to be fully captured by any observable control set $\vec{X}_i$.
-Consequently, the assumption of mediator ignorability --- that $D_i$ is independent of $Y_i$ given $\vec{X}_i$ --- is implausible in most practical settings.\footnote{
+These unobservables are unlikely to be fully captured by any observable control set $\vec{X}_i$.\footnote{
     In a similar sense, \cite{huber2024testing} give a method to  test the implications of sequential ignorability (requiring an instrument).
 }
-This assumption is unlikely to hold true, leading to persistent bias in CM estimates, absent a separate research design for $D_i$.
+Consequently, the assumption of mediator ignorability is implausible in most practical settings (absent a separate research design for $D_i$).
 
 % \subsection{Applied Settings}
 % 

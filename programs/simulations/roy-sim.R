@@ -278,10 +278,92 @@ cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV * bs(X_minus, df = 10),
     data = simulated.data)
 simulated.data$K <- cf_firststage.reg$residuals
 cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    bs(K, knots = seq(-1.1, 1.1, by = 0.1)), data = simulated.data)
+    bs(K, knots = seq(-1.1, 1.1, by = 0.1)),
+    data = simulated.data)
 summary(cf_secondstage.reg)
 print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
+
+#! Test: faster semi-parametric package.
+library(mgcv)
+simulated.data$K <- cf_firststage.reg$residuals
+cf_secondstage.reg <- gam(Y ~ (1 + Z * D) + X_minus +
+    poly(K, 10),
+    #s(K, bs = "cr", k = 20),
+    family = gaussian(link = "identity"),
+    data = simulated.data)
+print(summary(cf_secondstage.reg))
+print(theoretical.values(simulated.data))
+print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
+
+# Test, get compliers correct.
+simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$K
+simulated.data$K_1 <- simulated.data$D * simulated.data$K
+cf_secondstage.reg <- gam(Y ~ (1 + Z * D) + X_minus +
+    s(K, bs = "cr", k = 20),
+    family = gaussian(link = "identity"),
+    data = simulated.data)
+print(theoretical.values(simulated.data))
+print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
+
+# Coding around the bout way to do it.
+# Estimate the 2nd stage.
+# Calulcuate Y - CF
+# Use this as the outcome, to avoid fitting a 2nd control function 
+# Estimate OLS with this, with kappa weight
+# Do so by matrix.
+
+simulated.data$Ydebiased <- cf_secondstage.reg$fitted -
+    predict(cf_secondstage.reg,
+        newdata = mutate(simulated.data, Z = 0, D = 0))
+complier_secondstage.reg <- gam(Ydebiased ~ (1 + Z * D),
+    family = gaussian(link = "identity"),
+    data = simulated.data)
+print(summary(complier_secondstage.reg))
+print(theoretical.values(simulated.data))
+print(estimated.values(cf_firststage.reg, complier_secondstage.reg, simulated.data))
+
+
+# Todo: estimate the AIE by a kappa-weighted second-stage.
+# Requires writing an R function for accepting the possible -ve kappa weight.
+est_probZ <- glm(Z ~ 1 + poly(X_minus, 6) * X_IV, data = simulated.data)
+hat_probZ <- as.numeric(est_probZ$fitted)
+# hat_probZ <- 0.5
+Z <- simulated.data$Z
+D <- simulated.data$D
+kappa_1 <- D * ((Z - hat_probZ) / ((1 - hat_probZ) * hat_probZ))
+kappa_0 <- (1 - D) * (((1 - Z) - (1 - hat_probZ)) / ((1 - hat_probZ) * hat_probZ))
+kappa <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
+
+y.matrix <- matrix(simulated.data$Y)
+reg.matrix <- cbind(1, simulated.data$Z, simulated.data$D,
+    simulated.data$Z * simulated.data$D,
+    simulated.data$X_minus,
+    poly(simulated.data$K, 10))
+#    s(simulated.data$K, bs = "cr", k = 20))
+wls.coef <- solve(
+    t(reg.matrix * kappa) %*% reg.matrix) %*% t(reg.matrix * kappa
+        )  %*% y.matrix
+wls.est <- as.numeric(reg.matrix %*% wls.coef)
+
+firststage.est <- predict(
+    cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
+        cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+# calculate the second-stage indirect effect
+indirect.est <- as.numeric(
+    cbind(1, simulated.data$Z, 1, simulated.data$Z,
+        simulated.data$X_minus, poly(simulated.data$K, 10)) %*% wls.coef) -
+    as.numeric(cbind(1, simulated.data$Z, 0, 0,
+        simulated.data$X_minus, poly(simulated.data$K, 10)) %*% wls.coef)
+# Show the complier means
+print(mean(firststage.est * indirect.est))
+print(theoretical.values(simulated.data))
+# IT WORKS!
+
+# Compared the un-weighted version (which has group differences bias).
+print(estimated.values(cf_firststage.reg, complier_secondstage.reg, simulated.data))
+# The analogy principle held throughout my janky WLS (kappa-weight) code.
+
 
 #! Test: note the difference between AIE and LAIE.
 # show gains to D, on average
@@ -289,8 +371,8 @@ print(mean(simulated.data$Z * (simulated.data$Y_1_1 - simulated.data$Y_1_0) +
     (1 - simulated.data$Z) * (simulated.data$Y_0_1 - simulated.data$Y_0_0)))
 # show gains to D, among compliers
 print(mean((simulated.data$Z * (simulated.data$Y_1_1 - simulated.data$Y_1_0) +
-    (1 - simulated.data$Z) * (simulated.data$Y_0_1 - simulated.data$Y_0_0))[
-        simulated.data$D_1 == 1 & simulated.data$D_0 == 0]))
+    (1 - simulated.data$Z) * (simulated.data$Y_0_1 - simulated.data$Y_0_0)) * (
+        simulated.data$D_1 == 1 & simulated.data$D_0 == 0)))
 # Todo: estimate the AIE by a kappa-weighted second-stage.
 # Requires writing an R function for accepting the possible -ve kappa weight.
 library(LARF)

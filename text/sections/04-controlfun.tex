@@ -70,7 +70,7 @@ Furthermore, these are estimated in two steps, so that the concerns are of great
 Otherwise, small sample bias properties could even dominate the bias terms identified in \autoref{thm:selection-bias}.\footnote{
     See \cite[Section~6]{imbens2009identification} for a full discussion of the asymptotic theory of a control function estimator.
 }
-It is beyond the scope of this paper to develop the optimal procedure here, but this concern is incredibly important to keep in mind.
+It is beyond the scope of this paper to develop the optimal procedure here, but these concerns are important.
 % Senan note: furture direction, with a real econometrician co-author?
 For applied research aiming to estimate CM effects, the control function method is only appropriate in extremely large sample sizes, such as applications using administrative sources or biobanks.
 
@@ -79,23 +79,35 @@ With these concerns in mind, I propose the following method to estimate CM effec
     \item Estimate the first-stage, $\Egiven{D_i}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}$ with a non-parametric estimator (e.g., a probability forest, or fully interacted OLS specification).
     \item Calculate estimates of the control function, $\hat K_i = D_i - \hat{\mathbb E} \left[D_i \middle\vert Z_i, \vec X_i^{\text{IV}}, \vec X_i^- \right]$.
     \item Estimate the second-stage with OLS (including an interaction term between $Z_i$ and $D_i$), and a semi-parametric regressor of the control function.
+    $l(.)$ is a semi-parametric nuisance function, so can be approximated with a spline specification, for example.
     \[ \mathbb{E} \left[Y_i \middle\vert Z_i, D_i, \vec X_i^-, \hat K_i \right]
     = \beta D_i + \gamma Z_i + \delta Z_i D_i + l\left( \hat K_i \right) \]
-    $l(.)$ is a semi-parametric nuisance function, so can be approximated with a spline specification, for example.
-    \item Calculate the ADE and AIE estimates.
+    Estimate the ADE from this second-stage.
     \begin{align*}
         \hat{\text{ADE}} &= \; \E{
             \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i = 1, D_i, \vec X_i^-, \hat K_i \right]
-            - \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i = 0, D_i, \vec X_i^-, \hat K_i \right]} \\
+            - \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i = 0, D_i, \vec X_i^-, \hat K_i \right]} 
+    \end{align*}
+    \item Estimate the second-stage with weighted-least squares, including a control function with (estimated) $\kappa$-weights \citep{abadie2003semiparametric}.
+    \begin{align*}
+        \hat\kappa_i &= \; 1 - \frac{(1 - Z_i)D_i}{
+            1 - \hat\Pr\left(Z_i = 1 \middle\vert \vec X_i^-, \vec X_i^{\text{IV}}\right)} -
+            \frac{Z_i (1 - D_i)}{
+            \hat\Pr\left(Z_i = 1 \middle\vert \vec X_i^-, \vec X_i^{\text{IV}}\right)} \\
+        \mathbb{E} \left[ \hat\kappa_i Y_i \middle\vert Z_i, D_i, \vec X_i^-, \hat K_i \right]
+            &= \beta D_i + \gamma Z_i + \delta Z_i D_i + l\left( \hat K_i \right)
+    \end{align*}
+    Estimate the AIE from this second-stage.
+    \begin{align*}
         \hat{\text{AIE}} &= \; \mathbb E \left[ \begin{aligned} &\left(
             \hat{\mathbb{E}} \left[D_i \middle\vert Z_i = 1, \vec X_i^{\text{IV}}, \vec X_i^-\right]
             - \hat{\mathbb{E}} \left[D_i \middle\vert Z_i = 1, \vec X_i^{\text{IV}}, \vec X_i^-\right] \right) \\
             &\times \left(
-                \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i, D_i = 1, \vec X_i^-, \hat K_i \right]
-            - \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i, D_i = 0, \vec X_i^-, \hat K_i \right]
+                \hat{\mathbb{E}} \left[ \hat\kappa_i Y_i \middle\vert Z_i, D_i = 1, \vec X_i^-, \hat K_i \right]
+            - \hat{\mathbb{E}} \left[ \hat\kappa_i Y_i \middle\vert Z_i, D_i = 0, \vec X_i^-, \hat K_i \right]
             \right) \end{aligned} \right]
-    \end{align*}
-    \item Bootstrap across steps 1 through 4, to calculate standard errors.
+        \end{align*}
+    \item Bootstrap across steps 1 through 4, to calculate standard errors for the respective ADE and AIE estimates.
 \end{enumerate}
 
 \subsection{Simulation Evidence}
@@ -146,7 +158,7 @@ In this setting the error terms $U_{i, 0}, U_{i, 1}$ determine the bias in OLS e
     \textbf{Note:}
     These figures show the OLS and control function estimates of the ADE and AIE, for $N = 10,000$ sample size.
     The black dashed line is the true value, points are points estimates from data simulated with a given $\rho$ value and $\sigma_0 = 1, \sigma_1 = 2$, and shaded regions are the 95\% confidence intervals.
-    Orange are the OLS estimates, blue the control function approach described herein.
+    Orange are the OLS estimates, blue the control function approach.
 \end{figure}
 
 \autoref{fig:rho-bias} shows the control function estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from bootstrapped standard errors (from 1,000 bootstrap replications).

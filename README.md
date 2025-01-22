@@ -8,24 +8,20 @@ This folder contains all relevant files for my academic project ``Causal Mediati
 
 ## Current plan and to-dos.
 
-1. Re-write the section 3, starting with assuming D_i follows a Roy model
-``3. Causal Mediation Under Selection.''
+1. Fix writing with ``implied behaviour'' writing.
 
-- Show implied behaviour if one assumes seq ig under a ROy model.
+2. Adjust estimation procedure to have different estimation for direct and indirect effects.
+The indirect effect should be weighted towards compliers.
 
-- Leads to a clear statement of ''seq ig'' implies ''THIS,'' where ''THIS'' is a mathematical statement with some clear BS going on.
-A clear economic example of how it would be unrealistic.
+3. Writing comments from Hyewon.
 
-- One clear way to do this would be to develop a testable implication, and show this implication is rejected.
-
-2. Look into using the notation of choosing D_i where E_I[ Y(., D) - cost(D)] > 0 is maximised over an information set I.
-
-- Information set I does some heavy lifting for now, as it gives an idea of how individuals could select into D --- and how the ignorability assumption came about.
-- Alternatively, I could not use the I notation at all, and keep it for another project pontificating about the Roy model as a judge of conditional ignorability assumption, ``Selection into Treatment: Principled Judgments of Independence Assumptions in Observational Economic Research.''
-
-3. New section for the control function solution.
-
-- Show the regression framework in here, and assume monotonicity + correlated error terms.
-- Come to an identification statement, and note this is for the average effects (not compliers, see Walters etc.).
-- Show simulation evidence, look at another paper for how to set up this simulation evidence.
-- Sensitivity analysis for correlated error terms, the main (questionable) model-based assumption that powers this analysis.
+- Section 1.0 + 1.1
+1. Is Average Direct Effect as "violation of exclusion restriction"? It might be worth referring to usual labor economics term to bring labor audience along.
+2. Why does ADE still exist under ignorable assumption? Doesn't your independence assumption (=ignorable assumption) rule out exclusion restriction?
+3. Is AIE + ADE = Total, i.e, Reduced Form Effect?
+4. Does Sequential Ignorability same as assuming that "complier status" is being randomly assigned? Then it may have testable implication.
+5. Are we interested in AIE/ADE averaged across all population? Can we get at AIE/ADE for a subpopulation with less strong assumption, like LATE.
+6. Might be helpful to show linearity assumption vs relaxing it in later applied case
+7. Is ADE (AIE) + group differences sort of LATE version of ADE (AIE)?
+8 . If mediator is ignorable, are you already ruling out roy style?
+Roy: Y(1) - Y(0) (or U1-U0) being correlated with D

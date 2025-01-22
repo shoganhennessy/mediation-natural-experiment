@@ -329,10 +329,10 @@ If sequential ignorability does not hold, then the regression estimates from est
     &= \E\delta
 \end{align*}
 }}
-And so the direct and indirect effect estimates are contaminated by these bias terms.
+And so the ADE and AIE estimates are contaminated by these bias terms.
+Additionally, the AIE estimates refers to gains from the mediator among $D(z)$ compliers (not the entire average), so will be biased when not accounting for this, too.
 
 % Senan note: should write CM estimand = \E{\gamma + \delta D_i} + bias, where bias is some E[ U | D = 1] term.
-
 
 
 \subsection{Control Function Identification}
