@@ -425,6 +425,41 @@ boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
 
 
 ################################################################################
+## Compare estimation methods, across different sigma values.
+
+# Define an empty dataframe, to start adding to.
+boot.values <- estimated.bootstrap(1, simulated.data)$estimates
+boot.values$sigma <- NA
+sigma.data <- boot.values[0, ]
+print(sigma.data)
+# Define values in rho \in [-1, 1] to go across
+sigma.values <- seq(0, 2, by = 0.25)
+# Define the number of boot reps for each
+boot.reps <- 1000
+i <- 0
+
+# Start the rho loop
+for (sigma in sigma.values){
+    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
+    sigma_sim.data <- simulate.data(0.5, 1, sigma, 0.25)
+    # Get the truth + estimates + bootstrapped SEs, and save rho value
+    sigma.boot  <- estimated.bootstrap(boot.reps, simulated.data,
+        print.progress = FALSE)$estimates
+    sigma.boot$sigma <- sigma
+    # Add to the dataframe.
+    sigma.data[i, ] <- sigma.boot
+    # SHow far we are.
+    i <- i + 1
+    print(paste0(sigma, " in [0, 2], ", i / length(sigma.values), "% done."))
+    #rm(rho_sim.data, rho.boot)
+    gc()
+}
+
+## Save the output data.
+sigma.data %>% write_csv(file.path(output.folder, "sigma-sim-data.csv"))
+
+end.
+################################################################################
 ## Compare estimation methods, across different rho values.
 
 # Define an empty dataframe, to start adding to.
@@ -457,38 +492,3 @@ for (rho in rho.values){
 
 ## Save the output data.
 rho.data %>% write_csv(file.path(output.folder, "rho-sim-data.csv"))
-
-
-################################################################################
-## Compare estimation methods, across different sigma values.
-
-# Define an empty dataframe, to start adding to.
-boot.values <- estimated.bootstrap(1, simulated.data)$estimates
-boot.values$sigma <- NA
-sigma.data <- boot.values[0, ]
-print(sigma.data)
-# Define values in rho \in [-1, 1] to go across
-sigma.values <- seq(0, 2, by = 1)
-# Define the number of boot reps for each
-boot.reps <- 10
-i <- 0
-
-# Start the rho loop
-for (sigma in sigma.values){
-    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
-    sigma_sim.data <- simulate.data(0.5, 1, sigma, 0.25)
-    # Get the truth + estimates + bootstrapped SEs, and save rho value
-    sigma.boot  <- estimated.bootstrap(boot.reps, simulated.data,
-        print.progress = FALSE)$estimates
-    sigma.boot$sigma <- sigma
-    # Add to the dataframe.
-    sigma.data[i, ] <- sigma.boot
-    # SHow far we are.
-    i <- i + 1
-    print(paste0(sigma, " in [0, 2], ", i / length(sigma.values), "% done."))
-    #rm(rho_sim.data, rho.boot)
-    gc()
-}
-
-## Save the output data.
-sigma.data %>% write_csv(file.path(output.folder, "sigma-sim-data.csv"))
