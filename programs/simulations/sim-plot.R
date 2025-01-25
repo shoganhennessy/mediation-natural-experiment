@@ -48,10 +48,10 @@ print(names(sigma.data))
 direct_boot.plot <- boot.data %>%
     ggplot() +
     # Dist of OLS estimates.
-    geom_density(aes(x = ols_direct_effect, y = ..density..),
+    geom_density(aes(x = ols_direct_effect, y = after_stat(density)),
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     # Dist of CF estimates.
-    geom_density(aes(x = cf_direct_effect, y = ..density..),
+    geom_density(aes(x = cf_direct_effect, y = after_stat(density)),
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     # Truth value
     geom_vline(xintercept = mean(boot.data$truth_direct_effect),
@@ -75,10 +75,10 @@ ggsave(file.path(output.folder, "direct-boot.png"),
 indirect_boot.plot <- boot.data %>%
     ggplot() +
     # Dist of OLS estimates.
-    geom_density(aes(x = ols_indirect_effect, y = ..density..),
+    geom_density(aes(x = ols_indirect_effect, y = after_stat(density)),
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     # Dist of CF estimates.
-    geom_density(aes(x = cf_indirect_effect, y = ..density..),
+    geom_density(aes(x = cf_indirect_effect, y = after_stat(density)),
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     # Truth value
     geom_vline(xintercept = mean(boot.data$truth_indirect_effect),
@@ -137,7 +137,7 @@ rho_directeffect_bias.plot <- rho.data %>%
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth:
     geom_hline(aes(yintercept = truth_direct_effect),
-        colour = "black", linetype = "dashed", linewidth = 0.75) +
+        colour = "black", linetype = "dashed", linewidth = 1) +
     annotate("text", colour = "black",
         x = 0.65, y = 0.75,
         fontface = "bold",
@@ -182,7 +182,7 @@ rho_indirecteffect_bias.plot <- rho.data %>%
         fill = colour.list[2], alpha = 0.2) +
     # Truth:
     geom_hline(aes(yintercept = mean(truth_indirect_effect)),
-        colour = "black", linetype = "dashed", linewidth = 0.75) +
+        colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
@@ -208,7 +208,44 @@ ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
 ################################################################################
 ## Plot the CF effect estimates, by OLS + CF, different $\sigma$ values.
 
-# Plot the bias in indirect effect est vs rho
+# Plot the bias in direct effect est vs sigma
+sigma_directeffect_bias.plot <- sigma.data %>%
+    ggplot(aes(x = sigma)) +
+    # OLS est + 95 % CI
+    geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
+    geom_ribbon(aes(ymin = ols_direct_effect_low,
+        ymax = ols_direct_effect_up),
+        fill = colour.list[1], alpha = 0.2) +
+    # CF est + 95 % CI
+    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
+    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+        fill = colour.list[2], alpha = 0.2) +
+    # Truth:
+    geom_line(aes(y = truth_direct_effect),
+        colour = "black", linetype = "dashed", linewidth = 1) +
+    # Presentation options
+    theme_bw() +
+    scale_x_continuous(
+        name = TeX("$\\sigma$"),
+        expand = c(0, 0),
+        breaks = seq(0, 2, by = 0.25),
+        limits = c(-0.02, 2.02)) +
+    scale_y_continuous(name = "",
+        breaks = seq(0, 2.5, by = 0.25),
+        limits = c(0, 2.5),
+        expand = c(0.01, 0.01)) +
+    ggtitle("Estimate") +
+    theme(plot.title = element_text(hjust = 0, size = rel(1)),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"),
+        legend.position = "bottom")
+# Save this plot
+ggsave(file.path(output.folder, "sigma-directeffect-bias.png"),
+    plot = sigma_directeffect_bias.plot, dpi = 300,
+    units = "cm", width = fig.width, height = fig.height)
+
+
+# Plot the bias in indirect effect est vs sigma
 sigma_indirecteffect_bias.plot <- sigma.data %>%
     ggplot(aes(x = sigma)) +
     # OLS est + 95 % CI
@@ -222,7 +259,7 @@ sigma_indirecteffect_bias.plot <- sigma.data %>%
         fill = colour.list[2], alpha = 0.2) +
     # Truth:
     geom_line(aes(y = truth_indirect_effect),
-        colour = "black", linetype = "dashed", linewidth = 0.75) +
+        colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
