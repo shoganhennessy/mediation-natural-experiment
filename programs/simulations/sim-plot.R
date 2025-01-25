@@ -103,7 +103,7 @@ ggsave(file.path(output.folder, "indirect-boot.png"),
 ## Plot the Direct effect estimates, by OLS + CF, different $\rho$ values.
 
 # Plot the bias in direct effect est vs rho
-directeffect_bias.plot <- rho.data %>%
+rho_directeffect_bias.plot <- rho.data %>%
     ggplot(aes(x = rho)) +
     # OLS est + 95 % CI
     geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
@@ -136,7 +136,7 @@ directeffect_bias.plot <- rho.data %>%
         curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth:
-    geom_hline(aes(yintercept = mean(truth_direct_effect)),
+    geom_hline(aes(yintercept = truth_direct_effect),
         colour = "black", linetype = "dashed", linewidth = 0.75) +
     annotate("text", colour = "black",
         x = 0.65, y = 0.75,
@@ -155,7 +155,7 @@ directeffect_bias.plot <- rho.data %>%
         name = TeX("$\\rho$"),
         expand = c(0, 0),
         breaks = seq(-1, 1, by = 0.25),
-        limits = c(-1.05, 1.05)) +
+        limits = c(-1.025, 1.025)) +
     scale_y_continuous(name = "",
         breaks = seq(0, 2.5, by = 0.25),
         limits = c(0, 2.5),
@@ -166,11 +166,11 @@ directeffect_bias.plot <- rho.data %>%
         plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"))
 # Save this plot
 ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
-    plot = directeffect_bias.plot, dpi = 300,
+    plot = rho_directeffect_bias.plot, dpi = 300,
     units = "cm", width = fig.width, height = fig.height)
 
 # Plot the bias in indirect effect est vs rho
-indirecteffect_bias.plot <- rho.data %>%
+rho_indirecteffect_bias.plot <- rho.data %>%
     ggplot(aes(x = rho)) +
     # OLS est + 95 % CI
     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
@@ -201,16 +201,16 @@ indirecteffect_bias.plot <- rho.data %>%
         legend.position = "bottom")
 # Save this plot
 ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
-    plot = indirecteffect_bias.plot, dpi = 300,
+    plot = rho_indirecteffect_bias.plot, dpi = 300,
     units = "cm", width = fig.width, height = fig.height)
 
 
 ################################################################################
-## Plot the Direct effect estimates, by OLS + CF, different $\sigma$ values.
+## Plot the CF effect estimates, by OLS + CF, different $\sigma$ values.
 
 # Plot the bias in indirect effect est vs rho
-indirecteffect_bias.plot <- sigma.data %>%
-    ggplot(aes(x = sigma_1)) +
+sigma_indirecteffect_bias.plot <- sigma.data %>%
+    ggplot(aes(x = sigma)) +
     # OLS est + 95 % CI
     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
     geom_ribbon(aes(ymin = ols_indirect_effect_low,
@@ -229,7 +229,7 @@ indirecteffect_bias.plot <- sigma.data %>%
         name = TeX("$\\sigma$"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
-        limits = c(-0.01, 2.01)) +
+        limits = c(-0.02, 2.02)) +
     scale_y_continuous(name = "",
         breaks = seq(0, 2.5, by = 0.25),
         limits = c(0, 2.5),
@@ -241,5 +241,5 @@ indirecteffect_bias.plot <- sigma.data %>%
         legend.position = "bottom")
 # Save this plot
 ggsave(file.path(output.folder, "sigma-indirecteffect-bias.png"),
-    plot = indirecteffect_bias.plot, dpi = 300,
+    plot = sigma_indirecteffect_bias.plot, dpi = 300,
     units = "cm", width = fig.width, height = fig.height)

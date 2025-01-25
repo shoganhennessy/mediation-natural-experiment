@@ -208,21 +208,20 @@ estimated.bootstrap <- function(boot.reps, example.data,
         ols_secondstage.reg <- lm(Y ~ 1 + D + Z + Z:D + X_minus, data = boot.data)
         ols.est <- estimated.values(ols_firststage.reg, ols_secondstage.reg, boot.data)
         # 3. Control Function estimates.
-        cf_firststage.reg <- gam(D ~ (1 + Z) * X_IV +
-            s(X_minus, bs = "cr", k = 20),
-            #family = binomial(link = "probit"),
-            data = boot.data)
-        boot.data$K <- cf_firststage.reg$residuals
-        cf_secondstage.reg <- gam(Y ~ (1 + Z * D) + X_minus +
-            s(K, bs = "cr", k = 20),
-            data = boot.data)
-        #cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV * bs(
-        #    X_minus, knots = seq(-1, 8, by = 1)),
+        #cf_firststage.reg <- gam(D ~ (1 + Z) * X_IV +
+        #    s(X_minus, bs = "cr", k = 20),
+        #    #family = binomial(link = "probit"),
         #    data = boot.data)
         #boot.data$K <- cf_firststage.reg$residuals
-        #cf_secondstage.reg <- lm(
-        #    Y ~ (1 + Z * D) + X_minus + bs(K, knots = seq(-1, 1, by = 0.1)),
+        #cf_secondstage.reg <- gam(Y ~ (1 + Z * D) + X_minus +
+        #    s(K, bs = "cr", k = 20),
         #    data = boot.data)
+        cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV * bs(X_minus, df = 20),
+            data = boot.data)
+        boot.data$K <- cf_firststage.reg$residuals
+        cf_secondstage.reg <- lm(
+            Y ~ (1 + Z * D) + X_minus + bs(K, knots = seq(-1, 1, by = 0.05)),
+            data = boot.data)
         cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
         # Save the outputs.
         ols_direct_effect[i]     <- ols.est$`direct-effect`
@@ -272,7 +271,7 @@ estimated.bootstrap <- function(boot.reps, example.data,
 ## Compare estimation methods, in one simulation.
 
 ## Simulate the data: rho, sigma_0, sigma_1, sigma_C = 0.5, 1, 2, 1.
-simulated.data <- simulate.data(0.5, 0.5, 1, 0.25)
+simulated.data <- simulate.data(0.5, 1, 2, 0.01)
 # SHow the theoretical direct + indirect values
 print("How many mediator compliers in the sample?")
 print(table(simulated.data$D_1, simulated.data$D_0) / NROW(simulated.data))
@@ -294,12 +293,12 @@ print(theoretical.values(simulated.data))
 print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 
 # Show how (unknown) control function gets it correct, in 2 steps (with splines)
-cf_firststage.reg <- lm(D ~ (1 + Z) + X_IV + bs(
-    X_minus, knots = seq(-1, 8, by = 0.5)),
+cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV * bs(X_minus, df = 20),
     data = simulated.data)
 simulated.data$K <- cf_firststage.reg$residuals
 cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    bs(K, knots = seq(-1.1, 1.1, by = 0.1)), data = simulated.data)
+    bs(K, knots = seq(-1.05, 1.05, by = 0.05)),
+    data = simulated.data)
 summary(cf_secondstage.reg)
 print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
@@ -308,17 +307,18 @@ print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 #! -> needs a different weighting scheme
 #! -> Abadie (2003) kappa weights do not get it correct.
 library(mgcv)
-cf_firststage.reg <- gam(D ~ (1 + Z) * X_IV +
-    s(X_minus, bs = "cr", k = 20),
-    #family = binomial(link = "probit"),
+cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV * bs(X_minus, df = 20),
     data = simulated.data)
-simulated.data$K <- cf_firststage.reg$residuals
-cf_secondstage.reg <- gam(Y ~ (1 + Z * D) + X_minus +
-    s(K, bs = "cr", k = 20),
+complier.weights <- predict(
+    cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
+        cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+complier.weights[complier.weights < 0] <- 0
+complier_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
+    bs(K, knots = seq(-1.1, 1.1, by = 0.05)),
+    weights = complier.weights,
     data = simulated.data)
 print(theoretical.values(simulated.data))
-print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
-
+print(estimated.values(cf_firststage.reg, complier_secondstage.reg, simulated.data))
 
 #! Test: including the K_0 and K_1 terms in complier gains
 simulated.data$K_0 <- (1 - simulated.data$D) * cf_firststage.reg$residuals
@@ -342,9 +342,9 @@ print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 
 
 
-# Todo: estimate the AIE by a kappa-weighted second-stage.
+# Estimate the AIE by a kappa-weighted second-stage.
 # Requires writing an R function for accepting the possible -ve kappa weight.
-est_probZ <- glm(Z ~ 1 + bs(X_minus, degree = 20) * X_IV, data = simulated.data)
+est_probZ <- glm(Z ~ 1 + bs(X_minus, df = 20) * X_IV, data = simulated.data)
 hat_probZ <- as.numeric(est_probZ$fitted)
 # hat_probZ <- 0.5
 Z <- simulated.data$Z
@@ -354,7 +354,7 @@ kappa_0 <- (1 - D) * (((1 - Z) - (1 - hat_probZ)) / ((1 - hat_probZ) * hat_probZ
 kappa <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
 
 y.matrix <- matrix(simulated.data$Y)
-control.fun <- bs(simulated.data$K, degree = 10)#knots = seq(-1, 1, by = 0.2))
+control.fun <- bs(simulated.data$K, df = 10)#knots = seq(-1, 1, by = 0.2))
 reg.matrix <- cbind(1, simulated.data$Z,
     simulated.data$D,
     simulated.data$Z * simulated.data$D,
@@ -375,7 +375,7 @@ indirect.est <- as.numeric(
     as.numeric(cbind(1, simulated.data$Z, 0, 0,
         simulated.data$X_minus, control.fun) %*% wls.coef)
 # Show the complier means
-print(mean(indirect.est))
+print(mean(indirect.est * firststage.est))
 print(theoretical.values(simulated.data))
 
 # Compared the un-weighted version (which has group differences bias).
@@ -433,7 +433,7 @@ boot.values$sigma <- NA
 sigma.data <- boot.values[0, ]
 print(sigma.data)
 # Define values in rho \in [-1, 1] to go across
-sigma.values <- seq(0, 2, by = 0.25)
+sigma.values <- c(0, seq(0, 2, by = 0.25))
 # Define the number of boot reps for each
 boot.reps <- 1000
 i <- 0
@@ -443,7 +443,7 @@ for (sigma in sigma.values){
     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
     sigma_sim.data <- simulate.data(0.5, 1, sigma, 0.25)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
-    sigma.boot  <- estimated.bootstrap(boot.reps, simulated.data,
+    sigma.boot <- estimated.bootstrap(boot.reps, simulated.data,
         print.progress = FALSE)$estimates
     sigma.boot$sigma <- sigma
     # Add to the dataframe.
@@ -454,11 +454,11 @@ for (sigma in sigma.values){
     #rm(rho_sim.data, rho.boot)
     gc()
 }
-
+View(sigma.data)
 ## Save the output data.
 sigma.data %>% write_csv(file.path(output.folder, "sigma-sim-data.csv"))
 
-end.
+
 ################################################################################
 ## Compare estimation methods, across different rho values.
 
