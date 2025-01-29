@@ -30,7 +30,9 @@ $K_i$ serves as the control function in this setting.
 
 \begin{theorem}
     \label{thm:controlfun}
-    If \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} and \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} hold, then the average potential outcomes are identified by a control function approach.
+    If \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} and \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} hold, then the average potential outcomes
+    (and thus CM effects)
+    are identified by a control function approach.
     \[ \Egiven{Y_i}{Z_i = z', D_i = d', \vec X_i^-, K_i}
         = \Egiven{Y_i(z', d')}{\vec X_i^-, K_i}
         , \;\; \text{ for } z', d' = 0,1. \]
@@ -60,7 +62,7 @@ This is the logic behind the \cite{card1993using} distance-instrument, and can b
 In practice, the approach relies on estimating the control function $K_i$, then including this in the second-stage as a control, and accounting for the estimation error for these in the standard errors.
 These reliances come with major concerns.
 First, it is imperative that the control function is estimated correctly, so it is necessary to employ a non-parametric approach to estimate the first-stage.
-Second, the error terms enters the outcome equation \eqref{eqn:parametric-secondstage} linearly, but is an unknown function (possibly non-linear) of the control function; thus, the second-stage must be estimated semi-parametrically.\footnote{
+Second, the error terms enters the second-stage \eqref{eqn:parametric-secondstage} linearly, but is an unknown function (possibly non-linear) of the control function; thus, the second-stage must be estimated semi-parametrically.\footnote{
     In practice this can be done by adding a polynomial for the estimated control function into the outcome regression, or a splines approach, etc. 
 }
 Lastly, the standard errors must account for estimation uncertainty in the above two non-parametric steps.
@@ -79,35 +81,42 @@ With these concerns in mind, I propose the following method to estimate CM effec
     \item Estimate the first-stage, $\Egiven{D_i}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}$ with a non-parametric estimator (e.g., a probability forest, or fully interacted OLS specification).
     \item Calculate estimates of the control function, $\hat K_i = D_i - \hat{\mathbb E} \left[D_i \middle\vert Z_i, \vec X_i^{\text{IV}}, \vec X_i^- \right]$.
     \item Estimate the second-stage with OLS (including an interaction term between $Z_i$ and $D_i$), and a semi-parametric regressor of the control function.
-    $l(.)$ is a semi-parametric nuisance function, so can be approximated with a spline specification, for example.
     \[ \mathbb{E} \left[Y_i \middle\vert Z_i, D_i, \vec X_i^-, \hat K_i \right]
     = \beta D_i + \gamma Z_i + \delta Z_i D_i + l\left( \hat K_i \right) \]
-    Estimate the ADE from this second-stage.
+    $l(.)$ is a semi-parametric nuisance function, so can be approximated with a spline specification, for example.
+    \item Calculate the ADE and AIE estimates from this second-stage.
     \begin{align*}
         \hat{\text{ADE}} &= \; \E{
             \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i = 1, D_i, \vec X_i^-, \hat K_i \right]
-            - \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i = 0, D_i, \vec X_i^-, \hat K_i \right]} 
-    \end{align*}
-    \item Estimate the second-stage with weighted-least squares, including a control function with (estimated) $\kappa$-weights \citep{abadie2003semiparametric}.
-    \begin{align*}
-        \hat\kappa_i &= \; 1 - \frac{(1 - Z_i)D_i}{
-            1 - \hat\Pr\left(Z_i = 1 \middle\vert \vec X_i^-, \vec X_i^{\text{IV}}\right)} -
-            \frac{Z_i (1 - D_i)}{
-            \hat\Pr\left(Z_i = 1 \middle\vert \vec X_i^-, \vec X_i^{\text{IV}}\right)} \\
-        \mathbb{E} \left[ \hat\kappa_i Y_i \middle\vert Z_i, D_i, \vec X_i^-, \hat K_i \right]
-            &= \beta D_i + \gamma Z_i + \delta Z_i D_i + l\left( \hat K_i \right)
-    \end{align*}
-    Estimate the AIE from this second-stage.
-    \begin{align*}
+            - \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i = 0, D_i, \vec X_i^-, \hat K_i \right]} \\
         \hat{\text{AIE}} &= \; \mathbb E \left[ \begin{aligned} &\left(
             \hat{\mathbb{E}} \left[D_i \middle\vert Z_i = 1, \vec X_i^{\text{IV}}, \vec X_i^-\right]
             - \hat{\mathbb{E}} \left[D_i \middle\vert Z_i = 1, \vec X_i^{\text{IV}}, \vec X_i^-\right] \right) \\
             &\times \left(
-                \hat{\mathbb{E}} \left[ \hat\kappa_i Y_i \middle\vert Z_i, D_i = 1, \vec X_i^-, \hat K_i \right]
-            - \hat{\mathbb{E}} \left[ \hat\kappa_i Y_i \middle\vert Z_i, D_i = 0, \vec X_i^-, \hat K_i \right]
+                \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i, D_i = 1, \vec X_i^-, \hat K_i \right]
+            - \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i, D_i = 0, \vec X_i^-, \hat K_i \right]
             \right) \end{aligned} \right]
-        \end{align*}
-    \item Bootstrap across steps 1 through 4, to calculate standard errors for the respective ADE and AIE estimates.
+    \end{align*}
+    %\item Estimate the second-stage with weighted-least squares, including a control function with (estimated) $\kappa$-weights \citep{abadie2003semiparametric}.
+    %\begin{align*}
+    %    \hat\kappa_i &= \; 1 - \frac{(1 - Z_i)D_i}{
+    %        1 - \hat\Pr\left(Z_i = 1 \middle\vert \vec X_i^-, \vec X_i^{\text{IV}}\right)} -
+    %        \frac{Z_i (1 - D_i)}{
+    %        \hat\Pr\left(Z_i = 1 \middle\vert \vec X_i^-, \vec X_i^{\text{IV}}\right)} \\
+    %    \mathbb{E} \left[ \hat\kappa_i Y_i \middle\vert Z_i, D_i, \vec X_i^-, \hat K_i \right]
+    %        &= \beta D_i + \gamma Z_i + \delta Z_i D_i + l\left( \hat K_i \right)
+    %\end{align*}
+    %Estimate the AIE from this second-stage.
+    %\begin{align*}
+    %    \hat{\text{AIE}} &= \; \mathbb E \left[ \begin{aligned} &\left(
+    %        \hat{\mathbb{E}} \left[D_i \middle\vert Z_i = 1, \vec X_i^{\text{IV}}, \vec X_i^-\right]
+    %        - \hat{\mathbb{E}} \left[D_i \middle\vert Z_i = 1, \vec X_i^{\text{IV}}, \vec X_i^-\right] \right) \\
+    %        &\times \left(
+    %            \hat{\mathbb{E}} \left[ \hat\kappa_i Y_i \middle\vert Z_i, D_i = 1, \vec X_i^-, \hat K_i \right]
+    %        - \hat{\mathbb{E}} \left[ \hat\kappa_i Y_i \middle\vert Z_i, D_i = 0, \vec X_i^-, \hat K_i \right]
+    %        \right) \end{aligned} \right]
+    %    \end{align*}
+    \item Bootstrap across the previous steps, to calculate standard errors for the respective ADE and AIE estimates.
 \end{enumerate}
 
 \subsection{Simulation Evidence}
@@ -123,20 +132,53 @@ Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from
 \end{align*}
 $N = 10,000$ allows the large sample properties of the approach to operate; indeed, smaller sample sizes may not.
 
-Suppose each $i$ chooses to take mediator $D_i$ based on the costs and benefits (i.e., a Roy model), with following definitions for each $z', d' = 0, 1$.
+Suppose each $i$ chooses to take mediator $D_i$ by a Roy model, with following mean definitions for each $z', d' = 0, 1$.
 \begin{align*}
+    D_i(z') = \indicator{Y_i(z', 1) - Y_i(z', 0) \geq C_i},  \\
     \mu_{d'}\left(z' ; \vec X_i \right) = \vec X_i^- + \left( z' + d' + z' d' \right),
     \;\; \mu_{C}\left(z' ; \vec X_i \right) = 3z' + \vec X_i^- - \vec X_i^{\text{IV}}.
 \end{align*}
-Following \autoref{sec:selection}, these data have the following outcome equations:
+Following \autoref{sec:selection}, these data have the following first and second-stage equations:
 \begin{align*}
     D_i &= \indicator{-3Z_i - \vec X_i^{\text{IV}} + \vec X_i^- \geq U_{0,i} - U_{1,i}},  \\
     Y_i &= Z_i + D_i + Z_i D_i + \vec X_i^-
         + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
 \end{align*}
-In this setting the error terms $U_{i, 0}, U_{i, 1}$ determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the DGP parameters $\rho \in [-1, 1]$ and $\sigma_0, \sigma_1 \geq 0$.
+$Z_i$ has a constant treatment effect on outcome $Y_i$, but its effect operates through mediator $D_i$.
+After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-denegenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
+As a result, sequential ignorability does not hold; the mediator is not conditionally ignorable.
+Thus, a standard OLS (selection-on-observables) approach to CM does not give an estimate for how much of the $Z \to Y$ treatment effect goes through mediator $D$.
+Instead, the OLS approach gives biased inference.
 
-% \textbf{To-do:} write the formula for main confounders, $\E{U_{0,i}}{D_i = 0}$ and $\E{U_{1,i}}{D_i = 1}$, which are the bias terms, and how they depend on $\rho, \sigma_0, \sigma_1$.
+\begin{figure}[h!]
+    \caption{Bootstrap Distribution of CM Effect Estimates.}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{ADE.}
+        \includegraphics[width=\textwidth]{
+            ../programs/simulations/sim-output/direct-boot.png}
+    \end{subfigure}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{AIE.}
+        \includegraphics[width=\textwidth]{
+            ../programs/simulations/sim-output/indirect-boot.png}
+    \end{subfigure}
+    \label{fig:cm-boot-dist}
+    \justify
+    \footnotesize    
+    \textbf{Note:}
+    These figures show distribution of 10,000 bootstrapped point estimates, for the data generating process described above.
+    The black dashed line is the true value;
+    orange is the distribution of na\"ive OLS estimates, and blue the control function approach.
+\end{figure}
+
+The bias in OLS estimates comes from the unobserved error terms being related.
+\autoref{fig:cm-boot-dist} shows the distribution of bootstrapped point estimates in this simulation, showing OLS against the control function approach.
+The OLS approach implicitly assumes that the mediator is ignorable (when it is not), so its point estimates under and over-estimate the ADE and AIE, respectively.
+The distance between the OLS estimates and the true values are the underlying bias terms derived in \autoref{thm:selection-bias}.
+In this data generating process, the OLS confidence interval do not overlap the true values for any standard level of significance.
+The control function approach exhibits bias, though the 95\% confidence intervals cover the truth.
 
 \begin{figure}[h!]
     \caption{OLS versus Control Function Estimates of CM Effects.}
@@ -157,15 +199,21 @@ In this setting the error terms $U_{i, 0}, U_{i, 1}$ determine the bias in OLS e
     \footnotesize    
     \textbf{Note:}
     These figures show the OLS and control function estimates of the ADE and AIE, for $N = 10,000$ sample size.
-    The black dashed line is the true value, points are points estimates from data simulated with a given $\rho$ value and $\sigma_0 = 1, \sigma_1 = 2$, and shaded regions are the 95\% confidence intervals.
-    Orange are the OLS estimates, blue the control function approach.
+    The black dashed line is the true value, points are points estimates from data simulated with a given $\rho$ value and $\sigma_0 = 1, \sigma_1 = 2$, and shaded regions are the 95\% confidence intervals from 1,000 bootstrap replications each.
+    Orange represents OLS estimates, blue the control function approach.
 \end{figure}
 
-\autoref{fig:rho-bias} shows the control function estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from bootstrapped standard errors (from 1,000 bootstrap replications).
-The OLS approach implicitly asssumes that the mediator is ignorable (when it is not), so its point estimates over and under-estimate the ADE and AIE, respectively; the distance between the OLS estimates and the true values are the underlying bias terms derived in \autoref{thm:selection-bias}.
-The control function approach improves on OLS estimates by correcting for the bias terms, with confidence regions overlapping the true values.\footnote{
-    The code behind this simulation estimates the first-stage with an interacted OLS specification, and splines included for the continuous regression.
-    The second-stage is an OLS specification, with estimated control function included (with splines) as a linear control.
+The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\rho \in [-1, 1]$ and $\sigma_0, \sigma_1 \geq 0$.\footnote{
+    Indeed, this setting has error terms following a bivariate normal distribution, so the canonical \cite{heckman1974shadow} selection model would produce the most efficient estimates by maximum likelihood.
+    The control function approach avoids this assumption, and bias from breaking it, by relying on an instrument.
 }
-This correction was not free: the standard errors are significantly greater in a control function approach than OLS, and exhibit small sample bias (for reasons mentioned above).
+\autoref{fig:rho-bias} shows the control function estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstrap replications.
+The control function approach improves on OLS estimates by correcting for the bias terms, with confidence regions overlapping the true values.\footnote{
+    The code behind this simulation estimates the first-stage with an interacted OLS specification, and splines included for the continuous regressor $\vec X_i^-$.
+    The second-stage is an OLS specification, including the (pre-estimated) control function with a spline specification.
+}$^,$\footnote{
+    In the appendix, \autoref{fig:sigma-bias} shows the same simulation while varying $\sigma_1$, with fixed $\sigma_0 = 1, \rho = 0.5$.
+    The conclusion is the same as for varying the correlation coefficient, $\rho$, in \autoref{fig:rho-bias}.
+}
+This correction did not come for free: the standard errors are significantly greater in a control function approach than OLS, and exhibit small sample bias (for reasons mentioned above).
 In this manner, this simulation shows the pros and cons of using the control function approach to estimating CM effects in practice.

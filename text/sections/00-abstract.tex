@@ -1,10 +1,10 @@
 \noindent
 Natural experiments are a cornerstone of applied economics, providing settings for estimating causal effects with a compelling argument for treatment ignorability.
-Economists are often interested in understanding the mechanisms through which causal treatment effects operate, and Causal Mediation (CM) methods achieved this by estimating how much of the treatment effect operates through a proposed mediator.
-The most popular approach to CM relies on assumptions which are unrealistic in natural experiment settings: assuming the mediator is conditionally ignorable --- in addition to the ignorability argument for the initial treatment.
+Causal Mediation (CM) methods aim to estimate how much of the treatment effect operates through a proposed mediator, illuminating mechanisms that causal effects operate through.
+The most popular approach to CM relies on assumptions which are unrealistic in natural experiment settings: assuming the mediator is conditionally ignorable --- in addition to the causal research design for the initial treatment.
 This paper shows that this approach leads to biased inference, solving for explicit bias terms when the mediator is not ignorable.
-Using the case of a Roy model for a mediator, I show that individuals' selection based on expected gains and costs is inconsistent with mediator ignorability without implausible behavioural assumptions, suggesting bias would be large in practice.
-I consider a control function approach, which overcomes these hurdles under structural assumptions, using cost of mediator take-up as an instrument.
+Using the case of a Roy model for a mediator, I show that individuals' selection based on expected gains and costs is inconsistent with mediator ignorability in a natural experiment setting, suggesting bias would be present in practice.
+I consider a control function approach, which overcomes these hurdles under alternative assumptions, using cost of mediator take-up as an instrument.
 Simulations confirm that this method corrects for persistent bias in conventional CM estimates, though require large sample sizes for correct inference.
 % I illustrate the approach by estimating the proportion of the causal effect of genes associated with education that operates via a direct genetic channel versus indirectly through extended schooling.
 % Finally, I provide an implementation of this method in the \textit{R} package \textit{mediate-controlfun}, offering an accessible tool for robust mediation analysis in natural experiment settings.

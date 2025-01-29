@@ -41,15 +41,23 @@ In this setting, $Z_i$ affects outcome $Y_i$ directly, and indirectly via the $D
 % The framework is general to any (conditionally) randomly assigned $Z_i$, intermiedate mediator $D_i$, and outcome $Y_i$.
 %This section focuses on binary $Z_i, D_i = 0,1$, and not the continuous versions, to simplify the causal framework.%\footnote{
     %\autoref{appendix:continuous} relates the causal framework to continuous $Z_i,D_i$, which has little conceptual differences.}
-\autoref{fig:scm-model} visualises the design, where the direction arrows denote the causal direction (and no reverse causality).
 On the other hand, mediation aims to decompose the reduced form effect of $Z \to Y$ into these two separate pathways.
+\autoref{fig:scm-model} visualises the design, where the direction arrows denote the causal direction (and no reverse causality).
 \begin{align*}
     \text{Average Indirect Effect (AIE), } D(Z) \to Y: \;\;\;&
         \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
     \text{Average Direct Effect (ADE), } Z \to Y: \;\;\;&
         \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
 \end{align*}
-These effects are not separately identified without further assumptions.
+Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
+In an applied example, this could be how much does the effect of (random) military conscription goes through military service?
+In an instrumental variables application, this direct effect is assumed to be zero for everyone (i.e., the exclusion restriction).
+CM is a different framework attempting to explicitly model the direct effect, not assuming the ADE is zero.
+Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
+    In a non-parametric setting it is not necessary that the ADE and AIE sum to the total effect.
+    See \cite{imai2010identification} for this point in full.
+}
+These CM effects are not separately identified without further assumptions.
 
 \begin{figure}[h!]
     \centering
@@ -100,14 +108,14 @@ The conventional approach to estimating direct and indirect effects assumes both
         Z_i \indep  D_i(z), Y_i(z', d) \;\; &| \;\; \vec X_i,
             &\textnormal{ for } z, z', d = 0, 1 \\
         \label{eqn:seq-ign-D}
-        D_i \indep  Y_i(z', d) \;\; &| \;\; \vec X_i, Z_i = z', 
+        D_i \indep Y_i(z', d) \;\; &| \;\; \vec X_i, Z_i = z', 
             &\textnormal{ for } z', d = 0, 1
     \end{align}
 \end{definition}
 Sequential ignorability assumes that the initial treatment $Z_i$ is assigned randomly, conditional on $\vec X_i$.
 It then also assumes that, after $Z_i$ is assigned, that $D_i$ is assigned randomly conditional $\vec X_i, Z_i$.
-If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, holds then the direct and indirect effects are identified by two-stage mean differences, after conditioning on $\vec X_i$.\footnote{
-    \cite{imai2010identification} show a general identification statement; I show identification in terms of two-stage regression, which is more familiar in economics.
+If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, holds then the ADE and AIE are identified by two-stage mean differences, after conditioning on $\vec X_i$.\footnote{
+    \cite{imai2010identification} show a general identification statement; I show identification in terms of two-stage regression, notation for which is more familiar in economics.
     This reasoning is in line with G-computation reasoning \citep{robins1986g};
     \autoref{appendix:identification} states the \cite{imai2010identification} identification result, and then develops the two-stage regression notation which holds as a consequence of sequential ignorability.
 }
@@ -142,16 +150,15 @@ This section focuses on problems that plague CM in practice, regardless of estim
 \subsection{Bias in Causal Mediation Estimates}
 Applied research may use a natural experiment to justify the treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
 Rarely does research relying on a quasi-experimental research design employ an additional, overlapping identification design for $D_i$ to justify assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} as part of the analysis.
-One might consider using conventional CM methods to estimate direct and indirect effects, and learn about the mechanisms behind the treatment effect under study.%\footnote{
-%    \cite{imai2013experimental} call attention to the need for a separate research design to isolate causal effects of $D_i$ in randomised controlled trials; \autoref{appendix:mediation-review} overviews literature, finding many papers that employ mediation methods with a research design for $Z_i$, but not for $D_i$.
-%}
-This approach leads to biased estimates, and contaminates inference regarding direct and indirect effects. %(in the same manner as \citealt{heckman1998characterizing}).
+One might consider using conventional CM methods to estimate direct and indirect effects, and learn about the mechanisms behind the treatment effect under study.This approach leads to biased estimates, and contaminates inference regarding direct and indirect effects.%\footnote{
+    %    \cite{imai2013experimental} call attention to the need for a separate research design to isolate causal effects of $D_i$ in randomised controlled trials; \autoref{appendix:mediation-review} overviews literature, finding many papers that employ mediation methods with a research design for $Z_i$, but not for $D_i$.
+    %}
 
 \begin{theorem}
     \label{thm:selection-bias}
     Absent an identification strategy for the mediator, causal mediation estimates are at risk of selection bias.
     Suppose \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} holds, but \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} does not.
-    Then CM estimands are contaminated by selection bias and group difference terms.
+    Then CM estimands are contaminated by selection bias and group differences.
 \end{theorem}
 \begin{proof}
     See \autoref{appendix:mediation-bias} for the extended proof.
@@ -160,7 +167,6 @@ Below I present the relevant selection bias and group difference terms, omitting
 
 \noindent
 For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differences.
-\vspace{-0.5cm}
 \begin{align*}
     & \mathbb E_{D_i = d'} \Big[
         \Egiven{Y_i}{Z_i = 1, D_i = d'} - \Egiven{Y_i}{Z_i = 0, D_i = d'} \Big] \\
@@ -177,8 +183,17 @@ For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differen
 \end{align*}
 
 \noindent
-For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differences.
-\vspace{-0.5cm}
+For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differences.\footnote{
+    The bias terms here mirror those in \cite{heckman1998characterizing,angrist2009mostly} for a one dimensional $D\to Y$ treatment effect, when $D_i$ is not ignorable.
+    \[ \Egiven{ Y_i}{D_i =1} - \Egiven{ Y_i}{D_i =0}
+        %& = \text{ATT}
+        %+ \Big( \Egiven{ Y_i(0)}{D_i =1} - \Egiven{ Y_i(0)}{D_i =0} \Big) \\
+        = \text{ATE}
+        + \underbrace{\Big( \Egiven{ Y_i(0)}{D_i =1} - \Egiven{ Y_i(0)}{D_i =0} \Big)}_{
+            \text{Selection Bias}}
+        + \underbrace{ \Prob{D_i=0} (\text{ATT}- \text{ATU}) }_{
+            \text{Group-differences Bias}} \]
+}
 \begin{align*}
     &\E[Z_i = z']{
         \Big( \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0} \Big) \times

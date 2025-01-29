@@ -19,7 +19,7 @@ Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu
 
 \subsection{Identification in Causal Mediation}
 \label{appendix:identification}
-\citet[Theorem~1]{imai2010identification} states that the direct and indirect effects are identified under sequential ignorability, at each level of $Z_i = 0,1$.
+\citet[Theorem~1]{imai2010identification} states that the ADE and AIE are identified under sequential ignorability, at each level of $Z_i = 0,1$.
 For $z' = 0,1$: \\
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
 \begin{align*}
@@ -41,9 +41,9 @@ I focus on the averages, which are identified by consequence of the above.
     \E{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
     & = \E[Z_i]{\Egiven{ Y_i(z', D_i(1)) - Y_i(z', D_i(0))}{Z_i = z'}}
 \end{align*}
-My estimand for the average direct effect is a simple rearrangement of the above.
-The estimand for the average indirect effect relies on a different sequence, relying on (1) sequential ignorability, (2) conditional monotonicity.
-These give (1) identification of, and equivalence between, LADE conditional on $\vec X_i$ and ADE conditional on $\vec X_i$, (2) identification of the complier score.
+My estimand for the ADE is a simple rearrangement of the above.
+The estimand for the AIE relies on a different sequence, relying on (1) sequential ignorability, (2) conditional monotonicity.
+These give (1) identification of, and equivalence between, LAIE conditional on $\vec X_i$ and AIE conditional on $\vec X_i$, (2) identification of the complier score.
 
 \begin{align*}
     & \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{\vec X_i} \\
@@ -59,7 +59,7 @@ These give (1) identification of, and equivalence between, LADE conditional on $
             - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)
 \end{align*}
 Monotonicity is not technically required for the above.
-Breaking monotonicity would not change the identification of any of the above; it would be the same except replacing the complier score with a complier or defier score, $\Probgiven{D_i(1) \neq D_i(0)}{\vec X_i} = \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$.
+Breaking monotonicity would not change the identification in any of the above; it would be the same except replacing the complier score with a complier or defier score, $\Probgiven{D_i(1) \neq D_i(0)}{\vec X_i} = \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$.
 
 %\subsection{Continuous Average Causal Responses}
 %\label{appendix:continuous}
@@ -334,6 +334,36 @@ Additionally, the AIE estimates refers to gains from the mediator among $D(z)$ c
 
 % Senan note: should write CM estimand = \E{\gamma + \delta D_i} + bias, where bias is some E[ U | D = 1] term.
 
+\subsection{Roy Model and Sequential Ignorability}
+\label{appendix:roy-seq-ig}
+Suppose $Z_i$ is ignorable, and selection into $D_i$ follows a Roy model, with the definitions in \autoref{sec:selection}.
+
+If selection based on $U_{0,i}, U_{1,i}$ is non-degenerate:
+\[ \exists u, u' \text{in the range of $U_{1,i}- U_{0,i}$ such that }
+    \Egiven{D_i}{Z_i, \vec X_i, U_i = u}
+    \neq \Egiven{D_i}{Z_i, \vec X_i, U_i = u'} \]
+    %, \;\;\; \text{for at least one } z'=0,1 \]
+This is saying that the control set $\vec X_i$ and the costs $\mu_c, U_{c,i}$ are not the only determinants of selection into $D_i$.
+
+To motivate a contradiction, suppose sequential ignorability does hold --- so that the mediator is ignorable.
+\begin{align*}
+    & D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z' \\
+    &\implies D_i \indep U_i \;\; | \;\; \vec X_i, Z_i = z' \\
+    &\implies \Egiven{D_i}{U_i = \bar u, \vec X_i, Z_i = z'}
+    = \Egiven{D_i}{\vec X_i, Z_i = z'} \\
+    &    \textnormal{ for } z', d = 0, 1, \bar u \text{ in the range of $U_{1,i}- U_{0,i}$.}
+\end{align*}
+This final implication is a violation of the original statement, and thus a contradiction.
+
+Consider the following case, for each individual $i$.
+\[ \bar u_i = \mu_C(Z_i ; \vec X_i) + U_{C,i} - \mu(Z_i ; \vec X_i) \]
+$\Egiven{D_i}{U_i = \bar u, \vec X_i, Z_i} = 1$, so that $\bar u_i$ cannot be in the range of $U_{1,i}- U_{0,i}$.
+
+The range of $U_{1,i}- U_{0,i}$ must contain at least two entries, one greater(or equal) to $\bar u_i$ (call it $u_i$), and another smaller than $\bar u_i$ (call it $u_i'$) for each $i$.
+
+Now we reach a contradiction of mediator ignorability:
+\[ 1 = \Egiven{D_i}{U_i = u_i, \vec X_i, Z_i} \neq 
+\Egiven{D_i}{U_i = u_i', \vec X_i, Z_i} = 0 \]
 
 \subsection{Control Function Identification}
 \label{appendix:controlfun-proof}
@@ -348,3 +378,27 @@ A number of statistical packages, for the R language \citep{R2023}, made the sim
     \item \textit{Splines} \citep{wang2021shape} allows semi-parametric estimation, using splines, in the R language.
     \item \textit{Mediate} \citep{imai2010causal} automates the sequential-ignorability estimates of CM effects \citep{imai2010identification} in the R language.
 \end{itemize}
+
+\begin{figure}[h!]
+    \caption{OLS versus Control Function Estimates of CM Effects, Varying $\sigma_1$.}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{ADE.}
+        \includegraphics[width=\textwidth]{
+            ../programs/simulations/sim-output/sigma-directeffect-bias.png}
+    \end{subfigure}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{AIE.}
+        \includegraphics[width=\textwidth]{
+            ../programs/simulations/sim-output/sigma-indirecteffect-bias.png}
+    \end{subfigure}
+    \label{fig:sigma-bias}
+    \justify
+    \footnotesize    
+    \textbf{Note:}
+    These figures show the OLS and control function estimates of the ADE and AIE, for $N = 10,000$ sample size.
+    The black dashed line is the true value, points are points estimates from data simulated with a given $\rho = 0.5, \sigma_0 = 1$ and $\sigma_1$ varied across $[0, 2]$
+    Shaded regions are the 95\% confidence intervals;
+    orange are the OLS estimates, blue the control function approach.
+\end{figure}

@@ -1,6 +1,6 @@
-\section{Causal Mediation in Applied Settings}
+\section{Causal Mediation (CM) in Applied Settings}
 \label{sec:selection}
-In this section, I further develop the issue of selection in causal mediation estimates. First, I show the non-parametric bias terms from above can be written as omitted variables bias in a regression framework.
+In this section, I further develop the issue of selection in CM estimates. First, I show the non-parametric bias terms from above can be written as omitted variables bias in a regression framework.
 Second, I show how selection bias operates in an applied model for selection into a mediator based on costs and benefits.
 
 \subsection{Regression Framework}
@@ -30,7 +30,7 @@ With this notation, observed data $Z_i, D_i, Y_i$ take the following representat
     + \underbrace{\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}_{
         \text{Correlated error term.}}
 \end{align}
-First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi, \varphi(\vec X_i)$ the intercept, and $\pi$ the average rate of compliance (which may depend on $\vec X_i$).
+First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \varphi(\vec X_i)$ the intercept, and $\pi$ the average rate of compliance (which may depend on $\vec X_i$).
 Second-stage \eqref{eqn:parametric-secondstage} is not identified thanks to omitted variables bias.
 $\alpha, \zeta(\vec X_i)$ are the intercept terms, and $\beta, \gamma, \delta$ are values that comprise mediation effects --- all whose values may depend on $\vec X_i$, see \autoref{appendix:regression-model} for full definitions.
 $\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}$ is the possibly correlated error term, which disrupts identification.
@@ -55,42 +55,59 @@ Without an identification strategy for $D_i$ (in addition to one for $Z_i$), bia
 
 Consider a model where individual $i$ selects into a mediator based on costs and benefits, after $Z_i, \vec X_i$ have been assigned.
 Write $C_i$ for individual $i$'s costs of taking mediator $D_i$, and $\indicator{.}$ for the indicator function.
-The Roy model has $i$ taking the mediator if the benefits exceed the costs.
-\[ D_i \left( z' \right) = \indicator{
+The Roy model has $i$ taking the mediator if the benefits exceed the costs
+\begin{equation}
+    \label{eqn:roy-model}
+    D_i \left( z' \right) = \indicator{
     \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
-    \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1 \]
+    \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1
+\end{equation}
 The Roy model provides a robust and intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome observed \citep{roy1951some,heckman1990empirical}.
-If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking education, then it models an individual choice to attend more education in terms of gaining a higher income.\footnote{
-    If the choice is made for a sum of outcomes, then a simple extension of the framework to a utility maximisation model maintains the same spirit.
+If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking education, then it models an individual choice to attend more education in terms of gaining a higher income compared to the costs.\footnote{
+    If the choice is made for a sum of outcomes, then a simple extension of the framework to a utility maximisation model maintains the same framework.
     See \cite{heckman1990empirical} for this approach.
 }
-This makes it particularly useful as a base case when studying causal mediation, where selection into the mediator may be driven by private information (unobserved by the researcher).
-Additionally, the Roy model aligns well with many real-world settings, such as education or labour market participation, where decisions are based on a comparison of expected outcomes across alternatives.  
+This makes it particularly useful as a base case for CM, where selection into the mediator may be driven by private information (unobserved by the researcher).
+% Additionally, the Roy model aligns well with many real-world settings, such as education or labour market participation, where decisions are based on a comparison of expected outcomes across alternatives. 
 By using the Roy model as a benchmark, I explore the practical limits of the mediator ignorability assumption.
 
 Decompose the costs into its mean and unobserved error, as above $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, and collect the mean benefits, $\mu \coloneqq \mu_1 - \mu_0$.
-So we can write the first-stage selection equation separated by observed means and unobserved errors.
-\begin{align*}
-    D_i(z') &= \indicator{
-        \mu(z'; \vec X_i) - \mu_C(z'; \vec X_i) \geq U_{C,i} - U_i }
-        , \;\;\; \text{for } z'=0,1
-\end{align*}
+\[ D_i(z') = \indicator{
+    \mu(z'; \vec X_i) - \mu_C(z'; \vec X_i) \geq U_{C,i} - U_i }
+        , \;\;\; \text{for } z'=0,1 \]
+%\textbf{Senan Note:} beef up this part:
+% Suppose U_0, U_1 are not degenerate (Z_i, X_i do not perfectly predict Y_i(Z_i, .)), and mediator selection is based on costs and benefits (Roy model).
+% Then D_i is not ignorable.
 
 If selection is Roy style, and the mediator is ignorable, then unobserved benefits play no part in selection.
 The only driver in differences in selection are differences in costs (and not benefits).
-\[ \Egiven{ D_i(z') }{ U_i = u} = \Egiven{ D_i(z') }{ U_i = u'} \]
-For all $u', u$ in the range of the distribution of $U_i = U_{1,i} - U_{0,i}$.
-This could, for example, hold if $U_{0,i}, U_{1,i}$ are degenerate conditional on $\vec X_i$.\footnote{
-    This statement holds by a simple proof by contradiction: suppose there are $u', u$ such that the statement does not hold, then $D_i$ cannot be ignorable.
+If there are any unobserved benefits for selection into $D_i$ unobserved to the researcher, then sequential ignorability cannot hold.
+%\[ \Egiven{ D_i(z') }{ U_i = u} = \Egiven{ D_i(z') }{ U_i = u'} \]
+%For all $u', u$ in the range of the distribution of $U_i = U_{1,i} - U_{0,i}$.
+%This could, for example, hold if $U_{0,i}, U_{1,i}$ are degenerate conditional on $\vec X_i$.\footnote{
+%    This statement holds by a simple proof by contradiction: suppose there are $u', u$ such that the statement does not hold, then $D_i$ cannot be ignorable.
+%}
+\begin{definition}
+    \label{def:roy-seq-ig}
+    Suppose mediator selection follows a Roy model \eqref{eqn:roy-model}, and selection is not fully explained by costs and observed gains.
+    Then sequential ignorability does not hold.
+    %\[ D_i \not\!\perp\!\!\!\perp Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z', 
+        %\textnormal{ for } z', d = 0, 1 \]
+\end{definition}
+If there are any unobserved sources of gains, then sequential ignorability does not hold.
+This is an equivalence statement: selection based on costs and benefits is only consistent with mediator ignorability if the researcher observed every single source of mediator benefits.\footnote{
+    See \autoref{appendix:roy-seq-ig} for the proof.
 }
-
 This means than the vector of control variables $\vec X_i$ must be incredibly rich.
 Together, $\vec X_i$ and unobserved cost differences $U_{C,i}$ must explain selection into $D_i$ one hundred percent.
 In the Roy model framework, however, individuals make decisions about mediator take-up based on gains, which the researcher may not observe fully. 
-These unobservables are unlikely to be fully captured by any observable control set $\vec{X}_i$.\footnote{
-    In a similar sense, \cite{huber2024testing} give a method to  test the implications of sequential ignorability (requiring an instrument).
-}
-Consequently, the assumption of mediator ignorability is implausible in most practical settings (absent a separate research design for $D_i$).
+These unobservables are unlikely to be fully captured by an observed control set $\vec X_i$, except in very special cases (see e.g., the discussion in \citealt{angrist2009mostly,angrist2022empirical}).
+%\footnote{
+%    In a similar sense, \cite{huber2024testing} give a method to  test the implications of sequential ignorability (requiring an instrument).
+%}
+In practice, the only way to believe in the ignorability assumption is to study a setting where the researcher has a causal research design for both treatment $Z_i$ and mediator $D_i$, at the same time.
+A simple addition of ``we assume the mediator satisfies selection-on-observables'' will not cut it here, and will lead to biased inference in practice.
+%Consequently, the assumption of mediator ignorability is implausible in most practical settings.
 
 % \subsection{Applied Settings}
 % 

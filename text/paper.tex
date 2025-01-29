@@ -1,14 +1,12 @@
 % Page settings
 \documentclass[notitlepage,12pt]{article}
 \usepackage{fancyvrb, verbatim, listings}                                  % Various for inserting/hosting code
-\usepackage{setspace}                                                      % Space between lines (customisable)
+\usepackage[nodisplayskipstretch]{setspace} \setstretch{1.5}               % Space between lines (customisable)
 \usepackage[margin=2.54cm]{geometry}                                       % Set margins (standard is 2.54cm)
 \usepackage[UKenglish,cleanlook]{isodate}                                  % Set default date and date display
 \usepackage{fancyhdr} \pagestyle{fancy}                                    % Line the top of the page
 \usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=1100,stretch=10,shrink=10]{microtype}
 \microtypecontext{spacing=nonfrench}                                       % Change font and minor spacings to look nicer
-\setlength{\parskip}{0.5\baselineskip}                                     % Set default paragraph behaviour: skip a line
-%\setlength{\parindent}{0pt}                                                % Set default paragraph behaviour: no indent
 %% Packages to use:
 % Tables + figures
 \usepackage{graphicx}                                                      % control over the import of graphics
@@ -85,19 +83,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Title page
 % Author
+\singlespacing
 \author{Senan Hogan-Hennessy\thanks{
     % This work has been supported by research grants from the Centre for the Study of Inequality and Economics Department, Cornell University.
     For helpful comments I thank
     Neil Cholli,
     Luk\'a\u{s} Laff\'ers,
     Hyewon Kim,
+    Jiwoo Kim,
+    Jiwon Lee,
     Yiqi Liu,
     Douglas Miller,
     Zhuan Pei,
     Brenda Prallon,
     and
     Evan Riehl.
-    Some results in this paper previously circulated in an unpublished version of the working paper ``The Direct and Indirect Effects of Genetics and Education.''
+    Some preliminary results previously circulated in an earlier version of the working paper ``The Direct and Indirect Effects of Genetics and Education.''
     % I thank seminar participants at Cornell University (2025) for helpful discussion.
     Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu}{\nolinkurl{seh325@cornell.edu}}.
     %, or raised as an issue on the Github project.
@@ -112,9 +113,9 @@
 \date{
     %First version: \today \\
     This version: \today \\ \vspace{0.25cm}
-    \textbf{\textit{Unfinished, please do not circulate.}}
-    %\textbf{\textit{Work-in-Progress, please do not circulate.}}
-    %\href{https://github.com/shoganhennessy/mr-education}{Newest version available here.}
+    \textbf{\textit{Work in Progress,
+    newest version
+    \href{https://github.com/shoganhennessy/mediation-natural-experiment}{available here}.}}
     \vspace{-1.0cm}
 }
 \rhead{\today}

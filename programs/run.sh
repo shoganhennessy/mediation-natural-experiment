@@ -8,7 +8,7 @@ cd simulations
 # Run the first one.
 R CMD BATCH --no-save roy-sim.R
 # Present the results
-R CMD BATCH --no-save sim-plot.R
+R CMD BATCH --no-save plot-sim.R
 # Go back to base folder.
 cd ..
 
