@@ -143,28 +143,28 @@ rho_directeffect_bias.plot <- rho.data %>%
     geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
         fill = colour.list[1], alpha = 0.2) +
     annotate("text", colour = colour.list[1],
-        x = -0.5, y = 1.65,
+        x = 0.375, y = 0.2,
         fontface = "bold",
         label = ("OLS"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = -0.4, y = 1.75,
-        xend = -0.25, yend = 1.9,
+        x = 0.25, y = 0.25,
+        xend = 0.0125, yend = 0.5,
         linewidth = 0.75,
-        curvature = 0.25,
+        curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # CF est + 95 % CI
     geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     annotate("text", colour = colour.list[2],
-        x = -0.5, y = 1,
+        x = -0.5, y = 0.875,
         fontface = "bold",
         label = ("Control function"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[2],
-        x = -0.5, y = 1.125,
-        xend = -0.375, yend = 1.3,
+        x = -0.375, y = 1,
+        xend = -0.25, yend = 1.3,
         linewidth = 0.75,
         curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
@@ -172,15 +172,14 @@ rho_directeffect_bias.plot <- rho.data %>%
     geom_hline(aes(yintercept = truth_direct_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     annotate("text", colour = "black",
-        x = 0.65, y = 0.75,
+        x = 0.65, y = 1.8,
         fontface = "bold",
         label = ("Truth"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = "black",
-        x = 0.6, y = 0.875,
-        xend = 0.4, yend = 1.4,
-        linewidth = 0.75,
-        curvature = -0.25,
+        x = 0.6, y = 1.75,
+        xend = 0.475, yend = 1.4875,
+        linewidth = 0.75, curvature = 0.125,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Presentation options
     theme_bw() +
@@ -222,7 +221,7 @@ rho_indirecteffect_bias.plot <- rho.data %>%
         name = TeX("$\\rho$"),
         expand = c(0, 0),
         breaks = seq(-1, 1, by = 0.25),
-        limits = c(-1.05, 1.05)) +
+        limits = c(-1.025, 1.025)) +
     scale_y_continuous(name = "",
         breaks = seq(0, 2.5, by = 0.25),
         limits = c(0, 2.5),

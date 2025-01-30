@@ -144,8 +144,14 @@ Following \autoref{sec:selection}, these data have the following first and secon
     Y_i &= Z_i + D_i + Z_i D_i + \vec X_i^-
         + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
 \end{align*}
-$Z_i$ has a constant treatment effect on outcome $Y_i$, but its effect operates through mediator $D_i$.
-After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-denegenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
+$Z_i$ has an effect on outcome $Y_i$, and it operates partially through mediator $D_i$.
+$\mu_{D_i}(Z_i;.)$ has an interation term, $Z_i D_i$, so while each $Z_i$ and $D_i$ have a constant partial effect, the total effect depends on how many $i$ choose to take the mediator; in this simulation $Prob{D_i = 1} = 0.437$, and $65.29\%$ of the sample are mediator compliers (where $D_i(1)=1$ and $D_i(0) = 0$).
+This gives an average total effect ($Z\to Y$) value of 2.58, ADE 1.44, and AIE ($D(Z) \to Y$) 1.13.\footnote{
+    Note that average total effect $=$ ADE $+$ AIE, in this setting.
+    This is not guaranteed in general.
+}
+
+After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-degenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
 As a result, sequential ignorability does not hold; the mediator is not conditionally ignorable.
 Thus, a standard OLS (selection-on-observables) approach to CM does not give an estimate for how much of the $Z \to Y$ treatment effect goes through mediator $D$.
 Instead, the OLS approach gives biased inference.
@@ -168,14 +174,14 @@ Instead, the OLS approach gives biased inference.
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show distribution of 10,000 bootstrapped point estimates, for the data generating process described above.
+    These figures show the empirical density of 10,000 bootstrapped point estimates, for the data generating process described above.
     The black dashed line is the true value;
     orange is the distribution of na\"ive OLS estimates, and blue the control function approach.
 \end{figure}
 
 The bias in OLS estimates comes from the unobserved error terms being related.
 \autoref{fig:cm-boot-dist} shows the distribution of bootstrapped point estimates in this simulation, showing OLS against the control function approach.
-The OLS approach implicitly assumes that the mediator is ignorable (when it is not), so its point estimates under and over-estimate the ADE and AIE, respectively.
+The OLS approach implicitly assumes that the mediator is ignorable (when it is not), so its point estimates under and over-estimate the true ADE and AIE, respectively.
 The distance between the OLS estimates and the true values are the underlying bias terms derived in \autoref{thm:selection-bias}.
 In this data generating process, the OLS confidence interval do not overlap the true values for any standard level of significance.
 The control function approach exhibits bias, though the 95\% confidence intervals cover the truth.

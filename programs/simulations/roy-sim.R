@@ -102,7 +102,7 @@ simulate.data <- function(rho, sigma_0, sigma_1, sigma_C,
 
 ################################################################################
 ## Define a function to show the theoretical values for the data.
-theoretical.values <- function(sim.data, digits.no = 3, print.compliers = FALSE){
+theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
     ### Inputs:
     ## sim.data, a data frame simulated from above.
     # Extract the potentials from simulated data.
@@ -123,11 +123,6 @@ theoretical.values <- function(sim.data, digits.no = 3, print.compliers = FALSE)
     # Get the true first-stage effects
     first_stage <- D_1 - D_0
     average_first_stage <- mean(first_stage)
-    # Show how many ATs, NTs, Compliers in terms of D_i(Z) for Z = 0, 1.
-    if (print.compliers == TRUE){
-        print("How many compliers in the sample?")
-        print(table(D_1, D_0) / NROW(sim.data))
-    }
     # Get the theoretical total effect/reduced form/ITT
     total_effect <-
         (Y_1_1 - Y_0_0) * (D_1 == 1 & D_0 == 0) +
@@ -144,6 +139,19 @@ theoretical.values <- function(sim.data, digits.no = 3, print.compliers = FALSE)
         (Y_1_1 - Y_0_1) * (D_1 == 1 & D_0 == 1) +
         (Y_1_0 - Y_0_0) * (D_1 == 0 & D_0 == 0)
     average_direct_effect <- mean(direct_effect)
+    # Show the real underlying values.
+    if (print.truth == TRUE){
+        print("Here is a summary of the (unobserved) true effects:")
+        # Show how many ATs, NTs, Compliers in terms of D_i(Z) for Z = 0, 1.
+        print("How many compliers in the system?")
+        print(table(D_1, D_0) / NROW(sim.data))
+        # Show the real treatment effects
+        print(paste0(c("The average total effect:",    as.numeric(average_total_effect))))
+        print(paste0(c("The average first-stage:",     as.numeric(average_first_stage))))
+        print(paste0(c("The average direct effect:",   as.numeric(average_direct_effect))))
+        print(paste0(c("The average indirect effect:", as.numeric(average_indirect_effect))))
+    
+    }
     # Define a named list to return
     output.list <- list(
         average_first_stage     = average_first_stage,
@@ -171,14 +179,21 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data){
         predict(secondstage.reg, newdata = mutate(example.data, Z = 0))
     # calculate the second-stage indirect effect
     indirect.est <- predict(
-        secondstage.reg, newdata = mutate(example.data, D = 1)) -#, K_0 = 0)) -
-        predict(secondstage.reg, newdata = mutate(example.data, D = 0))#, K_1 = 0))
+        secondstage.reg, newdata = mutate(example.data, D = 1)) -
+        predict(secondstage.reg, newdata = mutate(example.data, D = 0))
+    #! Test, add on the K_0 and K_1 conditional on D_i = 0,1 respectively
+    #indirect.est <- indirect.est + (
+    #    mean(predict(secondstage.reg, newdata = mutate(
+    #        filter(example.data, D == 1), Z = 0, D = 0, X_minus = 0, K_0 = 0)))
+    #    - mean(predict(secondstage.reg, newdata = mutate(
+    #        filter(example.data, D == 0), Z = 0, D = 0, X_minus = 0, K_1 = 0))))
     # Return the mean estimates.
     output.list <- list(
         "first-stage"     = mean(firststage.est),
         "direct-effect"   = mean(direct.est),
         "indirect-effect" = mean(firststage.est * indirect.est))
     # Return the output.list
+    return(output.list)
 }
 
 # Bootstrap the estimates.
@@ -271,14 +286,17 @@ estimated.bootstrap <- function(boot.reps, example.data,
 ## Simulate the data: rho, sigma_0, sigma_1, sigma_C = 0.5, 1, 2, 1.
 simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 # SHow the theoretical direct + indirect values
-print(theoretical.values(simulated.data, print.compliers = TRUE))
+print(theoretical.values(simulated.data, print.truth = TRUE))
 
 # Show that the regression specification holds exactly (after debiasing outcome).
-true_firststage.reg <- glm(D ~ (1 + Z) + X_IV + bs(X_minus, df = 5, intercept = TRUE),
+true_firststage.reg <- glm(D ~ (1 + Z) + X_IV +
+    bs(X_minus, df = 5, intercept = TRUE),
     family = binomial(link = "probit"), data = simulated.data)
 simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$U_0
 simulated.data$K_1 <- simulated.data$D * simulated.data$U_1
-true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + K_0 + K_1,
+true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
+    # including the unobserved errors: U_0 + (D * U_0) + (D * U_1),
+    K_0 + K_1,
     data = simulated.data)
 print(theoretical.values(simulated.data))
 print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
@@ -292,7 +310,8 @@ print(theoretical.values(simulated.data))
 print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 
 # Show how (unknown) control function gets it correct, in 2 steps (with splines)
-cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV * bs(X_minus, df = 20, intercept = TRUE),
+cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
+    bs(X_minus, df = 20, intercept = TRUE),
     data = simulated.data)
 simulated.data$K <- cf_firststage.reg$residuals
 simulated.data$K_0 <- (1 - simulated.data$D) * cf_firststage.reg$residuals
@@ -305,6 +324,39 @@ cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
 print(summary(cf_secondstage.reg))
 print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
+
+#! Test, add on the K_0 and K_1 conditional on D_i = 0,1 respectively in truth
+firststage.est <- predict(
+    true_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
+        true_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+# calculate the second-stage indirect effect
+indirect.est <- predict(
+    true_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
+    predict(true_secondstage.reg, newdata = mutate(simulated.data, D = 0))
+add.term <- (mean(simulated.data$K_1[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1])
+    - mean(simulated.data$K_0[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1]))
+print(mean(firststage.est * (indirect.est + add.term)))
+#! Do the same thing, but kappa weighted to the compliers inside the CF estimate.
+firststage.est <- predict(
+    cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
+        cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+# calculate the second-stage indirect effect
+indirect.est <- predict(
+    cf_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
+    predict(cf_secondstage.reg, newdata = mutate(simulated.data, D = 0))
+# Estimate the kappa-weight
+hat_probZ <- 0.5
+kappa_1 <- simulated.data$D * ((simulated.data$Z - hat_probZ) / (
+    (1 - hat_probZ) * hat_probZ))
+kappa_0 <- (1 - simulated.data$D) * (((1 - Z) - (1 - hat_probZ)) / (
+    (1 - hat_probZ) * hat_probZ))
+kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
+# Calculate the term to add on.
+add.term <- (weighted.mean(simulated.data$K_1[simulated.data$D == 1],
+        kappa.weight[simulated.data$D == 1])
+    - weighted.mean(simulated.data$K_0[simulated.data$D == 0],
+        kappa.weight[simulated.data$D == 0]))
+mean(firststage.est * (indirect.est + add.term))
 
 #! Test: show the ADE given Z_i = 1, and similar for AIE
 firststage.est <- predict(
@@ -338,6 +390,8 @@ print(c("indirect-effect", mean(firststage.est * indirect.est)))
 indirect_effect <- (Z * (Y_1_1 - Y_1_0) + (1 - Z) * (Y_0_1 - Y_0_0))
 print(mean(indirect_effect * (D_1 != D_0)))
 print(mean(indirect_effect * mean(D_1 != D_0)))
+print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data)$`indirect-effect`)
+
 # ADE, estimate vs group differences term.
 print(c("direct-effect",   mean(direct.est)))
 direct_effect <- (D * (Y_1_1 - Y_0_1) + (1 - D) * (Y_1_0 - Y_0_0))
@@ -420,14 +474,14 @@ print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 # Base data to test out.
 simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 
-## Get bootstrapped point est for the CF approach
-#boot.reps <- 10000
-#boot.est <- estimated.bootstrap(boot.reps, simulated.data, print.progress = TRUE)
-#boot.data <- boot.est$data
-#print(boot.data)
-#
-### Save the bootstrapped point estimates data.
-#boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
+# Get bootstrapped point est for the CF approach
+boot.reps <- 10000
+boot.est <- estimated.bootstrap(boot.reps, simulated.data, print.progress = TRUE)
+boot.data <- boot.est$data
+print(boot.data)
+
+## Save the bootstrapped point estimates data.
+boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
 
 
 ################################################################################
@@ -446,6 +500,7 @@ i <- 0
 
 # Start the sigma loop
 for (sigma in sigma.values){
+    i <- i + 1
     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
     sigma_sim.data <- simulate.data(0.5, 1, sigma, 0.25)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
@@ -455,7 +510,6 @@ for (sigma in sigma.values){
     # Add to the dataframe.
     sigma.data[i, ] <- sigma.boot
     # SHow far we are.
-    i <- i + 1
     print(paste0(sigma, " in [0, 2], ", 100 * i / length(sigma.values), "% done."))
     gc()
 }
@@ -479,6 +533,7 @@ i <- 0
 
 # Start the rho loop
 for (rho in rho.values){
+    i <- i + 1
     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
     rho_sim.data <- simulate.data(rho, 1, 2, 0.25)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
@@ -487,8 +542,7 @@ for (rho in rho.values){
     rho.boot$rho <- rho
     # Add to the dataframe.
     rho.data[i, ] <- rho.boot
-    # Show how far we are.
-    i <- i + 1
+    # Show how far we 
     print(paste0(rho, " in [-1, 1], ", 100 * i / length(rho.values), "% done."))
     gc()
 }
