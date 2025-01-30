@@ -420,14 +420,14 @@ print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 # Base data to test out.
 simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 
-# Get bootstrapped point est for the CF approach
-boot.reps <- 10000
-boot.est <- estimated.bootstrap(boot.reps, simulated.data, print.progress = TRUE)
-boot.data <- boot.est$data
-print(boot.data)
-
-## Save the bootstrapped point estimates data.
-boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
+## Get bootstrapped point est for the CF approach
+#boot.reps <- 10000
+#boot.est <- estimated.bootstrap(boot.reps, simulated.data, print.progress = TRUE)
+#boot.data <- boot.est$data
+#print(boot.data)
+#
+### Save the bootstrapped point estimates data.
+#boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
 
 
 ################################################################################
