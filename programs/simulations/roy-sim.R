@@ -181,12 +181,22 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data){
     indirect.est <- predict(
         secondstage.reg, newdata = mutate(example.data, D = 1)) -
         predict(secondstage.reg, newdata = mutate(example.data, D = 0))
-    #! Test, add on the K_0 and K_1 conditional on D_i = 0,1 respectively
-    #indirect.est <- indirect.est + (
-    #    mean(predict(secondstage.reg, newdata = mutate(
-    #        filter(example.data, D == 1), Z = 0, D = 0, X_minus = 0, K_0 = 0)))
-    #    - mean(predict(secondstage.reg, newdata = mutate(
-    #        filter(example.data, D == 0), Z = 0, D = 0, X_minus = 0, K_1 = 0))))
+    #! Test, add on the K_0 and K_1 conditional on D_i = 0, 1 for compliers.
+    # Estimate the kappa-weight
+    hat_probZ <- 0.5
+    kappa_1 <- example.data$D * ((example.data$Z - hat_probZ) / (
+        (1 - hat_probZ) * hat_probZ))
+    kappa_0 <- (1 - example.data$D) * (((1 - example.data$Z) - (1 - hat_probZ)) / (
+        (1 - hat_probZ) * hat_probZ))
+    kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
+    # Calculate the term to add on.
+    add.term <- (weighted.mean(predict(secondstage.reg, newdata = mutate(
+        filter(example.data, D == 1), Z = 0, D = 0, X_minus = 0, K_0 = 0)),
+            kappa.weight[example.data$D == 1])
+        - weighted.mean(predict(secondstage.reg, newdata = mutate(
+            filter(example.data, D == 0), Z = 0, D = 0, X_minus = 0, K_1 = 0)),
+                kappa.weight[example.data$D == 0]))
+    indirect.est <- indirect.est + add.term
     # Return the mean estimates.
     output.list <- list(
         "first-stage"     = mean(firststage.est),
@@ -197,8 +207,8 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data){
 }
 
 # Bootstrap the estimates.
-estimated.bootstrap <- function(boot.reps, example.data,
-        sample.size = sample.N, print.progress = TRUE){
+estimated.loop <- function(boot.reps, example.data,
+        sample.size = sample.N, bootstrap = TRUE){
     # Define lists the will be returned:
     # 2. Naive OLS.
     ols_direct_effect <- c()
@@ -209,13 +219,19 @@ estimated.bootstrap <- function(boot.reps, example.data,
     # More in the future ....
     ## Loop across the bootstraps values.
     for (i in seq(1, boot.reps)){
-        # Print on whole percentage values
-        if (print.progress & ((100 * (i / boot.reps)) %% 1) == 0) {
-            print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
+        # If bootstrapping, just resample from provided data.
+        if (bootstrap == TRUE) {
+            boot.indicies <- sample(seq(1, sample.size), sample.size, replace = TRUE)
+            boot.data <- example.data[boot.indicies, ]
         }
-        # Draw a bootstrap sample from data
-        boot.indicies <- sample(seq(1, sample.size), sample.size, replace = TRUE)
-        boot.data <- example.data[boot.indicies, ]
+        # If a regular re-simulation, get new data.
+        else if (bootstrap == FALSE){
+            boot.data <- simulate.data(0.5, 1, 2, 0.25)
+            if ((100 * (i / boot.reps)) %% 1 == 0) {
+                print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
+            }
+        }
+        else {stop("The `bootstrap' option only takes values of TRUE or FALSE.")}
         # Calculate the truth values, given the simulated data
         truth.est <- theoretical.values(example.data)
         # Now get the mediation effects, by different approaches.
@@ -227,13 +243,14 @@ estimated.bootstrap <- function(boot.reps, example.data,
         cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
             bs(X_minus, df = 20, intercept = TRUE),
             data = boot.data)
+        boot.data$K   <- cf_firststage.reg$residuals
         boot.data$K_0 <- (1 - boot.data$D) * cf_firststage.reg$residuals
         boot.data$K_1 <- boot.data$D * cf_firststage.reg$residuals
         cf_secondstage.reg <- lm(
             Y ~ (1 + Z * D) + X_minus +
             bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE) +
             bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE),
-            #bs(K, knots = seq(-1, 1, by = 0.025), intercept = TRUE),
+            #bs(K, knots = seq(-1, 1, by = 0.025), intercept = FALSE),
             data = boot.data)
         cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
         # Save the outputs.
@@ -348,7 +365,7 @@ indirect.est <- predict(
 hat_probZ <- 0.5
 kappa_1 <- simulated.data$D * ((simulated.data$Z - hat_probZ) / (
     (1 - hat_probZ) * hat_probZ))
-kappa_0 <- (1 - simulated.data$D) * (((1 - Z) - (1 - hat_probZ)) / (
+kappa_0 <- (1 - simulated.data$D) * (((1 - simulated.data$Z) - (1 - hat_probZ)) / (
     (1 - hat_probZ) * hat_probZ))
 kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
 # Calculate the term to add on.
@@ -425,7 +442,7 @@ print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, complier_secondstage.reg, simulated.data))
 
 #! Test: including the K_0 and K_1 terms in complier gains
-simulated.data$K_0 <- (1 - simulated.data$D) * cf_firststage.reg$residuals
+simulated.data$K_0 <- (1 - simulated.data$D) * (1 - cf_firststage.reg$residuals)
 simulated.data$K_1 <- simulated.data$D * cf_firststage.reg$residuals
 complier_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
     bs(K_0, knots = seq(-0.05, 1.05, by = 0.05)) +
@@ -475,27 +492,26 @@ print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 
 # Get bootstrapped point est for the CF approach
-boot.reps <- 10000
-boot.est <- estimated.bootstrap(boot.reps, simulated.data, print.progress = TRUE)
+boot.reps <- 10^3
+boot.est <- estimated.loop(boot.reps, simulated.data, bootstrap = FALSE)
 boot.data <- boot.est$data
-print(boot.data)
 
 ## Save the bootstrapped point estimates data.
 boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
-
+exit.
 
 ################################################################################
 ## Compare estimation methods, across different sigma values.
 
 # Define an empty dataframe, to start adding to.
-boot.values <- estimated.bootstrap(1, simulated.data)$estimates
+boot.values <- estimated.loop(1, simulated.data)$estimates
 boot.values$sigma <- NA
 sigma.data <- boot.values[0, ]
 print(sigma.data)
 # Define values in rho \in [-1, 1] to go across
-sigma.values <- c(0, seq(0, 2, by = 0.25))
+sigma.values <- seq(0, 2, by = 0.25)
 # Define the number of boot reps for each
-boot.reps <- 1000
+boot.reps <- 10^3
 i <- 0
 
 # Start the sigma loop
@@ -504,8 +520,8 @@ for (sigma in sigma.values){
     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
     sigma_sim.data <- simulate.data(0.5, 1, sigma, 0.25)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
-    sigma.boot <- estimated.bootstrap(
-        boot.reps, simulated.data, print.progress = FALSE)$estimates
+    sigma.boot <- estimated.loop(boot.reps, simulated.data,
+        bootstrap = TRUE)$estimates
     sigma.boot$sigma <- sigma
     # Add to the dataframe.
     sigma.data[i, ] <- sigma.boot
@@ -521,14 +537,14 @@ sigma.data %>% write_csv(file.path(output.folder, "sigma-sim-data.csv"))
 ## Compare estimation methods, across different rho values.
 
 # Define an empty dataframe, to start adding to.
-boot.values <- estimated.bootstrap(1, simulated.data)$estimates
+boot.values <- estimated.loop(1, simulated.data)$estimates
 boot.values$rho <- NA
 rho.data <- boot.values[0, ]
 print(rho.data)
 # Define values in rho \in [-1, 1] to go across
 rho.values <- seq(-1, 1, by = 0.25)
 # Define the number of boot reps for each
-boot.reps <- 1000
+boot.reps <- 10^3
 i <- 0
 
 # Start the rho loop
@@ -537,8 +553,8 @@ for (rho in rho.values){
     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
     rho_sim.data <- simulate.data(rho, 1, 2, 0.25)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
-    rho.boot  <- estimated.bootstrap(boot.reps, simulated.data,
-        print.progress = FALSE)$estimates
+    rho.boot  <- estimated.loop(boot.reps, simulated.data,
+        bootstrap = TRUE)$estimates
     rho.boot$rho <- rho
     # Add to the dataframe.
     rho.data[i, ] <- rho.boot

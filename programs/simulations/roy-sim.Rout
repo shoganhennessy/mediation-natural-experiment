@@ -22,7 +22,7 @@ Type 'q()' to quit R.
 > ## Simulate the system for indirect + direct effects, with Roy selection.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "09:40 EST Thursday, 30 January 2025"
+[1] "12:06 EST Friday, 31 January 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -161,7 +161,7 @@ https://r-forge.r-project.org/projects/maxlik/
 > 
 > ################################################################################
 > ## Define a function to show the theoretical values for the data.
-> theoretical.values <- function(sim.data, digits.no = 3, print.compliers = FALSE){
+> theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
 +     ### Inputs:
 +     ## sim.data, a data frame simulated from above.
 +     # Extract the potentials from simulated data.
@@ -182,11 +182,6 @@ https://r-forge.r-project.org/projects/maxlik/
 +     # Get the true first-stage effects
 +     first_stage <- D_1 - D_0
 +     average_first_stage <- mean(first_stage)
-+     # Show how many ATs, NTs, Compliers in terms of D_i(Z) for Z = 0, 1.
-+     if (print.compliers == TRUE){
-+         print("How many compliers in the sample?")
-+         print(table(D_1, D_0) / NROW(sim.data))
-+     }
 +     # Get the theoretical total effect/reduced form/ITT
 +     total_effect <-
 +         (Y_1_1 - Y_0_0) * (D_1 == 1 & D_0 == 0) +
@@ -203,6 +198,19 @@ https://r-forge.r-project.org/projects/maxlik/
 +         (Y_1_1 - Y_0_1) * (D_1 == 1 & D_0 == 1) +
 +         (Y_1_0 - Y_0_0) * (D_1 == 0 & D_0 == 0)
 +     average_direct_effect <- mean(direct_effect)
++     # Show the real underlying values.
++     if (print.truth == TRUE){
++         print("Here is a summary of the (unobserved) true effects:")
++         # Show how many ATs, NTs, Compliers in terms of D_i(Z) for Z = 0, 1.
++         print("How many compliers in the system?")
++         print(table(D_1, D_0) / NROW(sim.data))
++         # Show the real treatment effects
++         print(paste0(c("The average total effect:",    as.numeric(average_total_effect))))
++         print(paste0(c("The average first-stage:",     as.numeric(average_first_stage))))
++         print(paste0(c("The average direct effect:",   as.numeric(average_direct_effect))))
++         print(paste0(c("The average indirect effect:", as.numeric(average_indirect_effect))))
++     
++     }
 +     # Define a named list to return
 +     output.list <- list(
 +         average_first_stage     = average_first_stage,
@@ -230,19 +238,36 @@ https://r-forge.r-project.org/projects/maxlik/
 +         predict(secondstage.reg, newdata = mutate(example.data, Z = 0))
 +     # calculate the second-stage indirect effect
 +     indirect.est <- predict(
-+         secondstage.reg, newdata = mutate(example.data, D = 1)) -#, K_0 = 0)) -
-+         predict(secondstage.reg, newdata = mutate(example.data, D = 0))#, K_1 = 0))
++         secondstage.reg, newdata = mutate(example.data, D = 1)) -
++         predict(secondstage.reg, newdata = mutate(example.data, D = 0))
++     #! Test, add on the K_0 and K_1 conditional on D_i = 0, 1 for compliers.
++     # Estimate the kappa-weight
++     hat_probZ <- 0.5
++     kappa_1 <- example.data$D * ((example.data$Z - hat_probZ) / (
++         (1 - hat_probZ) * hat_probZ))
++     kappa_0 <- (1 - example.data$D) * (((1 - example.data$Z) - (1 - hat_probZ)) / (
++         (1 - hat_probZ) * hat_probZ))
++     kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
++     # Calculate the term to add on.
++     add.term <- (weighted.mean(predict(secondstage.reg, newdata = mutate(
++         filter(example.data, D == 1), Z = 0, D = 0, X_minus = 0, K_0 = 0)),
++             kappa.weight[example.data$D == 1])
++         - weighted.mean(predict(secondstage.reg, newdata = mutate(
++             filter(example.data, D == 0), Z = 0, D = 0, X_minus = 0, K_1 = 0)),
++                 kappa.weight[example.data$D == 0]))
++     indirect.est <- indirect.est + add.term
 +     # Return the mean estimates.
 +     output.list <- list(
 +         "first-stage"     = mean(firststage.est),
 +         "direct-effect"   = mean(direct.est),
 +         "indirect-effect" = mean(firststage.est * indirect.est))
 +     # Return the output.list
++     return(output.list)
 + }
 > 
 > # Bootstrap the estimates.
-> estimated.bootstrap <- function(boot.reps, example.data,
-+         sample.size = sample.N, print.progress = TRUE){
+> estimated.loop <- function(boot.reps, example.data,
++         sample.size = sample.N, bootstrap = TRUE){
 +     # Define lists the will be returned:
 +     # 2. Naive OLS.
 +     ols_direct_effect <- c()
@@ -253,13 +278,19 @@ https://r-forge.r-project.org/projects/maxlik/
 +     # More in the future ....
 +     ## Loop across the bootstraps values.
 +     for (i in seq(1, boot.reps)){
-+         # Print on whole percentage values
-+         if (print.progress & ((100 * (i / boot.reps)) %% 1) == 0) {
-+             print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
++         # If bootstrapping, just resample from provided data.
++         if (bootstrap == TRUE) {
++             boot.indicies <- sample(seq(1, sample.size), sample.size, replace = TRUE)
++             boot.data <- example.data[boot.indicies, ]
 +         }
-+         # Draw a bootstrap sample from data
-+         boot.indicies <- sample(seq(1, sample.size), sample.size, replace = TRUE)
-+         boot.data <- example.data[boot.indicies, ]
++         # If a regular re-simulation, get new data.
++         else if (bootstrap == FALSE){
++             boot.data <- simulate.data(0.5, 1, 2, 0.25)
++             if ((100 * (i / boot.reps)) %% 1 == 0) {
++                 print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
++             }
++         }
++         else {stop("The `bootstrap' option only takes values of TRUE or FALSE.")}
 +         # Calculate the truth values, given the simulated data
 +         truth.est <- theoretical.values(example.data)
 +         # Now get the mediation effects, by different approaches.
@@ -271,13 +302,14 @@ https://r-forge.r-project.org/projects/maxlik/
 +         cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
 +             bs(X_minus, df = 20, intercept = TRUE),
 +             data = boot.data)
++         boot.data$K   <- cf_firststage.reg$residuals
 +         boot.data$K_0 <- (1 - boot.data$D) * cf_firststage.reg$residuals
 +         boot.data$K_1 <- boot.data$D * cf_firststage.reg$residuals
 +         cf_secondstage.reg <- lm(
 +             Y ~ (1 + Z * D) + X_minus +
 +             bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE) +
 +             bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE),
-+             #bs(K, knots = seq(-1, 1, by = 0.025), intercept = TRUE),
++             #bs(K, knots = seq(-1, 1, by = 0.025), intercept = FALSE),
 +             data = boot.data)
 +         cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
 +         # Save the outputs.
@@ -330,12 +362,17 @@ https://r-forge.r-project.org/projects/maxlik/
 > ## Simulate the data: rho, sigma_0, sigma_1, sigma_C = 0.5, 1, 2, 1.
 > simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 > # SHow the theoretical direct + indirect values
-> print(theoretical.values(simulated.data, print.compliers = TRUE))
-[1] "How many compliers in the sample?"
+> print(theoretical.values(simulated.data, print.truth = TRUE))
+[1] "Here is a summary of the (unobserved) true effects:"
+[1] "How many compliers in the system?"
    D_0
 D_1      0      1
   0 0.2298 0.0000
   1 0.6529 0.1173
+[1] "The average total effect:" "2.58452939042826"         
+[1] "The average first-stage:" "0.6529"                  
+[1] "The average direct effect:" "1.437"                     
+[1] "The average indirect effect:" "1.13402939042826"            
 $average_first_stage
 [1] 0.6529
 
@@ -350,11 +387,14 @@ $average_indirect_effect
 
 > 
 > # Show that the regression specification holds exactly (after debiasing outcome).
-> true_firststage.reg <- glm(D ~ (1 + Z) + X_IV + bs(X_minus, df = 5, intercept = TRUE),
+> true_firststage.reg <- glm(D ~ (1 + Z) + X_IV +
++     bs(X_minus, df = 5, intercept = TRUE),
 +     family = binomial(link = "probit"), data = simulated.data)
 > simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$U_0
 > simulated.data$K_1 <- simulated.data$D * simulated.data$U_1
-> true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + K_0 + K_1,
+> true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
++     # including the unobserved errors: U_0 + (D * U_0) + (D * U_1),
++     K_0 + K_1,
 +     data = simulated.data)
 > print(theoretical.values(simulated.data))
 $average_first_stage
@@ -377,7 +417,7 @@ $`direct-effect`
 [1] 1.437
 
 $`indirect-effect`
-[1] 0.9771183
+[1] 1.129131
 
 > # This is because the truth second-stage is perfect:
 > print(summary(true_secondstage.reg))
@@ -434,7 +474,8 @@ $`indirect-effect`
 
 > 
 > # Show how (unknown) control function gets it correct, in 2 steps (with splines)
-> cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV * bs(X_minus, df = 20, intercept = TRUE),
+> cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
++     bs(X_minus, df = 20, intercept = TRUE),
 +     data = simulated.data)
 > simulated.data$K <- cf_firststage.reg$residuals
 > simulated.data$K_0 <- (1 - simulated.data$D) * cf_firststage.reg$residuals
@@ -766,8 +807,43 @@ $`direct-effect`
 [1] 1.444208
 
 $`indirect-effect`
-[1] 0.9700234
+[1] 1.120267
 
+> 
+> #! Test, add on the K_0 and K_1 conditional on D_i = 0,1 respectively in truth
+> firststage.est <- predict(
++     true_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
++         true_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+> # calculate the second-stage indirect effect
+> indirect.est <- predict(
++     true_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
++     predict(true_secondstage.reg, newdata = mutate(simulated.data, D = 0))
+> add.term <- (mean(simulated.data$K_1[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1])
++     - mean(simulated.data$K_0[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1]))
+> print(mean(firststage.est * (indirect.est + add.term)))
+[1] 1.113021
+> #! Do the same thing, but kappa weighted to the compliers inside the CF estimate.
+> firststage.est <- predict(
++     cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
++         cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+> # calculate the second-stage indirect effect
+> indirect.est <- predict(
++     cf_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
++     predict(cf_secondstage.reg, newdata = mutate(simulated.data, D = 0))
+> # Estimate the kappa-weight
+> hat_probZ <- 0.5
+> kappa_1 <- simulated.data$D * ((simulated.data$Z - hat_probZ) / (
++     (1 - hat_probZ) * hat_probZ))
+> kappa_0 <- (1 - simulated.data$D) * (((1 - simulated.data$Z) - (1 - hat_probZ)) / (
++     (1 - hat_probZ) * hat_probZ))
+> kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
+> # Calculate the term to add on.
+> add.term <- (weighted.mean(simulated.data$K_1[simulated.data$D == 1],
++         kappa.weight[simulated.data$D == 1])
++     - weighted.mean(simulated.data$K_0[simulated.data$D == 0],
++         kappa.weight[simulated.data$D == 0]))
+> mean(firststage.est * (indirect.est + add.term))
+[1] 0.9723882
 > 
 > #! Test: show the ADE given Z_i = 1, and similar for AIE
 > firststage.est <- predict(
@@ -819,6 +895,9 @@ $average_indirect_effect
 [1] 1.134029
 > print(mean(indirect_effect * mean(D_1 != D_0)))
 [1] 0.9888216
+> print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data)$`indirect-effect`)
+[1] 0.9794835
+> 
 > # ADE, estimate vs group differences term.
 > print(c("direct-effect",   mean(direct.est)))
 [1] "direct-effect"    "1.43699999999971"
@@ -883,11 +962,11 @@ $`direct-effect`
 [1] 1.475291
 
 $`indirect-effect`
-[1] 0.9363099
+[1] 1.09172
 
 > 
 > #! Test: including the K_0 and K_1 terms in complier gains
-> simulated.data$K_0 <- (1 - simulated.data$D) * cf_firststage.reg$residuals
+> simulated.data$K_0 <- (1 - simulated.data$D) * (1 - cf_firststage.reg$residuals)
 > simulated.data$K_1 <- simulated.data$D * cf_firststage.reg$residuals
 > complier_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
 +     bs(K_0, knots = seq(-0.05, 1.05, by = 0.05)) +
@@ -908,12 +987,18 @@ $`indirect-effect`
 +         newdata = mutate(simulated.data, Z = 0, D = 1, K_0 = 0, K_1 = K_1)) -
 +     predict(complier_secondstage.reg,
 +         newdata = mutate(simulated.data, Z = 0, D = 0, K_0 = K_0, K_1 = 0)))))
-[1] 0.892786
+[1] 0.9083386
+Warning message:
+In predict.lm(complier_secondstage.reg, newdata = mutate(simulated.data,  :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 > print(mean(predict(complier_secondstage.reg,
 +         newdata = mutate(simulated.data, Z = 0, D = 1, K_0 = 0, K_1 = 0)) -
 +     predict(complier_secondstage.reg,
 +         newdata = mutate(simulated.data, Z = 0, D = 0, K_0 = 0, K_1 = 0))))
-[1] 1.011974
+[1] 1.064734
+Warning message:
+In predict.lm(complier_secondstage.reg, newdata = mutate(simulated.data,  :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 > 
 > # calculate the second-stage indirect effect
 > firststage.est <- predict(
@@ -922,6 +1007,9 @@ $`indirect-effect`
 > indirect.est <- predict(
 +     complier_secondstage.reg, newdata = mutate(simulated.data, D = 1, K_0 = 0)) -
 +         predict(complier_secondstage.reg, newdata = mutate(simulated.data, D = 0, K_1 = 0))
+Warning message:
+In predict.lm(complier_secondstage.reg, newdata = mutate(simulated.data,  :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 > direct.est <- predict(
 +     complier_secondstage.reg, newdata = mutate(simulated.data, Z = 1)) -
 +         predict(complier_secondstage.reg, newdata = mutate(simulated.data, Z = 0))
@@ -942,7 +1030,7 @@ $average_indirect_effect
 > print(mean(direct.est))
 [1] 1.417255
 > print(mean(firststage.est * indirect.est))
-[1] 1.250274
+[1] 1.265826
 > # Compared the un-weighted version (which has group differences bias).
 > print(estimated.values(cf_firststage.reg, complier_secondstage.reg, simulated.data))
 $`first-stage`
@@ -952,8 +1040,15 @@ $`direct-effect`
 [1] 1.417255
 
 $`indirect-effect`
-[1] 1.019471
+[1] 1.147137
 
+Warning messages:
+1: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 1)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+2: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 0)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+3: In predict.lm(secondstage.reg, newdata = mutate(filter(example.data,  :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 > print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 $`first-stage`
 [1] 0.6541503
@@ -962,8 +1057,29 @@ $`direct-effect`
 [1] 1.444208
 
 $`indirect-effect`
-[1] 0.9700234
+[1] 1.154537
 
+Warning messages:
+1: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
+  some 'x' values beyond boundary knots may cause ill-conditioned bases
+2: In predict.lm(secondstage.reg, newdata = mutate(example.data, Z = 1)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+3: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
+  some 'x' values beyond boundary knots may cause ill-conditioned bases
+4: In predict.lm(secondstage.reg, newdata = mutate(example.data, Z = 0)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+5: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
+  some 'x' values beyond boundary knots may cause ill-conditioned bases
+6: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 1)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+7: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
+  some 'x' values beyond boundary knots may cause ill-conditioned bases
+8: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 0)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+9: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
+  some 'x' values beyond boundary knots may cause ill-conditioned bases
+10: In predict.lm(secondstage.reg, newdata = mutate(filter(example.data,  :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 > 
 > 
 > ################################################################################
@@ -972,119 +1088,105 @@ $`indirect-effect`
 > # Base data to test out.
 > simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 > 
-> ## Get bootstrapped point est for the CF approach
-> #boot.reps <- 10000
-> #boot.est <- estimated.bootstrap(boot.reps, simulated.data, print.progress = TRUE)
-> #boot.data <- boot.est$data
-> #print(boot.data)
-> #
-> ### Save the bootstrapped point estimates data.
-> #boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
+> # Get bootstrapped point est for the CF approach
+> boot.reps <- 10^3
+> boot.est <- estimated.loop(boot.reps, simulated.data, bootstrap = FALSE)
+[1] "10 out of 1000, 1% done."
+[1] "20 out of 1000, 2% done."
+[1] "30 out of 1000, 3% done."
+[1] "40 out of 1000, 4% done."
+[1] "50 out of 1000, 5% done."
+[1] "60 out of 1000, 6% done."
+[1] "80 out of 1000, 8% done."
+[1] "90 out of 1000, 9% done."
+[1] "100 out of 1000, 10% done."
+[1] "110 out of 1000, 11% done."
+[1] "120 out of 1000, 12% done."
+[1] "130 out of 1000, 13% done."
+[1] "150 out of 1000, 15% done."
+[1] "160 out of 1000, 16% done."
+[1] "170 out of 1000, 17% done."
+[1] "180 out of 1000, 18% done."
+[1] "190 out of 1000, 19% done."
+[1] "200 out of 1000, 20% done."
+[1] "210 out of 1000, 21% done."
+[1] "220 out of 1000, 22% done."
+[1] "230 out of 1000, 23% done."
+[1] "240 out of 1000, 24% done."
+[1] "250 out of 1000, 25% done."
+[1] "260 out of 1000, 26% done."
+[1] "270 out of 1000, 27% done."
+[1] "300 out of 1000, 30% done."
+[1] "310 out of 1000, 31% done."
+[1] "320 out of 1000, 32% done."
+[1] "330 out of 1000, 33% done."
+[1] "340 out of 1000, 34% done."
+[1] "350 out of 1000, 35% done."
+[1] "360 out of 1000, 36% done."
+[1] "370 out of 1000, 37% done."
+[1] "380 out of 1000, 38% done."
+[1] "390 out of 1000, 39% done."
+[1] "400 out of 1000, 40% done."
+[1] "410 out of 1000, 41% done."
+[1] "420 out of 1000, 42% done."
+[1] "430 out of 1000, 43% done."
+[1] "440 out of 1000, 44% done."
+[1] "450 out of 1000, 45% done."
+[1] "460 out of 1000, 46% done."
+[1] "470 out of 1000, 47% done."
+[1] "480 out of 1000, 48% done."
+[1] "490 out of 1000, 49% done."
+[1] "500 out of 1000, 50% done."
+[1] "510 out of 1000, 51% done."
+[1] "520 out of 1000, 52% done."
+[1] "530 out of 1000, 53% done."
+[1] "540 out of 1000, 54% done."
+[1] "590 out of 1000, 59% done."
+[1] "600 out of 1000, 60% done."
+[1] "610 out of 1000, 61% done."
+[1] "620 out of 1000, 62% done."
+[1] "630 out of 1000, 63% done."
+[1] "640 out of 1000, 64% done."
+[1] "650 out of 1000, 65% done."
+[1] "660 out of 1000, 66% done."
+[1] "670 out of 1000, 67% done."
+[1] "680 out of 1000, 68% done."
+[1] "690 out of 1000, 69% done."
+[1] "700 out of 1000, 70% done."
+[1] "710 out of 1000, 71% done."
+[1] "720 out of 1000, 72% done."
+[1] "730 out of 1000, 73% done."
+[1] "740 out of 1000, 74% done."
+[1] "750 out of 1000, 75% done."
+[1] "760 out of 1000, 76% done."
+[1] "770 out of 1000, 77% done."
+[1] "780 out of 1000, 78% done."
+[1] "790 out of 1000, 79% done."
+[1] "800 out of 1000, 80% done."
+[1] "810 out of 1000, 81% done."
+[1] "820 out of 1000, 82% done."
+[1] "830 out of 1000, 83% done."
+[1] "840 out of 1000, 84% done."
+[1] "850 out of 1000, 85% done."
+[1] "860 out of 1000, 86% done."
+[1] "870 out of 1000, 87% done."
+[1] "880 out of 1000, 88% done."
+[1] "890 out of 1000, 89% done."
+[1] "900 out of 1000, 90% done."
+[1] "910 out of 1000, 91% done."
+[1] "920 out of 1000, 92% done."
+[1] "930 out of 1000, 93% done."
+[1] "940 out of 1000, 94% done."
+[1] "950 out of 1000, 95% done."
+[1] "960 out of 1000, 96% done."
+[1] "970 out of 1000, 97% done."
+[1] "980 out of 1000, 98% done."
+[1] "990 out of 1000, 99% done."
+[1] "1000 out of 1000, 100% done."
+> boot.data <- boot.est$data
 > 
-> 
-> ################################################################################
-> ## Compare estimation methods, across different sigma values.
-> 
-> # Define an empty dataframe, to start adding to.
-> boot.values <- estimated.bootstrap(1, simulated.data)$estimates
-[1] "1 out of 1, 100% done."
-> boot.values$sigma <- NA
-> sigma.data <- boot.values[0, ]
-> print(sigma.data)
- [1] truth_direct_effect     truth_indirect_effect   ols_direct_effect      
- [4] ols_direct_effect_se    ols_direct_effect_up    ols_direct_effect_low  
- [7] ols_indirect_effect     ols_indirect_effect_se  ols_indirect_effect_up 
-[10] ols_indirect_effect_low cf_direct_effect        cf_direct_effect_se    
-[13] cf_direct_effect_up     cf_direct_effect_low    cf_indirect_effect     
-[16] cf_indirect_effect_se   cf_indirect_effect_up   cf_indirect_effect_low 
-[19] sigma                  
-<0 rows> (or 0-length row.names)
-> # Define values in rho \in [-1, 1] to go across
-> sigma.values <- c(0, seq(0, 2, by = 0.25))
-> # Define the number of boot reps for each
-> boot.reps <- 1000
-> i <- 0
-> 
-> # Start the sigma loop
-> for (sigma in sigma.values){
-+     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
-+     sigma_sim.data <- simulate.data(0.5, 1, sigma, 0.25)
-+     # Get the truth + estimates + bootstrapped SEs, and save rho value
-+     sigma.boot <- estimated.bootstrap(
-+         boot.reps, simulated.data, print.progress = FALSE)$estimates
-+     sigma.boot$sigma <- sigma
-+     # Add to the dataframe.
-+     sigma.data[i, ] <- sigma.boot
-+     # SHow far we are.
-+     i <- i + 1
-+     print(paste0(sigma, " in [0, 2], ", 100 * i / length(sigma.values), "% done."))
-+     gc()
-+ }
-[1] "0 in [0, 2], 10% done."
-[1] "0 in [0, 2], 20% done."
-[1] "0.25 in [0, 2], 30% done."
-[1] "0.5 in [0, 2], 40% done."
-[1] "0.75 in [0, 2], 50% done."
-[1] "1 in [0, 2], 60% done."
-[1] "1.25 in [0, 2], 70% done."
-[1] "1.5 in [0, 2], 80% done."
-[1] "1.75 in [0, 2], 90% done."
-[1] "2 in [0, 2], 100% done."
-> # Save the output data.
-> sigma.data %>% write_csv(file.path(output.folder, "sigma-sim-data.csv"))
-> 
-> 
-> ################################################################################
-> ## Compare estimation methods, across different rho values.
-> 
-> # Define an empty dataframe, to start adding to.
-> boot.values <- estimated.bootstrap(1, simulated.data)$estimates
-[1] "1 out of 1, 100% done."
-> boot.values$rho <- NA
-> rho.data <- boot.values[0, ]
-> print(rho.data)
- [1] truth_direct_effect     truth_indirect_effect   ols_direct_effect      
- [4] ols_direct_effect_se    ols_direct_effect_up    ols_direct_effect_low  
- [7] ols_indirect_effect     ols_indirect_effect_se  ols_indirect_effect_up 
-[10] ols_indirect_effect_low cf_direct_effect        cf_direct_effect_se    
-[13] cf_direct_effect_up     cf_direct_effect_low    cf_indirect_effect     
-[16] cf_indirect_effect_se   cf_indirect_effect_up   cf_indirect_effect_low 
-[19] rho                    
-<0 rows> (or 0-length row.names)
-> # Define values in rho \in [-1, 1] to go across
-> rho.values <- seq(-1, 1, by = 0.25)
-> # Define the number of boot reps for each
-> boot.reps <- 1000
-> i <- 0
-> 
-> # Start the rho loop
-> for (rho in rho.values){
-+     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
-+     rho_sim.data <- simulate.data(rho, 1, 2, 0.25)
-+     # Get the truth + estimates + bootstrapped SEs, and save rho value
-+     rho.boot  <- estimated.bootstrap(boot.reps, simulated.data,
-+         print.progress = FALSE)$estimates
-+     rho.boot$rho <- rho
-+     # Add to the dataframe.
-+     rho.data[i, ] <- rho.boot
-+     # Show how far we are.
-+     i <- i + 1
-+     print(paste0(rho, " in [-1, 1], ", 100 * i / length(rho.values), "% done."))
-+     gc()
-+ }
-[1] "-1 in [-1, 1], 11.1111111111111% done."
-[1] "-0.75 in [-1, 1], 22.2222222222222% done."
-[1] "-0.5 in [-1, 1], 33.3333333333333% done."
-[1] "-0.25 in [-1, 1], 44.4444444444444% done."
-[1] "0 in [-1, 1], 55.5555555555556% done."
-[1] "0.25 in [-1, 1], 66.6666666666667% done."
-[1] "0.5 in [-1, 1], 77.7777777777778% done."
-[1] "0.75 in [-1, 1], 88.8888888888889% done."
-[1] "1 in [-1, 1], 100% done."
-> 
-> ## Save the output data.
-> rho.data %>% write_csv(file.path(output.folder, "rho-sim-data.csv"))
-> 
-> proc.time()
-    user   system  elapsed 
-19931.10    84.29 20018.39 
+> ## Save the bootstrapped point estimates data.
+> boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
+> exit.
+Error: object 'exit.' not found
+Execution halted

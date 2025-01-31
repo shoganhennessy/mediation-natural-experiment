@@ -22,7 +22,7 @@ Type 'q()' to quit R.
 > ## Plot the system for indirect + direct effects, with Roy selection.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "17:18 EST Thursday, 30 January 2025"
+[1] "12:27 EST Friday, 31 January 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -60,7 +60,7 @@ Type 'q()' to quit R.
 > 
 > # Load data from bootstrapping 10,000 times.
 > boot.data <- read_csv(file.path(output.folder, "boot-sim-data.csv"))
-Rows: 10000 Columns: 6
+Rows: 1000 Columns: 6
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
 dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
@@ -68,20 +68,20 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 > print(boot.data)
-# A tibble: 10,000 × 6
+# A tibble: 1,000 × 6
    truth_direct_effect ols_direct_effect cf_direct_effect truth_indirect_effect
                  <dbl>             <dbl>            <dbl>                 <dbl>
- 1                1.43             0.581             1.43                  1.14
- 2                1.43             0.560             1.38                  1.14
- 3                1.43             0.646             1.58                  1.14
- 4                1.43             0.567             1.48                  1.14
- 5                1.43             0.517             1.25                  1.14
- 6                1.43             0.608             1.59                  1.14
- 7                1.43             0.511             1.20                  1.14
- 8                1.43             0.533             1.33                  1.14
- 9                1.43             0.547             1.61                  1.14
-10                1.43             0.600             1.52                  1.14
-# ℹ 9,990 more rows
+ 1                1.43             0.592             1.36                  1.14
+ 2                1.43             0.544             1.19                  1.14
+ 3                1.43             0.547             1.38                  1.14
+ 4                1.43             0.548             1.23                  1.14
+ 5                1.43             0.522             1.61                  1.14
+ 6                1.43             0.585             1.27                  1.14
+ 7                1.43             0.603             1.46                  1.14
+ 8                1.43             0.464             1.42                  1.14
+ 9                1.43             0.515             1.25                  1.14
+10                1.43             0.545             1.39                  1.14
+# ℹ 990 more rows
 # ℹ 2 more variables: ols_indirect_effect <dbl>, cf_indirect_effect <dbl>
 > 
 > # Load the data file for varying correlated errors, rho values
@@ -281,7 +281,8 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     ggtitle("Estimate") +
 +     theme(plot.title = element_text(hjust = 0, size = rel(1)),
 +         plot.title.position = "plot",
-+         plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"))
++         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
++         axis.title.x = element_text(vjust = -0.25))
 > # Save this plot
 > ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
 +     plot = rho_directeffect_bias.plot, dpi = 300,
@@ -315,8 +316,8 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     ggtitle("Estimate") +
 +     theme(plot.title = element_text(hjust = 0, size = rel(1)),
 +         plot.title.position = "plot",
-+         plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"),
-+         legend.position = "bottom")
++         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
++         axis.title.x = element_text(vjust = -0.25))
 > # Save this plot
 > ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
 +     plot = rho_indirecteffect_bias.plot, dpi = 300,
@@ -344,7 +345,7 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     # Presentation options
 +     theme_bw() +
 +     scale_x_continuous(
-+         name = TeX("$\\sigma$"),
++         name = TeX("$\\sigma_1$"),
 +         expand = c(0, 0),
 +         breaks = seq(0, 2, by = 0.25),
 +         limits = c(-0.02, 2.02)) +
@@ -355,8 +356,8 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     ggtitle("Estimate") +
 +     theme(plot.title = element_text(hjust = 0, size = rel(1)),
 +         plot.title.position = "plot",
-+         plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"),
-+         legend.position = "bottom")
++         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
++         axis.title.x = element_text(vjust = -0.25))
 > # Save this plot
 > ggsave(file.path(output.folder, "sigma-directeffect-bias.png"),
 +     plot = sigma_directeffect_bias.plot, dpi = 300,
@@ -381,7 +382,7 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     # Presentation options
 +     theme_bw() +
 +     scale_x_continuous(
-+         name = TeX("$\\sigma$"),
++         name = TeX("$\\sigma_1$"),
 +         expand = c(0, 0),
 +         breaks = seq(0, 2, by = 0.25),
 +         limits = c(-0.02, 2.02)) +
@@ -392,8 +393,8 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     ggtitle("Estimate") +
 +     theme(plot.title = element_text(hjust = 0, size = rel(1)),
 +         plot.title.position = "plot",
-+         plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"),
-+         legend.position = "bottom")
++         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
++         axis.title.x = element_text(vjust = -0.25))
 > # Save this plot
 > ggsave(file.path(output.folder, "sigma-indirecteffect-bias.png"),
 +     plot = sigma_indirecteffect_bias.plot, dpi = 300,
@@ -401,4 +402,4 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > 
 > proc.time()
    user  system elapsed 
-  3.352   0.200   3.593 
+  3.425   0.200   3.684 

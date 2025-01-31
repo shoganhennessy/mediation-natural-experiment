@@ -17,3 +17,5 @@ cd ../text
 latexmk -pdf paper.tex
 latexmk -c
 cp paper.pdf ../mediation-natural-experiment.pdf
+
+R CMD BATCH --no-save roy-sim.R && R CMD BATCH --no-save plot-sim.R && shutdown

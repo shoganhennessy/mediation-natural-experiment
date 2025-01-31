@@ -195,7 +195,8 @@ rho_directeffect_bias.plot <- rho.data %>%
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
-        plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"))
+        plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
+        axis.title.x = element_text(vjust = -0.25))
 # Save this plot
 ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
     plot = rho_directeffect_bias.plot, dpi = 300,
@@ -229,8 +230,8 @@ rho_indirecteffect_bias.plot <- rho.data %>%
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
-        plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"),
-        legend.position = "bottom")
+        plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
+        axis.title.x = element_text(vjust = -0.25))
 # Save this plot
 ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
     plot = rho_indirecteffect_bias.plot, dpi = 300,
@@ -258,7 +259,7 @@ sigma_directeffect_bias.plot <- sigma.data %>%
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX("$\\sigma$"),
+        name = TeX("$\\sigma_1$"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +
@@ -269,8 +270,8 @@ sigma_directeffect_bias.plot <- sigma.data %>%
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
-        plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"),
-        legend.position = "bottom")
+        plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
+        axis.title.x = element_text(vjust = -0.25))
 # Save this plot
 ggsave(file.path(output.folder, "sigma-directeffect-bias.png"),
     plot = sigma_directeffect_bias.plot, dpi = 300,
@@ -295,7 +296,7 @@ sigma_indirecteffect_bias.plot <- sigma.data %>%
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX("$\\sigma$"),
+        name = TeX("$\\sigma_1$"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +
@@ -306,8 +307,8 @@ sigma_indirecteffect_bias.plot <- sigma.data %>%
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
-        plot.margin = unit(c(0.5, 3, 0.25, 0.25), "mm"),
-        legend.position = "bottom")
+        plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
+        axis.title.x = element_text(vjust = -0.25))
 # Save this plot
 ggsave(file.path(output.folder, "sigma-indirecteffect-bias.png"),
     plot = sigma_indirecteffect_bias.plot, dpi = 300,

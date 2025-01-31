@@ -37,28 +37,6 @@ There are only two average effects which are identified (without additional assu
     \[ \Egiven{Y_i}{Z_i = 1} - \Egiven{Y_i}{Z_i = 0}
         = \E{Y_i(1, D_i(1)) - Y_i(0, D_i(0))} \]
 \end{enumerate}
-In this setting, $Z_i$ affects outcome $Y_i$ directly, and indirectly via the $D_i(Z_i)$ channel, with no reverse causality.
-% The framework is general to any (conditionally) randomly assigned $Z_i$, intermiedate mediator $D_i$, and outcome $Y_i$.
-%This section focuses on binary $Z_i, D_i = 0,1$, and not the continuous versions, to simplify the causal framework.%\footnote{
-    %\autoref{appendix:continuous} relates the causal framework to continuous $Z_i,D_i$, which has little conceptual differences.}
-On the other hand, mediation aims to decompose the reduced form effect of $Z \to Y$ into these two separate pathways.
-\autoref{fig:scm-model} visualises the design, where the direction arrows denote the causal direction (and no reverse causality).
-\begin{align*}
-    \text{Average Indirect Effect (AIE), } D(Z) \to Y: \;\;\;&
-        \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
-    \text{Average Direct Effect (ADE), } Z \to Y: \;\;\;&
-        \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
-\end{align*}
-Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
-In an applied example of the Vietnam-era military draft, this could be how much of (random) military conscription's causal effect goes through military service?
-In an instrumental variables application, this direct effect is assumed to be zero for everyone (i.e., the exclusion restriction).
-CM is a different framework attempting to explicitly model the direct effect, not assuming the ADE is zero.
-Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
-    In a non-parametric setting it is not necessary that the ADE and AIE sum to the total effect.
-    See \cite{imai2010identification} for this point in full.
-}
-For the military example, how much of the effect of random conscription is a direct effect, such as from further education for a military deferment and other actions dodging the draft?
-These CM effects are not separately identified without further assumptions.
 
 \begin{figure}[h!]
     \centering
@@ -99,6 +77,29 @@ These CM effects are not separately identified without further assumptions.
     \autoref{sec:regression} formally defines $U$ in this set-up.
 \end{figure}
 
+In this setting, $Z_i$ affects outcome $Y_i$ directly, and indirectly via the $D_i(Z_i)$ channel, with no reverse causality.
+% The framework is general to any (conditionally) randomly assigned $Z_i$, intermiedate mediator $D_i$, and outcome $Y_i$.
+%This section focuses on binary $Z_i, D_i = 0,1$, and not the continuous versions, to simplify the causal framework.%\footnote{
+    %\autoref{appendix:continuous} relates the causal framework to continuous $Z_i,D_i$, which has little conceptual differences.}
+On the other hand, mediation aims to decompose the reduced form effect of $Z \to Y$ into these two separate pathways.
+\autoref{fig:scm-model} visualises the design, where the direction arrows denote the causal direction (and no reverse causality).
+\begin{align*}
+    \text{Average Indirect Effect (AIE), } D(Z) \to Y: \;\;\;&
+        \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
+    \text{Average Direct Effect (ADE), } Z \to Y: \;\;\;&
+        \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
+\end{align*}
+Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
+In an applied example of the Vietnam-era military draft, this could be how much of (random) military conscription's causal effect goes through military service?
+In an instrumental variables application, this direct effect is assumed to be zero for everyone (i.e., the exclusion restriction).
+CM is a different framework attempting to explicitly model the direct effect, not assuming the ADE is zero.
+Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
+    In a non-parametric setting it is not necessary that the ADE and AIE sum to the total effect.
+    See \cite{imai2010identification} for this point in full.
+}
+For the military example, how much of the effect of random conscription is a direct effect, such as from further education for a military deferment and other actions dodging the draft?
+These CM effects are not separately identified without further assumptions.
+
 \subsection{Identifying Causal Mediation (CM) Effects}
 The conventional approach to estimating direct and indirect effects assumes both $Z_i$ and $D_i$ are ignorable, conditional on a set of control variables $\vec X_i$.
 \begin{definition}
@@ -120,6 +121,7 @@ If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:
     This reasoning is in line with G-computation reasoning \citep{robins1986g};
     \autoref{appendix:identification} states the \cite{imai2010identification} identification result, and then develops the two-stage regression notation which holds as a consequence of sequential ignorability.
 }
+\vspace{0.1cm}
 
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
 \[ \E[D_i = d', \vec X_i]{
@@ -132,7 +134,7 @@ If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:
 \[ = \underbrace{\E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}}_{\text{Average Indirect Effect (AIE)}} \]
 }}
 I refer to the estimands on the left-hand side as Causal Mediation (CM) estimands.
-These estimands are typically estimated with linear models, with resulting estimates composed from OLS estimates \citep{imai2010identification}.
+These estimands are typically estimated with linear models, with resulting estimates composed from two-stage Ordinary Least Squares (OLS) estimates \citep{imai2010identification}.
 %\begin{align*}
 %    D_i &= \phi + \pi Z_i
 %        + \vec \psi_1' \vec X_i+ \eta_i \\
@@ -151,7 +153,8 @@ This section focuses on problems that plague CM in practice, regardless of estim
 \subsection{Bias in Causal Mediation Estimates}
 Applied research may use a natural experiment to justify the treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
 Rarely does research relying on a quasi-experimental research design employ an additional, overlapping identification design for $D_i$ to justify assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} as part of the analysis.
-One might consider using conventional CM methods to estimate direct and indirect effects, and learn about the mechanisms behind the treatment effect under study.This approach leads to biased estimates, and contaminates inference regarding direct and indirect effects.%\footnote{
+One might consider conventional CM methods in such a setting to learn about the mechanisms behind the causal effect under study.
+This approach leads to biased estimates, and contaminates inference regarding direct and indirect effects.%\footnote{
     %    \cite{imai2013experimental} call attention to the need for a separate research design to isolate causal effects of $D_i$ in randomised controlled trials; \autoref{appendix:mediation-review} overviews literature, finding many papers that employ mediation methods with a research design for $Z_i$, but not for $D_i$.
     %}
 
@@ -162,9 +165,9 @@ One might consider using conventional CM methods to estimate direct and indirect
     Then CM estimands are contaminated by selection bias and group differences.
 \end{theorem}
 \begin{proof}
-    See \autoref{appendix:mediation-bias} for the extended proof.
+    See \autoref{appendix:mediation-bias} for the proof.
+    Below I present the relevant selection bias and group difference terms, omitting the conditional on $\vec X_i$ notation for brevity.
 \end{proof}
-Below I present the relevant selection bias and group difference terms, omitting the conditional on $\vec X_i$ notation for brevity.
 
 \noindent
 For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differences.
@@ -178,8 +181,8 @@ For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differen
     & \;\;\;\; + \E[D_i = d']{
         \Big(1 - \Prob{D_i(1) = d'} \Big)
         \left( \begin{aligned}
-            &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d'} \\ 
-            &  - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(0) = 1 - d'}
+            &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1-d'} \\ 
+            &  - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d'}
             \end{aligned} \right) }
 \end{align*}
 
