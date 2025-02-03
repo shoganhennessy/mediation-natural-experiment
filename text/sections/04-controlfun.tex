@@ -164,10 +164,10 @@ Following \autoref{sec:selection}, these data have the following first and secon
         + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
 \end{align*}
 $Z_i$ has an effect on outcome $Y_i$, and it operates partially through mediator $D_i$.
-$\mu_{D_i}(Z_i;.)$ has an interation term, $Z_i D_i$, so while each $Z_i$ and $D_i$ have a constant partial effect, the total effect depends on how many $i$ choose to take the mediator; in this simulation $Prob{D_i = 1} = 0.437$, and $65.29\%$ of the sample are mediator compliers (where $D_i(1)=1$ and $D_i(0) = 0$).
+$\mu_{D_i}(Z_i;.)$ has an interation term, $Z_i D_i$, so while each $Z_i$ and $D_i$ have a constant partial effect, the total effect depends on how many $i$ choose to take the mediator; in this simulation $\Prob{D_i = 1} = 0.437$, and $65.29\%$ of the sample are mediator compliers (where $D_i(1)=1$ and $D_i(0) = 0$).
 This gives an average total effect ($Z\to Y$) value of 2.58, ADE 1.44, and AIE 1.13.\footnote{
     Note that average total effect $=$ ADE $+$ AIE, in this setting.
-    $\Prob{Z_i} = 0.5$ ensures this equality, but is not guaranteed in general.
+    $\Prob{Z_i=1} = 0.5$ ensures this equality, but is not guaranteed in general.
 }
 
 After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-degenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
