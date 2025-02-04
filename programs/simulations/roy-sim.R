@@ -181,7 +181,7 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data){
     indirect.est <- predict(
         secondstage.reg, newdata = mutate(example.data, D = 1)) -
         predict(secondstage.reg, newdata = mutate(example.data, D = 0))
-    #! Test, add on the K_0 and K_1 conditional on D_i = 0, 1 for compliers.
+    # Add on the K_0, K_1 conditional on D_i = 0, 1 respectively for compliers.
     # Estimate the kappa-weight
     hat_probZ <- 0.5
     kappa_1 <- example.data$D * ((example.data$Z - hat_probZ) / (
@@ -243,9 +243,11 @@ estimated.loop <- function(boot.reps, example.data,
         cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
             bs(X_minus, df = 20, intercept = TRUE),
             data = boot.data)
-        boot.data$K   <- cf_firststage.reg$residuals
-        boot.data$K_0 <- (1 - boot.data$D) * cf_firststage.reg$residuals
-        boot.data$K_1 <- boot.data$D * cf_firststage.reg$residuals
+        boot.data$D_hat <- cf_firststage.reg$fitted
+        control.fun <- ecdf(boot.data$D_hat)
+        boot.data$K <- control.fun(boot.data$D_hat)
+        boot.data$K_0 <- (1 - boot.data$D) * boot.data$K
+        boot.data$K_1 <- boot.data$D * boot.data$K
         cf_secondstage.reg <- lm(
             Y ~ (1 + Z * D) + X_minus +
             bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE) +
@@ -254,10 +256,10 @@ estimated.loop <- function(boot.reps, example.data,
             data = boot.data)
         cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
         # Save the outputs.
-        ols_direct_effect[i]     <- ols.est$`direct-effect`
-        ols_indirect_effect[i]   <- ols.est$`indirect-effect`
-        cf_direct_effect[i]      <- cf.est$`direct-effect`
-        cf_indirect_effect[i]    <- cf.est$`indirect-effect`
+        ols_direct_effect[i]   <- ols.est$`direct-effect`
+        ols_indirect_effect[i] <- ols.est$`indirect-effect`
+        cf_direct_effect[i]    <- cf.est$`direct-effect`
+        cf_indirect_effect[i]  <- cf.est$`indirect-effect`
     }
     # Return the bootstrap data.
     output.list <- list()
@@ -327,16 +329,19 @@ print(theoretical.values(simulated.data))
 print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 
 # Show how (unknown) control function gets it correct, in 2 steps (with splines)
+# -> Use the estimated CDF as the control function (as in Imbens Newey 2009).
 cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
     bs(X_minus, df = 20, intercept = TRUE),
     data = simulated.data)
-simulated.data$K <- cf_firststage.reg$residuals
-simulated.data$K_0 <- (1 - simulated.data$D) * cf_firststage.reg$residuals
-simulated.data$K_1 <- simulated.data$D * cf_firststage.reg$residuals
+simulated.data$D_hat <- cf_firststage.reg$fitted
+control.fun <- ecdf(simulated.data$D_hat)
+simulated.data$K <- control.fun(simulated.data$D_hat)
+simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$K
+simulated.data$K_1 <- simulated.data$D * simulated.data$K
 cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
     bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE) +
     bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE),
-    #bs(K, knots = seq(-1, 1, by = 0.025), intercept = TRUE),
+    #bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
     data = simulated.data)
 print(summary(cf_secondstage.reg))
 print(theoretical.values(simulated.data))
@@ -492,12 +497,12 @@ print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 
 # Get bootstrapped point est for the CF approach
-boot.reps <- 10^3
+boot.reps <- 10^2
 boot.est <- estimated.loop(boot.reps, simulated.data, bootstrap = FALSE)
 boot.data <- boot.est$data
 
 ## Save the bootstrapped point estimates data.
-boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
+boot.data %>% write_csv(file.path(output.folder, "boot-sim-data-test.csv"))
 exit.
 
 ################################################################################

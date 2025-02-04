@@ -22,7 +22,7 @@ Type 'q()' to quit R.
 > ## Simulate the system for indirect + direct effects, with Roy selection.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "12:06 EST Friday, 31 January 2025"
+[1] "10:22 EST Tuesday, 04 February 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -240,7 +240,7 @@ https://r-forge.r-project.org/projects/maxlik/
 +     indirect.est <- predict(
 +         secondstage.reg, newdata = mutate(example.data, D = 1)) -
 +         predict(secondstage.reg, newdata = mutate(example.data, D = 0))
-+     #! Test, add on the K_0 and K_1 conditional on D_i = 0, 1 for compliers.
++     # Add on the K_0, K_1 conditional on D_i = 0, 1 respectively for compliers.
 +     # Estimate the kappa-weight
 +     hat_probZ <- 0.5
 +     kappa_1 <- example.data$D * ((example.data$Z - hat_probZ) / (
@@ -302,9 +302,11 @@ https://r-forge.r-project.org/projects/maxlik/
 +         cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
 +             bs(X_minus, df = 20, intercept = TRUE),
 +             data = boot.data)
-+         boot.data$K   <- cf_firststage.reg$residuals
-+         boot.data$K_0 <- (1 - boot.data$D) * cf_firststage.reg$residuals
-+         boot.data$K_1 <- boot.data$D * cf_firststage.reg$residuals
++         boot.data$D_hat <- cf_firststage.reg$fitted
++         control.fun <- ecdf(boot.data$D_hat)
++         boot.data$K <- control.fun(boot.data$D_hat)
++         boot.data$K_0 <- (1 - boot.data$D) * boot.data$K
++         boot.data$K_1 <- boot.data$D * boot.data$K
 +         cf_secondstage.reg <- lm(
 +             Y ~ (1 + Z * D) + X_minus +
 +             bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE) +
@@ -313,10 +315,10 @@ https://r-forge.r-project.org/projects/maxlik/
 +             data = boot.data)
 +         cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
 +         # Save the outputs.
-+         ols_direct_effect[i]     <- ols.est$`direct-effect`
-+         ols_indirect_effect[i]   <- ols.est$`indirect-effect`
-+         cf_direct_effect[i]      <- cf.est$`direct-effect`
-+         cf_indirect_effect[i]    <- cf.est$`indirect-effect`
++         ols_direct_effect[i]   <- ols.est$`direct-effect`
++         ols_indirect_effect[i] <- ols.est$`indirect-effect`
++         cf_direct_effect[i]    <- cf.est$`direct-effect`
++         cf_indirect_effect[i]  <- cf.est$`indirect-effect`
 +     }
 +     # Return the bootstrap data.
 +     output.list <- list()
@@ -474,16 +476,19 @@ $`indirect-effect`
 
 > 
 > # Show how (unknown) control function gets it correct, in 2 steps (with splines)
+> # -> Use the estimated CDF as the control function (as in Imbens Newey 2009).
 > cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
 +     bs(X_minus, df = 20, intercept = TRUE),
 +     data = simulated.data)
-> simulated.data$K <- cf_firststage.reg$residuals
-> simulated.data$K_0 <- (1 - simulated.data$D) * cf_firststage.reg$residuals
-> simulated.data$K_1 <- simulated.data$D * cf_firststage.reg$residuals
+> simulated.data$D_hat <- cf_firststage.reg$fitted
+> control.fun <- ecdf(simulated.data$D_hat)
+> simulated.data$K <- control.fun(simulated.data$D_hat)
+> simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$K
+> simulated.data$K_1 <- simulated.data$D * simulated.data$K
 > cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
 +     bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE) +
 +     bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE),
-+     #bs(K, knots = seq(-1, 1, by = 0.025), intercept = TRUE),
++     #bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
 +     data = simulated.data)
 > print(summary(cf_secondstage.reg))
 
@@ -494,297 +499,297 @@ lm(formula = Y ~ (1 + Z * D) + X_minus + bs(K_0, knots = seq(0,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--5.6070 -0.8433 -0.0249  0.8293  5.7340 
+-5.6464 -0.8453 -0.0364  0.8280  5.8670 
 
-Coefficients: (39 not defined because of singularities)
-                                                             Estimate
-(Intercept)                                                   3.90291
-Z                                                             0.96373
-D                                                             0.94029
-X_minus                                                       0.99771
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)1    0.25960
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)2   -0.21087
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)3    0.13456
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)4  -21.52877
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)5  117.80559
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)6         NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)7         NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)8         NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)9    0.86776
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)10        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)11        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)12        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)13        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)14        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)15        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)16        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)17        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)18        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)19        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)20        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)21        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)22        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)23        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)24        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)25        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)26        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)27        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)28        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)29        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)30        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)31        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)32        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)33        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)34        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)35        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)36        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)37        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)38        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)39        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)40        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)41        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)42        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)43        NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)44        NA
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)1   10.13829
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)2   -4.86464
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)3   -3.89649
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)4   -3.56791
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)5   -3.94850
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)6   -3.69710
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)7   -3.58212
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)8   -3.42600
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)9   -3.56814
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)10  -2.97994
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)11  -3.54769
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)12  -2.94045
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)13  -3.94663
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)14  -2.83164
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)15  -3.11326
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)16  -3.02039
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)17  -3.02877
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)18  -2.60241
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)19  -2.74887
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)20  -3.19910
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)21  -2.42681
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)22  -3.53703
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)23  -1.91741
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)24  -2.43413
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)25  -2.21109
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)26  -2.75420
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)27  -1.22759
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)28  -2.23362
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)29  -1.86901
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)30  -2.02588
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)31  -1.45336
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)32  -1.91827
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)33  -1.62885
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)34  -1.43930
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)35  -1.33267
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)36  -1.00761
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)37  -0.69921
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)38  -0.92023
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)39  -1.25580
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)40  -0.66086
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)41   1.56391
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)42  -1.58083
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)43   1.64357
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)44        NA
-Z:D                                                           1.09950
+Coefficients: (5 not defined because of singularities)
+                                                              Estimate
+(Intercept)                                                 -6.645e-01
+Z                                                            9.540e-01
+D                                                            1.743e+00
+X_minus                                                      9.981e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)1   2.232e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)2   1.183e+00
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)3   4.164e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)4   7.056e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)5   7.538e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)6   7.369e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)7   7.964e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)8   5.830e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)9   6.505e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)10  8.010e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)11  3.841e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)12  8.113e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)13  8.514e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)14  6.129e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)15  8.462e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)16  3.975e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)17  7.615e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)18  5.560e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)19  6.823e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)20  4.754e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)21  5.233e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)22  6.653e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)23  5.563e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)24  9.992e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)25  2.777e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)26  9.785e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)27  2.298e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)28  1.158e+00
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)29  5.111e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)30  1.324e+00
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)31  4.761e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)32  6.775e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)33  3.529e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)34  5.883e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)35  5.887e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)36  6.418e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)37  6.887e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)38  8.320e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)39  9.950e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)40 -3.515e-01
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)41  1.629e+00
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)42  1.464e+00
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)43         NA
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)44         NA
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)1          NA
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)2  -2.305e+04
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)3   1.407e+02
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)4   9.496e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)5  -3.131e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)6   5.913e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)7   2.240e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)8   6.082e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)9   8.117e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)10  4.838e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)11  2.233e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)12  2.309e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)13  3.251e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)14  2.420e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)15  3.214e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)16  2.482e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)17  2.814e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)18  1.858e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)19  2.477e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)20  1.690e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)21  2.020e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)22  1.702e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)23  1.344e+00
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)24  6.099e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)25  9.887e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)26  9.560e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)27  4.741e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)28  9.656e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)29  2.190e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)30  5.043e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)31  4.212e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)32  3.338e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)33  1.248e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)34  4.304e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)35 -2.887e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)36  6.745e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)37 -5.931e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)38  4.020e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)39 -6.123e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)40  4.829e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)41 -4.987e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)42 -3.010e-01
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)43         NA
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)44         NA
+Z:D                                                          1.052e+00
                                                             Std. Error t value
-(Intercept)                                                    1.35618   2.878
-Z                                                              0.14448   6.670
-D                                                              0.26114   3.601
-X_minus                                                        0.02906  34.333
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)1     0.40501   0.641
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)2     0.19552  -1.079
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)3     0.26633   0.505
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)4    17.74009  -1.214
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)5   111.63998   1.055
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)6          NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)7          NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)8          NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)9     1.35059   0.643
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)10         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)11         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)12         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)13         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)14         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)15         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)16         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)17         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)18         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)19         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)20         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)21         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)22         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)23         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)24         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)25         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)26         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)27         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)28         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)29         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)30         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)31         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)32         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)33         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)34         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)35         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)36         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)37         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)38         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)39         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)40         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)41         NA      NA
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)42         NA      NA
+(Intercept)                                                  1.339e+00  -0.496
+Z                                                            1.573e-01   6.067
+D                                                            4.690e-01   3.717
+X_minus                                                      3.291e-02  30.329
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)1   1.382e+00   0.162
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)2   1.384e+00   0.855
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)3   1.382e+00   0.301
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)4   1.372e+00   0.514
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)5   1.365e+00   0.552
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)6   1.364e+00   0.540
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)7   1.366e+00   0.583
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)8   1.363e+00   0.428
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)9   1.361e+00   0.478
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)10  1.361e+00   0.589
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)11  1.361e+00   0.282
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)12  1.363e+00   0.595
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)13  1.363e+00   0.625
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)14  1.364e+00   0.449
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)15  1.360e+00   0.622
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)16  1.360e+00   0.292
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)17  1.361e+00   0.559
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)18  1.361e+00   0.409
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)19  1.363e+00   0.501
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)20  1.360e+00   0.350
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)21  1.361e+00   0.385
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)22  1.359e+00   0.489
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)23  1.363e+00   0.408
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)24  1.362e+00   0.734
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)25  1.367e+00   0.203
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)26  1.370e+00   0.714
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)27  1.373e+00   0.167
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)28  1.377e+00   0.841
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)29  1.385e+00   0.369
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)30  1.390e+00   0.952
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)31  1.400e+00   0.340
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)32  1.407e+00   0.481
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)33  1.421e+00   0.248
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)34  1.425e+00   0.413
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)35  1.431e+00   0.411
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)36  1.443e+00   0.445
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)37  1.464e+00   0.470
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)38  1.466e+00   0.568
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)39  1.574e+00   0.632
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)40  1.731e+00  -0.203
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)41  1.904e+00   0.856
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)42  2.587e+00   0.566
 bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)43         NA      NA
 bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)44         NA      NA
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)1     6.70021   1.513
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)2     1.57512  -3.088
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)3     1.35830  -2.869
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)4     1.35343  -2.636
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)5     1.35216  -2.920
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)6     1.35056  -2.737
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)7     1.34975  -2.654
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)8     1.35002  -2.538
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)9     1.35002  -2.643
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)10    1.36015  -2.191
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)11    1.36579  -2.598
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)12    1.37406  -2.140
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)13    1.38948  -2.840
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)14    1.36968  -2.067
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)15    1.37839  -2.259
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)16    1.38767  -2.177
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)17    1.36874  -2.213
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)18    1.38691  -1.876
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)19    1.40043  -1.963
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)20    1.40092  -2.284
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)21    1.38451  -1.753
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)22    1.42382  -2.484
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)23    1.42266  -1.348
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)24    1.43826  -1.692
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)25    1.42739  -1.549
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)26    1.44714  -1.903
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)27    1.46665  -0.837
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)28    1.47386  -1.515
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)29    1.45296  -1.286
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)30    1.45931  -1.388
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)31    1.43487  -1.013
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)32    1.41709  -1.354
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)33    1.41496  -1.151
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)34    1.39340  -1.033
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)35    1.43692  -0.927
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)36    1.40938  -0.715
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)37    1.39398  -0.502
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)38    1.41059  -0.652
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)39    1.47199  -0.853
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)40    1.46310  -0.452
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)41    1.77004   0.884
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)42    2.01678  -0.784
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)43    1.67062   0.984
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)1          NA      NA
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)2   1.627e+04  -1.416
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)3   1.048e+02   1.343
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)4   8.089e+00   0.117
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)5   3.280e+00  -0.095
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)6   1.774e+00   3.332
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)7   1.320e+00   1.697
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)8   1.173e+00   5.185
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)9   9.686e-01   0.838
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)10  9.416e-01   5.138
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)11  8.500e-01   2.628
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)12  7.766e-01   2.973
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)13  6.795e-01   4.784
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)14  6.193e-01   3.908
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)15  6.132e-01   5.242
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)16  6.540e-01   3.794
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)17  6.033e-01   4.665
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)18  5.598e-01   3.320
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)19  5.207e-01   4.757
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)20  5.032e-01   3.360
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)21  4.767e-01   4.238
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)22  4.436e-01   3.836
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)23  4.144e-01   3.244
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)24  3.938e-01   1.549
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)25  3.845e-01   2.572
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)26  3.683e-01   2.596
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)27  3.719e-01   1.275
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)28  3.594e-01   2.687
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)29  3.591e-01   0.610
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)30  3.530e-01   1.429
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)31  3.538e-01   1.190
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)32  3.463e-01   0.964
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)33  3.413e-01   0.366
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)34  3.433e-01   1.254
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)35  3.396e-01  -0.850
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)36  3.401e-01   1.984
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)37  3.359e-01  -1.766
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)38  3.475e-01   1.157
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)39  3.231e-01  -1.895
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)40  3.800e-01   1.271
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)41  3.150e-01  -1.583
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)42  4.973e-01  -0.605
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)43         NA      NA
 bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)44         NA      NA
-Z:D                                                            0.17615   6.242
+Z:D                                                          1.777e-01   5.923
                                                             Pr(>|t|)    
-(Intercept)                                                 0.004012 ** 
-Z                                                           2.69e-11 ***
-D                                                           0.000319 ***
+(Intercept)                                                 0.619590    
+Z                                                           1.35e-09 ***
+D                                                           0.000203 ***
 X_minus                                                      < 2e-16 ***
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)1  0.521548    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)2  0.280835    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)3  0.613399    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)4  0.224942    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)5  0.291347    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)6        NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)7        NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)8        NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)9  0.520560    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)10       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)11       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)12       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)13       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)14       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)15       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)16       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)17       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)18       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)19       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)20       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)21       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)22       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)23       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)24       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)25       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)26       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)27       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)28       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)29       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)30       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)31       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)32       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)33       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)34       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)35       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)36       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)37       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)38       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)39       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)40       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)41       NA    
-bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)42       NA    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)1  0.871687    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)2  0.392601    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)3  0.763159    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)4  0.607147    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)5  0.580848    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)6  0.589095    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)7  0.559882    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)8  0.668960    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)9  0.632591    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)10 0.556140    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)11 0.777779    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)12 0.551797    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)13 0.532239    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)14 0.653108    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)15 0.533875    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)16 0.770160    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)17 0.575969    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)18 0.682817    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)19 0.616690    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)20 0.726578    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)21 0.700585    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)22 0.624548    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)23 0.683229    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)24 0.463103    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)25 0.839000    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)26 0.475113    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)27 0.867030    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)28 0.400292    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)29 0.712155    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)30 0.341025    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)31 0.733836    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)32 0.630173    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)33 0.803857    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)34 0.679717    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)35 0.680860    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)36 0.656412    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)37 0.638072    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)38 0.570270    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)39 0.527183    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)40 0.839041    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)41 0.392123    
+bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)42 0.571320    
 bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)43       NA    
 bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE)44       NA    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)1  0.130278    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)2  0.002018 ** 
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)3  0.004131 ** 
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)4  0.008397 ** 
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)5  0.003507 ** 
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)6  0.006203 ** 
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)7  0.007969 ** 
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)8  0.011172 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)9  0.008230 ** 
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)10 0.028483 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)11 0.009404 ** 
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)12 0.032382 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)13 0.004515 ** 
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)14 0.038725 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)15 0.023928 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)16 0.029535 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)17 0.026933 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)18 0.060628 .  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)19 0.049688 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)20 0.022418 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)21 0.079663 .  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)22 0.013001 *  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)23 0.177764    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)24 0.090599 .  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)25 0.121402    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)26 0.057044 .  
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)27 0.402611    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)28 0.129680    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)29 0.198352    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)30 0.165094    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)31 0.311140    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)32 0.175873    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)33 0.249693    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)34 0.301659    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)35 0.353716    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)36 0.474668    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)37 0.615968    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)38 0.514173    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)39 0.393608    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)40 0.651507    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)41 0.376964    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)42 0.433155    
-bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)43 0.325233    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)1        NA    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)2  0.156730    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)3  0.179290    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)4  0.906558    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)5  0.923949    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)6  0.000864 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)7  0.089787 .  
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)8  2.20e-07 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)9  0.402039    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)10 2.83e-07 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)11 0.008614 ** 
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)12 0.002952 ** 
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)13 1.74e-06 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)14 9.36e-05 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)15 1.62e-07 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)16 0.000149 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)17 3.13e-06 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)18 0.000905 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)19 1.99e-06 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)20 0.000784 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)21 2.28e-05 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)22 0.000126 ***
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)23 0.001182 ** 
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)24 0.121465    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)25 0.010139 *  
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)26 0.009458 ** 
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)27 0.202355    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)28 0.007230 ** 
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)29 0.541957    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)30 0.153097    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)31 0.233901    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)32 0.335182    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)33 0.714659    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)34 0.209879    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)35 0.395235    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)36 0.047322 *  
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)37 0.077501 .  
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)38 0.247367    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)39 0.058083 .  
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)40 0.203860    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)41 0.113451    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)42 0.544939    
+bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)43       NA    
 bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE)44       NA    
-Z:D                                                         4.50e-10 ***
+Z:D                                                         3.27e-09 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.333 on 9946 degrees of freedom
-Multiple R-squared:  0.6706,	Adjusted R-squared:  0.6688 
-F-statistic:   382 on 53 and 9946 DF,  p-value: < 2.2e-16
+Residual standard error: 1.334 on 9912 degrees of freedom
+Multiple R-squared:  0.6714,	Adjusted R-squared:  0.6685 
+F-statistic: 232.8 on 87 and 9912 DF,  p-value: < 2.2e-16
 
 > print(theoretical.values(simulated.data))
 $average_first_stage
@@ -804,11 +809,18 @@ $`first-stage`
 [1] 0.6541503
 
 $`direct-effect`
-[1] 1.444208
+[1] 1.413938
 
 $`indirect-effect`
-[1] 1.120267
+[1] 1.151033
 
+Warning messages:
+1: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 1)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+2: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 0)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+3: In predict.lm(secondstage.reg, newdata = mutate(filter(example.data,  :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 > 
 > #! Test, add on the K_0 and K_1 conditional on D_i = 0,1 respectively in truth
 > firststage.est <- predict(
@@ -821,7 +833,7 @@ $`indirect-effect`
 > add.term <- (mean(simulated.data$K_1[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1])
 +     - mean(simulated.data$K_0[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1]))
 > print(mean(firststage.est * (indirect.est + add.term)))
-[1] 1.113021
+[1] 1.47837
 > #! Do the same thing, but kappa weighted to the compliers inside the CF estimate.
 > firststage.est <- predict(
 +     cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
@@ -830,6 +842,11 @@ $`indirect-effect`
 > indirect.est <- predict(
 +     cf_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
 +     predict(cf_secondstage.reg, newdata = mutate(simulated.data, D = 0))
+Warning messages:
+1: In predict.lm(cf_secondstage.reg, newdata = mutate(simulated.data,  :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+2: In predict.lm(cf_secondstage.reg, newdata = mutate(simulated.data,  :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 > # Estimate the kappa-weight
 > hat_probZ <- 0.5
 > kappa_1 <- simulated.data$D * ((simulated.data$Z - hat_probZ) / (
@@ -843,7 +860,7 @@ $`indirect-effect`
 +     - weighted.mean(simulated.data$K_0[simulated.data$D == 0],
 +         kappa.weight[simulated.data$D == 0]))
 > mean(firststage.est * (indirect.est + add.term))
-[1] 0.9723882
+[1] 1.972354
 > 
 > #! Test: show the ADE given Z_i = 1, and similar for AIE
 > firststage.est <- predict(
@@ -896,7 +913,7 @@ $average_indirect_effect
 > print(mean(indirect_effect * mean(D_1 != D_0)))
 [1] 0.9888216
 > print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data)$`indirect-effect`)
-[1] 0.9794835
+[1] 1.469438
 > 
 > # ADE, estimate vs group differences term.
 > print(c("direct-effect",   mean(direct.est)))
@@ -959,10 +976,10 @@ $`first-stage`
 [1] 0.6541503
 
 $`direct-effect`
-[1] 1.475291
+[1] 1.426089
 
 $`indirect-effect`
-[1] 1.09172
+[1] 1.169998
 
 > 
 > #! Test: including the K_0 and K_1 terms in complier gains
@@ -1054,32 +1071,12 @@ $`first-stage`
 [1] 0.6541503
 
 $`direct-effect`
-[1] 1.444208
+[1] NaN
 
 $`indirect-effect`
-[1] 1.154537
+[1] NaN
 
-Warning messages:
-1: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-2: In predict.lm(secondstage.reg, newdata = mutate(example.data, Z = 1)) :
-  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
-3: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-4: In predict.lm(secondstage.reg, newdata = mutate(example.data, Z = 0)) :
-  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
-5: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-6: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 1)) :
-  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
-7: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-8: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 0)) :
-  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
-9: In bs(K_0, degree = 3L, knots = c(0, 0.025, 0.05, 0.075, 0.1, 0.125,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-10: In predict.lm(secondstage.reg, newdata = mutate(filter(example.data,  :
-  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+There were 15 warnings (use warnings() to see them)
 > 
 > 
 > ################################################################################
@@ -1089,104 +1086,105 @@ Warning messages:
 > simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 > 
 > # Get bootstrapped point est for the CF approach
-> boot.reps <- 10^3
+> boot.reps <- 10^2
 > boot.est <- estimated.loop(boot.reps, simulated.data, bootstrap = FALSE)
-[1] "10 out of 1000, 1% done."
-[1] "20 out of 1000, 2% done."
-[1] "30 out of 1000, 3% done."
-[1] "40 out of 1000, 4% done."
-[1] "50 out of 1000, 5% done."
-[1] "60 out of 1000, 6% done."
-[1] "80 out of 1000, 8% done."
-[1] "90 out of 1000, 9% done."
-[1] "100 out of 1000, 10% done."
-[1] "110 out of 1000, 11% done."
-[1] "120 out of 1000, 12% done."
-[1] "130 out of 1000, 13% done."
-[1] "150 out of 1000, 15% done."
-[1] "160 out of 1000, 16% done."
-[1] "170 out of 1000, 17% done."
-[1] "180 out of 1000, 18% done."
-[1] "190 out of 1000, 19% done."
-[1] "200 out of 1000, 20% done."
-[1] "210 out of 1000, 21% done."
-[1] "220 out of 1000, 22% done."
-[1] "230 out of 1000, 23% done."
-[1] "240 out of 1000, 24% done."
-[1] "250 out of 1000, 25% done."
-[1] "260 out of 1000, 26% done."
-[1] "270 out of 1000, 27% done."
-[1] "300 out of 1000, 30% done."
-[1] "310 out of 1000, 31% done."
-[1] "320 out of 1000, 32% done."
-[1] "330 out of 1000, 33% done."
-[1] "340 out of 1000, 34% done."
-[1] "350 out of 1000, 35% done."
-[1] "360 out of 1000, 36% done."
-[1] "370 out of 1000, 37% done."
-[1] "380 out of 1000, 38% done."
-[1] "390 out of 1000, 39% done."
-[1] "400 out of 1000, 40% done."
-[1] "410 out of 1000, 41% done."
-[1] "420 out of 1000, 42% done."
-[1] "430 out of 1000, 43% done."
-[1] "440 out of 1000, 44% done."
-[1] "450 out of 1000, 45% done."
-[1] "460 out of 1000, 46% done."
-[1] "470 out of 1000, 47% done."
-[1] "480 out of 1000, 48% done."
-[1] "490 out of 1000, 49% done."
-[1] "500 out of 1000, 50% done."
-[1] "510 out of 1000, 51% done."
-[1] "520 out of 1000, 52% done."
-[1] "530 out of 1000, 53% done."
-[1] "540 out of 1000, 54% done."
-[1] "590 out of 1000, 59% done."
-[1] "600 out of 1000, 60% done."
-[1] "610 out of 1000, 61% done."
-[1] "620 out of 1000, 62% done."
-[1] "630 out of 1000, 63% done."
-[1] "640 out of 1000, 64% done."
-[1] "650 out of 1000, 65% done."
-[1] "660 out of 1000, 66% done."
-[1] "670 out of 1000, 67% done."
-[1] "680 out of 1000, 68% done."
-[1] "690 out of 1000, 69% done."
-[1] "700 out of 1000, 70% done."
-[1] "710 out of 1000, 71% done."
-[1] "720 out of 1000, 72% done."
-[1] "730 out of 1000, 73% done."
-[1] "740 out of 1000, 74% done."
-[1] "750 out of 1000, 75% done."
-[1] "760 out of 1000, 76% done."
-[1] "770 out of 1000, 77% done."
-[1] "780 out of 1000, 78% done."
-[1] "790 out of 1000, 79% done."
-[1] "800 out of 1000, 80% done."
-[1] "810 out of 1000, 81% done."
-[1] "820 out of 1000, 82% done."
-[1] "830 out of 1000, 83% done."
-[1] "840 out of 1000, 84% done."
-[1] "850 out of 1000, 85% done."
-[1] "860 out of 1000, 86% done."
-[1] "870 out of 1000, 87% done."
-[1] "880 out of 1000, 88% done."
-[1] "890 out of 1000, 89% done."
-[1] "900 out of 1000, 90% done."
-[1] "910 out of 1000, 91% done."
-[1] "920 out of 1000, 92% done."
-[1] "930 out of 1000, 93% done."
-[1] "940 out of 1000, 94% done."
-[1] "950 out of 1000, 95% done."
-[1] "960 out of 1000, 96% done."
-[1] "970 out of 1000, 97% done."
-[1] "980 out of 1000, 98% done."
-[1] "990 out of 1000, 99% done."
-[1] "1000 out of 1000, 100% done."
+[1] "1 out of 100, 1% done."
+[1] "2 out of 100, 2% done."
+[1] "3 out of 100, 3% done."
+[1] "4 out of 100, 4% done."
+[1] "5 out of 100, 5% done."
+[1] "6 out of 100, 6% done."
+[1] "8 out of 100, 8% done."
+[1] "9 out of 100, 9% done."
+[1] "10 out of 100, 10% done."
+[1] "11 out of 100, 11% done."
+[1] "12 out of 100, 12% done."
+[1] "13 out of 100, 13% done."
+[1] "15 out of 100, 15% done."
+[1] "16 out of 100, 16% done."
+[1] "17 out of 100, 17% done."
+[1] "18 out of 100, 18% done."
+[1] "19 out of 100, 19% done."
+[1] "20 out of 100, 20% done."
+[1] "21 out of 100, 21% done."
+[1] "22 out of 100, 22% done."
+[1] "23 out of 100, 23% done."
+[1] "24 out of 100, 24% done."
+[1] "25 out of 100, 25% done."
+[1] "26 out of 100, 26% done."
+[1] "27 out of 100, 27% done."
+[1] "30 out of 100, 30% done."
+[1] "31 out of 100, 31% done."
+[1] "32 out of 100, 32% done."
+[1] "33 out of 100, 33% done."
+[1] "34 out of 100, 34% done."
+[1] "35 out of 100, 35% done."
+[1] "36 out of 100, 36% done."
+[1] "37 out of 100, 37% done."
+[1] "38 out of 100, 38% done."
+[1] "39 out of 100, 39% done."
+[1] "40 out of 100, 40% done."
+[1] "41 out of 100, 41% done."
+[1] "42 out of 100, 42% done."
+[1] "43 out of 100, 43% done."
+[1] "44 out of 100, 44% done."
+[1] "45 out of 100, 45% done."
+[1] "46 out of 100, 46% done."
+[1] "47 out of 100, 47% done."
+[1] "48 out of 100, 48% done."
+[1] "49 out of 100, 49% done."
+[1] "50 out of 100, 50% done."
+[1] "51 out of 100, 51% done."
+[1] "52 out of 100, 52% done."
+[1] "53 out of 100, 53% done."
+[1] "54 out of 100, 54% done."
+[1] "59 out of 100, 59% done."
+[1] "60 out of 100, 60% done."
+[1] "61 out of 100, 61% done."
+[1] "62 out of 100, 62% done."
+[1] "63 out of 100, 63% done."
+[1] "64 out of 100, 64% done."
+[1] "65 out of 100, 65% done."
+[1] "66 out of 100, 66% done."
+[1] "67 out of 100, 67% done."
+[1] "68 out of 100, 68% done."
+[1] "69 out of 100, 69% done."
+[1] "70 out of 100, 70% done."
+[1] "71 out of 100, 71% done."
+[1] "72 out of 100, 72% done."
+[1] "73 out of 100, 73% done."
+[1] "74 out of 100, 74% done."
+[1] "75 out of 100, 75% done."
+[1] "76 out of 100, 76% done."
+[1] "77 out of 100, 77% done."
+[1] "78 out of 100, 78% done."
+[1] "79 out of 100, 79% done."
+[1] "80 out of 100, 80% done."
+[1] "81 out of 100, 81% done."
+[1] "82 out of 100, 82% done."
+[1] "83 out of 100, 83% done."
+[1] "84 out of 100, 84% done."
+[1] "85 out of 100, 85% done."
+[1] "86 out of 100, 86% done."
+[1] "87 out of 100, 87% done."
+[1] "88 out of 100, 88% done."
+[1] "89 out of 100, 89% done."
+[1] "90 out of 100, 90% done."
+[1] "91 out of 100, 91% done."
+[1] "92 out of 100, 92% done."
+[1] "93 out of 100, 93% done."
+[1] "94 out of 100, 94% done."
+[1] "95 out of 100, 95% done."
+[1] "96 out of 100, 96% done."
+[1] "97 out of 100, 97% done."
+[1] "98 out of 100, 98% done."
+[1] "99 out of 100, 99% done."
+[1] "100 out of 100, 100% done."
+There were 50 or more warnings (use warnings() to see the first 50)
 > boot.data <- boot.est$data
 > 
 > ## Save the bootstrapped point estimates data.
-> boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
+> boot.data %>% write_csv(file.path(output.folder, "boot-sim-data-test.csv"))
 > exit.
 Error: object 'exit.' not found
 Execution halted

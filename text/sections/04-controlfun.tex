@@ -27,9 +27,10 @@ The exclusion restriction is untestable, and must be guided by domain-specific k
 Write $K_i$ for the residuals in predicting the mediator with observed data, as a function of the instrument $\vec X_i^{\text{IV}}$ and remaining controls $\vec X_i^-$.
 Then take the two components of $K_i$ into $K_{0 ,i}, K_{1,i}$, corresponding to whether $i$ refuses or takes the mediator, respectively.
 \begin{align*}
-    K_i &= D_i - \Egiven{D_i}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}, \\
-    K_{0,i} &= (1 - D_i) K_i, \;\;\;
-        K_{1,i} = D_i K_i.
+    \bar D_i &= \Egiven{D_i}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}, \\
+    K_i &= F_D \left( \bar D_i \mid Z_i, \vec X_i^{\text{IV}}, \vec X_i^- \right)
+    %K_{0,i} &= (1 - D_i) K_i, \;\;\;
+    %    K_{1,i} = D_i K_i.
 \end{align*}
 $\left( K_{0 ,i}, K_{1,i}\right)$ serves as the control function in this setting.
 \begin{theorem}
