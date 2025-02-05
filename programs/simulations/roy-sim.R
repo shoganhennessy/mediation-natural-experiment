@@ -19,7 +19,7 @@ library(sampleSelection)
 library(splines)
 
 ## Set up the R environment
-set.seed(47)
+#set.seed(47)
 # Define number of digits in tables and graphs
 digits.no <- 3
 # Define where output files go.
@@ -243,16 +243,14 @@ estimated.loop <- function(boot.reps, example.data,
         cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
             bs(X_minus, df = 20, intercept = TRUE),
             data = boot.data)
-        boot.data$D_hat <- cf_firststage.reg$fitted
-        control.fun <- ecdf(boot.data$D_hat)
-        boot.data$K <- control.fun(boot.data$D_hat)
-        boot.data$K_0 <- (1 - boot.data$D) * boot.data$K
+        boot.data$K <- cf_firststage.reg$fitted
+        boot.data$K_0 <- (1 - boot.data$D) * (1 - boot.data$K)
         boot.data$K_1 <- boot.data$D * boot.data$K
         cf_secondstage.reg <- lm(
             Y ~ (1 + Z * D) + X_minus +
-            bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE) +
-            bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE),
-            #bs(K, knots = seq(-1, 1, by = 0.025), intercept = FALSE),
+            bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
+            bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
+            #bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
             data = boot.data)
         cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
         # Save the outputs.
@@ -314,12 +312,11 @@ true_firststage.reg <- glm(D ~ (1 + Z) + X_IV +
 simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$U_0
 simulated.data$K_1 <- simulated.data$D * simulated.data$U_1
 true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    # including the unobserved errors: U_0 + (D * U_0) + (D * U_1),
+    # including the unobserved errors: U_0 - (D : U_0) + (D : U_1),
     K_0 + K_1,
     data = simulated.data)
 print(theoretical.values(simulated.data))
 print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
-# This is because the truth second-stage is perfect:
 print(summary(true_secondstage.reg))
 
 # Show how the OLS result gives a bias result (if rho != 0)
@@ -333,19 +330,34 @@ print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
     bs(X_minus, df = 20, intercept = TRUE),
     data = simulated.data)
-simulated.data$D_hat <- cf_firststage.reg$fitted
-control.fun <- ecdf(simulated.data$D_hat)
-simulated.data$K <- control.fun(simulated.data$D_hat)
+simulated.data$K <- cf_firststage.reg$residuals
 simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$K
 simulated.data$K_1 <- simulated.data$D * simulated.data$K
 cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    bs(K_0, knots = seq(0, 1, by = 0.025), intercept = FALSE) +
-    bs(K_1, knots = seq(0, 1, by = 0.025), intercept = FALSE),
-    #bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
+    bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
+    bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
+    #bs(K, knots = seq(0, 1, by = 0.025), intercept = TRUE),
     data = simulated.data)
 print(summary(cf_secondstage.reg))
 print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
+
+#! Test: Imbens Newey (2009) conditional CDF as the control function.
+cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
+    bs(X_minus, df = 20, intercept = TRUE),
+    data = simulated.data)
+simulated.data$K <- ifelse(simulated.data$D == 0,
+    1 - cf_firststage.reg$fitted, cf_firststage.reg$fitted)
+simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$K
+simulated.data$K_1 <- simulated.data$D * simulated.data$K
+cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
+    bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
+    bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
+    data = simulated.data)
+print(summary(cf_secondstage.reg))
+print(theoretical.values(simulated.data))
+print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
+
 
 #! Test, add on the K_0 and K_1 conditional on D_i = 0,1 respectively in truth
 firststage.est <- predict(
@@ -356,7 +368,7 @@ indirect.est <- predict(
     true_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
     predict(true_secondstage.reg, newdata = mutate(simulated.data, D = 0))
 add.term <- (mean(simulated.data$K_1[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1])
-    - mean(simulated.data$K_0[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1]))
+    - mean(simulated.data$K_0[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 0]))
 print(mean(firststage.est * (indirect.est + add.term)))
 #! Do the same thing, but kappa weighted to the compliers inside the CF estimate.
 firststage.est <- predict(
@@ -378,6 +390,7 @@ add.term <- (weighted.mean(simulated.data$K_1[simulated.data$D == 1],
         kappa.weight[simulated.data$D == 1])
     - weighted.mean(simulated.data$K_0[simulated.data$D == 0],
         kappa.weight[simulated.data$D == 0]))
+add.term <- (weighted.mean(simulated.data$K, kappa.weight))
 mean(firststage.est * (indirect.est + add.term))
 
 #! Test: show the ADE given Z_i = 1, and similar for AIE
@@ -497,13 +510,13 @@ print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 
 # Get bootstrapped point est for the CF approach
-boot.reps <- 10^2
+boot.reps <- 10^4
 boot.est <- estimated.loop(boot.reps, simulated.data, bootstrap = FALSE)
 boot.data <- boot.est$data
 
 ## Save the bootstrapped point estimates data.
-boot.data %>% write_csv(file.path(output.folder, "boot-sim-data-test.csv"))
-exit.
+boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
+
 
 ################################################################################
 ## Compare estimation methods, across different sigma values.

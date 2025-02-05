@@ -29,7 +29,7 @@ colour.list <- c("orange", "blue")
 ## Load the simulated data.  (saved as separate file in advance.)
 
 # Load data from bootstrapping 10,000 times.
-boot.data <- read_csv(file.path(output.folder, "boot-sim-data-test.csv"))
+boot.data <- read_csv(file.path(output.folder, "boot-sim-data.csv"))
 print(boot.data)
 
 # Load the data file for varying correlated errors, rho values

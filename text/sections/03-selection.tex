@@ -45,7 +45,7 @@ The ADE and AIE are averages of these coefficients.\footnote{
     \text{AIE:} \;\; \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
         &= \E{ \pi \left( \beta +  \delta Z_i \right)}.
 \end{align*}
-By construction, $U_i = U_{0, i} - U_{1, i}$ is an unobserved confounder.
+By construction, $U_i = U_{1, i} - U_{0, i}$ is an unobserved confounder.
 The regression estimates of second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  U_i$.
 If not, then regression estimates suffer from omitted variables bias if they do not adjust for the unobserved confounder $U_i$.
 
@@ -64,7 +64,7 @@ The Roy model has $i$ taking the mediator if the benefits exceed the costs
 \end{equation}
 The Roy model provides a robust and intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome observed \citep{roy1951some,heckman1990empirical}.
 If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking education, then it models an individual choice to attend more education in terms of gaining a higher income compared to the costs.\footnote{
-    If the choice is made for a sum of outcomes, then a simple extension of the framework to a utility maximisation model maintains the same framework.
+    If the choice is made for a sum of outcomes, then a simple extension to a utility maximisation model maintains the same framework.
     See \cite{heckman1990empirical} for this approach.
 }
 This makes it particularly useful as a base case for CM, where selection into the mediator may be driven by private information (unobserved by the researcher).
@@ -95,9 +95,9 @@ If there are any unobserved benefits for selection into $D_i$ unobserved to the 
         %\textnormal{ for } z', d = 0, 1 \]
 \end{definition}
 If there are any unobserved sources of gains, then sequential ignorability does not hold.
-This is an equivalence statement: selection based on costs and benefits is only consistent with mediator ignorability if the researcher observed every single source of mediator benefits.\footnote{
-    See \autoref{appendix:roy-seq-ig} for the proof.
-}
+This is an equivalence statement: selection based on costs and benefits is only consistent with mediator ignorability if the researcher observed every single source of mediator benefits.
+See \autoref{appendix:roy-seq-ig} for the proof.
+
 This means than the vector of control variables $\vec X_i$ must be incredibly rich.
 Together, $\vec X_i$ and unobserved cost differences $U_{C,i}$ must explain selection into $D_i$ one hundred percent.
 In the Roy model framework, however, individuals make decisions about mediator take-up based on gains, which the researcher may not observe fully. 
@@ -117,4 +117,3 @@ A simple addition of ``we assume the mediator satisfies selection-on-observables
 % table:
 % 
 % name | $Z \to Y$ | design for $Z$ | Primary mediatory | controls | Possible $U$.
-% 
