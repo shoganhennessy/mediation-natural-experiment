@@ -32,13 +32,17 @@ colour.list <- c("orange", "blue")
 boot.data <- read_csv(file.path(output.folder, "boot-sim-data.csv"))
 print(boot.data)
 
+# Load the data file for varying correlated errors, sigma values
+sigma.data <- read_csv(file.path(output.folder, "sigma-sim-data.csv"))
+print(names(sigma.data))
+
 # Load the data file for varying correlated errors, rho values
 rho.data <- read_csv(file.path(output.folder, "rho-sim-data.csv"))
 print(names(rho.data))
 
-# Load the data file for varying correlated errors, sigma values
-sigma.data <- read_csv(file.path(output.folder, "sigma-sim-data.csv"))
-print(names(sigma.data))
+# Load the data file for varying correlated errors, sigma_1 values
+sigma_1.data <- read_csv(file.path(output.folder, "sigma-1-sim-data.csv"))
+print(names(sigma_1.data))
 
 
 ################################################################################
@@ -130,6 +134,85 @@ indirect_boot.plot <- boot.data %>%
 ggsave(file.path(output.folder, "indirect-boot.png"),
     plot = indirect_boot.plot,
     units = "cm", width = fig.width, height = fig.height)
+
+
+################################################################################
+## Plot the CF effect estimates, by OLS + CF,
+## different $\sigma = \sigma_1 / \sigma_0$ values.
+
+# Plot the bias in direct effect est vs sigma
+sigma_directeffect_bias.plot <- sigma.data %>%
+    ggplot(aes(x = sigma)) +
+    # OLS est + 95 % CI
+    geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
+    geom_ribbon(aes(ymin = ols_direct_effect_low,
+        ymax = ols_direct_effect_up),
+        fill = colour.list[1], alpha = 0.2) +
+    # CF est + 95 % CI
+    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
+    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+        fill = colour.list[2], alpha = 0.2) +
+    # Truth:
+    geom_line(aes(y = truth_direct_effect),
+        colour = "black", linetype = "dashed", linewidth = 1) +
+    # Presentation options
+    theme_bw() +
+    scale_x_continuous(
+        name = TeX("$\\sigma_1$"),
+        expand = c(0, 0),
+        breaks = seq(0, 2, by = 0.25),
+        limits = c(-0.02, 2.02)) +
+    scale_y_continuous(name = "",
+        breaks = seq(0, 2.5, by = 0.25),
+        limits = c(0, 2.5),
+        expand = c(0.01, 0.01)) +
+    ggtitle("Estimate") +
+    theme(plot.title = element_text(hjust = 0, size = rel(1)),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
+        axis.title.x = element_text(vjust = -0.25))
+# Save this plot
+ggsave(file.path(output.folder, "sigma-directeffect-bias.png"),
+    plot = sigma_directeffect_bias.plot, dpi = 300,
+    units = "cm", width = fig.width, height = fig.height)
+
+
+# Plot the bias in indirect effect est vs sigma
+sigma_indirecteffect_bias.plot <- sigma.data %>%
+    ggplot(aes(x = sigma)) +
+    # OLS est + 95 % CI
+    geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
+    geom_ribbon(aes(ymin = ols_indirect_effect_low,
+        ymax = ols_indirect_effect_up),
+        fill = colour.list[1], alpha = 0.2) +
+    # CF est + 95 % CI
+    geom_point(aes(y = cf_indirect_effect), colour = colour.list[2]) +
+    geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
+        fill = colour.list[2], alpha = 0.2) +
+    # Truth:
+    geom_line(aes(y = truth_indirect_effect),
+        colour = "black", linetype = "dashed", linewidth = 1) +
+    # Presentation options
+    theme_bw() +
+    scale_x_continuous(
+        name = TeX("$\\sigma_1$"),
+        expand = c(0, 0),
+        breaks = seq(0, 2, by = 0.25),
+        limits = c(-0.02, 2.02)) +
+    scale_y_continuous(name = "",
+        breaks = seq(0, 2.5, by = 0.25),
+        limits = c(0, 2.5),
+        expand = c(0.01, 0.01)) +
+    ggtitle("Estimate") +
+    theme(plot.title = element_text(hjust = 0, size = rel(1)),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
+        axis.title.x = element_text(vjust = -0.25))
+# Save this plot
+ggsave(file.path(output.folder, "sigma-indirecteffect-bias.png"),
+    plot = sigma_indirecteffect_bias.plot, dpi = 300,
+    units = "cm", width = fig.width, height = fig.height)
+
 
 
 ################################################################################
@@ -239,11 +322,11 @@ ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
 
 
 ################################################################################
-## Plot the CF effect estimates, by OLS + CF, different $\sigma$ values.
+## Plot the CF effect estimates, by OLS + CF, different $\sigma_1$ values.
 
-# Plot the bias in direct effect est vs sigma
-sigma_directeffect_bias.plot <- sigma.data %>%
-    ggplot(aes(x = sigma)) +
+# Plot the bias in direct effect est vs sigma_1
+sigma_1_directeffect_bias.plot <- sigma_1.data %>%
+    ggplot(aes(x = sigma_1)) +
     # OLS est + 95 % CI
     geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
     geom_ribbon(aes(ymin = ols_direct_effect_low,
@@ -273,14 +356,14 @@ sigma_directeffect_bias.plot <- sigma.data %>%
         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
         axis.title.x = element_text(vjust = -0.25))
 # Save this plot
-ggsave(file.path(output.folder, "sigma-directeffect-bias.png"),
-    plot = sigma_directeffect_bias.plot, dpi = 300,
+ggsave(file.path(output.folder, "sigma-1-directeffect-bias.png"),
+    plot = sigma_1_directeffect_bias.plot, dpi = 300,
     units = "cm", width = fig.width, height = fig.height)
 
 
-# Plot the bias in indirect effect est vs sigma
-sigma_indirecteffect_bias.plot <- sigma.data %>%
-    ggplot(aes(x = sigma)) +
+# Plot the bias in indirect effect est vs sigma_1
+sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
+    ggplot(aes(x = sigma_1)) +
     # OLS est + 95 % CI
     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
     geom_ribbon(aes(ymin = ols_indirect_effect_low,
@@ -310,6 +393,6 @@ sigma_indirecteffect_bias.plot <- sigma.data %>%
         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
         axis.title.x = element_text(vjust = -0.25))
 # Save this plot
-ggsave(file.path(output.folder, "sigma-indirecteffect-bias.png"),
-    plot = sigma_indirecteffect_bias.plot, dpi = 300,
+ggsave(file.path(output.folder, "sigma-1-indirecteffect-bias.png"),
+    plot = sigma_1_indirecteffect_bias.plot, dpi = 300,
     units = "cm", width = fig.width, height = fig.height)

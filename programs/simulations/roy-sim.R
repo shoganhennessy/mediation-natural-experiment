@@ -19,7 +19,7 @@ library(sampleSelection)
 library(splines)
 
 ## Set up the R environment
-#set.seed(47)
+# set.seed(47)
 # Define number of digits in tables and graphs
 digits.no <- 3
 # Define where output files go.
@@ -182,33 +182,32 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data){
         secondstage.reg, newdata = mutate(example.data, D = 1)) -
         predict(secondstage.reg, newdata = mutate(example.data, D = 0))
     # Add on the K_0, K_1 conditional on D_i = 0, 1 respectively for compliers.
-    # Estimate the kappa-weight
-    hat_probZ <- 0.5
-    kappa_1 <- example.data$D * ((example.data$Z - hat_probZ) / (
-        (1 - hat_probZ) * hat_probZ))
-    kappa_0 <- (1 - example.data$D) * (((1 - example.data$Z) - (1 - hat_probZ)) / (
-        (1 - hat_probZ) * hat_probZ))
-    kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
-    # Calculate the term to add on.
-    add.term <- (weighted.mean(predict(secondstage.reg, newdata = mutate(
-        filter(example.data, D == 1), Z = 0, D = 0, X_minus = 0, K_0 = 0)),
-            kappa.weight[example.data$D == 1])
-        - weighted.mean(predict(secondstage.reg, newdata = mutate(
-            filter(example.data, D == 0), Z = 0, D = 0, X_minus = 0, K_1 = 0)),
-                kappa.weight[example.data$D == 0]))
-    indirect.est <- indirect.est + add.term
+    # # Estimate the kappa-weight
+    # hat_probZ <- 0.5
+    # kappa_1 <- example.data$D * ((example.data$Z - hat_probZ) / (
+    #     (1 - hat_probZ) * hat_probZ))
+    # kappa_0 <- (1 - example.data$D) * (((1 - example.data$Z) - (1 - hat_probZ)) / (
+    #     (1 - hat_probZ) * hat_probZ))
+    # kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
+    # # Calculate the term to add on.
+    # add.term <- (weighted.mean(predict(secondstage.reg, newdata = mutate(
+    #     filter(example.data, D == 1), Z = 0, D = 0, X_minus = 0, K_0 = 0)),
+    #         kappa.weight[example.data$D == 1])
+    #     - weighted.mean(predict(secondstage.reg, newdata = mutate(
+    #         filter(example.data, D == 0), Z = 0, D = 0, X_minus = 0, K_1 = 0)),
+    #             kappa.weight[example.data$D == 0]))
+    # indirect.est <- indirect.est + add.term
     # Return the mean estimates.
     output.list <- list(
-        "first-stage"     = mean(firststage.est),
-        "direct-effect"   = mean(direct.est),
-        "indirect-effect" = mean(firststage.est * indirect.est))
+        "first-stage"     = mean(firststage.est, na.rm = TRUE),
+        "direct-effect"   = mean(direct.est, na.rm = TRUE),
+        "indirect-effect" = mean(firststage.est * indirect.est, na.rm = TRUE))
     # Return the output.list
     return(output.list)
 }
 
 # Bootstrap the estimates.
-estimated.loop <- function(boot.reps, example.data,
-        sample.size = sample.N, bootstrap = TRUE){
+estimated.loop <- function(boot.reps, example.data, bootstrap = TRUE){
     # Define lists the will be returned:
     # 2. Naive OLS.
     ols_direct_effect <- c()
@@ -221,7 +220,8 @@ estimated.loop <- function(boot.reps, example.data,
     for (i in seq(1, boot.reps)){
         # If bootstrapping, just resample from provided data.
         if (bootstrap == TRUE) {
-            boot.indicies <- sample(seq(1, sample.size), sample.size, replace = TRUE)
+            boot.indicies <- sample(
+                seq(1, NROW(example.data)), NROW(example.data), replace = TRUE)
             boot.data <- example.data[boot.indicies, ]
         }
         # If a regular re-simulation, get new data.
@@ -240,19 +240,19 @@ estimated.loop <- function(boot.reps, example.data,
         ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = boot.data)
         ols.est <- estimated.values(ols_firststage.reg, ols_secondstage.reg, boot.data)
         # 3. Control Function estimates.
-        cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
-            bs(X_minus, df = 20, intercept = TRUE),
-            data = boot.data)
-        boot.data$K <- cf_firststage.reg$fitted
-        boot.data$K_0 <- (1 - boot.data$D) * (1 - boot.data$K)
-        boot.data$K_1 <- boot.data$D * boot.data$K
-        cf_secondstage.reg <- lm(
-            Y ~ (1 + Z * D) + X_minus +
-            bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
-            bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
-            #bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
-            data = boot.data)
-        cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
+        # cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
+        #     bs(X_minus, df = 20, intercept = TRUE),
+        #     data = boot.data)
+        # boot.data$K <- cf_firststage.reg$residuals
+        # boot.data$K_0 <- (1 - boot.data$D) * boot.data$K
+        # boot.data$K_1 <- boot.data$D * boot.data$K
+        # cf_secondstage.reg <- lm(
+        #     Y ~ (1 + Z * D) + X_minus +
+        #     bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
+        #     bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
+        #     data = boot.data)
+        # cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
+        cf.est <- cf_crossfit_mediate(simulated.data)
         # Save the outputs.
         ols_direct_effect[i]   <- ols.est$`direct-effect`
         ols_indirect_effect[i] <- ols.est$`indirect-effect`
@@ -277,22 +277,76 @@ estimated.loop <- function(boot.reps, example.data,
         # OLS mean, and the 95% confidence intervals
         ols_direct_effect       = as.numeric(mean(ols_direct_effect)),
         ols_direct_effect_se    = as.numeric(sd(ols_direct_effect)),
-        ols_direct_effect_up    = as.numeric(quantile(ols_direct_effect, probs = 0.975)),
-        ols_direct_effect_low   = as.numeric(quantile(ols_direct_effect, probs = 0.025)),
+        ols_direct_effect_up    = as.numeric(quantile(ols_direct_effect,
+            probs = 0.975, na.rm = TRUE)),
+        ols_direct_effect_low   = as.numeric(quantile(ols_direct_effect,
+            probs = 0.025, na.rm = TRUE)),
         ols_indirect_effect     = as.numeric(mean(ols_indirect_effect)),
         ols_indirect_effect_se  = as.numeric(sd(ols_indirect_effect)),
-        ols_indirect_effect_up  = as.numeric(quantile(ols_indirect_effect, probs = 0.975)),
-        ols_indirect_effect_low = as.numeric(quantile(ols_indirect_effect, probs = 0.025)),
+        ols_indirect_effect_up  = as.numeric(quantile(ols_indirect_effect,
+            probs = 0.975, na.rm = TRUE)),
+        ols_indirect_effect_low = as.numeric(quantile(ols_indirect_effect,
+            probs = 0.025, na.rm = TRUE)),
         # Control Fun mean, and the 95% confidence intervals
         cf_direct_effect        = as.numeric(mean(cf_direct_effect)),
         cf_direct_effect_se     = as.numeric(sd(cf_direct_effect)),
-        cf_direct_effect_up     = as.numeric(quantile(cf_direct_effect, probs = 0.975)),
-        cf_direct_effect_low    = as.numeric(quantile(cf_direct_effect, probs = 0.025)),
+        cf_direct_effect_up     = as.numeric(quantile(cf_direct_effect,
+            probs = 0.975, na.rm = TRUE)),
+        cf_direct_effect_low    = as.numeric(quantile(cf_direct_effect,
+            probs = 0.025, na.rm = TRUE)),
         cf_indirect_effect      = as.numeric(mean(cf_indirect_effect)),
         cf_indirect_effect_se   = as.numeric(sd(cf_indirect_effect)),
-        cf_indirect_effect_up   = as.numeric(quantile(cf_indirect_effect, probs = 0.975)),
-        cf_indirect_effect_low  = as.numeric(quantile(cf_indirect_effect, probs = 0.025))
+        cf_indirect_effect_up   = as.numeric(quantile(cf_indirect_effect,
+            probs = 0.975, na.rm = TRUE)),
+        cf_indirect_effect_low  = as.numeric(quantile(cf_indirect_effect,
+            probs = 0.025, na.rm = TRUE))
     )
+    return(output.list)
+}
+
+
+################################################################################
+## Define a function to cross-fit the semi-parametric control function.
+
+cf_crossfit_mediate <- function(example.data){
+    # 1. Calculate the split in half cross-fit samples
+    example.size <- NROW(example.data)    
+    cross.index <- sample(seq(1, example.size),
+        size = 0.5 * example.size, replace = FALSE)
+    firstcross.data <- example.data[cross.index,]
+    secondcross.data <- example.data[-cross.index,]
+    # 2. calculate the CF model in the first cross sample.
+    firstcross_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
+        bs(X_minus, df = 20, intercept = TRUE),
+        data = firstcross.data)
+    firstcross.data$K <- firstcross_firststage.reg$residuals
+    firstcross_secondstage.reg <- lm(
+        Y ~ (1 + Z * D) + X_minus +
+        bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
+        data = firstcross.data)
+    # 3. calculate the CF model on the second cross sample.
+    secondcross_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
+        bs(X_minus, df = 20, intercept = TRUE),
+        data = secondcross.data)
+    secondcross.data$K <- secondcross_firststage.reg$residuals
+    secondcross_secondstage.reg <- lm(
+        Y ~ (1 + Z * D) + X_minus +
+        bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
+        data = secondcross.data)
+    # 4. Predict the estimate on the opposite data.
+    firstcross.est <- estimated.values(
+        firstcross_firststage.reg, firstcross_secondstage.reg, secondcross.data)
+    secondcross.est <- estimated.values(
+        secondcross_firststage.reg, secondcross_secondstage.reg, firstcross.data)
+    # Resturn the averaged estimates.
+    output.list <- list(
+        "first-stage"     = mean(c(
+            firstcross.est$`first-stage`, secondcross.est$`first-stage`), na.rm = FALSE),
+        "direct-effect"   = mean(c(
+            firstcross.est$`direct-effect`, secondcross.est$`direct-effect`), na.rm = FALSE),
+        "indirect-effect" = mean(c(
+            firstcross.est$`indirect-effect`, secondcross.est$`indirect-effect`), na.rm = FALSE))
+    # Return the output.list
     return(output.list)
 }
 
@@ -309,11 +363,9 @@ print(theoretical.values(simulated.data, print.truth = TRUE))
 true_firststage.reg <- glm(D ~ (1 + Z) + X_IV +
     bs(X_minus, df = 5, intercept = TRUE),
     family = binomial(link = "probit"), data = simulated.data)
-simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$U_0
-simulated.data$K_1 <- simulated.data$D * simulated.data$U_1
 true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    # including the unobserved errors: U_0 - (D : U_0) + (D : U_1),
-    K_0 + K_1,
+    # including the unobserved errors:
+    U_0 + (D * U_0) + (D * U_1),
     data = simulated.data)
 print(theoretical.values(simulated.data))
 print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
@@ -326,38 +378,39 @@ print(theoretical.values(simulated.data))
 print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 
 # Show how (unknown) control function gets it correct, in 2 steps (with splines)
-# -> Use the estimated CDF as the control function (as in Imbens Newey 2009).
 cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
     bs(X_minus, df = 20, intercept = TRUE),
     data = simulated.data)
 simulated.data$K <- cf_firststage.reg$residuals
-simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$K
-simulated.data$K_1 <- simulated.data$D * simulated.data$K
 cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
-    bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
-    #bs(K, knots = seq(0, 1, by = 0.025), intercept = TRUE),
+    bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
     data = simulated.data)
 print(summary(cf_secondstage.reg))
 print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 
+# Cross-fit the CF approach to avoid over-fitting bias in the semi-para step.
+print(theoretical.values(simulated.data))
+print(cf_crossfit_mediate(simulated.data))
+
+
 #! Test: Imbens Newey (2009) conditional CDF as the control function.
+library(mgcv)
 cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
     bs(X_minus, df = 20, intercept = TRUE),
     data = simulated.data)
-simulated.data$K <- ifelse(simulated.data$D == 0,
-    1 - cf_firststage.reg$fitted, cf_firststage.reg$fitted)
-simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$K
+control.fun <- ecdf(cf_firststage.reg$fitted)
+simulated.data$K <- as.numeric(control.fun(cf_firststage.reg$fitted))
+simulated.data$K <- cf_firststage.reg$fitted
+simulated.data$K_0 <- (1 - simulated.data$D) * (1 - simulated.data$K)
 simulated.data$K_1 <- simulated.data$D * simulated.data$K
-cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
-    bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
+cf_secondstage.reg <- gam(Y ~ (1 + Z * D) + X_minus +
+    bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)+
+    bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE),
     data = simulated.data)
 print(summary(cf_secondstage.reg))
 print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
-
 
 #! Test, add on the K_0 and K_1 conditional on D_i = 0,1 respectively in truth
 firststage.est <- predict(
@@ -367,30 +420,27 @@ firststage.est <- predict(
 indirect.est <- predict(
     true_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
     predict(true_secondstage.reg, newdata = mutate(simulated.data, D = 0))
-add.term <- (mean(simulated.data$K_1[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1])
-    - mean(simulated.data$K_0[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 0]))
-print(mean(firststage.est * (indirect.est + add.term)))
+add.term <- weighted.mean(simulated.data$U_1 - simulated.data$U_0,
+    simulated.data$D_0 == 0 & simulated.data$D_1 == 1)
+mean(firststage.est * (indirect.est + add.term))
+print(theoretical.values(simulated.data))
+
 #! Do the same thing, but kappa weighted to the compliers inside the CF estimate.
-firststage.est <- predict(
-    cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
-        cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
-# calculate the second-stage indirect effect
-indirect.est <- predict(
-    cf_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
-    predict(cf_secondstage.reg, newdata = mutate(simulated.data, D = 0))
 # Estimate the kappa-weight
-hat_probZ <- 0.5
+hat_probZ <- lm(Z ~ 1 * X_IV * bs(X_minus, df = 10, intercept = TRUE),
+    data = simulated.data)$fitted
 kappa_1 <- simulated.data$D * ((simulated.data$Z - hat_probZ) / (
     (1 - hat_probZ) * hat_probZ))
 kappa_0 <- (1 - simulated.data$D) * (((1 - simulated.data$Z) - (1 - hat_probZ)) / (
     (1 - hat_probZ) * hat_probZ))
 kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
 # Calculate the term to add on.
-add.term <- (weighted.mean(simulated.data$K_1[simulated.data$D == 1],
-        kappa.weight[simulated.data$D == 1])
-    - weighted.mean(simulated.data$K_0[simulated.data$D == 0],
-        kappa.weight[simulated.data$D == 0]))
-add.term <- (weighted.mean(simulated.data$K, kappa.weight))
+errors <- predict(cf_secondstage.reg, newdata = mutate(simulated.data,
+    Z = 0, D = 0, X_minus = 0))
+add.term <- weighted.mean(errors, simulated.data$D * kappa.weight) -
+    weighted.mean(errors, (1 - simulated.data$D) * kappa.weight)
+add.term <- weighted.mean(simulated.data$D * errors -
+    (1 - simulated.data$D) * errors, kappa.weight)
 mean(firststage.est * (indirect.est + add.term))
 
 #! Test: show the ADE given Z_i = 1, and similar for AIE
@@ -510,13 +560,14 @@ print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 simulated.data <- simulate.data(0.5, 1, 2, 0.25)
 
 # Get bootstrapped point est for the CF approach
-boot.reps <- 10^4
+boot.reps <- 10^2
 boot.est <- estimated.loop(boot.reps, simulated.data, bootstrap = FALSE)
 boot.data <- boot.est$data
+View(boot.data)
 
 ## Save the bootstrapped point estimates data.
 boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
-
+exit.
 
 ################################################################################
 ## Compare estimation methods, across different sigma values.
@@ -536,7 +587,7 @@ i <- 0
 for (sigma in sigma.values){
     i <- i + 1
     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
-    sigma_sim.data <- simulate.data(0.5, 1, sigma, 0.25)
+    sigma_sim.data <- simulate.data(0.5, sigma, 2 * sigma, 0.25)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
     sigma.boot <- estimated.loop(boot.reps, simulated.data,
         bootstrap = TRUE)$estimates
@@ -549,6 +600,39 @@ for (sigma in sigma.values){
 }
 # Save the output data.
 sigma.data %>% write_csv(file.path(output.folder, "sigma-sim-data.csv"))
+
+
+################################################################################
+## Compare estimation methods, across different sigma values.
+
+# Define an empty dataframe, to start adding to.
+boot.values <- estimated.loop(1, simulated.data)$estimates
+boot.values$sigma_1 <- NA
+sigma_1.data <- boot.values[0, ]
+print(sigma_1.data)
+# Define values in rho \in [-1, 1] to go across
+sigma_1.values <- seq(0, 2, by = 0.25)
+# Define the number of boot reps for each
+boot.reps <- 10^3
+i <- 0
+
+# Start the sigma_1 loop
+for (sigma_1 in sigma_1.values){
+    i <- i + 1
+    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
+    sigma_1_sim.data <- simulate.data(0.5, 1, sigma_1, 0.25)
+    # Get the truth + estimates + bootstrapped SEs, and save rho value
+    sigma_1.boot <- estimated.loop(boot.reps, simulated.data,
+        bootstrap = TRUE)$estimates
+    sigma_1.boot$sigma_1 <- sigma_1
+    # Add to the dataframe.
+    sigma_1.data[i, ] <- sigma_1.boot
+    # SHow far we are.
+    print(paste0(sigma_1, " in [0, 2], ", 100 * i / length(sigma_1.values), "% done."))
+    gc()
+}
+# Save the output data.
+sigma_1.data %>% write_csv(file.path(output.folder, "sigma-1-sim-data.csv"))
 
 
 ################################################################################

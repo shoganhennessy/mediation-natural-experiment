@@ -22,7 +22,7 @@ Type 'q()' to quit R.
 > ## Simulate the system for indirect + direct effects, with Roy selection.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "16:21 EST Wednesday, 05 February 2025"
+[1] "13:50 EST Monday, 10 February 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -78,7 +78,7 @@ https://r-forge.r-project.org/projects/maxlik/
 > library(splines)
 > 
 > ## Set up the R environment
-> #set.seed(47)
+> # set.seed(47)
 > # Define number of digits in tables and graphs
 > digits.no <- 3
 > # Define where output files go.
@@ -241,33 +241,32 @@ https://r-forge.r-project.org/projects/maxlik/
 +         secondstage.reg, newdata = mutate(example.data, D = 1)) -
 +         predict(secondstage.reg, newdata = mutate(example.data, D = 0))
 +     # Add on the K_0, K_1 conditional on D_i = 0, 1 respectively for compliers.
-+     # Estimate the kappa-weight
-+     hat_probZ <- 0.5
-+     kappa_1 <- example.data$D * ((example.data$Z - hat_probZ) / (
-+         (1 - hat_probZ) * hat_probZ))
-+     kappa_0 <- (1 - example.data$D) * (((1 - example.data$Z) - (1 - hat_probZ)) / (
-+         (1 - hat_probZ) * hat_probZ))
-+     kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
-+     # Calculate the term to add on.
-+     add.term <- (weighted.mean(predict(secondstage.reg, newdata = mutate(
-+         filter(example.data, D == 1), Z = 0, D = 0, X_minus = 0, K_0 = 0)),
-+             kappa.weight[example.data$D == 1])
-+         - weighted.mean(predict(secondstage.reg, newdata = mutate(
-+             filter(example.data, D == 0), Z = 0, D = 0, X_minus = 0, K_1 = 0)),
-+                 kappa.weight[example.data$D == 0]))
-+     indirect.est <- indirect.est + add.term
++     # # Estimate the kappa-weight
++     # hat_probZ <- 0.5
++     # kappa_1 <- example.data$D * ((example.data$Z - hat_probZ) / (
++     #     (1 - hat_probZ) * hat_probZ))
++     # kappa_0 <- (1 - example.data$D) * (((1 - example.data$Z) - (1 - hat_probZ)) / (
++     #     (1 - hat_probZ) * hat_probZ))
++     # kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
++     # # Calculate the term to add on.
++     # add.term <- (weighted.mean(predict(secondstage.reg, newdata = mutate(
++     #     filter(example.data, D == 1), Z = 0, D = 0, X_minus = 0, K_0 = 0)),
++     #         kappa.weight[example.data$D == 1])
++     #     - weighted.mean(predict(secondstage.reg, newdata = mutate(
++     #         filter(example.data, D == 0), Z = 0, D = 0, X_minus = 0, K_1 = 0)),
++     #             kappa.weight[example.data$D == 0]))
++     # indirect.est <- indirect.est + add.term
 +     # Return the mean estimates.
 +     output.list <- list(
-+         "first-stage"     = mean(firststage.est),
-+         "direct-effect"   = mean(direct.est),
-+         "indirect-effect" = mean(firststage.est * indirect.est))
++         "first-stage"     = mean(firststage.est, na.rm = TRUE),
++         "direct-effect"   = mean(direct.est, na.rm = TRUE),
++         "indirect-effect" = mean(firststage.est * indirect.est, na.rm = TRUE))
 +     # Return the output.list
 +     return(output.list)
 + }
 > 
 > # Bootstrap the estimates.
-> estimated.loop <- function(boot.reps, example.data,
-+         sample.size = sample.N, bootstrap = TRUE){
+> estimated.loop <- function(boot.reps, example.data, bootstrap = TRUE){
 +     # Define lists the will be returned:
 +     # 2. Naive OLS.
 +     ols_direct_effect <- c()
@@ -280,7 +279,8 @@ https://r-forge.r-project.org/projects/maxlik/
 +     for (i in seq(1, boot.reps)){
 +         # If bootstrapping, just resample from provided data.
 +         if (bootstrap == TRUE) {
-+             boot.indicies <- sample(seq(1, sample.size), sample.size, replace = TRUE)
++             boot.indicies <- sample(
++                 seq(1, NROW(example.data)), NROW(example.data), replace = TRUE)
 +             boot.data <- example.data[boot.indicies, ]
 +         }
 +         # If a regular re-simulation, get new data.
@@ -299,19 +299,19 @@ https://r-forge.r-project.org/projects/maxlik/
 +         ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = boot.data)
 +         ols.est <- estimated.values(ols_firststage.reg, ols_secondstage.reg, boot.data)
 +         # 3. Control Function estimates.
-+         cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
-+             bs(X_minus, df = 20, intercept = TRUE),
-+             data = boot.data)
-+         boot.data$K <- cf_firststage.reg$fitted
-+         boot.data$K_0 <- (1 - boot.data$D) * (1 - boot.data$K)
-+         boot.data$K_1 <- boot.data$D * boot.data$K
-+         cf_secondstage.reg <- lm(
-+             Y ~ (1 + Z * D) + X_minus +
-+             bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
-+             bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
-+             #bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
-+             data = boot.data)
-+         cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
++         # cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
++         #     bs(X_minus, df = 20, intercept = TRUE),
++         #     data = boot.data)
++         # boot.data$K <- cf_firststage.reg$residuals
++         # boot.data$K_0 <- (1 - boot.data$D) * boot.data$K
++         # boot.data$K_1 <- boot.data$D * boot.data$K
++         # cf_secondstage.reg <- lm(
++         #     Y ~ (1 + Z * D) + X_minus +
++         #     bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
++         #     bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
++         #     data = boot.data)
++         # cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg, boot.data)
++         cf.est <- cf_crossfit_mediate(simulated.data)
 +         # Save the outputs.
 +         ols_direct_effect[i]   <- ols.est$`direct-effect`
 +         ols_indirect_effect[i] <- ols.est$`indirect-effect`
@@ -336,22 +336,84 @@ https://r-forge.r-project.org/projects/maxlik/
 +         # OLS mean, and the 95% confidence intervals
 +         ols_direct_effect       = as.numeric(mean(ols_direct_effect)),
 +         ols_direct_effect_se    = as.numeric(sd(ols_direct_effect)),
-+         ols_direct_effect_up    = as.numeric(quantile(ols_direct_effect, probs = 0.975)),
-+         ols_direct_effect_low   = as.numeric(quantile(ols_direct_effect, probs = 0.025)),
++         ols_direct_effect_up    = as.numeric(quantile(ols_direct_effect,
++             probs = 0.975, na.rm = TRUE)),
++         ols_direct_effect_low   = as.numeric(quantile(ols_direct_effect,
++             probs = 0.025, na.rm = TRUE)),
 +         ols_indirect_effect     = as.numeric(mean(ols_indirect_effect)),
 +         ols_indirect_effect_se  = as.numeric(sd(ols_indirect_effect)),
-+         ols_indirect_effect_up  = as.numeric(quantile(ols_indirect_effect, probs = 0.975)),
-+         ols_indirect_effect_low = as.numeric(quantile(ols_indirect_effect, probs = 0.025)),
++         ols_indirect_effect_up  = as.numeric(quantile(ols_indirect_effect,
++             probs = 0.975, na.rm = TRUE)),
++         ols_indirect_effect_low = as.numeric(quantile(ols_indirect_effect,
++             probs = 0.025, na.rm = TRUE)),
 +         # Control Fun mean, and the 95% confidence intervals
 +         cf_direct_effect        = as.numeric(mean(cf_direct_effect)),
 +         cf_direct_effect_se     = as.numeric(sd(cf_direct_effect)),
-+         cf_direct_effect_up     = as.numeric(quantile(cf_direct_effect, probs = 0.975)),
-+         cf_direct_effect_low    = as.numeric(quantile(cf_direct_effect, probs = 0.025)),
++         cf_direct_effect_up     = as.numeric(quantile(cf_direct_effect,
++             probs = 0.975, na.rm = TRUE)),
++         cf_direct_effect_low    = as.numeric(quantile(cf_direct_effect,
++             probs = 0.025, na.rm = TRUE)),
 +         cf_indirect_effect      = as.numeric(mean(cf_indirect_effect)),
 +         cf_indirect_effect_se   = as.numeric(sd(cf_indirect_effect)),
-+         cf_indirect_effect_up   = as.numeric(quantile(cf_indirect_effect, probs = 0.975)),
-+         cf_indirect_effect_low  = as.numeric(quantile(cf_indirect_effect, probs = 0.025))
++         cf_indirect_effect_up   = as.numeric(quantile(cf_indirect_effect,
++             probs = 0.975, na.rm = TRUE)),
++         cf_indirect_effect_low  = as.numeric(quantile(cf_indirect_effect,
++             probs = 0.025, na.rm = TRUE))
 +     )
++     return(output.list)
++ }
+> 
+> 
+> ################################################################################
+> ## Define a function to cross-fit the semi-parametric control function.
+> 
+> cf_crossfit_mediate <- function(example.data){
++     # 1. Calculate the split in half cross-fit samples
++     example.size <- NROW(example.data)    
++     cross.index <- sample(seq(1, example.size),
++         size = 0.5 * example.size, replace = FALSE)
++     firstcross.data <- example.data[cross.index,]
++     secondcross.data <- example.data[-cross.index,]
++     # 2. calculate the CF model in the first cross sample.
++     firstcross_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
++         bs(X_minus, df = 20, intercept = TRUE),
++         data = firstcross.data)
++     firstcross.data$K <- firstcross_firststage.reg$residuals
++     firstcross.data$K_0 <- (1 - firstcross.data$D) * firstcross.data$K
++     firstcross.data$K_1 <- firstcross.data$D * firstcross.data$K
++     firstcross_secondstage.reg <- lm(
++         Y ~ (1 + Z * D) + X_minus +
++         #bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
++         #bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
++         D * bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
++         data = firstcross.data)
++     # 3. calculate the CF model on the second cross sample.
++     secondcross_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
++         bs(X_minus, df = 20, intercept = TRUE),
++         data = secondcross.data)
++     secondcross.data$K <- secondcross_firststage.reg$residuals
++     secondcross.data$K_0 <- (1 - secondcross.data$D) * secondcross.data$K
++     secondcross.data$K_1 <- secondcross.data$D * secondcross.data$K
++     secondcross_secondstage.reg <- lm(
++         Y ~ (1 + Z * D) + X_minus +
++         #bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
++         #bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
++         D * bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
++         data = secondcross.data)
++     # 4. Predict the estimate on the opposite data.
++     firstcross.est <- estimated.values(
++         firstcross_firststage.reg, firstcross_secondstage.reg, secondcross.data)
++     secondcross.est <- estimated.values(
++         secondcross_firststage.reg, secondcross_secondstage.reg, firstcross.data)
++     # Resturn the averaged estimates.
++     output.list <- list(
++         "first-stage"     = mean(c(
++             firstcross.est$`first-stage`, secondcross.est$`first-stage`), na.rm = FALSE),
++         "direct-effect"   = mean(c(
++             firstcross.est$`direct-effect`, secondcross.est$`direct-effect`), na.rm = FALSE),
++         "indirect-effect" = mean(c(
++             firstcross.est$`indirect-effect`, secondcross.est$`indirect-effect`), na.rm = FALSE))
++     # Return the output.list
 +     return(output.list)
 + }
 > 
@@ -367,23 +429,23 @@ https://r-forge.r-project.org/projects/maxlik/
 [1] "How many compliers in the system?"
    D_0
 D_1      0      1
-  0 0.2351 0.0000
-  1 0.6560 0.1089
-[1] "The average total effect:" "2.58556289200545"         
-[1] "The average first-stage:" "0.656"                   
-[1] "The average direct effect:" "1.4331"                    
-[1] "The average indirect effect:" "1.14486289200545"            
+  0 0.2315 0.0000
+  1 0.6488 0.1197
+[1] "The average total effect:" "2.57068628655611"         
+[1] "The average first-stage:" "0.6488"                  
+[1] "The average direct effect:" "1.4463"                    
+[1] "The average indirect effect:" "1.12878628655611"            
 $average_first_stage
-[1] 0.656
+[1] 0.6488
 
 $average_total_effect
-[1] 2.585563
+[1] 2.570686
 
 $average_direct_effect
-[1] 1.4331
+[1] 1.4463
 
 $average_indirect_effect
-[1] 1.144863
+[1] 1.128786
 
 > 
 > # Show that the regression specification holds exactly (after debiasing outcome).
@@ -398,26 +460,26 @@ $average_indirect_effect
 +     data = simulated.data)
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.656
+[1] 0.6488
 
 $average_total_effect
-[1] 2.585563
+[1] 2.570686
 
 $average_direct_effect
-[1] 1.4331
+[1] 1.4463
 
 $average_indirect_effect
-[1] 1.144863
+[1] 1.128786
 
 > print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
 $`first-stage`
-[1] 0.6489042
+[1] 0.6469062
 
 $`direct-effect`
-[1] 1.4331
+[1] 1.4463
 
 $`indirect-effect`
-[1] 1.111122
+[1] 0.9744515
 
 > print(summary(true_secondstage.reg))
 
@@ -426,23 +488,23 @@ lm(formula = Y ~ (1 + Z * D) + X_minus + K_0 + K_1, data = simulated.data)
 
 Residuals:
        Min         1Q     Median         3Q        Max 
--4.875e-13 -1.500e-15 -6.000e-16 -3.000e-16  7.636e-12 
+-4.010e-13 -2.100e-15 -6.000e-16  0.000e+00  6.342e-12 
 
 Coefficients:
              Estimate Std. Error   t value Pr(>|t|)    
-(Intercept) 2.181e-14  3.767e-15 5.791e+00 7.19e-09 ***
-Z           1.000e+00  2.650e-15 3.773e+14  < 2e-16 ***
-D           1.000e+00  4.192e-15 2.386e+14  < 2e-16 ***
-X_minus     1.000e+00  8.660e-16 1.155e+15  < 2e-16 ***
-K_0         1.000e+00  1.057e-15 9.456e+14  < 2e-16 ***
-K_1         1.000e+00  7.122e-16 1.404e+15  < 2e-16 ***
-Z:D         1.000e+00  4.727e-15 2.116e+14  < 2e-16 ***
+(Intercept) 1.243e-13  3.633e-15 3.423e+01   <2e-16 ***
+Z           1.000e+00  2.607e-15 3.835e+14   <2e-16 ***
+D           1.000e+00  3.967e-15 2.521e+14   <2e-16 ***
+X_minus     1.000e+00  8.372e-16 1.194e+15   <2e-16 ***
+K_0         1.000e+00  1.054e-15 9.485e+14   <2e-16 ***
+K_1         1.000e+00  6.968e-16 1.435e+15   <2e-16 ***
+Z:D         1.000e+00  4.518e-15 2.213e+14   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 8.037e-14 on 9993 degrees of freedom
+Residual standard error: 7.871e-14 on 9993 degrees of freedom
 Multiple R-squared:      1,	Adjusted R-squared:      1 
-F-statistic: 1.344e+30 on 6 and 9993 DF,  p-value: < 2.2e-16
+F-statistic: 1.457e+30 on 6 and 9993 DF,  p-value: < 2.2e-16
 
 > 
 > # Show how the OLS result gives a bias result (if rho != 0)
@@ -450,30 +512,29 @@ F-statistic: 1.344e+30 on 6 and 9993 DF,  p-value: < 2.2e-16
 > ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.656
+[1] 0.6488
 
 $average_total_effect
-[1] 2.585563
+[1] 2.570686
 
 $average_direct_effect
-[1] 1.4331
+[1] 1.4463
 
 $average_indirect_effect
-[1] 1.144863
+[1] 1.128786
 
 > print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 $`first-stage`
-[1] 0.6489311
+[1] 0.64665
 
 $`direct-effect`
-[1] 0.5115903
+[1] 0.5290025
 
 $`indirect-effect`
-[1] 2.038032
+[1] 2.045617
 
 > 
 > # Show how (unknown) control function gets it correct, in 2 steps (with splines)
-> # -> Use the estimated CDF as the control function (as in Imbens Newey 2009).
 > cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
 +     bs(X_minus, df = 20, intercept = TRUE),
 +     data = simulated.data)
@@ -483,7 +544,6 @@ $`indirect-effect`
 > cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
 +     bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
 +     bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
-+     #bs(K, knots = seq(0, 1, by = 0.025), intercept = TRUE),
 +     data = simulated.data)
 > print(summary(cf_secondstage.reg))
 
@@ -494,75 +554,75 @@ lm(formula = Y ~ (1 + Z * D) + X_minus + bs(K_0, knots = seq(0,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--5.1953 -0.8507 -0.0150  0.8177  7.6329 
+-5.4432 -0.8623 -0.0367  0.8025  7.1080 
 
 Coefficients: (19 not defined because of singularities)
-                                                           Estimate Std. Error
-(Intercept)                                                 0.57182    1.32807
-Z                                                           0.76390    0.12976
-D                                                           1.38454    0.25930
-X_minus                                                     1.03544    0.02767
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)1  -0.34439    0.38805
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)2  -0.22181    0.19293
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)3  -0.55366    0.26351
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)4  -9.19122   18.86954
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)5  35.75705   80.46113
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)6        NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)7  -1.32624    1.35139
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)8        NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)9        NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)10       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)11       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)12       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)13       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)14       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)15       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)16       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)17       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)18       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)19       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)20       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)21       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)22       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)23       NA         NA
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)24       NA         NA
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)1   1.19066    2.69635
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)2  -0.43863    1.31910
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)3  -0.24408    1.32362
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)4  -0.08044    1.30127
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)5  -0.20677    1.31217
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)6   0.35641    1.30951
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)7  -0.11511    1.31749
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)8   0.59211    1.31257
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)9   0.43512    1.31909
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)10  0.73842    1.32617
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)11  0.59311    1.34304
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)12  1.36719    1.33292
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)13  0.18497    1.33308
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)14  1.43720    1.35745
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)15  1.77202    1.38013
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)16  1.45052    1.36585
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)17  1.79910    1.34434
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)18  1.58813    1.33585
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)19  2.68345    1.37853
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)20  2.27446    1.37985
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)21  3.06848    1.40197
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)22  2.93663    1.41252
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)23  4.47045    1.43698
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)24       NA         NA
-Z:D                                                         1.07829    0.16170
+                                                            Estimate Std. Error
+(Intercept)                                                  2.62479    1.15789
+Z                                                            0.82194    0.13156
+D                                                            1.41284    0.26027
+X_minus                                                      1.04729    0.02643
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)1    0.26554    0.40837
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)2   -0.25433    0.20363
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)3   -0.13791    0.26938
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)4    3.18575    5.32481
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)5  -64.66737  100.41380
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)6   -0.94432    1.34709
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)7         NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)8         NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)9         NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)10        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)11        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)12        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)13        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)14        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)15        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)16        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)17        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)18        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)19        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)20        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)21        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)22        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)23        NA         NA
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)24        NA         NA
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)1   -1.91473    1.46719
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)2   -3.15043    1.07734
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)3   -2.57759    1.13572
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)4   -2.79240    1.10348
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)5   -2.34730    1.12078
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)6   -2.29543    1.11030
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)7   -2.50950    1.11945
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)8   -1.23293    1.12705
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)9   -2.30429    1.12581
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)10  -1.84786    1.12924
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)11  -1.60023    1.13031
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)12  -1.72773    1.16486
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)13  -0.90217    1.17235
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)14  -1.79044    1.18165
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)15  -1.12594    1.17230
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)16  -0.87744    1.16617
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)17  -0.71904    1.18417
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)18  -0.72565    1.16506
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)19  -0.96486    1.20837
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)20   0.38936    1.18592
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)21   0.36570    1.22565
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)22   0.56624    1.27950
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)23   1.09399    1.35632
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)24        NA         NA
+Z:D                                                          1.03719    0.16893
                                                            t value Pr(>|t|)    
-(Intercept)                                                  0.431  0.66679    
-Z                                                            5.887 4.06e-09 ***
-D                                                            5.339 9.53e-08 ***
-X_minus                                                     37.416  < 2e-16 ***
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)1   -0.887  0.37483    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)2   -1.150  0.25031    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)3   -2.101  0.03565 *  
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)4   -0.487  0.62620    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)5    0.444  0.65676    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)6       NA       NA    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)7   -0.981  0.32643    
+(Intercept)                                                  2.267  0.02342 *  
+Z                                                            6.248 4.33e-10 ***
+D                                                            5.428 5.82e-08 ***
+X_minus                                                     39.631  < 2e-16 ***
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)1    0.650  0.51556    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)2   -1.249  0.21169    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)3   -0.512  0.60870    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)4    0.598  0.54966    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)5   -0.644  0.51958    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)6   -0.701  0.48332    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)7       NA       NA    
 bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)8       NA       NA    
 bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)9       NA       NA    
 bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)10      NA       NA    
@@ -580,225 +640,265 @@ bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)21      NA       NA
 bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)22      NA       NA    
 bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)23      NA       NA    
 bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)24      NA       NA    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)1    0.442  0.65880    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)2   -0.333  0.73950    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)3   -0.184  0.85370    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)4   -0.062  0.95071    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)5   -0.158  0.87479    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)6    0.272  0.78549    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)7   -0.087  0.93038    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)8    0.451  0.65192    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)9    0.330  0.74151    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)10   0.557  0.57767    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)11   0.442  0.65877    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)12   1.026  0.30505    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)13   0.139  0.88965    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)14   1.059  0.28974    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)15   1.284  0.19919    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)16   1.062  0.28827    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)17   1.338  0.18084    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)18   1.189  0.23453    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)19   1.947  0.05161 .  
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)20   1.648  0.09931 .  
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)21   2.189  0.02864 *  
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)22   2.079  0.03764 *  
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)23   3.111  0.00187 ** 
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)1   -1.305  0.19191    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)2   -2.924  0.00346 ** 
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)3   -2.270  0.02326 *  
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)4   -2.531  0.01140 *  
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)5   -2.094  0.03625 *  
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)6   -2.067  0.03872 *  
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)7   -2.242  0.02500 *  
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)8   -1.094  0.27401    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)9   -2.047  0.04070 *  
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)10  -1.636  0.10179    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)11  -1.416  0.15688    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)12  -1.483  0.13805    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)13  -0.770  0.44159    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)14  -1.515  0.12975    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)15  -0.960  0.33685    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)16  -0.752  0.45182    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)17  -0.607  0.54372    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)18  -0.623  0.53340    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)19  -0.798  0.42461    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)20   0.328  0.74268    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)21   0.298  0.76543    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)22   0.443  0.65810    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)23   0.807  0.41992    
 bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)24      NA       NA    
-Z:D                                                          6.668 2.72e-11 ***
+Z:D                                                          6.140 8.58e-10 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.336 on 9966 degrees of freedom
-Multiple R-squared:  0.6583,	Adjusted R-squared:  0.6572 
-F-statistic: 581.9 on 33 and 9966 DF,  p-value: < 2.2e-16
+Residual standard error: 1.329 on 9966 degrees of freedom
+Multiple R-squared:  0.6753,	Adjusted R-squared:  0.6742 
+F-statistic: 628.1 on 33 and 9966 DF,  p-value: < 2.2e-16
 
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.656
+[1] 0.6488
 
 $average_total_effect
-[1] 2.585563
+[1] 2.570686
 
 $average_direct_effect
-[1] 1.4331
+[1] 1.4463
 
 $average_indirect_effect
-[1] 1.144863
+[1] 1.128786
 
 > print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 $`first-stage`
-[1] 0.6491601
+[1] 0.6467769
 
 $`direct-effect`
-[1] 1.230909
+[1] 1.284837
 
 $`indirect-effect`
-[1] 1.313183
+[1] 1.253559
 
 > 
+> # Cross-fit the CF approach to avoid over-fitting bias in the semi-para step.
+> print(theoretical.values(simulated.data))
+$average_first_stage
+[1] 0.6488
+
+$average_total_effect
+[1] 2.570686
+
+$average_direct_effect
+[1] 1.4463
+
+$average_indirect_effect
+[1] 1.128786
+
+> print(cf_crossfit_mediate(simulated.data))
+$`first-stage`
+[1] 0.6474403
+
+$`direct-effect`
+[1] 1.275526
+
+$`indirect-effect`
+[1] 5.278204
+
+There were 12 warnings (use warnings() to see them)
+> 
+> 
 > #! Test: Imbens Newey (2009) conditional CDF as the control function.
+> library(mgcv)
+Loading required package: nlme
+
+Attaching package: ‘nlme’
+
+The following object is masked from ‘package:dplyr’:
+
+    collapse
+
+This is mgcv 1.9-1. For overview type 'help("mgcv-package")'.
 > cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
 +     bs(X_minus, df = 20, intercept = TRUE),
 +     data = simulated.data)
-> simulated.data$K <- ifelse(simulated.data$D == 0,
-+     1 - cf_firststage.reg$fitted, cf_firststage.reg$fitted)
-> simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$K
+> control.fun <- ecdf(cf_firststage.reg$fitted)
+> simulated.data$K <- as.numeric(control.fun(cf_firststage.reg$fitted))
+> simulated.data$K <- cf_firststage.reg$fitted
+> simulated.data$K_0 <- (1 - simulated.data$D) * (1 - simulated.data$K)
 > simulated.data$K_1 <- simulated.data$D * simulated.data$K
-> cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-+     bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
-+     bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
+> cf_secondstage.reg <- gam(Y ~ (1 + Z * D) + X_minus +
++     bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE) +
++     bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE),
 +     data = simulated.data)
 > print(summary(cf_secondstage.reg))
 
-Call:
-lm(formula = Y ~ (1 + Z * D) + X_minus + bs(K_0, knots = seq(0, 
-    1, by = 0.05), intercept = FALSE) + bs(K_1, knots = seq(0, 
-    1, by = 0.05), intercept = FALSE), data = simulated.data)
+Family: gaussian 
+Link function: identity 
 
-Residuals:
-    Min      1Q  Median      3Q     Max 
--5.1934 -0.8526 -0.0151  0.8180  7.6289 
+Formula:
+Y ~ (1 + Z * D) + X_minus + bs(K_0, knots = seq(0, 1, by = 0.05), 
+    intercept = TRUE) + bs(K_1, knots = seq(0, 1, by = 0.05), 
+    intercept = TRUE)
 
-Coefficients: (2 not defined because of singularities)
-                                                           Estimate Std. Error
-(Intercept)                                                -5.92499    2.12108
-Z                                                           0.75184    0.13702
-D                                                           4.02099    7.55661
-X_minus                                                     1.04346    0.02946
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)1   3.34765    7.58550
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)2   0.47715    2.01386
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)3   1.75543    1.51355
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)4   0.18450    1.37435
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)5   1.13164    1.31523
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)6   0.52588    1.31991
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)7   1.02345    1.31824
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)8   0.56247    1.30523
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)9   0.98771    1.30673
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)10  0.44978    1.31985
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)11  0.98658    1.32714
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)12  0.44057    1.30767
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)13  0.71914    1.31039
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)14  0.60562    1.32151
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)15  0.89499    1.32394
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)16  0.40275    1.30472
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)17  0.74883    1.29735
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)18  0.51257    1.28860
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)19  0.43975    1.30032
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)20  0.48943    1.28046
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)21  0.48661    1.30193
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)22  0.54872    1.26950
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)23 -1.63675    2.20592
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)24       NA         NA
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)1   5.26616    1.69440
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)2   2.87806    1.47492
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)3   3.07799    1.41849
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)4   2.24973    1.38068
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)5   2.65868    1.37937
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)6   1.56417    1.33666
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)7   1.78561    1.34491
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)8   1.42809    1.36662
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)9   1.75891    1.38071
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)10  1.41736    1.35815
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)11  0.17346    1.33362
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)12  1.35540    1.33347
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)13  0.58023    1.34360
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)14  0.73273    1.32665
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)15  0.42412    1.31962
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)16  0.58777    1.31304
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)17 -0.12347    1.31799
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)18  0.35806    1.30997
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)19 -0.21116    1.31264
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)20 -0.07570    1.30174
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)21 -0.24332    1.32409
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)22 -0.40329    1.32031
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)23  1.17775    2.69734
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)24       NA         NA
-Z:D                                                         1.06549    0.16381
-                                                           t value Pr(>|t|)    
-(Intercept)                                                 -2.793  0.00523 ** 
-Z                                                            5.487 4.19e-08 ***
-D                                                            0.532  0.59466    
-X_minus                                                     35.415  < 2e-16 ***
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)1    0.441  0.65899    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)2    0.237  0.81271    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)3    1.160  0.24615    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)4    0.134  0.89321    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)5    0.860  0.38958    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)6    0.398  0.69033    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)7    0.776  0.43754    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)8    0.431  0.66652    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)9    0.756  0.44975    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)10   0.341  0.73327    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)11   0.743  0.45726    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)12   0.337  0.73619    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)13   0.549  0.58315    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)14   0.458  0.64676    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)15   0.676  0.49905    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)16   0.309  0.75757    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)17   0.577  0.56381    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)18   0.398  0.69080    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)19   0.338  0.73523    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)20   0.382  0.70230    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)21   0.374  0.70859    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)22   0.432  0.66558    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)23  -0.742  0.45811    
-bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE)24      NA       NA    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)1    3.108  0.00189 ** 
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)2    1.951  0.05104 .  
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)3    2.170  0.03004 *  
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)4    1.629  0.10325    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)5    1.927  0.05395 .  
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)6    1.170  0.24194    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)7    1.328  0.18432    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)8    1.045  0.29606    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)9    1.274  0.20272    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)10   1.044  0.29670    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)11   0.130  0.89652    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)12   1.016  0.30944    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)13   0.432  0.66586    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)14   0.552  0.58075    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)15   0.321  0.74792    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)16   0.448  0.65442    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)17  -0.094  0.92537    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)18   0.273  0.78460    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)19  -0.161  0.87220    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)20  -0.058  0.95363    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)21  -0.184  0.85420    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)22  -0.305  0.76003    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)23   0.437  0.66238    
-bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE)24      NA       NA    
-Z:D                                                          6.504 8.18e-11 ***
+Parametric coefficients:
+                                                          Estimate Std. Error
+(Intercept)                                               -2.72115    1.76369
+Z                                                          0.79575    0.13904
+D                                                          3.35763    3.22635
+X_minus                                                    1.05715    0.02805
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)1   0.00000    0.00000
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)2   2.08030    2.49041
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)3  -1.11587    1.92067
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)4  -0.54893    0.71767
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)5   0.39757    0.50599
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)6  -0.15187    0.38045
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)7   0.28304    0.30600
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)8  -0.39320    0.28805
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)9   0.48304    0.35636
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)10 -0.10670    0.31332
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)11  0.05729    0.28826
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)12 -0.18834    0.27866
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)13 -0.08913    0.34972
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)14 -0.36540    0.39883
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)15 -0.06316    0.37069
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)16 -0.11849    0.28515
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)17 -0.12198    0.25452
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)18 -0.24291    0.25226
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)19 -0.19569    0.20529
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)20 -0.38213    0.21202
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)21 -0.18209    0.18898
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)22 -0.28794    0.18040
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)23 -0.18385    0.26534
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)24 -0.64179    0.59581
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)25 -0.64292    1.04679
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)1   0.00000    0.00000
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)2   2.72260    1.83669
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)3   1.74359    0.95265
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)4   1.49415    0.51602
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)5   1.52351    0.45522
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)6   0.17126    0.45539
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)7   0.41597    0.37752
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)8   0.42260    0.41261
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)9   0.26760    0.37675
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)10  0.01857    0.39068
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)11 -0.63982    0.42722
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)12  0.24684    0.40824
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)13 -0.57765    0.37021
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)14 -0.44421    0.27182
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)15 -0.69536    0.27080
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)16 -1.14203    0.25816
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)17 -0.06789    0.27609
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)18 -1.35220    0.21882
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)19 -1.13047    0.20925
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)20 -1.17530    0.22325
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)21 -1.62235    0.22204
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)22 -1.40600    0.23585
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)23 -1.96301    0.34880
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)24 -0.72491    0.71458
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)25  1.19336    1.08201
+Z:D                                                        1.03171    0.17188
+                                                          t value Pr(>|t|)    
+(Intercept)                                                -1.543 0.122894    
+Z                                                           5.723 1.07e-08 ***
+D                                                           1.041 0.298045    
+X_minus                                                    37.687  < 2e-16 ***
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)1      NaN      NaN    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)2    0.835 0.403554    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)3   -0.581 0.561267    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)4   -0.765 0.444363    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)5    0.786 0.432042    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)6   -0.399 0.689765    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)7    0.925 0.355009    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)8   -1.365 0.172273    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)9    1.355 0.175292    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)10  -0.341 0.733452    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)11   0.199 0.842456    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)12  -0.676 0.499124    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)13  -0.255 0.798831    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)14  -0.916 0.359589    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)15  -0.170 0.864712    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)16  -0.416 0.677768    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)17  -0.479 0.631776    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)18  -0.963 0.335610    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)19  -0.953 0.340492    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)20  -1.802 0.071528 .  
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)21  -0.964 0.335283    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)22  -1.596 0.110483    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)23  -0.693 0.488391    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)24  -1.077 0.281423    
+bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE)25  -0.614 0.539108    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)1      NaN      NaN    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)2    1.482 0.138281    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)3    1.830 0.067242 .  
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)4    2.896 0.003793 ** 
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)5    3.347 0.000821 ***
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)6    0.376 0.706869    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)7    1.102 0.270557    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)8    1.024 0.305761    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)9    0.710 0.477550    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)10   0.048 0.962095    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)11  -1.498 0.134255    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)12   0.605 0.545427    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)13  -1.560 0.118711    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)14  -1.634 0.102248    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)15  -2.568 0.010251 *  
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)16  -4.424 9.80e-06 ***
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)17  -0.246 0.805775    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)18  -6.179 6.68e-10 ***
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)19  -5.402 6.73e-08 ***
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)20  -5.264 1.44e-07 ***
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)21  -7.307 2.95e-13 ***
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)22  -5.961 2.59e-09 ***
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)23  -5.628 1.87e-08 ***
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)24  -1.014 0.310389    
+bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE)25   1.103 0.270094    
+Z:D                                                         6.003 2.01e-09 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.337 on 9949 degrees of freedom
-Multiple R-squared:  0.6587,	Adjusted R-squared:  0.657 
-F-statistic:   384 on 50 and 9949 DF,  p-value: < 2.2e-16
 
+Rank: 51/55
+R-sq.(adj) =  0.674   Deviance explained = 67.6%
+GCV = 1.7758  Scale est. = 1.7667    n = 10000
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.656
+[1] 0.6488
 
 $average_total_effect
-[1] 2.585563
+[1] 2.570686
 
 $average_direct_effect
-[1] 1.4331
+[1] 1.4463
 
 $average_indirect_effect
-[1] 1.144863
+[1] 1.128786
 
 > print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 $`first-stage`
-[1] 0.6491601
+[1] 0.6467769
 
 $`direct-effect`
-[1] 1.213306
+[1] 1.256208
 
 $`indirect-effect`
-[1] 1.330915
+[1] 2.509607
 
-> 
 > 
 > #! Test, add on the K_0 and K_1 conditional on D_i = 0,1 respectively in truth
 > firststage.est <- predict(
@@ -808,33 +908,42 @@ $`indirect-effect`
 > indirect.est <- predict(
 +     true_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
 +     predict(true_secondstage.reg, newdata = mutate(simulated.data, D = 0))
-> add.term <- (mean(simulated.data$K_1[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 1])
-+     - mean(simulated.data$K_0[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 0]))
-> print(mean(firststage.est * (indirect.est + add.term)))
-[1] 0.9055664
+> add.term <- weighted.mean(simulated.data$U_1 - simulated.data$U_0,
++     simulated.data$D_0 == 0 & simulated.data$D_1 == 1)
+> mean(firststage.est * (indirect.est + add.term))
+[1] 1.12739
+> print(theoretical.values(simulated.data))
+$average_first_stage
+[1] 0.6488
+
+$average_total_effect
+[1] 2.570686
+
+$average_direct_effect
+[1] 1.4463
+
+$average_indirect_effect
+[1] 1.128786
+
+> 
 > #! Do the same thing, but kappa weighted to the compliers inside the CF estimate.
-> firststage.est <- predict(
-+     cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
-+         cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
-> # calculate the second-stage indirect effect
-> indirect.est <- predict(
-+     cf_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
-+     predict(cf_secondstage.reg, newdata = mutate(simulated.data, D = 0))
 > # Estimate the kappa-weight
-> hat_probZ <- 0.5
+> hat_probZ <- lm(Z ~ 1 * X_IV * bs(X_minus, df = 10, intercept = TRUE),
++     data = simulated.data)$fitted
 > kappa_1 <- simulated.data$D * ((simulated.data$Z - hat_probZ) / (
 +     (1 - hat_probZ) * hat_probZ))
 > kappa_0 <- (1 - simulated.data$D) * (((1 - simulated.data$Z) - (1 - hat_probZ)) / (
 +     (1 - hat_probZ) * hat_probZ))
 > kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
 > # Calculate the term to add on.
-> add.term <- (weighted.mean(simulated.data$K_1[simulated.data$D == 1],
-+         kappa.weight[simulated.data$D == 1])
-+     - weighted.mean(simulated.data$K_0[simulated.data$D == 0],
-+         kappa.weight[simulated.data$D == 0]))
-> add.term <- (weighted.mean(simulated.data$K, kappa.weight))
+> errors <- predict(cf_secondstage.reg, newdata = mutate(simulated.data,
++     Z = 0, D = 0, X_minus = 0))
+> add.term <- weighted.mean(errors, simulated.data$D * kappa.weight) -
++     weighted.mean(errors, (1 - simulated.data$D) * kappa.weight)
+> add.term <- weighted.mean(simulated.data$D * errors -
++     (1 - simulated.data$D) * errors, kappa.weight)
 > mean(firststage.est * (indirect.est + add.term))
-[1] 3.604344
+[1] 0.3759704
 > 
 > #! Test: show the ADE given Z_i = 1, and similar for AIE
 > firststage.est <- predict(
@@ -851,23 +960,23 @@ $`indirect-effect`
 > # Return the mean estimates.
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.656
+[1] 0.6488
 
 $average_total_effect
-[1] 2.585563
+[1] 2.570686
 
 $average_direct_effect
-[1] 1.4331
+[1] 1.4463
 
 $average_indirect_effect
-[1] 1.144863
+[1] 1.128786
 
 > print(c("first-stage",     mean(firststage.est)))
-[1] "first-stage"      "0.64890418747204"
+[1] "first-stage"       "0.646906166507537"
 > print(c("direct-effect",   mean(direct.est)))
-[1] "direct-effect"    "1.43309999999983"
+[1] "direct-effect"    "1.44629999999995"
 > print(c("indirect-effect", mean(firststage.est * indirect.est)))
-[1] "indirect-effect"   "0.972744117244759"
+[1] "indirect-effect"   "0.974451528746714"
 > # Get the treated versions
 > Z <- simulated.data$Z
 > D <- simulated.data$D
@@ -880,48 +989,39 @@ $average_indirect_effect
 > Y_1_1 <- simulated.data$Y_1_1
 > # AIE, estimae vs the group differences term.
 > print(c("indirect-effect", mean(firststage.est * indirect.est)))
-[1] "indirect-effect"   "0.972744117244759"
+[1] "indirect-effect"   "0.974451528746714"
 > indirect_effect <- (Z * (Y_1_1 - Y_1_0) + (1 - Z) * (Y_0_1 - Y_0_0))
 > print(mean(indirect_effect * (D_1 != D_0)))
-[1] 1.144863
+[1] 1.128786
 > print(mean(indirect_effect * mean(D_1 != D_0)))
-[1] 0.9747298
+[1] 0.9883193
 > print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data)$`indirect-effect`)
-[1] 0.8385013
+[1] 0.9744515
 > 
 > # ADE, estimate vs group differences term.
 > print(c("direct-effect",   mean(direct.est)))
-[1] "direct-effect"    "1.43309999999983"
+[1] "direct-effect"    "1.44629999999995"
 > direct_effect <- (D * (Y_1_1 - Y_0_1) + (1 - D) * (Y_1_0 - Y_0_0))
 > print(mean(direct_effect))
-[1] 1.4331
+[1] 1.4463
 > print(mean(direct_effect[Z == 1]))
-[1] 1.759478
+[1] 1.764103
 > 
 > #! Test: note the difference between AIE and LAIE (i.e., group differences term).
 > # show gains to D, on average
 > print(mean(simulated.data$Z * (simulated.data$Y_1_1 - simulated.data$Y_1_0) +
 +     (1 - simulated.data$Z) * (simulated.data$Y_0_1 - simulated.data$Y_0_0)))
-[1] 1.485869
+[1] 1.523304
 > # show gains to D, among compliers
 > print(mean((simulated.data$Z * (simulated.data$Y_1_1 - simulated.data$Y_1_0) +
 +     (1 - simulated.data$Z) * (simulated.data$Y_0_1 - simulated.data$Y_0_0)) * (
 +         simulated.data$D_1 == 1 & simulated.data$D_0 == 0)))
-[1] 1.144863
+[1] 1.128786
 > 
 > #! Test, get compliers correct
 > #! -> needs a different weighting scheme
 > #! -> Abadie (2003) kappa weights do not get it correct.
 > library(mgcv)
-Loading required package: nlme
-
-Attaching package: ‘nlme’
-
-The following object is masked from ‘package:dplyr’:
-
-    collapse
-
-This is mgcv 1.9-1. For overview type 'help("mgcv-package")'.
 > cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV * bs(X_minus, df = 20, intercept = TRUE),
 +     data = simulated.data)
 > complier.weights <- predict(
@@ -934,27 +1034,36 @@ This is mgcv 1.9-1. For overview type 'help("mgcv-package")'.
 +     data = simulated.data)
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.656
+[1] 0.6488
 
 $average_total_effect
-[1] 2.585563
+[1] 2.570686
 
 $average_direct_effect
-[1] 1.4331
+[1] 1.4463
 
 $average_indirect_effect
-[1] 1.144863
+[1] 1.128786
 
 > print(estimated.values(cf_firststage.reg, complier_secondstage.reg, simulated.data))
 $`first-stage`
-[1] 0.6491601
+[1] 0.6467769
 
 $`direct-effect`
-[1] 0.3909452
+[1] 1.215926
 
 $`indirect-effect`
-[1] 1.805192
+[1] 2.07287
 
+Warning messages:
+1: In predict.lm(secondstage.reg, newdata = mutate(example.data, Z = 1)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+2: In predict.lm(secondstage.reg, newdata = mutate(example.data, Z = 0)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+3: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 1)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
+4: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 0)) :
+  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 > 
 > #! Test: including the K_0 and K_1 terms in complier gains
 > simulated.data$K_0 <- (1 - simulated.data$D) * (1 - cf_firststage.reg$residuals)
@@ -967,10 +1076,10 @@ $`indirect-effect`
 > # Get the returns estimate correct.
 > print(mean((simulated.data$Y_0_1 - simulated.data$Y_0_0)[
 +         simulated.data$Z == 0]))
-[1] 1.005757
+[1] 1.025855
 > print(mean((simulated.data$Y_0_1 - simulated.data$Y_0_0)[
 +         simulated.data$Z == 0 & simulated.data$D_1 == 1 & simulated.data$D_0 == 0]))
-[1] 1.272958
+[1] 1.223759
 > print(mean((predict(
 +     cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
 +         cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")) * (
@@ -978,7 +1087,7 @@ $`indirect-effect`
 +         newdata = mutate(simulated.data, Z = 0, D = 1, K_0 = 0, K_1 = K_1)) -
 +     predict(complier_secondstage.reg,
 +         newdata = mutate(simulated.data, Z = 0, D = 0, K_0 = K_0, K_1 = 0)))))
-[1] 0.9472293
+[1] 1.035408
 Warning message:
 In predict.lm(complier_secondstage.reg, newdata = mutate(simulated.data,  :
   prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
@@ -986,7 +1095,7 @@ In predict.lm(complier_secondstage.reg, newdata = mutate(simulated.data,  :
 +         newdata = mutate(simulated.data, Z = 0, D = 1, K_0 = 0, K_1 = 0)) -
 +     predict(complier_secondstage.reg,
 +         newdata = mutate(simulated.data, Z = 0, D = 0, K_0 = 0, K_1 = 0))))
-[1] 1.038954
+[1] 1.300764
 Warning message:
 In predict.lm(complier_secondstage.reg, newdata = mutate(simulated.data,  :
   prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
@@ -1007,70 +1116,48 @@ In predict.lm(complier_secondstage.reg, newdata = mutate(simulated.data,  :
 > # Show the means
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.656
+[1] 0.6488
 
 $average_total_effect
-[1] 2.585563
+[1] 2.570686
 
 $average_direct_effect
-[1] 1.4331
+[1] 1.4463
 
 $average_indirect_effect
-[1] 1.144863
+[1] 1.128786
 
 > print(mean(direct.est))
-[1] 1.181134
+[1] 1.262506
 > print(mean(firststage.est * indirect.est))
-[1] 1.297626
+[1] 1.374993
 > # Compared the un-weighted version (which has group differences bias).
 > print(estimated.values(cf_firststage.reg, complier_secondstage.reg, simulated.data))
 $`first-stage`
-[1] 0.6491601
+[1] 0.6467769
 
 $`direct-effect`
-[1] 1.181134
+[1] 1.262506
 
 $`indirect-effect`
-[1] 1.36305
+[1] 1.180889
 
 Warning messages:
 1: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 1)) :
   prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 2: In predict.lm(secondstage.reg, newdata = mutate(example.data, D = 0)) :
   prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
-3: In predict.lm(secondstage.reg, newdata = mutate(filter(example.data,  :
-  prediction from rank-deficient fit; attr(*, "non-estim") has doubtful cases
 > print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 $`first-stage`
-[1] 0.6491601
+[1] 0.6467769
 
 $`direct-effect`
-[1] 1.213306
+[1] 1.256208
 
 $`indirect-effect`
-[1] 194.8512
+[1] 2.509607
 
-Warning messages:
-1: In bs(K_0, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-2: In bs(K_1, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-3: In bs(K_0, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-4: In bs(K_1, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-5: In bs(K_0, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-6: In bs(K_1, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-7: In bs(K_0, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-8: In bs(K_1, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-9: In bs(K_1, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
-10: In bs(K_0, degree = 3L, knots = c(0, 0.05, 0.1, 0.15, 0.2, 0.25,  :
-  some 'x' values beyond boundary knots may cause ill-conditioned bases
+There were 50 or more warnings (use warnings() to see the first 50)
 > 
 > 
 > ################################################################################
@@ -1174,10 +1261,12 @@ Warning messages:
 [1] "98 out of 100, 98% done."
 [1] "99 out of 100, 99% done."
 [1] "100 out of 100, 100% done."
+There were 50 or more warnings (use warnings() to see the first 50)
 > boot.data <- boot.est$data
+> View(boot.data)
 > 
 > ## Save the bootstrapped point estimates data.
-> boot.data %>% write_csv(file.path(output.folder, "boot-sim-data-test.csv"))
+> boot.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
 > exit.
 Error: object 'exit.' not found
 Execution halted

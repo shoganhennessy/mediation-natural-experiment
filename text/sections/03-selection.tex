@@ -10,12 +10,12 @@ Write $Y_i(Z, D)$ as a sum of observed factors $Z_i, \vec X_i$ and unobserved fa
 For $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec X}$, to give a representation of the ADE and AIE.
 \begin{align*}
     \text{ADE}
-    = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-    &= \mathbb{E} \Big[ \Big( D_i(1) - D_i(0) \Big)
-        \times \Big( \mu_1(Z_i; \vec X_i) - \mu_0(Z_i; \vec X_i) \Big) \Big], \\
-    \text{AIE}    
     = \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
-        &= \mathbb{E} \Big[ \mu_{D_i}(1; \vec X_i) - \mu_{D_i}(0; \vec X_i) \Big].
+    &= \E{ \mu_{D_i}(1; \vec X_i) - \mu_{D_i}(0; \vec X_i)}, \\
+    \text{AIE}    
+    = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
+        &= \E{\Big( D_i(1) - D_i(0) \Big)
+        \times \Big( \mu_1(Z_i; \vec X_i) - \mu_0(Z_i; \vec X_i) \Big) }.
 \end{align*}
 Then define the error terms.
 \[ U_{0,i} = Y_i(Z_i, 0) - \mu_0(Z_i; \vec X_i),\;\;\;\;
@@ -32,12 +32,13 @@ With this notation, observed data $Z_i, D_i, Y_i$ take the following representat
 \end{align}
 First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \varphi(\vec X_i)$ the intercept, and $\pi$ the average rate of compliance (which may depend on $\vec X_i$).
 Second-stage \eqref{eqn:parametric-secondstage} is not identified thanks to omitted variables bias.
-$\alpha, \zeta(\vec X_i)$ are the intercept terms, and $\beta, \gamma, \delta$ are values that comprise mediation effects --- all whose values may depend on $\vec X_i$, see \autoref{appendix:regression-model} for full definitions.
+$\alpha + \zeta(\vec X_i)$ is the intercept term, and $\beta, \gamma, \delta$ are values that comprise mediation effects --- all which may depend on $\vec X_i$ (see \autoref{appendix:regression-model} for full definitions).
 $\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}$ is the possibly correlated error term, which disrupts identification.
 The ADE and AIE are averages of these coefficients.\footnote{
-    The AIE, in fact, refers only to treatment gains among $D_i(z)$ compliers, so has the more complicated form $\mathbb E \Big[ 
-        \pi \times \Egiven{\beta +  \delta Z_i}{D_i(1) = 1, D_i(0) = 0} \Big]$.
-    The formula above skips the local to compliers part, to keep with regression notation.
+    The AIE, in fact, refers only to treatment gains among $D_i(z)$ compliers, so includes a group differences term, $\pi \times\Egiven{
+            D_i U_{1,i} - \left(1 - D_i \right)U_{0,i}
+        }{\vec X_i, D_i(1) = 1, D_i(0) = 0} $.
+    The formula above skips this part, which would equal zero if there constant treatment effects (for example), keeping with regression notation.
 }
 \begin{align*}
     \text{ADE:} \;\; \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}

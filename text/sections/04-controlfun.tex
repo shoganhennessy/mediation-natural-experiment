@@ -38,14 +38,14 @@ Thus, $\left( K_{0 ,i}, K_{1,i}\right)$ serves as the control function in this s
     If \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} and \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} hold, then the mean potential differences
     (and thus CM effects)
     are identified by a control function approach.
-    For each $z', d' = 0,1$
+    For each $z', d' = 0,1$,
     \begin{align*}
         \Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i^-, K_{d',i}}
         - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i^-, K_{d',i}} 
         &= \Egiven{Y_i(1, d') - Y_i(0, d')}{\vec X_i^-} \\
         \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i^-, K_{1,i}}
         - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i^-, K_{0,i}} 
-        &= \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i^-}
+        &= \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i^-}.
     \end{align*}
     %\[ \Egiven{Y_i}{Z_i = z', D_i = d', \vec X_i^-, K_{d',i}}
     %    = \Egiven{Y_i(z', d')}{\vec X_i^-, K_{d',i}}
@@ -167,7 +167,7 @@ Following \autoref{sec:selection}, these data have the following first and secon
 \end{align*}
 $Z_i$ has an effect on outcome $Y_i$, and it operates partially through mediator $D_i$.
 $\mu_{D_i}(Z_i;.)$ has an interation term, $Z_i D_i$, so while each $Z_i$ and $D_i$ have a constant partial effect, the total effect depends on how many $i$ choose to take the mediator; in this simulation $\Prob{D_i = 1} = 0.437$, and $65.29\%$ of the sample are mediator compliers (where $D_i(1)=1$ and $D_i(0) = 0$).
-This gives an average total effect ($Z\to Y$) value of 2.58, ADE 1.44, and AIE 1.13.\footnote{
+This gives an average total effect ($Z\to Y$) value of 2.58, ADE 1.44, and AIE 1.13, respectively.\footnote{
     Note that average total effect $=$ ADE $+$ AIE, in this setting.
     $\Prob{Z_i=1} = 0.5$ ensures this equality, but is not guaranteed in general.
 }
@@ -213,20 +213,21 @@ The control function approach exhibits bias, though the 95\% confidence interval
         \centering
         \caption{ADE.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/rho-directeffect-bias.png}
+            ../programs/simulations/sim-output/sigma-directeffect-bias.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{AIE.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/rho-indirecteffect-bias.png}
+            ../programs/simulations/sim-output/sigma-indirecteffect-bias.png}
     \end{subfigure}
-    \label{fig:rho-bias}
+    \label{fig:sigma-bias}
     \justify
     \footnotesize    
     \textbf{Note:}
     These figures show the OLS and control function point estimates of the ADE and AIE, for $N = 10,000$ sample size.
-    The black dashed line is the true value, points are points estimates from data simulated with a given $\rho$ value and $\sigma_0 = 1, \sigma_1 = 2$, and shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
+    The black dashed line is the true value, points are points estimates from data simulated with a given $\rho = 0.5$ value, varying the $\sigma_0 = \sigma, \sigma_1 = 2\sigma$ values.
+    Shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
     Orange represents OLS estimates, blue the control function approach.
 \end{figure}
 
