@@ -22,7 +22,7 @@ Type 'q()' to quit R.
 > ## Plot the system for indirect + direct effects, with Roy selection.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "13:53 EST Monday, 10 February 2025"
+[1] "18:55 EST Tuesday, 11 February 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -59,7 +59,7 @@ Type 'q()' to quit R.
 > ## Load the simulated data.  (saved as separate file in advance.)
 > 
 > # Load data from bootstrapping 10,000 times.
-> boot.data <- read_csv(file.path(output.folder, "boot-sim-data.csv"))
+> sim.data <- read_csv(file.path(output.folder, "boot-sim-data.csv"))
 Rows: 100 Columns: 6
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
@@ -67,20 +67,20 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-> print(boot.data)
+> print(sim.data)
 # A tibble: 100 × 6
    truth_direct_effect ols_direct_effect cf_direct_effect truth_indirect_effect
                  <dbl>             <dbl>            <dbl>                 <dbl>
- 1                1.43             0.483             1.24                  1.13
- 2                1.43             0.539             1.49                  1.13
- 3                1.43             0.519             1.27                  1.13
- 4                1.43             0.586             1.31                  1.13
- 5                1.43             0.536             1.32                  1.13
- 6                1.43             0.511             1.33                  1.13
- 7                1.43             0.497             1.38                  1.13
- 8                1.43             0.503             1.39                  1.13
- 9                1.43             0.564             1.35                  1.13
-10                1.43             0.490             1.34                  1.13
+ 1                1.43             0.597             1.52                  1.14
+ 2                1.43             0.508             1.31                  1.14
+ 3                1.43             0.561             1.34                  1.14
+ 4                1.43             0.566             1.25                  1.14
+ 5                1.43             0.559             1.23                  1.14
+ 6                1.43             0.628             1.54                  1.14
+ 7                1.43             0.576             1.35                  1.14
+ 8                1.43             0.585             1.32                  1.14
+ 9                1.43             0.529             1.35                  1.14
+10                1.43             0.605             1.28                  1.14
 # ℹ 90 more rows
 # ℹ 2 more variables: ols_indirect_effect <dbl>, cf_indirect_effect <dbl>
 > 
@@ -152,7 +152,7 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > ## Plot the bootstrap dist of the ADE and AIE estimates.
 > 
 > # ADE estimates, by type.
-> direct_boot.plot <- boot.data %>%
+> direct_boot.plot <- sim.data %>%
 +     ggplot() +
 +     # Dist of OLS estimates.
 +     geom_density(aes(x = ols_direct_effect, y = after_stat(density)),
@@ -181,7 +181,7 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         linewidth = 0.75, curvature = -0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Truth value
-+     geom_vline(xintercept = mean(boot.data$truth_direct_effect),
++     geom_vline(xintercept = mean(sim.data$truth_direct_effect),
 +         colour = "black", linetype = "dashed", linewidth = 1) +
 +     annotate("text", colour = "black",
 +         x = 2, y = 7,
@@ -211,7 +211,7 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     units = "cm", width = fig.width, height = fig.height)
 > 
 > # AIE estimates, by type.
-> indirect_boot.plot <- boot.data %>%
+> indirect_boot.plot <- sim.data %>%
 +     ggplot() +
 +     # Dist of OLS estimates.
 +     geom_density(aes(x = ols_indirect_effect, y = after_stat(density)),
@@ -220,7 +220,7 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     geom_density(aes(x = cf_indirect_effect, y = after_stat(density)),
 +         colour = "black", fill = colour.list[2], alpha = 0.75) +
 +     # Truth value
-+     geom_vline(xintercept = mean(boot.data$truth_indirect_effect),
++     geom_vline(xintercept = mean(sim.data$truth_indirect_effect),
 +         colour = "black", linetype = "dashed", linewidth = 1) +
 +     # Other presentation options
 +     theme_bw() +
@@ -238,8 +238,7 @@ dbl (19): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     plot = indirect_boot.plot,
 +     units = "cm", width = fig.width, height = fig.height)
 Warning message:
-Removed 97 rows containing non-finite outside the scale range
-(`stat_density()`). 
+Removed 1 row containing non-finite outside the scale range (`stat_density()`). 
 > 
 > 
 > ################################################################################
@@ -264,7 +263,7 @@ Removed 97 rows containing non-finite outside the scale range
 +     # Presentation options
 +     theme_bw() +
 +     scale_x_continuous(
-+         name = TeX("$\\sigma_1$"),
++         name = TeX("$\\sigma$"),
 +         expand = c(0, 0),
 +         breaks = seq(0, 2, by = 0.25),
 +         limits = c(-0.02, 2.02)) +
@@ -281,7 +280,6 @@ Removed 97 rows containing non-finite outside the scale range
 > ggsave(file.path(output.folder, "sigma-directeffect-bias.png"),
 +     plot = sigma_directeffect_bias.plot, dpi = 300,
 +     units = "cm", width = fig.width, height = fig.height)
-> 
 > 
 > # Plot the bias in indirect effect est vs sigma
 > sigma_indirecteffect_bias.plot <- sigma.data %>%
@@ -301,7 +299,7 @@ Removed 97 rows containing non-finite outside the scale range
 +     # Presentation options
 +     theme_bw() +
 +     scale_x_continuous(
-+         name = TeX("$\\sigma_1$"),
++         name = TeX("$\\sigma$"),
 +         expand = c(0, 0),
 +         breaks = seq(0, 2, by = 0.25),
 +         limits = c(-0.02, 2.02)) +
@@ -318,7 +316,9 @@ Removed 97 rows containing non-finite outside the scale range
 > ggsave(file.path(output.folder, "sigma-indirecteffect-bias.png"),
 +     plot = sigma_indirecteffect_bias.plot, dpi = 300,
 +     units = "cm", width = fig.width, height = fig.height)
-> 
+Warning message:
+Removed 4 rows containing missing values or values outside the scale range
+(`geom_point()`). 
 > 
 > 
 > ################################################################################
@@ -390,6 +390,9 @@ Removed 97 rows containing non-finite outside the scale range
 > ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
 +     plot = rho_directeffect_bias.plot, dpi = 300,
 +     units = "cm", width = fig.width, height = fig.height)
+Warning message:
+Removed 1 row containing missing values or values outside the scale range
+(`geom_point()`). 
 > 
 > # Plot the bias in indirect effect est vs rho
 > rho_indirecteffect_bias.plot <- rho.data %>%
@@ -425,6 +428,11 @@ Removed 97 rows containing non-finite outside the scale range
 > ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
 +     plot = rho_indirecteffect_bias.plot, dpi = 300,
 +     units = "cm", width = fig.width, height = fig.height)
+Warning messages:
+1: Removed 1 row containing missing values or values outside the scale range
+(`geom_point()`). 
+2: Removed 3 rows containing missing values or values outside the scale range
+(`geom_point()`). 
 > 
 > 
 > ################################################################################
@@ -505,4 +513,4 @@ Removed 97 rows containing non-finite outside the scale range
 > 
 > proc.time()
    user  system elapsed 
-  4.064   0.220   4.328 
+  3.956   0.207   4.233 

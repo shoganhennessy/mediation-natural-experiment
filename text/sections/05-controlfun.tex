@@ -1,9 +1,13 @@
-\section{Solving Identification with a Control Function}
+\section{A Control Function Approach}
 \label{sec:controlfun}
+% A selection model relies on the errors follow a known distribution, and identification is disrupted when the errors follow some other distribution.
+% A control function approach avoids these assumptions, which are dubious in practice, by instead relying on instrument.\footnote{
+%     This section does not improve on the control function approach, instead only noting its utility to solve the identification problem of CM in a natural experiment setting.
+% }
 If your goal is to estimate CM effects, and you could control for unobserved selection terms $U_{0,i}, U_{1,i}$, then you would.
 This ideal example would yield unbiased estimates.
 % Alas, $U_i$ is by definition unobserved.
-The control function method takes this insight seriously, providing conditions to model the implied unobserved confounding by $U_{0,i}, U_{1,i}$, and then control for it.\footnote{
+The control function method takes this insight seriously, providing conditions to model the unobserved $\left(U_{0,i}, U_{1,i}\right)$, and then control for it.\footnote{
     This section does not improve on the control function approach, instead only noting its utility to solve the identification problem of CM in a natural experiment setting.
 }
 
@@ -27,29 +31,35 @@ The exclusion restriction is untestable, and must be guided by domain-specific k
 Write $K_i$ for the expected values in predicting the mediator with observed data, as a function of the instrument $\vec X_i^{\text{IV}}$ and remaining controls $\vec X_i^-$.
 Then take the two components of $K_i$ into $K_{0 ,i}, K_{1,i}$, corresponding to whether $i$ refuses or takes the mediator, respectively.
 \begin{align*}
-    K_i &= \Egiven{D_i}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}, \\
+    K_i &= D_i - \Egiven{D_i}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}, \\
     %K_i &= F_D \left( \bar D_i \mid Z_i, \vec X_i^{\text{IV}}, \vec X_i^- \right)
-    K_{0,i} &= (1 - D_i) (1 - K_i), \;\;\;K_{1,i} = D_i K_i.
+    %K_{0,i} &= (1 - D_i) K_i, \;\;\; K_{1,i} = D_i K_i.
 \end{align*}
-Here, $K_i$ is equal to the conditional cumulative density function of $D_i$, $\Probgiven{D_i \leq d'}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}$ for $d' = 0,1$.
-Thus, $\left( K_{0 ,i}, K_{1,i}\right)$ serves as the control function in this setting.
+%Here, $K_i$ is equal to the conditional cumulative density function of $D_i$, $\Probgiven{D_i \leq d'}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}$ for $d' = 0,1$.
+%Thus, $\left( K_{0 ,i}, K_{1,i}\right)$ serves as the control function in this setting.
+$K_{i}$ serves as the control function in this setting.
 \begin{theorem}
     \label{thm:controlfun}
     If \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} and \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} hold, then the mean potential differences
     (and thus CM effects)
     are identified by a control function approach.
     For each $z', d' = 0,1$,
+    % \begin{align*}
+    %     \Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i^-, K_{d',i}}
+    %     - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i^-, K_{d',i}} 
+    %     &= \Egiven{Y_i(1, d') - Y_i(0, d')}{\vec X_i^-} \\
+    %     \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i^-, K_{1,i}}
+    %     - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i^-, K_{0,i}} 
+    %     &= \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i^-}.
+    % \end{align*}
     \begin{align*}
-        \Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i^-, K_{d',i}}
-        - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i^-, K_{d',i}} 
+        \Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i^-, K_{i}}
+        - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i^-, K_{i}} 
         &= \Egiven{Y_i(1, d') - Y_i(0, d')}{\vec X_i^-} \\
-        \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i^-, K_{1,i}}
-        - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i^-, K_{0,i}} 
+        \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i^-, K_{i}}
+        - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i^-, K_{i}} 
         &= \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i^-}.
     \end{align*}
-    %\[ \Egiven{Y_i}{Z_i = z', D_i = d', \vec X_i^-, K_{d',i}}
-    %    = \Egiven{Y_i(z', d')}{\vec X_i^-, K_{d',i}}
-    %    , \;\; \text{ for } z', d' = 0,1. \]
 \end{theorem}
 \begin{proof}
     Special case of \citet[Theorem~1]{florens2008identification}, \citet[Theorem~3]{imbens2009identification}.
@@ -89,7 +99,7 @@ Otherwise, small sample bias properties could even dominate the bias terms ident
 }
 It is beyond the scope of this paper to develop the optimal procedure here, but these concerns are important.
 % Senan note: future direction?  Needs consistency results, too.
-% Needs a competent econometrician coauthor, as Senan is not....
+% Might need a competent econometrician coauthor, as Senan is not....
 For applied research aiming to estimate CM effects, the control function method is only appropriate in extremely large sample sizes, such as applications using administrative sources or biobanks.
 
 With these concerns in mind, I propose the following method to estimate CM effects with a control function approach:
@@ -97,14 +107,15 @@ With these concerns in mind, I propose the following method to estimate CM effec
     \item Estimate the first-stage, $\Egiven{D_i}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}$ with a non-parametric estimator (e.g., a probability forest, or fully interacted OLS specification).
     \item Calculate estimates of the control function:
     \begin{align*}
-        \hat K_i &= \hat{\mathbb E} \left[D_i \middle\vert Z_i, \vec X_i^{\text{IV}}, \vec X_i^- \right], \\
-        \hat K_{0,i} &= (1 - D_i) (1 - \hat K_i), \;\;\;
+        \hat K_i &= D_i - \hat{\mathbb E} \left[D_i \middle\vert Z_i, \vec X_i^{\text{IV}}, \vec X_i^- \right], \\
+        \hat K_{0,i} &= (1 - D_i) \hat K_i, \;\;\;
             \hat K_{1,i} = D_i \hat K_i.
     \end{align*}
     \item Estimate the second-stage with OLS (including an interaction term between $Z_i$ and $D_i$), and a semi-parametric regressor of the control function.
-    \[ \mathbb{E} \left[Y_i \middle\vert Z_i, D_i, \vec X_i^-, \hat K_{0,i}, \hat K_{1,i}\right]
-    = \beta D_i + \gamma Z_i + \delta Z_i D_i + l_0\left( \hat K_{0,i}\right) + l_1 \left( \hat K_{1,i} \right) \]
-    $l_0(.), l_1(.)$ are semi-parametric nuisance functions, so can be approximated with a spline specification, for example.
+    \[ \mathbb{E} \left[Y_i \middle\vert Z_i, D_i, \vec X_i^-, \hat K_{0,i}, \hat K_{i}\right]
+    = \beta D_i + \gamma Z_i + \delta Z_i D_i + l\left( \hat K_{i}\right) \]
+    %$l_0(.), l_1(.)$ are
+    $l(.)$ is a nuisance function with unknown form, so can be approximated with a semi-parametric spline specification, for example.
     \item Calculate the ADE and AIE estimates from this second-stage.
     \begin{align*}
         \hat{\text{ADE}} &= \; \E{
@@ -149,7 +160,7 @@ Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from
     \;\; \vec X_i^{\text{IV}} \sim \text{Binom}\left( 0.5 \right), \\
     \left[ U_{0,i}, U_{1,i} \right]' \sim
     \text{BivariateNormal}\left( 0, 0, \sigma_0, \sigma_1, \rho \right),
-    \;\; U_{C,i} \sim N(0, 0.25).
+    \;\; U_{C,i} \sim N(0, 0.5).
 \end{align*}
 $N = 10,000$ allows the large sample properties of the approach to operate; indeed, smaller sample sizes may not.
 
@@ -159,14 +170,16 @@ Suppose each $i$ chooses to take mediator $D_i$ by a Roy model, with following m
     \mu_{d'}\left(z' ; \vec X_i \right) = \vec X_i^- + \left( z' + d' + z' d' \right),
     \;\; \mu_{C}\left(z' ; \vec X_i \right) = 3z' + \vec X_i^- - \vec X_i^{\text{IV}}.
 \end{align*}
-Following \autoref{sec:selection}, these data have the following first and second-stage equations:
+Following \autoref{sec:applied}, these data have the following first and second-stage equations:
 \begin{align*}
-    D_i &= \indicator{-3Z_i - \vec X_i^{\text{IV}} + \vec X_i^- \geq U_{0,i} - U_{1,i}},  \\
+    D_i &= \indicator{-3Z_i - \vec X_i^{\text{IV}} + \vec X_i^-
+        \geq U_{C,i} - \Big( U_{1,i} - U_{0,i} \Big)},  \\
     Y_i &= Z_i + D_i + Z_i D_i + \vec X_i^-
         + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
 \end{align*}
 $Z_i$ has an effect on outcome $Y_i$, and it operates partially through mediator $D_i$.
-$\mu_{D_i}(Z_i;.)$ has an interation term, $Z_i D_i$, so while each $Z_i$ and $D_i$ have a constant partial effect, the total effect depends on how many $i$ choose to take the mediator; in this simulation $\Prob{D_i = 1} = 0.437$, and $65.29\%$ of the sample are mediator compliers (where $D_i(1)=1$ and $D_i(0) = 0$).
+Outcome mean $\mu_{D_i}(Z_i;.)$ contains an interaction term, $Z_i D_i$, so while both $Z_i$ and $D_i$ have constant partial effects, the total effect depends on how many $i$ choose to take the mediator.
+In this simulation $\Prob{D_i = 1} = 0.437$, and $65.29\%$ of the sample are mediator compliers (where $D_i(1)=1$ and $D_i(0) = 0$).
 This gives an average total effect ($Z\to Y$) value of 2.58, ADE 1.44, and AIE 1.13, respectively.\footnote{
     Note that average total effect $=$ ADE $+$ AIE, in this setting.
     $\Prob{Z_i=1} = 0.5$ ensures this equality, but is not guaranteed in general.
@@ -195,7 +208,7 @@ Instead, the OLS approach gives biased inference.
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the empirical density of point estimates, for 1,000 replications of the data generating process described above.
+    These figures show the empirical density of point estimates, for 10,000 replications of the data generating process described above.
     The black dashed line is the true value;
     orange is the distribution of na\"ive OLS estimates, and blue the control function approach.
 \end{figure}
@@ -208,16 +221,16 @@ In this data generating process, the OLS confidence interval do not overlap the 
 The control function approach exhibits bias, though the 95\% confidence intervals cover the truth.
 
 \begin{figure}[h!]
-    \caption{Point Estimates of CM Effects, OLS versus Control Function.}
+    \caption{Point Estimates of CM Effects, OLS and Control Function versus True Value.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
-        \caption{ADE.}
+        \caption{$\hat{\text{ADE}} -$ ADE.}
         \includegraphics[width=\textwidth]{
             ../programs/simulations/sim-output/sigma-directeffect-bias.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
-        \caption{AIE.}
+        \caption{$\hat{\text{AIE}} -$ AIE.}
         \includegraphics[width=\textwidth]{
             ../programs/simulations/sim-output/sigma-indirecteffect-bias.png}
     \end{subfigure}
@@ -225,10 +238,11 @@ The control function approach exhibits bias, though the 95\% confidence interval
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the OLS and control function point estimates of the ADE and AIE, for $N = 10,000$ sample size.
-    The black dashed line is the true value, points are points estimates from data simulated with a given $\rho = 0.5$ value, varying the $\sigma_0 = \sigma, \sigma_1 = 2\sigma$ values.
-    Shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
+    These figures show the OLS and control function point estimates of the ADE and AIE, for $N = 10,000$ sample size, minus the true value of the ADE and AIE, respectively.
+    $y$-axis value of zero means the point estimate had estimated the ADE or AIE exactly.
+    Points are points estimates from data simulated with a given $\rho = 0.5$ value, varying the $\sigma_0 = \sigma, \sigma_1 = 2\sigma$ values.
     Orange represents OLS estimates, blue the control function approach.
+    Shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
 \end{figure}
 
 The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\rho \in [-1, 1]$ and $\sigma_0, \sigma_1 \geq 0$.\footnote{
@@ -245,5 +259,6 @@ The control function approach improves on OLS estimates by correcting for the bi
     The conclusion is the same as for varying the correlation coefficient, $\rho$, in \autoref{fig:rho-bias}.
 }
 This correction did not come for free: the standard errors are significantly greater in a control function approach than OLS.
-Standard errors on the AIE are larger than those for the ADE, because the AIE estimates are first-stage times second-stage estimates (i.e., the same reasons instrumental variables estimates are less efficient than ideal OLS estimates). 
+Standard errors on the AIE are larger than those for the ADE, because the AIE estimates are first-stage times second-stage estimates, so standard errors account for uncertainty in both estimates multiplied.
+%(i.e., the same reasons instrumental variables estimates are less efficient than ideal OLS estimates). 
 In this manner, this simulation shows the pros and cons of using the control function approach to estimating CM effects in practice.

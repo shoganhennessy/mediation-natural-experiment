@@ -34,10 +34,15 @@ Additionally, it provides no harbour for estimating CM effects if the core struc
 %\textbf{Antecedents:}
 The most popular approach to CM assumes that the original treatment, and the subsequent mediator, are both ignorable \citep{imai2010identification}.
 This approach arose in the statistics literature, and is widely used in epidemiology, medicine, and psychology to estimate CM effects in observational studies.
-The applied economics literature has not picked up this practice, partially in an understanding that these assumptions are invalid in most observational settings.
+Assuming mediator ignorability (also known as selection-on-observables) conveniently ignores individuals' choice to take or refuse the mediator, by assuming they did so na\"ively or the researcher observed everything that could have affected this decision.
+If a researcher is studying single-cell organisms in a laboratory, then it may make sense to study causal mechanisms with this approach; single-cell organisms make simple decisions to take or refuse a treatment or mediator.
+On the other hand, social science researchers study social settings where humans have make complex decisions based on costs, benefits, and preferences --- all of which are not fully known by the researcher.
+Assuming a mediator is ignorable in such a setting would be na\"ive at best.
+
+The applied economics literature has not picked up the practice of estimating CM effects by selection-on-observables, partially in an understanding that this assumption would be invalid in most observational settings.
 Indeed, a new strand of the econometric literature has developed estimators for CM effects under overlapping quasi-experimental research designs \citep{deuchert2019direct,frolich2017direct}, a partial identification approach \citep{flores2009identification}, or testing full mediation through observed channels \citep{kwon2024testing} --- see \cite{huber2019review} for an overview.
 The new literature has arisen in partial acknowledgement that a conventional selection-on-observables approach to CM in an applied setting can lead to biased inference, and needs alternative methods for credible inference.
-This paper makes this part explicit, showing exactly how a conventional approach to CM in a natural experiment can fail in practice.
+This paper makes this part explicit, showing exactly how a conventional approach to CM in a natural experiment can fail in practice, and warding the applied economics literature away from picking up this practice.
 
 %\textbf{Value-added:}
 This paper considers the case when it is not credible to assume the mediator is ignorable (e.g., none of the research designs above apply), leveraging classic labour economic theory for selection-into-treatment to identify direct and indirect effects.
@@ -59,7 +64,11 @@ Using a control function to estimate CM effects builds on the influential \cite{
 
 This paper proceeds as follows.
 \autoref{sec:mediation} introduces CM, and develops expressions for the bias in CM estimates in natural experiments.
-\autoref{sec:selection} describes this bias in applied settings with (1) a regression framework, (2) a setting with selection based on costs and benefits.
+\autoref{sec:applied} describes this bias in applied settings with (1) a regression framework, (2) a setting with selection based on costs and benefits.
 %, (3) a short survey of empirical practice.
-\autoref{sec:controlfun} solves the identification problem with a control function, in the case that a mediator is monotone in the original treatment and a researcher observes exogenous variation in cost of mediator take-up, giving simulation evidence.
+% \autoref{sec:selectionmodel} illustrates how a parametric selection model can purge bias from selection-on-observables CM estimates;
+%\autoref{sec:controlfun} achieves identification in a more general case,
+\autoref{sec:controlfun} achieves identification by a control function approach,
+in the case that a mediator is monotone in the original treatment and a researcher observes exogenous variation in cost of mediator take-up, giving simulation evidence.
+%\autoref{sec:examples} gives simulation evidence, illustrating the approach by estimating the causal of genes associated with education, and how much operates through the education channel.
 \autoref{sec:conclusion} concludes.

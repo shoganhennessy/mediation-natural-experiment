@@ -4,7 +4,7 @@ Causal mediation decomposes causal effects into two channels, through a mediator
 To develop notation for direct and indirect effects, write $Z_i$ for an exogenous binary treatment, $D_i$ a binary mediator, and $Y_i$ an outcome for individuals $i = 1, \hdots, n$.\footnote{
     Other literatures use different notation.
     For example, \cite{imai2010identification} write $T_i, M_i, Y_i$ for the randomised treatment, mediator, and outcome, respectively.
-    I use $Z_i, D_i, Y_i$ to stick to the instrumental variables notation \cite{angrist1996identification}, more familiar in empirical economics \citep{angrist2009mostly}. 
+    I use the $Z_i, D_i, Y_i$ instrumental variables notation, more familiar in empirical economics \citep{angrist1996identification}.
 }
 The outcomes are a sum of their potential outcomes.\footnote{
     This paper exclusively focuses on the binary case.
@@ -81,8 +81,8 @@ In this setting, $Z_i$ affects outcome $Y_i$ directly, and indirectly via the $D
 % The framework is general to any (conditionally) randomly assigned $Z_i$, intermiedate mediator $D_i$, and outcome $Y_i$.
 %This section focuses on binary $Z_i, D_i = 0,1$, and not the continuous versions, to simplify the causal framework.%\footnote{
     %\autoref{appendix:continuous} relates the causal framework to continuous $Z_i,D_i$, which has little conceptual differences.}
-On the other hand, mediation aims to decompose the reduced form effect of $Z \to Y$ into these two separate pathways.
 \autoref{fig:scm-model} visualises the design, where the direction arrows denote the causal direction (and no reverse causality).
+CM aims to decompose the reduced form effect of $Z \to Y$ into these two separate pathways.
 \begin{align*}
     \text{Average Indirect Effect (AIE), } D(Z) \to Y: \;\;\;&
         \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
@@ -90,14 +90,14 @@ On the other hand, mediation aims to decompose the reduced form effect of $Z \to
         \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
 \end{align*}
 Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
-In an applied example of the Vietnam-era military draft, this could be how much of (random) military conscription's causal effect goes through military service?
-In an instrumental variables application, this direct effect is assumed to be zero for everyone (i.e., the exclusion restriction).
+If a researcher is studying the income effect of a man being randomly drafted into the US military to serve in the Vietnam war, and is interested in military service as the mediator, the AIE represents how much of the effect comes from military service.
+In an instrumental variables application, this direct effect is assumed to be zero for everyone --- that the draft had no other effects (i.e., the exclusion restriction, see \citet{angrist1990lifetime,angrist2011schooling}).
 CM is a different framework attempting to explicitly model the direct effect, not assuming the ADE is zero.
 Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
     In a non-parametric setting it is not necessary that the ADE and AIE sum to the total effect.
     See \cite{imai2010identification} for this point in full.
 }
-For the military example, how much of the effect of random conscription is a direct effect, such as from further education for a military deferment and other actions dodging the draft?
+For the military draft example, how much of the effect of random conscription is a direct effect --- e.g., from higher education draft deferment, and other actions to dodge the draft?
 These CM effects are not separately identified without further assumptions.
 
 \subsection{Identifying Causal Mediation (CM) Effects}
@@ -212,7 +212,7 @@ For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differ
             &\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i = 1} \\ 
             &  - \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i = 0}
         \end{aligned} \right) \\
-        &+ \left( \frac{1 - \Prob{D_i(1) = 1, D_i(0) = 0} }{
+        &- \left( \frac{1 - \Prob{D_i(1) = 1, D_i(0) = 0} }{
             \Prob{D_i(1) = 1, D_i(0) = 0}} \right)
         \left( \begin{aligned}
             &\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 0 \text{ or } D_i(0)=1} \\ 

@@ -26,11 +26,11 @@ colour.list <- c("orange", "blue")
 
 
 ################################################################################
-## Load the simulated data.  (saved as separate file in advance.)
+## Load the simulated data.  (Saved as separate files from previous script).
 
 # Load data from bootstrapping 10,000 times.
-boot.data <- read_csv(file.path(output.folder, "boot-sim-data.csv"))
-print(boot.data)
+sim.data <- read_csv(file.path(output.folder, "boot-sim-data.csv"))
+print(sim.data)
 
 # Load the data file for varying correlated errors, sigma values
 sigma.data <- read_csv(file.path(output.folder, "sigma-sim-data.csv"))
@@ -49,7 +49,7 @@ print(names(sigma_1.data))
 ## Plot the bootstrap dist of the ADE and AIE estimates.
 
 # ADE estimates, by type.
-direct_boot.plot <- boot.data %>%
+direct_boot.plot <- sim.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = ols_direct_effect, y = after_stat(density)),
@@ -78,7 +78,7 @@ direct_boot.plot <- boot.data %>%
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth value
-    geom_vline(xintercept = mean(boot.data$truth_direct_effect),
+    geom_vline(xintercept = mean(sim.data$truth_direct_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     annotate("text", colour = "black",
         x = 2, y = 7,
@@ -108,7 +108,7 @@ ggsave(file.path(output.folder, "direct-boot.png"),
     units = "cm", width = fig.width, height = fig.height)
 
 # AIE estimates, by type.
-indirect_boot.plot <- boot.data %>%
+indirect_boot.plot <- sim.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = ols_indirect_effect, y = after_stat(density)),
@@ -117,7 +117,7 @@ indirect_boot.plot <- boot.data %>%
     geom_density(aes(x = cf_indirect_effect, y = after_stat(density)),
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     # Truth value
-    geom_vline(xintercept = mean(boot.data$truth_indirect_effect),
+    geom_vline(xintercept = mean(sim.data$truth_indirect_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Other presentation options
     theme_bw() +
@@ -144,27 +144,32 @@ ggsave(file.path(output.folder, "indirect-boot.png"),
 sigma_directeffect_bias.plot <- sigma.data %>%
     ggplot(aes(x = sigma)) +
     # OLS est + 95 % CI
-    geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
-    geom_ribbon(aes(ymin = ols_direct_effect_low,
-        ymax = ols_direct_effect_up),
+    geom_point(aes(y = (ols_direct_effect - truth_direct_effect)),
+        colour = colour.list[1]) +
+    geom_ribbon(aes(
+        ymin = (ols_direct_effect_low - truth_direct_effect),
+        ymax = (ols_direct_effect_up - truth_direct_effect)),
         fill = colour.list[1], alpha = 0.2) +
     # CF est + 95 % CI
-    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+    geom_point(aes(y = (cf_direct_effect - truth_direct_effect)),
+        colour = colour.list[2]) +
+    geom_ribbon(aes(
+        ymin = (cf_direct_effect_low - truth_direct_effect),
+        ymax = (cf_direct_effect_up - truth_direct_effect)),
         fill = colour.list[2], alpha = 0.2) +
     # Truth:
-    geom_line(aes(y = truth_direct_effect),
+    geom_line(aes(y = (truth_direct_effect - truth_direct_effect)),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX("$\\sigma_1$"),
+        name = TeX("$\\sigma$"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +
     scale_y_continuous(name = "",
-        breaks = seq(0, 2.5, by = 0.25),
-        limits = c(0, 2.5),
+        breaks = seq(-1.5, 1.5, by = 0.25),
+        limits = c(-1.5, 1.5),
         expand = c(0.01, 0.01)) +
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
@@ -176,32 +181,36 @@ ggsave(file.path(output.folder, "sigma-directeffect-bias.png"),
     plot = sigma_directeffect_bias.plot, dpi = 300,
     units = "cm", width = fig.width, height = fig.height)
 
-
 # Plot the bias in indirect effect est vs sigma
 sigma_indirecteffect_bias.plot <- sigma.data %>%
     ggplot(aes(x = sigma)) +
     # OLS est + 95 % CI
-    geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
-    geom_ribbon(aes(ymin = ols_indirect_effect_low,
-        ymax = ols_indirect_effect_up),
+    geom_point(aes(y = ols_indirect_effect - truth_indirect_effect),
+        colour = colour.list[1]) +
+    geom_ribbon(aes(
+        ymin = (ols_indirect_effect_low - truth_indirect_effect),
+        ymax = (ols_indirect_effect_up - truth_indirect_effect)),
         fill = colour.list[1], alpha = 0.2) +
     # CF est + 95 % CI
-    geom_point(aes(y = cf_indirect_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
+    geom_point(aes(y = cf_indirect_effect- truth_indirect_effect),
+        colour = colour.list[2]) +
+    geom_ribbon(aes(
+        ymin = (cf_indirect_effect_low - truth_indirect_effect),
+        ymax = (cf_indirect_effect_up - truth_indirect_effect)),
         fill = colour.list[2], alpha = 0.2) +
     # Truth:
-    geom_line(aes(y = truth_indirect_effect),
+    geom_line(aes(y = truth_indirect_effect - truth_indirect_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX("$\\sigma_1$"),
+        name = TeX("$\\sigma$"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +
     scale_y_continuous(name = "",
-        breaks = seq(0, 2.5, by = 0.25),
-        limits = c(0, 2.5),
+        breaks = seq(-1.5, 1.5, by = 0.25),
+        limits = c(-1.5, 1.5),
         expand = c(0.01, 0.01)) +
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
@@ -212,7 +221,6 @@ sigma_indirecteffect_bias.plot <- sigma.data %>%
 ggsave(file.path(output.folder, "sigma-indirecteffect-bias.png"),
     plot = sigma_indirecteffect_bias.plot, dpi = 300,
     units = "cm", width = fig.width, height = fig.height)
-
 
 
 ################################################################################
