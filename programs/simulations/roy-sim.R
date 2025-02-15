@@ -7,16 +7,11 @@ print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 ## Load libraries
 # Functions for data manipulation and visualisation
 library(tidyverse)
-# Library for better colour choice.
-library(ggthemes)
-# Library for equations in plots
-library(latex2exp)
 # Causal medation package, Imai Keele Yamamoto (2010)
 library(mediation)
 # Package for classical selection estimators (i.e., MLE)
 library(sampleSelection)
 # Package for more distributions to sample from.
-library(mvtnorm)
 library(MASS)
 # Package for semi-parametric regressor, splines by bs(.).
 library(splines)
@@ -51,7 +46,7 @@ simulate.data <- function(rho, sigma_0, sigma_1, sigma_C,
     # First covariate (\vec X_i^-)
     X_minus <- 4 + rnorm(sample.size, mean = 0, sd = 1)
     # Second covariate (instrument for the control function).
-    X_IV <- rbinom(sample.size, 1, 1 / 2)
+    X_IV <- runif(sample.size, 0, 1) # rbinom(sample.size, 1, 1 / 2)
     # Simulate the unobserved error terms.
     U_all <- mvrnorm(n = sample.size, mu = c(0, 0, 0),
         Sigma = matrix(c(
@@ -70,20 +65,20 @@ simulate.data <- function(rho, sigma_0, sigma_1, sigma_C,
     mu_cost_z_X <- function(z, x_minus, x_iv){
         return(- 3 * z + x_minus - x_iv)
     }
-    # Y_i(Z, D) = mu_D(Z; X_i) + U_D
+    # Mean outcomes: Y_i(z, d) = mu_d(z; X_i) + U_D
     Y_0_0 <- mu_outcome_z_d_X(0, 0, X_minus) + U_0
     Y_0_1 <- mu_outcome_z_d_X(0, 1, X_minus) + U_1
     Y_1_0 <- mu_outcome_z_d_X(1, 0, X_minus) + U_0
     Y_1_1 <- mu_outcome_z_d_X(1, 1, X_minus) + U_1
-    # D_i(Z)= 1{ Y(Z, 1) - Y(Z, 0) >= C_i }
+    # Roy selection: D_i(z) = 1{ Y(z, 1) - Y(z, 0) >= C_i }
     D_0 <- as.integer(Y_0_1 - Y_0_0 >= mu_cost_z_X(0, X_minus, X_IV) + U_C)
     D_1 <- as.integer(Y_1_1 - Y_1_0 >= mu_cost_z_X(1, X_minus, X_IV) + U_C)
-    # Generate the individual effects (direct + indirect)
+    # Observed outcomes: treatment Z
     probZ <- 0.5
     Z <- rbinom(sample.size, 1, probZ)
-    # Observed outcomes: D, Y
+    # Observed outcomes: mediator D
     D <- (Z * D_1) + ((1 - Z) * D_0)
-    # Generate the list of observed outcomes
+    # Observed outcomes: outcome Y
     Y <- (Z * D * Y_1_1) +
         (Z * (1 - D) * Y_1_0) +
         ((1 - Z) * D * Y_0_1) +
@@ -125,7 +120,7 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
     # Get the true first-stage effects
     first_stage <- D_1 - D_0
     average_first_stage <- mean(first_stage)
-    # Get the theoretical total effect/reduced form/ITT
+    # Get the theoretical total effect/reduced form/ATE
     total_effect <-
         (Y_1_1 - Y_0_0) * (D_1 == 1 & D_0 == 0) +
         (Y_1_1 - Y_0_1) * (D_1 == 1 & D_0 == 1) +
@@ -154,7 +149,6 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
         print(paste0(c("The average first-stage:",     as.numeric(average_first_stage))))
         print(paste0(c("The average direct effect:",   as.numeric(average_direct_effect))))
         print(paste0(c("The average indirect effect:", as.numeric(average_indirect_effect))))
-    
     }
     # Define a named list to return
     output.list <- list(
@@ -232,8 +226,9 @@ cf_crossfit_mediate <- function(example.data){
     firstcross.data$K_0 <- (1 - firstcross.data$D) * firstcross.data$K
     firstcross.data$K_1 <- (firstcross.data$D) * firstcross.data$K
     firstcross_indirect.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-        bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE) +
-        bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE),
+        #bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE) +
+        #bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE),
+        bs(K, knots = seq(-1, 1, by = 0.05), intercept = TRUE),
         data = firstcross.data)
     # 3. calculate the CF model on the second cross sample.
     secondcross_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
@@ -248,8 +243,9 @@ cf_crossfit_mediate <- function(example.data){
     secondcross.data$K_1 <- (secondcross.data$D) * secondcross.data$K
     secondcross_indirect.reg <- lm(
         Y ~ (1 + Z * D) + X_minus +
-        bs(K_0, knots = seq(0, 1, by = 0.05), intercept = FALSE) +
-        bs(K_1, knots = seq(0, 1, by = 0.05), intercept = FALSE),
+        #bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE) +
+        #bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE),
+        bs(K, knots = seq(-1, 1, by = 0.05), intercept = TRUE),
         data = secondcross.data)
     # 4. Predict the estimate on the opposite data.
     firstcross.est <- estimated.values(firstcross_firststage.reg,
@@ -269,7 +265,8 @@ cf_crossfit_mediate <- function(example.data){
 }
 
 # Bootstrap the estimates.
-estimated.loop <- function(boot.reps, example.data, bootstrap = TRUE){
+estimated.loop <- function(boot.reps, example.data,
+    bootstrap = TRUE, print.progress == FALSE){
     # Define lists the will be returned:
     # 2. Naive OLS.
     ols_direct_effect <- c()
@@ -289,11 +286,14 @@ estimated.loop <- function(boot.reps, example.data, bootstrap = TRUE){
         # If a regular re-simulation, get new data.
         else if (bootstrap == FALSE){
             boot.data <- simulate.data(0.5, 1, 2, 0.5)
+        }
+        else {stop("The `bootstrap' option only takes values of TRUE or FALSE.")}
+        # Print, if want the consol output of how far we are.
+        if (print.progress == TRUE){
             if ((100 * (i / boot.reps)) %% 1 == 0) {
                 print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
             }
         }
-        else {stop("The `bootstrap' option only takes values of TRUE or FALSE.")}
         # Calculate the truth values, given the simulated data
         truth.est <- theoretical.values(example.data)
         # Now get the mediation effects, by different approaches.
@@ -470,7 +470,8 @@ simulated.data <- simulate.data(0.5, 1, 2, 0.5)
 
 # Get bootstrapped point est for the CF approach
 sim.reps <- 10^4
-sim.est <- estimated.loop(sim.reps, simulated.data, bootstrap = FALSE)
+sim.est <- estimated.loop(sim.reps, simulated.data,
+    bootstrap = FALSE, print.progress = TRUE)
 sim.data <- sim.est$data
 
 ## Save the repated DGPs' point estimates as separate data.
@@ -496,13 +497,14 @@ for (sigma in sigma.values){
     sigma_sim.data <- simulate.data(0.5, sigma, 2 * sigma, 0.5)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
     sigma.boot <- estimated.loop(boot.reps, sigma_sim.data,
-        bootstrap = TRUE)$estimates
+        bootstrap = FALSE)$estimates
     sigma.boot$sigma <- sigma
     # Add to the dataframe.
     i <- i + 1
     sigma.data[i, ] <- sigma.boot
     # SHow far we are.
-    print(paste0(sigma, " in [0, 2], ", 100 * i / length(sigma.values), "% done."))
+    print(paste0("simga = ", sigma,
+        " in [0, 2], ", 100 * i / length(sigma.values), "% done."))
     gc()
 }
 # Save the output data.
@@ -510,7 +512,7 @@ sigma.data %>% write_csv(file.path(output.folder, "sigma-sim-data.csv"))
 
 
 ################################################################################
-## Compare estimation methods, across different sigma values.
+## Compare estimation methods, across different sigma_1 values.
 
 # Define an empty dataframe, to start adding to.
 boot.values <- estimated.loop(1, simulated.data)$estimates
@@ -529,12 +531,13 @@ for (sigma_1 in sigma_1.values){
     sigma_1_sim.data <- simulate.data(0.5, 1, sigma_1, 0.5)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
     sigma_1.boot <- estimated.loop(boot.reps, sigma_1_sim.data,
-        bootstrap = TRUE)$estimates
+        bootstrap = FALSE)$estimates
     sigma_1.boot$sigma_1 <- sigma_1
     # Add to the dataframe.
     sigma_1.data[i, ] <- sigma_1.boot
     # SHow far we are.
-    print(paste0(sigma_1, " in [0, 2], ", 100 * i / length(sigma_1.values), "% done."))
+    print(paste0("sigma_1 = ", sigma_1,
+        " in [0, 2], ", 100 * i / length(sigma_1.values), "% done."))
     gc()
 }
 # Save the output data.
@@ -562,12 +565,13 @@ for (rho in rho.values){
     rho_sim.data <- simulate.data(rho, 1, 2, 0.5)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
     rho.boot  <- estimated.loop(boot.reps, rho_sim.data,
-        bootstrap = TRUE)$estimates
+        bootstrap = FALSE)$estimates
     rho.boot$rho <- rho
     # Add to the dataframe.
     rho.data[i, ] <- rho.boot
     # Show how far we 
-    print(paste0(rho, " in [-1, 1], ", 100 * i / length(rho.values), "% done."))
+    print(paste0("rho = ", rho,
+        " in [-1, 1], ", 100 * i / length(rho.values), "% done."))
     gc()
 }
 

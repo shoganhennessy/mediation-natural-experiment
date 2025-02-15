@@ -26,7 +26,7 @@ colour.list <- c("orange", "blue")
 
 
 ################################################################################
-## Load the simulated data.  (Saved as separate files from previous script).
+## Load the simulated data.  (saved as separate file in advance.)
 
 # Load data from bootstrapping 10,000 times.
 sim.data <- read_csv(file.path(output.folder, "boot-sim-data.csv"))
@@ -260,7 +260,7 @@ rho_directeffect_bias.plot <- rho.data %>%
         curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth:
-    geom_hline(aes(yintercept = truth_direct_effect),
+    geom_line(aes(y = (truth_direct_effect)),
         colour = "black", linetype = "dashed", linewidth = 1) +
     annotate("text", colour = "black",
         x = 0.65, y = 1.8,
@@ -305,7 +305,7 @@ rho_indirecteffect_bias.plot <- rho.data %>%
     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     # Truth:
-    geom_hline(aes(yintercept = mean(truth_indirect_effect)),
+    geom_line(aes(y = (truth_indirect_effect)),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +

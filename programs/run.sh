@@ -17,8 +17,8 @@ cd ..
 
 ## Compile the paper.
 
-# First append DOIs to each bib entry, by my custom tool,
-# and point to the cleaned version in my working paper.
+# Adjust DOIs in each bib entry, by my custom tool,
+# and point to the cleaned bib file in my working paper.
 cd text/sections
 ~/venv/bin/python3 ~/Dropbox/latex-templates/bib-edit.py 07-bibliography.bib
 bibOld="bibliography.bib"
