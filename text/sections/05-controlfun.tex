@@ -118,7 +118,7 @@ With these concerns in mind, I propose the following method to estimate CM effec
     = \beta D_i + \gamma Z_i + \delta Z_i D_i + l\left( \hat K_{i}\right) \]
     %$l_0(.), l_1(.)$ are
     $l(.)$ is a nuisance function with unknown form, so can be approximated with a semi-parametric spline specification, for example.
-    \item Calculate the ADE and AIE estimates from this second-stage.
+    \item Calculate the ADE and AIE estimates from the first and second-stages.
     \begin{align*}
         \hat{\text{ADE}} &= \; \E{
             \hat{\mathbb{E}} \left[ Y_i \middle\vert Z_i = 1, D_i, \vec X_i^-, \hat K_i \right]
@@ -160,7 +160,7 @@ Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from
     Z_i \sim \text{Binom}\left(0.5 \right),
     \;\; \vec X_i^- \sim N(4, 1),
     \;\; \vec X_i^{\text{IV}} \sim \text{Binom}\left( 0.5 \right), \\
-    \left[ U_{0,i}, U_{1,i} \right]' \sim
+    \left( U_{0,i}, U_{1,i} \right) \sim
     \text{BivariateNormal}\left( 0, 0, \sigma_0, \sigma_1, \rho \right),
     \;\; U_{C,i} \sim N(0, 0.5).
 \end{align*}
@@ -180,16 +180,16 @@ Following \autoref{sec:applied}, these data have the following first and second-
         + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
 \end{align*}
 $Z_i$ has an effect on outcome $Y_i$, and it operates partially through mediator $D_i$.
-Outcome mean $\mu_{D_i}(Z_i;.)$ contains an interaction term, $Z_i D_i$, so while both $Z_i$ and $D_i$ have constant partial effects, the total effect depends on how many $i$ choose to take the mediator.
+Outcome mean $\mu_{D_i}(Z_i;.)$ contains an interaction term, $Z_i D_i$, so while both $Z_i$ and $D_i$ have constant partial effects, the ATE depends on how many $i$ choose to take the mediator.
 In this simulation $\Prob{D_i = 1} = 0.437$, and $65.29\%$ of the sample are mediator compliers (where $D_i(1)=1$ and $D_i(0) = 0$).
-This gives an average total effect ($Z\to Y$) value of 2.58, ADE 1.44, and AIE 1.13, respectively.\footnote{
-    Note that average total effect $=$ ADE $+$ AIE, in this setting.
+This gives an ATE ($Z\to Y$) value of 2.58, ADE 1.44, and AIE 1.13, respectively.\footnote{
+    Note that ATE $=$ ADE $+$ AIE, in this setting.
     $\Prob{Z_i=1} = 0.5$ ensures this equality, but is not guaranteed in general.
 }
 
 After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-degenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
 As a result, sequential ignorability does not hold; the mediator is not conditionally ignorable.
-Thus, a standard OLS (selection-on-observables) approach to CM does not give an estimate for how much of the $Z \to Y$ treatment effect goes through mediator $D$.
+Thus, a standard OLS (selection-on-observables) approach to CM does not give an estimate for how much of the $Z \to Y$ ATE goes through mediator $D$.
 Instead, the OLS approach gives biased inference.
 
 \begin{figure}[h!]
@@ -223,28 +223,27 @@ In this data generating process, the OLS confidence interval do not overlap the 
 The control function approach exhibits bias, though the 95\% confidence intervals cover the truth.
 
 \begin{figure}[h!]
-    \caption{Point Estimates of CM Effects, OLS and Control Function versus True Value.}
+    \caption{Point Estimates of CM Effects, OLS versus Control Function, varying $\rho$ values with $\sigma_0 = 1, \sigma_1 = 2$ fixed.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
-        \caption{$\hat{\text{ADE}} -$ ADE.}
+        \caption{ADE.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/sigma-directeffect-bias.png}
+            ../programs/simulations/sim-output/rho-directeffect-bias.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
-        \caption{$\hat{\text{AIE}} -$ AIE.}
+        \caption{AIE.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/sigma-indirecteffect-bias.png}
+            ../programs/simulations/sim-output/rho-indirecteffect-bias.png}
     \end{subfigure}
-    \label{fig:sigma-bias}
+    \label{fig:rho-bias}
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the OLS and control function point estimates of the ADE and AIE, for $N = 10,000$ sample size, minus the true value of the ADE and AIE, respectively.
-    $y$-axis value of zero means the point estimate had estimated the ADE or AIE exactly.
-    Points are points estimates from data simulated with a given $\rho = 0.5$ value, varying the $\sigma_0 = \sigma, \sigma_1 = 2\sigma$ values.
+    These figures show the OLS and control function point estimates of the ADE and AIE, for $N = 10,000$ sample size.
+    The black dashed line is the true value, points are points estimates from data simulated with a given $\rho$ value and $\sigma_0 = 1, \sigma_1 = 2$, and shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
     Orange represents OLS estimates, blue the control function approach.
-    Shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
+    The true AIE values vary with $\rho$, because $D_i(Z_i)$ compliers have higher average values of $U_{1,i} - U_{0,i}$ with greater $\rho$ values.
 \end{figure}
 
 The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\rho \in [-1, 1]$ and $\sigma_0, \sigma_1 \geq 0$.\footnote{
@@ -252,10 +251,10 @@ The error terms determine the bias in OLS estimates of the ADE and AIE, so the b
     The control function approach avoids this assumption, and bias from breaking it, by relying on an instrument.
 }
 \autoref{fig:rho-bias} shows control function estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstraps.
-The point estimates of the control function do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations as in \autoref{fig:cm-boot-dist}).
-The control function approach improves on OLS estimates by correcting for the bias terms, with confidence regions overlapping the true values.\footnote{
+The point estimates of the control function do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations, as in \autoref{fig:cm-boot-dist}).
+The control function approach improves on OLS estimates by correcting for bias, with confidence regions overlapping the true values.\footnote{
     The code behind this simulation estimates the first-stage with an interacted OLS specification, and splines included for the continuous regressor $\vec X_i^-$.
-    The second-stage is an OLS specification, including the (pre-estimated) control function with a spline specification.
+    The second-stage is an OLS specification, including the control function with a spline specification.
 }$^,$\footnote{
     In the appendix, \autoref{fig:sigma-bias} shows the same simulation while varying $\sigma_1$, with fixed $\sigma_0 = 1, \rho = 0.5$.
     The conclusion is the same as for varying the correlation coefficient, $\rho$, in \autoref{fig:rho-bias}.

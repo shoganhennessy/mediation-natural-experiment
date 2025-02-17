@@ -6,7 +6,7 @@ Second, I show how selection bias operates in an applied model for selection int
 \subsection{Regression Framework}
 \label{sec:regression}
 Inference for CM effects can be written in a regression framework, showing how correlation between the error term and the mediator persistently biases estimates.
-Write $Y_i(Z, D)$ as a sum of observed factors $Z_i, \vec X_i$ and unobserved factors, $U_{1,i}, U_{0,i}$ (following the notation of \citealt{heckman2005structural}).
+Write potential outcomes $Y_i(., .)$ as a sum of observed factors $Z_i, \vec X_i$ and unobserved factors, $U_{1,i}, U_{0,i}$ (following the notation of \citealt{heckman2005structural}).
 For $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec X}$, to give a representation of the ADE and AIE.
 \begin{align*}
     \text{ADE}
@@ -32,7 +32,7 @@ With this notation, observed data $Z_i, D_i, Y_i$ take the following representat
 \end{align}
 First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \varphi(\vec X_i)$ the intercept, and $\pi$ the first-stage compliance rate (which may depend on $\vec X_i$).
 Second-stage \eqref{eqn:parametric-secondstage} is not identified thanks to omitted variables bias.
-$\alpha + \zeta(\vec X_i)$ is the intercept term, and $\beta, \gamma, \delta$ are values that comprise mediation effects --- all whose value may depend on $\vec X_i$ (see \autoref{appendix:regression-model} for full definitions).
+$\alpha + \zeta(\vec X_i)$ is the intercept term, and $\beta, \gamma, \delta$ are values that comprise mediation effects --- all whose value may depend on $\vec X_i$, see \autoref{appendix:regression-model} for full definitions.
 $\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}$ is the possibly correlated error term, which disrupts identification.
 The ADE and AIE are averages of these coefficients.\footnote{
     The AIE, in fact, refers only to treatment gains among $D_i(z)$ compliers, so includes a group differences term, $\pi \times\Egiven{
@@ -58,13 +58,14 @@ A separate identification strategy for $D_i$ could disrupt the Roy selection bas
 Without it, bias will persist, given how we conventionally think of selection into treatment.
 
 Consider a model where individual $i$ selects into a mediator based on costs and benefits, after $Z_i, \vec X_i$ have been assigned.
+In a natural experiment setting, an external factor has disrupted individuals selecting $Z_i$ by choice (thus $Z_i$ is ignorable), but it has not disrupted the choice to take mediator (thus $D_i$ is not ignorable).
 Write $C_i$ for individual $i$'s costs of taking mediator $D_i$, and $\indicator{.}$ for the indicator function.
-The Roy model has $i$ taking the mediator if the benefits exceed the costs
+The Roy model has $i$ taking the mediator if the benefits exceed the costs,
 \begin{equation}
     \label{eqn:roy-model}
     D_i \left( z' \right) = \indicator{
     \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
-    \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1
+    \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1.
 \end{equation}
 The Roy model provides a robust and intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome observed \citep{roy1951some,heckman1990empirical}.
 If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking education, then it models an individual choice to attend more education in terms of gaining a higher income compared to the costs.\footnote{
@@ -75,28 +76,19 @@ This makes it particularly useful as a base case for CM, where selection into th
 % Additionally, the Roy model aligns well with many real-world settings, such as education or labour market participation, where decisions are based on a comparison of expected outcomes across alternatives. 
 By using the Roy model as a benchmark, I explore the practical limits of the mediator ignorability assumption.
 
-Decompose the costs into its mean and unobserved error, as above $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, and collect the mean benefits, $\mu \coloneqq \mu_1 - \mu_0$.
+Decompose the costs into its mean and unobserved error, as above $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, to give a representaion of Roy selection in terms of observed and unobserved factors,
 \[ D_i(z') = \indicator{
-    \mu(z'; \vec X_i) - \mu_C(z'; \vec X_i) \geq U_{C,i} - U_i }
-        , \;\;\; \text{for } z'=0,1 \]
-%\textbf{Senan Note:} beef up this part:
-% Suppose U_0, U_1 are not degenerate (Z_i, X_i do not perfectly predict Y_i(Z_i, .)), and mediator selection is based on costs and benefits (Roy model).
-% Then D_i is not ignorable.
+    \mu_1(z'; \vec X_i) - \mu_0(z'; \vec X_i) - \mu_C(z'; \vec X_i)
+    \geq U_{C,i} - \left(U_{1,i} - U_{0,i}\right) }
+        , \;\;\; \text{for } z'=0,1. \]
 
 If selection is Roy style, and the mediator is ignorable, then unobserved benefits play no part in selection.
 The only driver in differences in selection are differences in costs (and not benefits).
 If there are any unobserved benefits for selection into $D_i$ unobserved to the researcher, then sequential ignorability cannot hold.
-%\[ \Egiven{ D_i(z') }{ U_i = u} = \Egiven{ D_i(z') }{ U_i = u'} \]
-%For all $u', u$ in the range of the distribution of $U_i = U_{1,i} - U_{0,i}$.
-%This could, for example, hold if $U_{0,i}, U_{1,i}$ are degenerate conditional on $\vec X_i$.\footnote{
-%    This statement holds by a simple proof by contradiction: suppose there are $u', u$ such that the statement does not hold, then $D_i$ cannot be ignorable.
-%}
 \begin{definition}
     \label{def:roy-seq-ig}
     Suppose mediator selection follows a Roy model \eqref{eqn:roy-model}, and selection is not fully explained by costs and observed gains.
     Then sequential ignorability does not hold.
-    %\[ D_i \not\!\perp\!\!\!\perp Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z', 
-        %\textnormal{ for } z', d = 0, 1 \]
 \end{definition}
 If there are any unobserved sources of gains, then sequential ignorability does not hold.
 This is an equivalence statement: selection based on costs and benefits is only consistent with mediator ignorability if the researcher observed every single source of mediator benefits.

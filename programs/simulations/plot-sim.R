@@ -234,30 +234,30 @@ rho_directeffect_bias.plot <- rho.data %>%
     geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
         fill = colour.list[1], alpha = 0.2) +
     annotate("text", colour = colour.list[1],
-        x = 0.375, y = 0.2,
+        x = 0.15, y = 0.2,
         fontface = "bold",
         label = ("OLS"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.25, y = 0.25,
-        xend = 0.0125, yend = 0.5,
+        x = 0.3, y = 0.25,
+        xend = 0.5, yend = 0.5,
         linewidth = 0.75,
-        curvature = -0.25,
+        curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # CF est + 95 % CI
     geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     annotate("text", colour = colour.list[2],
-        x = -0.5, y = 0.875,
+        x = -0.5, y = 2.00,
         fontface = "bold",
         label = ("Control function"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[2],
-        x = -0.375, y = 1,
-        xend = -0.25, yend = 1.3,
+        x = -0.375, y = 1.95,
+        xend = -0.25, yend = 1.55,
         linewidth = 0.75,
-        curvature = 0.25,
+        curvature = -0.125,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth:
     geom_line(aes(y = (truth_direct_effect)),

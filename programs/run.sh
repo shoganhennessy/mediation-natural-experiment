@@ -16,10 +16,11 @@ R CMD BATCH --no-save plot-sim.R
 cd ..
 
 ## Compile the paper.
+cd text
 
 # Adjust DOIs in each bib entry, by my custom tool,
 # and point to the cleaned bib file in my working paper.
-cd text/sections
+cd sections
 ~/venv/bin/python3 ~/Dropbox/latex-templates/bib-edit.py 07-bibliography.bib
 bibOld="bibliography.bib"
 bibNew="bibliography-doi.bib"
