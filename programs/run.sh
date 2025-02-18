@@ -35,3 +35,6 @@ cp paper.pdf ../mediation-natural-experiment-2025.pdf
 # Put the bib file back to how it was.
 sed -i -e "s/$bibNew/$bibOld/g" paper.tex
 cd ..
+# Declare a version of the (30min) presentation.
+cd presentation 
+cp presentation.pdf ../presentation-2025.pdf

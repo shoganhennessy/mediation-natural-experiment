@@ -6,11 +6,13 @@ Second, I show how selection bias operates in an applied model for selection int
 \subsection{Regression Framework}
 \label{sec:regression}
 Inference for CM effects can be written in a regression framework, showing how correlation between the error term and the mediator persistently biases estimates.
-Write potential outcomes $Y_i(., .)$ as a sum of observed factors $Z_i, \vec X_i$ and unobserved factors, $U_{1,i}, U_{0,i}$ (following the notation of \citealt{heckman2005structural}).
 
-For each $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec X}$, and define the corresponding error terms,
-\[ U_{0,i} = Y_i(Z_i, 0) - \mu_0(Z_i; \vec X_i),\;\;\;\;
-U_{1,i} = Y_i(Z_i, 1) - \mu_1(Z_i; \vec X_i). \]
+Start by writing potential outcomes $Y_i(., .)$ as a sum of observed and unobserved factors, following the notation of \cite{heckman2005structural}.
+For each $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X) = \Egiven{Y_i(z', d')}{\vec X}$ and the corresponding error terms, $U_{d', i} = Y_i(z', d') - \mu_{d'}(z'; \vec X)$, so we have the following expressions:
+\[ Y_i(Z_i, 0)
+        = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
+    Y_i(Z_i, 1)
+        = \mu_{1}(Z_i; \vec X_i) + U_{1,i}. \]
 In these terms, the ADE and AIE are represented as follows,
 \begin{align*}
     \text{ADE}
