@@ -7,20 +7,21 @@ Second, I show how selection bias operates in an applied model for selection int
 \label{sec:regression}
 Inference for CM effects can be written in a regression framework, showing how correlation between the error term and the mediator persistently biases estimates.
 Write potential outcomes $Y_i(., .)$ as a sum of observed factors $Z_i, \vec X_i$ and unobserved factors, $U_{1,i}, U_{0,i}$ (following the notation of \citealt{heckman2005structural}).
-For $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec X}$, to give a representation of the ADE and AIE.
+
+For each $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec X}$, and define the corresponding error terms,
+\[ U_{0,i} = Y_i(Z_i, 0) - \mu_0(Z_i; \vec X_i),\;\;\;\;
+U_{1,i} = Y_i(Z_i, 1) - \mu_1(Z_i; \vec X_i). \]
+In these terms, the ADE and AIE are represented as follows,
 \begin{align*}
     \text{ADE}
     = \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
     &= \E{ \mu_{D_i}(1; \vec X_i) - \mu_{D_i}(0; \vec X_i)}, \\
-    \text{AIE}    
+    \text{AIE}
     = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
         &= \E{\Big( D_i(1) - D_i(0) \Big)
-        \times \Big( \mu_1(Z_i; \vec X_i) - \mu_0(Z_i; \vec X_i) \Big) }.
+        \times \Big( \mu_1(Z_i; \vec X_i) - \mu_0(Z_i; \vec X_i) + U_{1,i} - U_{0,i}\Big) }.
 \end{align*}
-Then define the error terms.
-\[ U_{0,i} = Y_i(Z_i, 0) - \mu_0(Z_i; \vec X_i),\;\;\;\;
-U_{1,i} = Y_i(Z_i, 1) - \mu_1(Z_i; \vec X_i) \]
-With this notation, observed data $Z_i, D_i, Y_i$ take the following representation, which characterises direct effects, indirect effects, and selection bias.
+With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following regression equations --- which characterise direct effects, indirect effects, and selection bias.
 \begin{align}
     \label{eqn:parametric-firststage}
     D_i &= \phi + \pi Z_i + \varphi(\vec X_i) + \eta_i  \\
@@ -38,7 +39,7 @@ The ADE and AIE are averages of these coefficients.\footnote{
     The AIE, in fact, refers only to treatment gains among $D_i(z)$ compliers, so includes a group differences term, $\pi \times\Egiven{
             D_i U_{1,i} - \left(1 - D_i \right)U_{0,i}
         }{\vec X_i, D_i(1) = 1, D_i(0) = 0} $.
-    The formula above skips this part, which would equal zero if there constant treatment effects (for example), keeping with regression notation.
+    The formula above skips this part, which would equal zero if there are constant treatment effects (for example), to keep with regression notation.
 }
 \begin{align*}
     \text{ADE}
@@ -50,7 +51,7 @@ The ADE and AIE are averages of these coefficients.\footnote{
 \end{align*}
 By construction, $\left(U_{0, i}, U_{1, i} \right)$ is an unobserved confounder.
 The regression estimates of second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  \left(U_{0, i}, U_{1, i} \right)$.
-If not, then regression estimates suffer from omitted variables bias if they do not adjust for the unobserved confounder $\left(U_{0, i}, U_{1, i} \right)$.
+If not, then regression estimates suffer from omitted variables bias from failing to adjust for the unobserved confounder $\left(U_{0, i}, U_{1, i} \right)$.
 
 \subsection{Selection on Costs and Benefits}
 CM is at risk of bias because $D_i \indep  \left(U_{0, i}, U_{1, i} \right)$ is unlikely to hold in applied settings.
@@ -67,7 +68,7 @@ The Roy model has $i$ taking the mediator if the benefits exceed the costs,
     \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
     \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1.
 \end{equation}
-The Roy model provides a robust and intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome observed \citep{roy1951some,heckman1990empirical}.
+The Roy model provides an intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome observed \citep{roy1951some,heckman1990empirical}.
 If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking education, then it models an individual choice to attend more education in terms of gaining a higher income compared to the costs.\footnote{
     If the choice is made for a sum of outcomes, then a simple extension to a utility maximisation model maintains the same framework.
     See \cite{heckman1990empirical} for this approach.

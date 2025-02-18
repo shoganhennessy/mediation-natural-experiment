@@ -1,0 +1,142 @@
+\documentclass[dvipsnames,handout]{beamer} % Use handout option to remove pauses.
+\usetheme{default}
+\usefonttheme{structurebold}
+\usepackage[UKenglish,cleanlook]{isodate}                                  % Set default date and date display
+\usepackage[T1]{fontenc}
+% Slide title background color
+\definecolor{background}{HTML}{ede6d8}
+% Slide title text color
+\definecolor{titleText}{HTML}{B40404}
+% Add slide numbers in bottom right corner
+\defbeamertemplate{headline}{my header}{
+    \vskip1pt
+    \makebox[0pt][l]{\,\insertsection}
+    \hspace*{\fill}\insertshorttitle\hspace*{\fill}
+    \llap{\insertframenumber\,/\,\inserttotalframenumber\,}
+}
+\setbeamertemplate{headline}[my header]
+% Add name at the bottom
+\setbeamercolor{footlinecolor}{fg=black,bg=background}
+\defbeamertemplate{footline}{my footer}{%
+    \begin{beamercolorbox}[wd=\paperwidth,leftskip=0.25cm,rightskip=0.25cm]{footlinecolor}
+    \hfill
+    \insertshortauthor
+    \end{beamercolorbox}
+}
+\setbeamertemplate{footline}[my footer]
+\setbeamertemplate{navigation symbols}[default]
+\usepackage{graphicx}
+% Set font sizes for frame title and subtitle
+\setbeamerfont{frametitle}{size=\fontsize{15}{16}}
+\setbeamerfont{framesubtitle}{size=\small}
+% Set left and right text margins
+\setbeamersize{text margin left=5mm, text margin right=5mm}
+\usepackage{booktabs,multirow}
+\usepackage{subcaption}   % Sub figures.
+\usepackage{tikz}
+\usetikzlibrary{shapes,decorations,decorations.pathreplacing,arrows,calc,arrows.meta,fit,positioning}
+\tikzset{
+    auto,node distance =1 cm and 1 cm,semithick,
+    state/.style ={ellipse, draw, minimum width = 0.7 cm},
+    point/.style = {circle, draw, inner sep=0.04cm,fill,node contents={}},
+    bidirected/.style={Latex-Latex,dashed},
+    el/.style = {inner sep=2pt, align=left, sloped}
+}
+\usepackage{mathtools}                                                     % Various maths functions
+\usepackage{amssymb}                                                       % Various maths functions
+\usepackage{amsmath}                                                       % Various maths functions
+\usepackage{dsfont}                                                        % Various maths functions
+\usepackage{centernot}                                                     % center \not usage
+\usepackage{siunitx} \sisetup{round-mode=places, round-precision=3}        % Formalise use of units and numbers among text
+\usepackage[normalem]{ulem} % Strike-through package
+\renewcommand{\vec}[1]{\boldsymbol{\mathit{#1}}}                           % vector notation shortcut
+\newcommand{\mat}[1]{\boldsymbol{\mathit{#1}}}                             % matrix notation shortcut
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}                                % absolute value notation shortcut
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}                               % norm notation shortcut
+\newcommand{\Prob}[1]{\Pr\left( #1 \right)}                         % SHortcut for probability notation
+\newcommand{\Probgiven}[2]{\Pr\left( #1 \, \middle\vert \, #2 \right)} % SHortcut for probability notation, given
+\newcommand{\E}[2][]{\mathbb{E}_{#1} \left[ #2 \right]}                    % Expectation (with optional subscript) shortcut
+\newcommand{\Egiven}[3][]{\mathbb{E}_{#1} \left[ #2 \, \middle\vert \, #3 \right]} % Expectation given (with optional subscript) shortcut
+\newcommand{\Var}[2][]{\text{Var}_{#1} \left( #2 \right)}                  % Variation (with optional subscript) shortcut
+\newcommand{\Cov}[1]{\text{Cov} \left( #1 \right)}                         % Covariance (with optional subscript) shortcut
+\newcommand{\indicator}[1]{\mathds{1}\left\{ #1 \right\}}                  % SHortcut for indicator function
+\newcommand{\diff}[2][]{\frac{d#1}{d#2}}                                   % SHortcut for differential fraction as a function
+\newcommand{\partialdiff}[2][]{\frac{\partial#1}{\partial#2}}              % SHortcut for partial differential fraction as a function
+\renewcommand{\hat}[1]{\widehat{#1}}                                       % Default estimator notation is widehat
+\renewcommand{\bar}[1]{\overline{#1}}                                      % Make over bar look nicer
+\renewcommand{\tilde}[1]{\widetilde{#1}}                                   % Make over tilde look better
+% Citations
+\usepackage{natbib}                                        % Citation package, see https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management#Natbib
+\usepackage{hyperref}                                        % Allow for links across the text, with colour options
+\usepackage{setspace}    
+\usepackage{soul,color,xcolor} % Text highlighting
+\makeatletter
+\let\HL\hl
+\renewcommand\hl{%
+    \let\set@color\beamerorig@set@color
+    \let\reset@color\beamerorig@reset@color
+    \HL}
+\makeatother
+\newcommand{\mathcolorbox}[2]{\colorbox{#1}{$\displaystyle #2$}}
+% Set colors
+\setbeamercolor{block title}{use=structure,fg=white,bg=structure.fg!75!black}
+\setbeamercolor{block body}{parent=normal text,use=block title,bg=block title.bg!10!bg}
+\setbeamercovered{transparent}
+\setbeamercolor{postit}{fg=black, bg=yellow}
+\setbeamercolor{frametitle}{bg=background, fg=titleText}
+\setbeamercolor{subtitle}{fg=titleText}
+% Command to align text
+\renewcommand{\raggedright}{\leftskip=0pt \rightskip=0pt plus 0cm}
+
+%-------------------------------------------------------------------------------
+% Title Page
+%-------------------------------------------------------------------------------
+\title{\color{titleText}
+    Causal Mediation in Natural Experiments
+}
+\author[Senan Hogan-Hennessy, Cornell University]{
+    Senan Hogan-Hennessy \\
+    Economics Department, Cornell University \\ %\vspace{0.5cm}
+    \href{mailto:seh325@cornell.edu}{\textcolor{blue}{seh325@cornell.edu}}
+}
+\date{} % Date, can be changed to a custom date
+
+%-------------------------------------------------------------------------------
+% Opening Slides
+\begin{document}
+% Justify text through-out.
+\raggedright
+%-------------------------------------------------------------------------------
+%% Title page
+\begin{frame}[noframenumbering, plain]
+    % Print the title page as the first slide
+    \titlepage
+    \vspace{-1.5cm}
+    \begin{center}
+        \includegraphics[width=2cm]{presentation-files/cornell}
+
+        \vspace{0.5cm}
+        Labour Work in Progress Seminar \\
+        6 March 2025
+    \end{center}
+\end{frame}
+
+%-------------------------------------------------------------------------------
+% Plan
+\begin{frame}[noframenumbering, plain]
+    \frametitle{Plan}
+    \begin{enumerate}
+        \item Start with explaining natural experiment, good for ATE $Z \to Y$.
+        COnsider the Oregon health insureance experiment, or Vietnam draft instrument.
+        \item Does not illuminate how these causal effects came about.
+        \item You may have read epidemiology, medicine, or psychology and wondered what these claims are ``mediated through.''
+        \item These are mediation effect estimates, and they estimate ``how much of the ATE goes through this channel?  How much is left-over?''
+        \item Leads to my introduction page. 
+    \end{enumerate}
+\end{frame}
+
+%-------------------------------------------------------------------------------
+% Introduction.
+\section{Introduction}
+%-------------------------------------------------------------------------------
+\end{document}
