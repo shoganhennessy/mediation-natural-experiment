@@ -22,7 +22,7 @@ Assume $Z_i$ is ignorable.\footnote{
     This assumption can hold conditional on covariates.
     To simplify notation in this section, leave the conditional part unsaid, as it changes no part of the identification framework.
 }
-\[ Z_i \indep  D_i(z), Y_i(z', d), \textnormal{ for } z, z', d = 0, 1 \]
+\[ Z_i \indep  D_i(z), Y_i(z', d), \text{ for } z, z', d = 0, 1 \]
 
 There are only two average effects which are identified (without additional assumptions).
 \begin{enumerate}
@@ -33,10 +33,31 @@ There are only two average effects which are identified (without additional assu
     I assume monotonicity (and its conditional variant) holds through-out to simplify notation.\footnote{
         Assuming monotonicity also brings closer to the IV notation, and has other beneficial implications in this setting (see \autoref{sec:controlfun}).
     }
-    \item The Average Total Effect (ATE) refers to the effect of the treatment on outcome, $Z \to Y$, and is also known as the intent-to-treat effect in experimental settings, or reduced-form effect in the instrumental variables literature:
+    \item The Average Total Effect (ATE) refers to the effect of the treatment on outcome, $Z \to Y$, and is also known as the average treatment effect or intent-to-treat effect in social science settings, or reduced-form effect in the instrumental variables literature:
     \[ \Egiven{Y_i}{Z_i = 1} - \Egiven{Y_i}{Z_i = 0}
         = \E{Y_i(1, D_i(1)) - Y_i(0, D_i(0))}. \]
 \end{enumerate}
+
+$Z$ affects outcome $Y$ directly, and indirectly via the $D(Z)$ channel, with no reverse causality.
+\autoref{fig:scm-model} visualises the design, where the direction arrows denote the causal direction.
+CM aims to decompose the ATE of $Z \to Y$ into these two separate pathways:
+\begin{align*}
+    \text{Average Direct Effect (ADE), } Z \to Y: \;\;\;&
+        \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}, \\
+    \text{Average Indirect Effect (AIE), } D(Z) \to Y: \;\;\;&
+            \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}.
+\end{align*}
+Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
+If a researcher is studying the income effect of a man being randomly drafted into the US military, and is interested in military service as the mediator, the AIE represents how much of the effect comes from military service \citep{angrist1990lifetime}.
+Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
+    In a non-parametric setting it is not necessary that the ADE and AIE sum to the ATE.
+    See \cite{imai2010identification} for this point in full.
+}
+For the military draft example, how much of the effect of random conscription is a direct effect, other than military service --- e.g., from actions to dodge the draft?
+An instrumental variables approach is a setting where this direct effect is assumed to be zero for everyone --- that the draft had no other effects (i.e., the exclusion restriction).
+CM is a different framework attempting to explicitly model the direct effect, not assuming the ADE is zero.
+
+The ADE and AIE are not separately identified without further assumptions.
 
 \begin{figure}[h!]
     \centering
@@ -63,7 +84,7 @@ There are only two average effects which are identified (without additional assu
         %\node[state,RoyalPurple] (confounderX) [above=1.5cm of treatment] {$\vec{X}$};
         %\path[->,RoyalPurple] (confounderX) edge (treatment);
         %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
-        \node[state,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$U$};
+        \node[state,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
         \path[->,dashed,color=RoyalBlue] (confounderU) edge (treatment);
         \path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
         %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
@@ -71,31 +92,11 @@ There are only two average effects which are identified (without additional assu
     \justify
     \footnotesize
     \textbf{Note}:
-    This figures shows the structural causal model behind causal mediation.
-    LAIE refers to the AIE (i.e., effect of the mediator $D \to Y$) local to $D_i(Z_i)$ compliers, so that AIE $=$ average first-stage $\times$ LAIE.
-    Unobserved confounder $U$ represents this paper's focus on the case that $D_i$ is not ignorable, by showing an unobserved confounder.
-    \autoref{sec:regression} formally defines $U$ in an applied setting.
+    This figure shows the structural causal model behind causal mediation.
+    LAIE refers to the AIE (i.e., effect of the mediator $D \to Y$) local to $D(Z)$ compliers, so that AIE $=$ average first-stage $\times$ LAIE.
+    Unobserved confounder $\vec U$ represents this paper's focus on the case that $D$ is not ignorable, by showing an unobserved confounder.
+    \autoref{sec:regression} formally defines $\vec U$ in an applied setting.
 \end{figure}
-
-$Z_i$ affects outcome $Y_i$ directly, and indirectly via the $D_i(Z_i)$ channel, with no reverse causality.
-\autoref{fig:scm-model} visualises the design, where the direction arrows denote the causal direction.
-CM aims to decompose the ATE of $Z \to Y$ into these two separate pathways:
-\begin{align*}
-    \text{Average Direct Effect (ADE), } Z \to Y: \;\;\;&
-        \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}, \\
-    \text{Average Indirect Effect (AIE), } D(Z) \to Y: \;\;\;&
-            \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} .
-\end{align*}
-Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
-If a researcher is studying the income effect of a man being randomly drafted into the US military, and is interested in military service as the mediator, the AIE represents how much of the effect comes from military service \citep{angrist1990lifetime}.
-Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
-    In a non-parametric setting it is not necessary that the ADE and AIE sum to the ATE.
-    See \cite{imai2010identification} for this point in full.
-}
-For the military draft example, how much of the effect of random conscription is a direct effect, other than military service --- e.g., from actions to dodge the draft?
-In an instrumental variables application, this direct effect is assumed to be zero for everyone --- that the draft had no other effects (i.e., the exclusion restriction).
-CM is a different framework attempting to explicitly model the direct effect, not assuming the ADE is zero.
-The ADE and AIE are not separately identified without further assumptions.
 
 \subsection{Identifying Causal Mediation (CM) Effects}
 The conventional approach to estimating direct and indirect effects assumes both $Z_i$ and $D_i$ are ignorable, conditional on a set of control variables $\vec X_i$.
@@ -144,7 +145,7 @@ These estimands are typically estimated with linear models, with resulting estim
 While this is the most common approach in the applied literature, I do not assume the linear model.
 % of this problem as it assumes homogenous treatment effects and linear confounding.
 Linearity assumptions are unnecessary to my analysis; it suffices to note that heterogeneous treatment effects and non-linear confounding would bias OLS estimates of CM estimands in the same manner that is well documented elsewhere (see e.g., \citealt{angrist1998estimating,sloczynski2022interpreting}).
-This section focuses on problems that plague CM in practice, regardless of estimation method.
+This section focuses on problems that plague CM by selection-on-observables, regardless of estimation method.
 % As such, I focus my work on non-parametric identification, and employ semi- and non-parametric estimation methods in my empirical analysis  whenever possible to avoid these problems.
 
 \subsection{Bias in Causal Mediation (CM) Estimates}
