@@ -53,7 +53,7 @@ Estimating the ADE answers the following equation: how much is left over after a
     In a non-parametric setting it is not necessary that the ADE and AIE sum to the ATE.
     See \cite{imai2010identification} for this point in full.
 }
-For the military draft example, how much of the effect of random conscription is a direct effect, other than military service --- e.g., from actions to dodge the draft?
+For the military draft example, how much of the effect of random conscription is a direct effect, other than military service --- e.g., from an education/child deferment to dodge the draft?
 An instrumental variables approach is a setting where this direct effect is assumed to be zero for everyone --- that the draft had no other effects (i.e., the exclusion restriction).
 CM is a different framework attempting to explicitly model the direct effect, not assuming the ADE is zero.
 
@@ -65,11 +65,11 @@ The ADE and AIE are not separately identified without further assumptions.
     \caption{Structural Causal Model for Causal Mediation.}
     \label{fig:scm-model}
     \begin{tikzpicture}
-        \node[state,ForestGreen] (mediator) at (0,0) {$D$};
-        \node[state,blue] (treatment) [left=2.5cm of mediator] {$Z$};
-        \node[state,red] (outcome) [right=2.5cm of mediator] {$Y$};
+        \node[state,thick,ForestGreen] (mediator) at (0,0) {$D$};
+        \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z$};
+        \node[state,thick,red] (outcome) [right=2.5cm of mediator] {$Y$};
         % Label Z, D, Y
-        \node[color=ForestGreen] [above=0.1cm of mediator] (mediator) {Mediator};
+        \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
         \node[color=blue] [left=0.1cm of treatment] {Treatment};
         \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
         % Draw the causal arrows
@@ -84,7 +84,7 @@ The ADE and AIE are not separately identified without further assumptions.
         %\node[state,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
         %\path[->,RoyalPurple] (confounderX) edge (mediator);
         %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
-        \node[state,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
+        \node[state,thick,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
         \path[->,dashed,color=RoyalBlue] (confounderU) edge (mediator);
         \path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
         %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};

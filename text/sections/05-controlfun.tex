@@ -11,7 +11,7 @@ The control function method takes this insight seriously, providing conditions t
     This section does not improve on the control function approach, instead only noting its utility to solve the identification problem of CM in a natural experiment setting.
 }
 
-Write $K_i$ for the expected values in predicting the mediator with observed controls $\vec X_i$.
+Write $K_i$ for the expected values in predicting the mediator with observed data $Z_i, \vec X_i$.
 %Then take the two components of $K_i$ into $K_{0 ,i}, K_{1,i}$, corresponding to whether $i$ refuses or takes the mediator, respectively.
 \begin{align*}
     K_i &= D_i - \Egiven{D_i}{Z_i, \vec X_i}
@@ -28,15 +28,18 @@ denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as th
         \label{eqn:firststage-monotonicity}
         &\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1 \\
         \label{eqn:controlfun-ident}
-        &D_i \indep Y_i(.,.) \; | \; \vec X_i^-, K_i \\
+        &D_i \indep Y_i(.,.) \; \Big| \; \vec X_i^-, K_i \\
         \label{eqn:controlfun-iv}
-        &\vec X_i^{\text{IV}} \text{ has the property }
-        \partialdiff[\mu(\vec X_i)]{\vec X_i^{\text{IV}}} = 0 < \partialdiff[D_i(z')]{\vec X_i^{\text{IV}}}, \textnormal{ for } z' = 0, 1.
+        &\vec X_i^{\text{IV}} \textnormal{ satisfies }
+        \partialdiff{\vec X_i^{\text{IV}}}\left[
+            \mu_1(\vec X_i) - \mu_0(\vec X_i)\right] = 0
+            < \partialdiff{\vec X_i^{\text{IV}}}\Egiven{D_i(z')}{\vec X_i},
+            \textnormal{ for } z' = 0, 1.
     \end{align}
 \end{definition}
 Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} is the (conditional) monotonicity assumption \citep{imbens1994identification}, which is untestable but acceptable in many empirical applications.
-Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-ident} is the control function, which is assuming that first-stage unobserved heterogeneity explains second-stage selection into $D_i$.
-Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} is assuming that an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu$), and has a non-zero influence on the mediator (i.e., strong first-stage).
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-ident} is the control function assumption, assuming that first-stage unobserved heterogeneity explains second-stage selection into $D_i$.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} is assuming that an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu_1-\mu_0$), and has a non-zero influence on the mediator (i.e., strong first-stage).
 The exclusion restriction is untestable, and must be guided by domain-specific knowledge; strength of the first-stage is testable, and must be justified with data by methods common in the instrumental variables literature.
 
 %Here, $K_i$ is equal to the conditional cumulative density function of $D_i$, $\Probgiven{D_i \leq d'}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}$ for $d' = 0,1$.
