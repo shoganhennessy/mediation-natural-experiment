@@ -11,34 +11,37 @@ The control function method takes this insight seriously, providing conditions t
     This section does not improve on the control function approach, instead only noting its utility to solve the identification problem of CM in a natural experiment setting.
 }
 
-Suppose the vector of control variables $\vec X_i$ has at least two entries;
+Write $K_i$ for the expected values in predicting the mediator with observed controls $\vec X_i$.
+%Then take the two components of $K_i$ into $K_{0 ,i}, K_{1,i}$, corresponding to whether $i$ refuses or takes the mediator, respectively.
+\begin{align*}
+    K_i &= D_i - \Egiven{D_i}{Z_i, \vec X_i}
+    %, \\
+    %K_i &= F_D \left( \bar D_i \mid Z_i, \vec X_i^{\text{IV}}, \vec X_i^- \right)
+    %K_{0,i} &= (1 - D_i) K_i, \;\;\; K_{1,i} = D_i K_i.
+\end{align*}
+Additionally, suppose the vector of control variables $\vec X_i$ has at least two entries;
 denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as the remaining rows.
 \begin{definition}
     \label{dfn:controlfun-assumptions}
     Control function assumptions.
     \begin{align}
         \label{eqn:firststage-monotonicity}
-        &\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1    \\
+        &\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1 \\
+        \label{eqn:controlfun-ident}
+        &D_i \indep Y_i(.,.) \; | \; \vec X_i^-, K_i \\
         \label{eqn:controlfun-iv}
         &\vec X_i^{\text{IV}} \text{ has the property }
         \partialdiff[\mu(\vec X_i)]{\vec X_i^{\text{IV}}} = 0 < \partialdiff[D_i(z')]{\vec X_i^{\text{IV}}}, \textnormal{ for } z' = 0, 1.
     \end{align}
 \end{definition}
 Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} is the (conditional) monotonicity assumption \citep{imbens1994identification}, which is untestable but acceptable in many empirical applications.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-ident} is the control function, which is assuming that first-stage unobserved heterogeneity explains second-stage selection into $D_i$.
 Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} is assuming that an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu$), and has a non-zero influence on the mediator (i.e., strong first-stage).
 The exclusion restriction is untestable, and must be guided by domain-specific knowledge; strength of the first-stage is testable, and must be justified with data by methods common in the instrumental variables literature.
 
-Write $K_i$ for the expected values in predicting the mediator with observed data, as a function of the instrument $\vec X_i^{\text{IV}}$ and remaining controls $\vec X_i^-$.
-%Then take the two components of $K_i$ into $K_{0 ,i}, K_{1,i}$, corresponding to whether $i$ refuses or takes the mediator, respectively.
-\begin{align*}
-    K_i &= D_i - \Egiven{D_i}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}
-    %, \\
-    %K_i &= F_D \left( \bar D_i \mid Z_i, \vec X_i^{\text{IV}}, \vec X_i^- \right)
-    %K_{0,i} &= (1 - D_i) K_i, \;\;\; K_{1,i} = D_i K_i.
-\end{align*}
 %Here, $K_i$ is equal to the conditional cumulative density function of $D_i$, $\Probgiven{D_i \leq d'}{Z_i, \vec X_i^{\text{IV}}, \vec X_i^-}$ for $d' = 0,1$.
 %Thus, $\left( K_{0 ,i}, K_{1,i}\right)$ serves as the control function in this setting.
-$K_{i}$ serves as the control function in this setting.
+$K_{i}$ serves as a control function in this setting.
 \begin{theorem}
     \label{thm:controlfun}
     If \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} and \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} hold, then the mean potential differences
@@ -67,11 +70,14 @@ $K_{i}$ serves as the control function in this setting.
     %; see \autoref{appendix:controlfun-proof}.
 \end{proof}
 
-Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} guarantees that mediator $D_i(.)$ can be represented by a selection model \citep{vytlacil2002independence}, and \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} pins down a control function to identify the selection model.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} guarantees that mediator can be represented by a selection model \citep{vytlacil2002independence}, $D_i(.) = \indicator{\bar\mu(.,;\vec X_i) \geq K_i}$ for some function $\bar\mu$.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-ident} connects the first- and second-stage for identification.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} separately identifies the control function to identify the second-stage model.
 The approach exploits the fact that the bias terms, coming from correlated the errors in \autoref{sec:regression}, can be estimated in a first-stage regression and included as controls in the second-stage.
 
 If the underlying selection model had been a Roy model, the control function approach captures the unobserved benefits to taking mediator (independent of observed controls), and thus driving take-up of the mediator.
-By incorporating the selection term derived from the first-stage model, the approach adjusts for the unobserved confounding from unobserved gains.
+In this case, $K_i = U_{C,i} - (U_{1,i} - U_{0,i})$, so the independence result is simple.
+By incorporating the control function from the first-stage model, the approach adjusts for the unobserved confounding from unobserved gains, $U_{1,i} - U_{0,i}$.
 By contrast, assuming the mediator was ignorable would have been assuming that there are no unobserved benefits to the mediator take-up, so that there is no bias in the second-stage to account for.
 
 The instrument is key to avoid distributional assumptions on the unobserved errors terms.

@@ -65,27 +65,27 @@ The ADE and AIE are not separately identified without further assumptions.
     \caption{Structural Causal Model for Causal Mediation.}
     \label{fig:scm-model}
     \begin{tikzpicture}
-        \node[state,ForestGreen] (treatment) at (0,0) {$D$};
-        \node[state,blue] (instrument) [left=2.5cm of treatment] {$Z$};
-        \node[state,red] (outcome) [right=2.5cm of treatment] {$Y$};
+        \node[state,ForestGreen] (mediator) at (0,0) {$D$};
+        \node[state,blue] (treatment) [left=2.5cm of mediator] {$Z$};
+        \node[state,red] (outcome) [right=2.5cm of mediator] {$Y$};
         % Label Z, D, Y
-        \node[color=ForestGreen] [above=0.1cm of treatment] (mediator) {Mediator};
-        \node[color=blue] [left=0.1cm of instrument] {Treatment};
+        \node[color=ForestGreen] [above=0.1cm of mediator] (mediator) {Mediator};
+        \node[color=blue] [left=0.1cm of treatment] {Treatment};
         \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
         % Draw the causal arrows
-        \path[->, thick] (instrument) edge (treatment);
-        \path[->, thick] (treatment) edge (outcome);
-        \path[->, thick] (instrument) edge[bend right=45] (outcome);
+        \path[->, thick] (treatment) edge (mediator);
+        \path[->, thick] (mediator) edge (outcome);
+        \path[->, thick] (treatment) edge[bend right=45] (outcome);
         % Label direct and indirect effect
-        \node[color=orange] [below left=-0.2cm and 0.2cm of treatment] {First-stage};
-        \node[color=orange] [below right=-0.2cm and 0.5cm of treatment] {LAIE};
-        \node[color=orange] [below=1.2cm of treatment] {ADE};
+        \node[color=orange] [below left=-0.2cm and 0.2cm of mediator] {First-stage};
+        \node[color=orange] [below right=-0.2cm and 0.5cm of mediator] {LAIE};
+        \node[color=orange] [below=1.2cm of mediator] {ADE};
         % Add in the confounders
-        %\node[state,RoyalPurple] (confounderX) [above=1.5cm of treatment] {$\vec{X}$};
-        %\path[->,RoyalPurple] (confounderX) edge (treatment);
+        %\node[state,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
+        %\path[->,RoyalPurple] (confounderX) edge (mediator);
         %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
         \node[state,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
-        \path[->,dashed,color=RoyalBlue] (confounderU) edge (treatment);
+        \path[->,dashed,color=RoyalBlue] (confounderU) edge (mediator);
         \path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
         %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
     \end{tikzpicture}

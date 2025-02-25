@@ -207,8 +207,8 @@
             \singlespacing
             \vspace{-0.5cm}
             \begin{tikzpicture}
-                \node[state,blue] (treatment) at (0,0) {$Z$};
-                \node[state,red] (outcome) [right=3.75cm of treatment] {$Y$};
+                \node[state, thick,blue] (treatment) at (0,0) {$Z$};
+                \node[state, thick,red] (outcome) [right=3.75cm of treatment] {$Y$};
                 \path[->, thick] (treatment) edge (outcome);
                 % Label the nodes with econ examples
                 \node[color=blue, left=0.1cm of treatment] {Treatment};
@@ -224,9 +224,9 @@
             \singlespacing
             \vspace{-0.5cm}
             \begin{tikzpicture}
-                \node[state,ForestGreen] (mediator) at (0,0) {$D$};
-                \node[state,blue] (treatment) [left=1.5cm of mediator] {$Z$};
-                \node[state,red] (outcome) [right=1.5cm of mediator] {$Y$};
+                \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+                \node[state, thick,blue] (treatment) [left=1.5cm of mediator] {$Z$};
+                \node[state, thick,red] (outcome) [right=1.5cm of mediator] {$Y$};
                 %\path[->,thick] (treatment) edge (mediator);
                 %\path[->,thick] (mediator) edge (outcome);
                 % Label the nodes with econ examples
@@ -236,9 +236,9 @@
                 % Add in direct + indirect effects.
                 %\path[->,thick] (treatment) edge[bend right=45] (outcome);
                 % Label the pathways with the colours
-                \path[->, very thick, color=ForestGreen] (treatment) edge (mediator);
-                \path[->, very thick, color=ForestGreen] (mediator) edge (outcome);
-                \path[->, very thick, color=blue] (treatment) edge[bend right=45] (outcome);
+                \path[->, thick] (treatment) edge (mediator);
+                \path[->, thick] (mediator) edge (outcome);
+                \path[->, thick] (treatment) edge[bend right=45] (outcome);
                 \node[color=MidnightBlue, below=0.75cm of mediator] {Average Direct Effect (ADE)};
             \end{tikzpicture}
         \end{figure}
@@ -264,9 +264,9 @@
             \hspace{0.25cm}
             \begin{subfigure}[c]{0.55\textwidth}
                 \begin{tikzpicture}
-                    \node[state,ForestGreen] (mediator) at (0,0) {$D$};
-                    \node[state,blue] (treatment) [left=1.25cm of mediator] {$Z$};
-                    \node[state,red] (outcome) [right=1.25cm of mediator] {$Y$};
+                    \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+                    \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
+                    \node[state, thick,red] (outcome) [right=1.25cm of mediator] {$Y$};
                     %\path[->,thick] (treatment) edge (mediator);
                     %\path[->,thick] (mediator) edge (outcome);
                     % Label the nodes with econ examples
@@ -276,9 +276,9 @@
                     % Add in direct + indirect effects.
                     %\path[->,thick] (treatment) edge[bend right=45] (outcome);
                     % Label the pathways with the colours
-                    \path[->, very thick, color=ForestGreen] (treatment) edge (mediator);
-                    \path[->, very thick, color=ForestGreen] (mediator) edge (outcome);
-                    \path[->, very thick, color=blue] (treatment) edge[bend right=35] (outcome);
+                    \path[->, thick] (treatment) edge (mediator);
+                    \path[->, thick] (mediator) edge (outcome);
+                    \path[->, thick] (treatment) edge[bend right=35] (outcome);
                     \node[color=MidnightBlue, below=0.5cm of mediator] {Draft avoidance (education deferment)};
                 \end{tikzpicture}
             \end{subfigure}
@@ -297,9 +297,9 @@
             \end{subfigure}
             \begin{subfigure}[c]{0.55\textwidth}
                 \begin{tikzpicture}
-                    \node[state,ForestGreen] (mediator) at (0,0) {$D$};
-                    \node[state,blue] (treatment) [left=1.25cm of mediator] {$Z$};
-                    \node[state,red] (outcome) [right=1.25cm of mediator] {$Y$};
+                    \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+                    \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
+                    \node[state, thick,red] (outcome) [right=1.25cm of mediator] {$Y$};
                     % Label the nodes with econ examples
                     \node[color=blue, above=0.1cm of treatment] {Medicaid};
                     \node[color=red, above=0.1cm of outcome] {Health};
@@ -307,9 +307,9 @@
                     % Add in direct + indirect effects.
                     %\path[->,thick] (treatment) edge[bend right=45] (outcome);
                     % Label the pathways with the colours
-                    \path[->, very thick, color=ForestGreen] (treatment) edge (mediator);
-                    \path[->, very thick, color=ForestGreen] (mediator) edge (outcome);
-                    \path[->, very thick, color=blue] (treatment) edge[bend right=35] (outcome);
+                    \path[->, thick] (treatment) edge (mediator);
+                    \path[->, thick] (mediator) edge (outcome);
+                    \path[->, thick] (treatment) edge[bend right=35] (outcome);
                     \node[color=MidnightBlue, below=0.5cm of mediator] {All else (e.g., less worry)};
                 \end{tikzpicture}
             \end{subfigure}
@@ -347,9 +347,9 @@
         \singlespacing
         \vspace{-1cm}
         \begin{tikzpicture}
-            \node[state,ForestGreen] (mediator) at (0,0) {$D$};
-            \node[state,blue] (treatment) [left=2cm of mediator] {$Z$};
-            \node[state,red] (outcome) [right=2cm of mediator] {$Y$};
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
             % Label Z, D, Y
             \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
             \node[color=blue] [left=0.1cm of treatment] {Treatment};
@@ -363,10 +363,10 @@
             \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
             \node[color=orange] [below=0.5cm of mediator] {ADE};
             % Add in the confounders
-            %\node[state,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
+            %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
             %\path[->,RoyalPurple] (confounderX) edge (mediator);
             %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
-            %\node[state,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
+            %\node[state, thick,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
             %\path[->,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             %\path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
             %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
@@ -400,9 +400,9 @@
         \centering
         \singlespacing
         \begin{tikzpicture}
-            \node[state,ForestGreen] (mediator) at (0,0) {$D$};
-            \node[state,blue] (treatment) [left=2cm of mediator] {$Z$};
-            \node[state,red] (outcome) [right=2cm of mediator] {$Y$};
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
             % Label Z, D, Y
             \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
             \node[color=blue] [left=0.1cm of treatment] {Treatment};
@@ -416,10 +416,10 @@
             \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
             \node[color=orange] [below=0.5cm of mediator] {ADE};
             % Add in the confounders
-            %\node[state,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
+            %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
             %\path[->,RoyalPurple] (confounderX) edge (mediator);
             %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
-            %\node[state,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
+            %\node[state, thick,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
             %\path[->,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             %\path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
             %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
@@ -527,9 +527,9 @@
         \end{subfigure}
         \begin{subfigure}[c]{0.55\textwidth}
             \begin{tikzpicture}
-                \node[state,ForestGreen] (mediator) at (0,0) {$D$};
-                \node[state,blue] (treatment) [left=1.25cm of mediator] {$Z$};
-                \node[state,red] (outcome) [right=1.25cm of mediator] {$Y$};
+                \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+                \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
+                \node[state, thick,red] (outcome) [right=1.25cm of mediator] {$Y$};
                 % Label the nodes with econ examples
                 \node[color=blue, above=0.1cm of treatment] {Medicaid};
                 \node[color=red, above=0.1cm of outcome] {Health};
@@ -537,9 +537,9 @@
                 % Add in direct + indirect effects.
                 %\path[->,thick] (treatment) edge[bend right=45] (outcome);
                 % Label the pathways with the colours
-                \path[->, very thick, color=ForestGreen] (treatment) edge (mediator);
-                \path[->, very thick, color=ForestGreen] (mediator) edge (outcome);
-                \path[->, very thick, color=blue] (treatment) edge[bend right=35] (outcome);
+                \path[->, thick] (treatment) edge (mediator);
+                \path[->, thick] (mediator) edge (outcome);
+                \path[->, thick] (treatment) edge[bend right=35] (outcome);
                 \node[color=MidnightBlue, below=0.5cm of mediator] {All else (e.g., less worry)};
             \end{tikzpicture}
         \end{subfigure}
@@ -563,9 +563,9 @@
         \end{subfigure}
         \begin{subfigure}[c]{0.55\textwidth}
             \begin{tikzpicture}
-                \node[state,ForestGreen] (mediator) at (0,0) {$D$};
-                \node[state,blue] (treatment) [left=1.25cm of mediator] {$Z$};
-                \node[state,red] (outcome) [right=1.25cm of mediator] {$Y$};
+                \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+                \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
+                \node[state, thick,red] (outcome) [right=1.25cm of mediator] {$Y$};
                 % Label the nodes with econ examples
                 \node[color=blue, above=0.1cm of treatment] {Medicaid};
                 \node[color=red, above=0.1cm of outcome] {Health};
@@ -573,9 +573,9 @@
                 % Add in direct + indirect effects.
                 %\path[->,thick] (treatment) edge[bend right=45] (outcome);
                 % Label the pathways with the colours
-                \path[->, very thick, color=ForestGreen] (treatment) edge (mediator);
-                \path[->, very thick, color=ForestGreen] (mediator) edge (outcome);
-                \path[->, very thick, color=blue] (treatment) edge[bend right=35] (outcome);
+                \path[->, thick] (treatment) edge (mediator);
+                \path[->, thick] (mediator) edge (outcome);
+                \path[->, thick] (treatment) edge[bend right=35] (outcome);
                 \node[color=MidnightBlue, below=0.5cm of mediator] {All else (e.g., less worry)};
             \end{tikzpicture}
         \end{subfigure}
@@ -605,9 +605,9 @@
         \end{subfigure}
         \begin{subfigure}[c]{0.55\textwidth}
             \begin{tikzpicture}
-                \node[state,ForestGreen] (mediator) at (0,0) {$D$};
-                \node[state,blue] (treatment) [left=1.25cm of mediator] {$Z$};
-                \node[state,red] (outcome) [right=1.25cm of mediator] {$Y$};
+                \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+                \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
+                \node[state, thick,red] (outcome) [right=1.25cm of mediator] {$Y$};
                 % Label the nodes with econ examples
                 \node[color=blue, above=0.1cm of treatment] {Medicaid};
                 \node[color=red, above=0.1cm of outcome] {Health};
@@ -615,9 +615,9 @@
                 % Add in direct + indirect effects.
                 %\path[->,thick] (treatment) edge[bend right=45] (outcome);
                 % Label the pathways with the colours
-                \path[->, very thick, color=ForestGreen] (treatment) edge (mediator);
-                \path[->, very thick, color=ForestGreen] (mediator) edge (outcome);
-                \path[->, very thick, color=blue] (treatment) edge[bend right=35] (outcome);
+                \path[->, thick] (treatment) edge (mediator);
+                \path[->, thick] (mediator) edge (outcome);
+                \path[->, thick] (treatment) edge[bend right=35] (outcome);
                 \node[color=MidnightBlue, below=0.5cm of mediator] {All else (e.g., less worry)};
             \end{tikzpicture}
         \end{subfigure}
@@ -643,17 +643,67 @@
         \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1.
     \]
     i.e., Roy (1951) selection into $D_i$.
+    \par\noindent\rule{\textwidth}{0.4pt}
     \vfill
-    \textbf{Theorem 1:}
+    \textbf{Theorem:}
     If selection is Roy-style, and benefits are not 100\% explained by $Z_i, \vec X_i$, then \textbf{SI} does not hold.
 
     \vskip0.125cm
-    \textbf{Proof outline:} suppose $D_i$ is ignorable $\implies$ selection-into-$D_i$ is explained 100\% by $\left\{ C_i, Z_i, \vec X_i \right\}$, while unobserved gains explain 0\%.
+    \textbf{Proof sketch:} suppose $D_i$ is ignorable $\implies$ selection-into-$D_i$ is explained 100\% by $\left\{ C_i, Z_i, \vec X_i \right\}$, while unobserved gains explain 0\%.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Direct \& Indirect Effects --- Selection} 
+    \colorbox{yellow}{\textbf{SI:}
+        Hospital usage is quasi-random, conditional on Medicaid assignment} \\
+    \colorbox{yellow}{$Z_i$ and demographics $\vec X_i$.}
+
+    \vskip0.25cm
+    Consider the case \textbf{individuals go to the hospital} to maximise health.
+    \[ D_i \left( z' \right) = \indicator{
+        \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
+        \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1.
+    \]
+    i.e., Roy (1951) selection into $D_i$.
+    \par\noindent\rule{\textwidth}{0.4pt}
+    $\implies$ unobserved confounder $\vec U$ \\
+    e.g., underlying health conditions.
+    \vskip-1.375cm
+    \begin{figure}[h!]
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2.5cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2.5cm of mediator] {$Y$};
+            % Label Z, D, Y
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Hospital Use};
+            \node[color=blue] [left=0.1cm of treatment] {Medicaid};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Health};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [below left=-0.2cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [below right=-0.2cm and 0.5cm of mediator] {LAIE};
+            \node[color=orange] [below=0.675cm of mediator] {ADE};
+            % Add in the confounders
+            %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
+            %\path[->,RoyalPurple] (confounderX) edge (mediator);
+            %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
+            \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
+                above=0.5cm of outcome] {$\vec U$};
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
+        \end{tikzpicture}
+    \end{figure}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection}
-    In practice, the only way to believe the \textbf{SI} selection-on-observables assumption is to study a case with another natural experiment for $D_i$ --- in addition to the one that guaranteed $Z_i$ is ignorable.
+    In practice, the only way to believe the \textbf{SI} assumption (selection-on-observables) is to study a case with another natural experiment for $D_i$ --- in addition to the one that guaranteed $Z_i$ is ignorable.
     \vskip-0.5cm
     \begin{figure}[h!]
         \centering
