@@ -283,7 +283,7 @@
                 \end{tikzpicture}
             \end{subfigure}
         \end{figure}
-        \textbf{Note:} instrumental variables assumes ADE$=0$ (exclusion restriction).
+        \textbf{Note:} instrumental variables assumes direct $=0$ (exclusion restriction).
         \vspace{0.125cm}
         \item Oregon health insurance experiment (Finkelstein$+$ 2009).
         \vspace{-0.4cm}
@@ -720,9 +720,31 @@
             \caption{People choosing healthcare
                 $\to$ \textbf{SI} not.}
             \includegraphics[width=\textwidth]{
-                presentation-files/headlines/science-lab.png}
+                presentation-files/headlines/health-differences.jpg}
         \end{subfigure}
     \end{figure}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Direct \& Indirect Effects --- Selection Bias}
+    \begin{itemize}
+        \item What happens if you go ahead and estimate CM anyway?
+        \item Would this be problematic?
+        \item Estimating causal effects with an unobserved confounder is usually quite bad$\hdots$.
+    \end{itemize}
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip0.25cm
+    \textbf{Definition:} Selection bias (Heckman Ichimura Smith Todd, 1998).
+    \vskip0.25cm
+    Estimating $Z \to Y$, if $Z$ not ignorable:
+    \begin{align*}
+        &\Egiven{ Y_i}{Z_i =1} - \Egiven{ Y_i}{Z_i =0} \\
+        &= \text{ATT} \\
+        &\;\;\;\; + \underbrace{\Big(
+            \Egiven{ Y_i(0,.)}{Z_i =1} - \Egiven{ Y_i(0,.)}{Z_i =0} \Big)}_{
+                \text{Selection Bias}}.
+    \end{align*}
+    \vskip1.125cm
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -730,8 +752,104 @@
     \begin{itemize}
         \item What happens if you go ahead and estimate CM anyway?
         \item Would this be problematic?
+        \item Estimating causal effects with an unobserved confounder is usually quite bad$\hdots$.
     \end{itemize}
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip0.25cm
+    \textbf{Definition:} Selection bias (Heckman Ichimura Smith Todd, 1998).
+    \vskip0.25cm
+    Estimating $Z \to Y$, if $Z$ not ignorable:
+    \begin{align*}
+        &\Egiven{ Y_i}{Z_i =1} - \Egiven{ Y_i}{Z_i =0} \\
+        &= \text{ATE} \\
+        &\;\;\;\; + \underbrace{\Big(
+            \Egiven{ Y_i(0,.)}{Z_i =1} - \Egiven{ Y_i(0,.)}{Z_i =0} \Big)}_{
+                \text{Selection Bias}} \\
+        &\;\;\;\;+ \underbrace{ \Prob{Z_i=0} (\text{ATT}- \text{ATU}) }_{
+            \text{Group-differences Bias}}.
+    \end{align*}
 \end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Direct \& Indirect Effects --- Selection Bias}
+    $\implies$ CM Effects have this same flavour, causal effects contaminated by (less interpretable) bias terms.
+    \[ \text{\textcolor{purple}{CM Estimand}}
+        = \text{\textcolor{blue}{ADE}}
+            + \Big(\text{\textcolor{red}{Selection Bias}}
+            + \text{\textcolor{orange}{Group difference bias}}\Big) \]
+    \vspace{-0.25cm}
+    {\footnotesize
+    \begin{align*}
+        & \underbrace{\mathbb E_{D_i} \Big[
+            \Egiven{Y_i}{Z_i = 1, D_i} - \Egiven{Y_i}{Z_i = 0, D_i} \Big]}_{
+                \text{\textcolor{purple}{Estimand, Direct Effect}} } \\
+        & = \underbrace{\E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}}_{
+            \text{\textcolor{blue}{Average Direct Effect}}} \\
+        & \;\;\;\; + \underbrace{ \mathbb E_{D_i} \Big[ 
+            \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d} 
+            - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d} \Big] }_{
+                \text{\textcolor{red}{Selection Bias}}} \\
+        & \;\;\;\; + \underbrace{ \E[D_i ]{
+            \begin{aligned}
+            &\Big(1 - \Prob{D_i(1) = d} \Big) \\
+            &\times \left( \begin{aligned}
+                &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1-d} \\ 
+                &  - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(0) = d}
+                \end{aligned} \right) \end{aligned}} }_{
+                    \text{\textcolor{orange}{Group difference bias}}}
+    \end{align*}}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Direct \& Indirect Effects --- Selection Bias}
+    $\implies$ CM Effects have this same flavour, causal effects contaminated by (less interpretable) bias terms.
+    Put $\pi = \Prob{D_i(1) = 1, D_i(0) = 0}$.
+    \[ \text{\textcolor{purple}{CM Estimand}}
+        = \text{\textcolor{ForestGreen}{AIE}}
+            + \Big(\text{\textcolor{red}{Selection Bias}}
+            + \text{\textcolor{orange}{Group difference bias}}\Big) \]
+    \vspace{-0.25cm}
+    {\footnotesize
+    \begin{align*}
+        & \underbrace{\E[Z_i]{
+            \Big( \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0} \Big) \times
+            \Big( \Egiven{Y_i}{Z_i, D_i = 1} - \Egiven{Y_i}{Z_i, D_i = 0} \Big) }}_{ \text{\textcolor{purple}{Estimand, Indirect Effect}} } \\
+        & = \underbrace{\E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}}_{
+            \text{\textcolor{ForestGreen}{Average Indirect Effect}} } \\
+        & \;\;\;\; + \underbrace{\pi  \Big(
+            \Egiven{Y_i(Z_i, 0)}{D_i = 1} - \Egiven{Y_i(Z_i, 0)}{D_i = 0} \Big)}_{
+                \text{\textcolor{red}{Selection Bias}}} \\
+        %& \;\;\;\; + \Prob{D_i(1) = 1, D_i(0) = 0} \times \\
+        %& \;\;\;\; \;\; \underbrace{ \left[ \begin{aligned}
+        & \;\;\;\; + \underbrace{ \pi \left[ \begin{aligned}
+            &\Big( 1 - \Prob{D_i=1} \Big)
+            \left( \begin{aligned}
+                &\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i = 1} \\ 
+                &  - \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i = 0}
+            \end{aligned} \right) \\
+            &+ \left( \frac{1 - \Prob{D_i(1) = 1, D_i(0) = 0} }{
+                \Prob{D_i(1) = 1, D_i(0) = 0}} \right)
+            \left( \begin{aligned}
+                &\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 0 \text{ or } D_i(0)=1} \\ 
+                &  - \E{Y_i(Z_i, 1) - Y_i(Z_i, 0)}
+            \end{aligned} \right)
+        \end{aligned} \right]}_{\text{\textcolor{orange}{Groups difference Bias}}}
+    \end{align*}}
+\end{frame}
+%-------------------------------------------------------------------------------
 \section{2. Identification by Selection Model}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Identification}
+    How do economists think about estimating treatment effects in these systems?
+    \begin{enumerate}
+        \item Estimate the ATE, and call it a day.
+        \item (optional) Present suggestive evidence of mechanisms$\hdots$.
+    \end{enumerate}
+
+    See Blackwell Matthew Ruofan Opacic (2024).
+
+    Put a button here, linking to the current economic approach and screenshot the abstract of Carvahlo (2024).
+\end{frame}
 %-------------------------------------------------------------------------------
 \end{document}

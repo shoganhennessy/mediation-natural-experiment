@@ -35,22 +35,24 @@ Additionally, it provides no harbour for estimating CM effects if the core struc
 The most popular approach to CM assumes that the original treatment, and the subsequent mediator, are both ignorable \citep{imai2010identification}.
 This approach arose in the statistics literature, and is widely used in epidemiology, medicine, and psychology to estimate CM effects in observational studies.
 Assuming mediator ignorability (also known as selection-on-observables) conveniently ignores individuals' choice to take or refuse the mediator, by assuming they did so na\"ively or the researcher observed everything that could have affected this decision.
-If a researcher is studying single-cell organisms in a laboratory, then it may make sense to study causal mechanisms with this approach; single-cell organisms make simple decisions to take or refuse a treatment or mediator.
-On the other hand, social science researchers study social settings where humans have make complex decisions based on costs, benefits, and preferences --- all of which are not fully known by the researcher.
+If a researcher is studying single-celled organisms in a laboratory, then it may make sense to study causal mechanisms with this approach; single-celled organisms would make simple decisions to take or refuse a treatment or mediator.
+On the other hand, social science researchers study social settings where humans make complex decisions based on costs, benefits, and preferences --- all of which may not be observed fully by the researcher.
 Assuming a mediator is ignorable in such a setting would be na\"ive at best.
+In practice, the only setting where the mediator ignorability assumption is credible is using another natural experiment for the mediator --- in addition to the one that guaranteed the original treatment is ignorable.
 
 The applied economics literature has not picked up the practice of estimating CM effects by selection-on-observables, partially in an understanding that this assumption would be invalid in most observational settings.
-Indeed, a new strand of the econometric literature has developed estimators for CM effects under overlapping quasi-experimental research designs \citep{deuchert2019direct,frolich2017direct}, a partial identification approach \citep{flores2009identification}, or testing full mediation through observed channels \citep{kwon2024testing} --- see \cite{huber2019review} for an overview.
+Indeed, a new strand of the econometric literature has developed estimators for CM effects under overlapping quasi-experimental research designs \citep{deuchert2019direct,frolich2017direct}, a partial identification approach \citep{flores2009identification,blackwell2024assumption}, or testing full mediation through observed channels \citep{kwon2024testing} --- see \cite{huber2019review} for an overview.
 The new literature has arisen in partial acknowledgement that a conventional selection-on-observables approach to CM in an applied setting can lead to biased inference, and needs alternative methods for credible inference.
 This paper makes this part explicit, showing exactly how a conventional approach to CM in a natural experiment can fail in practice, and warding the applied economics literature away from picking up this practice.
 
 %\textbf{Value-added:}
-This paper considers the case when it is not credible to assume the mediator is ignorable (e.g., none of the research designs above apply), leveraging classic labour economic theory for selection-into-treatment to identify direct and indirect effects.
+This paper considers the case when it is not credible to assume the mediator is ignorable, leveraging classic labour economic theory for selection-into-treatment to identify direct and indirect effects.
+This refers to settings where none of the natural experiment research designs in the previously cited papers apply (i.e., the mediator is not ignorable).
 A selection-on-observables approach to CM in this setting suffers from bias of the same flavour as classic selection bias \citep{heckman1998characterizing}, plus additional bias from group differences.
 The group differences-bias is a non-parametric version of bad controls bias, which has only previously been studied in a linear setting \citep{cinelli2024crash,ding2015adjust}.
 
 Throughout, I use the \cite{roy1951some} model as a benchmark for judging the \cite{imai2010identification} mediator ignorability assumption in a natural experiment setting, and find it unlikely to hold in practice.\footnote{
-    An alternative method to estimate CM effects is ensuring sequential ignorability holds by a running randomised controlled trial for both treatment and mediator at the same time.
+    An alternative method to estimate CM effects is ensuring treatment and mediator ignorability holds by a running randomised controlled trial for both treatment and mediator at the same time.
     This setting has been considered in the literature previously, in theory \citep{imai2013experimental} and in practice \citep{ludwig2011mechanism}.
 }
 This motivates a solution to the identification problem inspired by classic labour economic work, which also uses the Roy model as a benchmark \citep{heckman1979sample,heckman1990empirical}.

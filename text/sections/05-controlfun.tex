@@ -73,13 +73,13 @@ $K_{i}$ serves as a control function in this setting.
     %; see \autoref{appendix:controlfun-proof}.
 \end{proof}
 
-Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} guarantees that mediator can be represented by a selection model \citep{vytlacil2002independence}, $D_i(.) = \indicator{\bar\mu(.,;\vec X_i) \geq K_i}$ for some function $\bar\mu$.
-Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-ident} connects the first- and second-stage for identification.
-Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} separately identifies the control function to identify the second-stage model.
-The approach exploits the fact that the bias terms, coming from correlated the errors in \autoref{sec:regression}, can be estimated in a first-stage regression and included as controls in the second-stage.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} guarantees that mediator can be represented by a selection model \citep{vytlacil2002independence}, $D_i(.) = \indicator{\bar\mu(.,;\vec X_i) \geq K_i}$, for some function $\bar\mu$.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-ident} connects the first and second-stages for identification.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} separately identifies the control function to identify the second-stage.
+This approach exploits the fact that the bias terms, coming from correlated errors in \autoref{sec:regression}, can be modelled by the first-stage regression and included as controls in the second-stage.
 
 If the underlying selection model had been a Roy model, the control function approach captures the unobserved benefits to taking mediator (independent of observed controls), and thus driving take-up of the mediator.
-In this case, $K_i = U_{C,i} - (U_{1,i} - U_{0,i})$, so the independence result is simple.
+In this case, $K_i = U_{C,i} - (U_{1,i} - U_{0,i})$, so the independence conditions follows.
 By incorporating the control function from the first-stage model, the approach adjusts for the unobserved confounding from unobserved gains, $U_{1,i} - U_{0,i}$.
 By contrast, assuming the mediator was ignorable would have been assuming that there are no unobserved benefits to the mediator take-up, so that there is no bias in the second-stage to account for.
 
