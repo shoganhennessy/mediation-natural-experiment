@@ -124,20 +124,6 @@
 \end{frame}
 
 %-------------------------------------------------------------------------------
-% Plan
-\begin{frame}[noframenumbering, plain]
-    \frametitle{Plan}
-    \begin{enumerate}
-        \item Start with explaining natural experiment, good for ATE $Z \to Y$.
-        COnsider the Oregon health insurance experiment, or Vietnam draft instrument.
-        \item Does not illuminate how these causal effects came about.
-        \item You may have read epidemiology, medicine, or psychology and wondered what these claims are ``mediated through.''
-        \item These are mediation effect estimates, and they estimate ``how much of the ATE goes through this channel?  How much is left-over?''
-        \item Leads to my introduction page. 
-    \end{enumerate}
-\end{frame}
-
-%-------------------------------------------------------------------------------
 % Introduction.
 \section{Introduction}
 %-------------------------------------------------------------------------------
@@ -147,7 +133,7 @@
         \centering
         \singlespacing
         \begin{subfigure}[c]{\textwidth}
-            Have you ever read an epidemiology/psychology/medicine paper's abstract, and seen claims of mediator effects \textbf{mediated} through some mechanism?
+            Have you ever read an epidemiology/psychology/medicine paper's abstract, and seen claims of causal effects \textbf{mediated} through some mechanism?
         \end{subfigure}
         \begin{subfigure}[c]{0.75\textwidth}
             \centering
@@ -166,7 +152,7 @@
         \centering
         \singlespacing
         \begin{subfigure}[c]{\textwidth}
-            Have you ever read an epidemiology/psychology/medicine paper's abstract, and seen claims of mediator effects \textbf{mediated} through some mechanism?
+            Have you ever read an epidemiology/psychology/medicine paper's abstract, and seen claims of causal effects \textbf{mediated} through some mechanism?
         \end{subfigure}
         \begin{subfigure}[c]{0.75\textwidth}
             \centering
@@ -189,13 +175,35 @@
         \textbf{2020s:}
         & Popular in epidemiology, medicine, psychology.
     \end{tabular}
-    \vskip-0.5cm
+    \vskip-0.75cm
     \begin{figure}
         \centering
         \singlespacing
         \caption{Baron Kelly (1986), p. 1176.}
         \vskip-0.25cm
         \includegraphics[width=0.9\textwidth]{presentation-files/headlines/baronkelly-1986.png}
+    \end{figure}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Introduction}
+    \begin{tabular}{l l}
+        \textbf{1980s:}
+        & Psychometrics defined mediation (distinct from moderation). \\
+        \textbf{1920s:} 
+        & Application of early econometric path analysis (Wright 1928). \\
+        \textbf{2020s:}
+        & Popular in epidemiology, medicine, psychology.
+    \end{tabular}
+    \vskip-0.75cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \caption{Imai Keele Tingley Yamamoto (2010--).}
+        \vskip-0.25cm
+        \includegraphics[width=0.8\textwidth]{presentation-files/headlines/imai-2010b.png}
+        \includegraphics[width=0.8\textwidth]{presentation-files/headlines/imai-2010a.png}
+        \includegraphics[width=0.8\textwidth]{presentation-files/headlines/tingley-2014.png}
     \end{figure}
 \end{frame}%-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -257,12 +265,12 @@
         \begin{figure}[h!]
             \centering
             \singlespacing
-            \begin{subfigure}[c]{0.3\textwidth}
+            \begin{subfigure}[c]{0.35\textwidth}
                 \centering
+                \vskip-0.4cm
                 \includegraphics[width=\textwidth]{presentation-files/headlines/1969-draft-lottery.jpeg}
             \end{subfigure}
-            \hspace{0.25cm}
-            \begin{subfigure}[c]{0.55\textwidth}
+            \begin{subfigure}[c]{0.5\textwidth}
                 \begin{tikzpicture}
                     \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
                     \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
@@ -283,7 +291,7 @@
                 \end{tikzpicture}
             \end{subfigure}
         \end{figure}
-        \textbf{Note:} instrumental variables assumes direct $=0$ (exclusion restriction).
+        \textbf{Note:} IV further assumes direct $=0$ (exclusion restriction).
         \vspace{0.125cm}
         \item Oregon health insurance experiment (Finkelstein$+$ 2009).
         \vspace{-0.4cm}
@@ -291,11 +299,11 @@
         \begin{figure}[h!]
             \centering
             \singlespacing
-            \begin{subfigure}[c]{0.3\textwidth}
+            \begin{subfigure}[c]{0.475\textwidth}
                 \centering
                 \includegraphics[width=\textwidth]{presentation-files/headlines/finkelstein-2019.png}
             \end{subfigure}
-            \begin{subfigure}[c]{0.55\textwidth}
+            \begin{subfigure}[c]{0.45\textwidth}
                 \begin{tikzpicture}
                     \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
                     \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
@@ -582,7 +590,7 @@
     \end{figure}
     \textbf{SI} in this setting:
     \begin{enumerate}
-        \item Health insurance assigned randomly (ensured by studying the 2008 Oregon waitlist lottery).
+        \item Medicaid assigned randomly (ensured by studying the 2008 Oregon waitlist lottery).
         \item \colorbox{yellow}{Hospital usage is quasi-random, conditional on Medicaid assignment $Z_i$} \\
         \colorbox{yellow}{and demographics $\vec X_i$.}
 
@@ -599,11 +607,11 @@
     \begin{figure}[h!]
         \centering
         \singlespacing
-        \begin{subfigure}[c]{0.3\textwidth}
+        \begin{subfigure}[c]{0.525\textwidth}
             \centering
             \includegraphics[width=\textwidth]{presentation-files/headlines/finkelstein-2019.png}
         \end{subfigure}
-        \begin{subfigure}[c]{0.55\textwidth}
+        \begin{subfigure}[c]{0.45\textwidth}
             \begin{tikzpicture}
                 \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
                 \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
@@ -736,12 +744,12 @@
     \vskip0.25cm
     \textbf{Definition:} Selection bias (Heckman Ichimura Smith Todd, 1998).
     \vskip0.25cm
-    Estimating $Z \to Y$, if $Z$ not ignorable:
+    Estimating $D \to Y$, if $D$ not ignorable:
     \begin{align*}
-        &\Egiven{ Y_i}{Z_i =1} - \Egiven{ Y_i}{Z_i =0} \\
+        &\Egiven{ Y_i}{D_i =1} - \Egiven{ Y_i}{D_i =0} \\
         &= \text{ATT} \\
         &\;\;\;\; + \underbrace{\Big(
-            \Egiven{ Y_i(0,.)}{Z_i =1} - \Egiven{ Y_i(0,.)}{Z_i =0} \Big)}_{
+            \Egiven{ Y_i(.,0)}{D_i =1} - \Egiven{ Y_i(.,0)}{D_i =0} \Big)}_{
                 \text{Selection Bias}}.
     \end{align*}
     \vskip1.125cm
@@ -758,19 +766,19 @@
     \vskip0.25cm
     \textbf{Definition:} Selection bias (Heckman Ichimura Smith Todd, 1998).
     \vskip0.25cm
-    Estimating $Z \to Y$, if $Z$ not ignorable:
+    Estimating $D \to Y$, if $D$ not ignorable:
     \begin{align*}
-        &\Egiven{ Y_i}{Z_i =1} - \Egiven{ Y_i}{Z_i =0} \\
+        &\Egiven{ Y_i}{D_i =1} - \Egiven{ Y_i}{D_i =0} \\
         &= \text{ATE} \\
         &\;\;\;\; + \underbrace{\Big(
-            \Egiven{ Y_i(0,.)}{Z_i =1} - \Egiven{ Y_i(0,.)}{Z_i =0} \Big)}_{
+            \Egiven{ Y_i(., 0)}{D_i =1} - \Egiven{ Y_i(.,0)}{D_i =0} \Big)}_{
                 \text{Selection Bias}} \\
-        &\;\;\;\;+ \underbrace{ \Prob{Z_i=0} (\text{ATT}- \text{ATU}) }_{
+        &\;\;\;\;+ \underbrace{ \Prob{D_i=0} (\text{ATT}- \text{ATU}) }_{
             \text{Group-differences Bias}}.
     \end{align*}
 \end{frame}
 %-------------------------------------------------------------------------------
-\begin{frame}
+\begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection Bias}
     $\implies$ CM Effects have this same flavour, causal effects contaminated by (less interpretable) bias terms.
     \[ \text{\textcolor{purple}{CM Estimand}}
@@ -800,7 +808,7 @@
     \end{align*}}
 \end{frame}
 %-------------------------------------------------------------------------------
-\begin{frame}
+\begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection Bias}
     $\implies$ CM Effects have this same flavour, causal effects contaminated by (less interpretable) bias terms.
     Put $\pi = \Prob{D_i(1) = 1, D_i(0) = 0}$.
@@ -840,16 +848,451 @@
 \section{2. Identification by Selection Model}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{Identification}
-    How do economists think about estimating treatment effects in these systems?
+    \frametitle{Identification Under Selection}
+    That was a long way of giving negative results.
+    Is there any hope?
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip0.25cm
+    If you can use a two-way research design, then please do!
+    \begin{figure}
+        \centering
+        \singlespacing
+        \caption{Two-way Diff-in-Diff (see Deuchert Huber Schelker, 2019).}
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            %\node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+            % Add in the DiD strategy.
+            \node[state, thick,teal] (DiD-Z) [above=0.75cm of treatment] {DiD$^Z$};
+            \node[state, thick,teal] (DiD-D) [above=0.75cm of mediator] {DiD$^D$};
+            \path[->, thick, teal] (DiD-Z) edge (treatment);
+            \path[->, thick, teal] (DiD-D) edge (mediator);
+            %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
+            %\path[->,RoyalPurple] (confounderX) edge (mediator);
+            %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
+            %\node[state, thick,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
+            %\path[->,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            %\path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
+        \end{tikzpicture}
+    \end{figure}
+    \textbf{Note:} assumes common trends across complier groups, identifies ADE $+$ AIE local to complier groups.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Identification Under Selection}
+    That was a long way of giving negative results.
+    Is there any hope?
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip0.25cm
+    If you can use a two-way research design, then please do!
+    \begin{figure}
+        \centering
+        \singlespacing
+        \caption{Two-way IV (see Frl\"olich Huber, 2017).}
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            %\node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+            % Add in the IV strategy.
+            \node[state, thick,violet] (IV-Z) [above=0.75cm of treatment] {IV$^Z$};
+            \node[state, thick,violet] (IV-D) [above=0.75cm of mediator] {IV$^D$};
+            \path[->, thick,   violet] (IV-Z) edge (treatment);
+            \path[->, thick,   violet] (IV-D) edge (mediator);
+            % and the exclusion restrictions
+            \pause
+            \path[->, dashed, red] (IV-Z) edge (mediator);
+            \path[->, dashed, red] (IV-Z) edge (outcome);
+            \pause
+            \path[->, dashed, red] (IV-D) edge (treatment);
+            \path[->, dashed, red] (IV-D) edge (outcome);
+            %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
+            %\path[->,RoyalPurple] (confounderX) edge (mediator);
+            %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
+            %\node[state, thick,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
+            %\path[->,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            %\path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
+        \end{tikzpicture}
+    \end{figure}
+    \textbf{Note:} two-way exclusion restriction, identifies ADE $+$ AIE local to overlapping complier groups.
+    Also avoid 2SLS (see Kim 2025)!
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Identification Under Selection}
+    That was a long way of giving negative results.
+    Is there any hope?
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip0.25cm
+    What about the mainstream case, with research design for only $Z$?\\
+    How do economists do causal effects in these systems?
     \begin{enumerate}
         \item Estimate the ATE, and call it a day.
         \item (optional) Present suggestive evidence of mechanisms$\hdots$.
+        \hyperlink{suggestive-evidence}{\beamergotobutton{suggestive}}
     \end{enumerate}
+    \vskip0.5cm
+    \par\noindent\rule{\textwidth}{0.4pt}
+    Overview of a selection model solution to identification.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Identification with a Selection Model}
+    Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
+    \vskip-0.75cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            %\node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+            % Add in the unobserved confounding
+            \path[<->,dashed,thick,color=RoyalBlue] (mediator) edge[bend right=-45] (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.25cm
+    Put $\mu_{d'}(z';\vec X_i)= \Egiven{Y_i(z',d')}{\vec X_i}$, and $U_{d'}$ the corresponding errors.
+    \[ Y_i(Z_i, 0)
+        = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
+    Y_i(Z_i, 1)
+        = \mu_{1}(Z_i; \vec X_i) + U_{1,i}. \]
+    \par\noindent\rule{\textwidth}{0.4pt}
+    Then this system has the following regression equations:
+    \begin{align*}
+        D_i &= \phi + \pi Z_i + \varphi(\vec X_i) + \eta_i  \\
+        Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
+        + \zeta(\vec X_i)
+        + \underbrace{\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}_{
+            \text{Correlated error term.}}
+    \end{align*}
+    \vskip-0.5cm
+    Where $\beta, \gamma, \delta$ comprise the ADE and AIE.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Identification with a Selection Model}
+    Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
+    \vskip-0.75cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            %\node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+            % Add in the unobserved confounding
+            \path[<->,dashed,thick,color=RoyalBlue] (mediator) edge[bend right=-45] (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.25cm
 
-    See Blackwell Matthew Ruofan Opacic (2024).
+    \par\noindent\rule{\textwidth}{0.4pt}
+    Then this system has the following regression equations:
+    \begin{align*}
+        D_i &= \phi + \pi Z_i + \varphi(\vec X_i) + \eta_i  \\
+        Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
+        + \zeta(\vec X_i)
+        + \underbrace{\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}_{
+            \text{Correlated error term.}}
+    \end{align*}
+    \vskip-0.5cm
+    Where $\beta, \gamma, \delta$ comprise the ADE and AIE.
+    \vfill
+    
+    \par\noindent\rule{\textwidth}{0.4pt}
+    $\implies$ Identify second-stage (despite correlated error term).
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Identification with a Selection Model}
+    Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
+    \vskip-0.75cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            %\node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+            % Add in the unobserved confounding
+            \path[<->,dashed,thick,color=RoyalBlue] (mediator) edge[bend right=-45] (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.25cm
 
-    Put a button here, linking to the current economic approach and screenshot the abstract of Carvahlo (2024).
+    \par\noindent\rule{\textwidth}{0.4pt}
+    Note that Roy selection has first-stage errors correlated with second-stage errors.
+    \begin{align*}
+        D_i &= \indicator{
+            Z_i(\delta + \beta) + (1 - Z_i)\beta - C_i
+                \geq - \Big(U_{1,i} - U_{0,i}\Big) } \\
+        Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
+        + \zeta(\vec X_i)
+        + \underbrace{\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}_{
+            \text{Correlated error term.}}
+    \end{align*}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Identification with a Selection Model}
+    Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
+    \vskip-0.75cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            %\node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+            % Add in the unobserved confounding
+            \path[<->,dashed,thick,color=RoyalBlue] (mediator) edge[bend right=-45] (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.25cm
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{Heckman (1979) Selection model}, assumptions:
+    \begin{enumerate}
+        \item Mediator monotonicity $\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1$.
+        \item First-stage errors inform second-stage heterogeneity, \\
+        Corr$\Big[\eta_i, \left(1 - D_i \right)U_{0,i} + D_i U_{1,i} \Big] > 0$.
+        \item Error-term distribution
+        $\eta_i, U_{0,i}, U_{1,i} \sim \text{Normal}\left(\mat M, \mat\Sigma \right)$.
+    \end{enumerate}
+    $\implies$ identifies second-stage, and thus ADE $+$ AIE.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Identification with a Selection Model}
+    Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
+    \vskip-0.75cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            %\node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+            % Add in the unobserved confounding
+            \path[<->,dashed,thick,color=RoyalBlue] (mediator) edge[bend right=-45] (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.25cm
+    \textbf{Semi-parametric control function} (Newey Imbens 2009), assumptions:
+    \begin{enumerate}
+        \item Mediator monotonicity $\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1$.
+        \item First-stage errors inform second-stage heterogeneity, \\
+        Corr$\Big[\eta_i, \left(1 - D_i \right)U_{0,i} + D_i U_{1,i} \Big] > 0$.
+        \item Valid instrument for $D_i$.
+    \end{enumerate}
+    $\implies$ identifies second-stage, and thus ADE $+$ AIE (without unrealistic error distribution assumption).
+    \hyperlink{MTEs}{\beamergotobutton{MTEs}}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Simulation evidence}
+    Simulation with Roy selection, trivariate normal errors, unobserved costs.    
+    \vskip-0.25cm
+    \begin{figure}
+        \caption{Simulated Distribution of CM Effect Estimates.}
+        \vskip-0.25cm
+        \begin{subfigure}[c]{0.475\textwidth}
+            \centering
+            \caption{ADE.}
+            \includegraphics[width=\textwidth]{
+                ../programs/simulations/sim-output/direct-boot.png}
+        \end{subfigure}
+        \begin{subfigure}[c]{0.475\textwidth}
+            \centering
+            \caption{AIE.}
+            \includegraphics[width=\textwidth]{
+                ../programs/simulations/sim-output/indirect-boot.png}
+        \end{subfigure}
+    \end{figure}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Simulation evidence}
+    Simulation with Roy selection, trivariate normal errors, unobserved costs.    
+    \begin{figure}[h!]
+        \caption{Point Estimates of CM Effects, OLS versus Control Function, varying $\rho$ values with $\sigma_0 = 1, \sigma_1 = 2$ fixed.}
+        \vskip-0.5cm
+        \begin{subfigure}[c]{0.475\textwidth}
+            \centering
+            \caption{ADE.}
+            \includegraphics[width=\textwidth]{
+                ../programs/simulations/sim-output/rho-directeffect-bias.png}
+        \end{subfigure}
+        \begin{subfigure}[c]{0.475\textwidth}
+            \centering
+            \caption{AIE.}
+            \includegraphics[width=\textwidth]{
+                ../programs/simulations/sim-output/rho-indirecteffect-bias.png}
+        \end{subfigure}
+    \end{figure}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Conclusion}
+    \textbf{Overarching goals:}
+    \begin{enumerate}
+        \item Ward economists away from using CM methods unabashedly. \\ 
+        $\to$ Noted problems in the most popular methods for CM effects, pertinent for economic applications.
+        \pause
+        \item Bring CM methods into the credibility revolution (Angrist Card Imbens 2022), and labour selection-into-treatment (Heckman 2000) agendas. \\
+        $\to$ Traced out identification by selection models. 
+    \end{enumerate}
+    \textbf{Work-in-progress part of LWIPS:}
+    \begin{itemize}
+        \item Connect the control function approach to MTE methods
+        \item Large sample properties $+$ analytical SEs
+        \item Use this approach to estimate direct and indirect effects of genetics and education (JMP companion paper)
+        \item (eventually) Package for selection-adjusted CM effects, by Heckman model and IV-assisted CF/MTE.
+    \end{itemize}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Appendix: Suggestive Evidence of Mechanisms}
+    \label{suggestive-evidence}
+    How empirical economists currently give evidence for mechanisms/mediators in causal effects.
+    \vskip-0.5cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            %\node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.75cm
+    Two causal effects are identified:
+    \begin{align*}
+    \text{ATE:} \;\; \E{Y_i(1, D_i(1)) - Y_i(0, D_i(0))}
+        &= \Egiven{Y_i}{Z_i = 1} - \Egiven{Y_i}{Z_i = 0} \\
+    \text{Average first-stage:} \;\; \E{D_i(1) - D_i(0)}
+        &=\Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0}
+    \end{align*}
+    $\implies$ Show results of these two effects and assume indirect effect is positive, constant $\to$ suggestive evidence of mechanisms! 
+    \vskip0.5cm
+    See Blackwell Matthew Ruofan Opacic (2024) for this in full, and a partial identification approach to avoid its unrealistic assumptions.
+    % Example of this approach: the abstract of Carvahlo (2024).
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Appendix: Connection to MTES}
+    \label{MTEs}
+    The ADE is fine to estimate with a selection model/CF, but AIE refers to mediator gains only among mediator compliers.
+    \[ \text{AIE } =
+    \E{D_i(1) -D_i(0)} 
+    \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) =1, D_i(0) = 0}. \]
+    Outline of MTE approach to identifying AIE:
+    \begin{enumerate}
+        \item Mediator monotonicity has a selection model for $D_i$ (Vycatil 2002).
+        \[ D_i(z') = \indicator{ \mu(z'; \vec X_i) \geq U_i } \]
+        \item Identify Marginal Indirect Effect (MIE), with instrument by LIV.
+        \[ \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{U_i = u'} \]
+        \item Mediator compliers' AIE is an integral of the MIE (Mogstad Santos Torgovitsky, 2017). 
+        \[ \int_{W} \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{U_i = u'}, \]
+        \[ \text{ for } 
+            W = \left\{ u' \; \Big| \; D_i(1) = 1, D_i(0) = 0 \right\}. \]
+    \end{enumerate}
 \end{frame}
 %-------------------------------------------------------------------------------
 \end{document}
