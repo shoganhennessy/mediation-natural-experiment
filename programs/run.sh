@@ -17,16 +17,14 @@ cd ..
 
 ## Compile the paper.
 cd text
-
-# Adjust DOIs in each bib entry, by my custom tool,
-# and point to the cleaned bib file in my working paper.
+# Adjust DOIs in each bib entry (by my own custom tool)
+# point to the cleaned bib file in my working paper.
 cd sections
-~/venv/bin/python3 ~/Dropbox/latex-templates/bib-edit.py 07-bibliography.bib
+# ~/venv/bin/python3 ~/Dropbox/latex-templates/bib-edit.py 07-bibliography.bib
 bibOld="bibliography.bib"
 bibNew="bibliography-doi.bib"
 sed -i -e "s/$bibOld/$bibNew/g" ../paper.tex
 cd ..
-
 # Push TeX files through latexmk to get a pdf, then clean the intermed files.
 latexmk -pdf paper.tex
 latexmk -c
@@ -35,6 +33,16 @@ cp paper.pdf ../mediation-natural-experiment-2025.pdf
 # Put the bib file back to how it was.
 sed -i -e "s/$bibNew/$bibOld/g" paper.tex
 cd ..
-# Declare a version of the (30min) presentation.
-cd presentation 
+
+## Compile the presentation, and declare a version of the (30min) presentation.
+cd presentation
+# Remove the pauses for display version
+presOld="dvipsnames"
+presNew="dvipsnames,handout"
+cat presentation.tex | grep -c "$presOld"
+sed -i -e "s/$presOld/$presNew/g" presentation.tex
+latexmk -pdf presentation.tex
+latexmk -c
 cp presentation.pdf ../presentation-2025.pdf
+# Put it back to how it was.
+sed -i -e "s/$presNew/$presOld/g" presentation.tex

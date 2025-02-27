@@ -4,8 +4,8 @@
 %\textbf{Hook:}
 Economists use natural experiments to credibly answer social questions, when an experiment was infeasible.
 Did Vietnam-era military service lead to income losses?
-Does access to health insurance lead to employment gains?
-Do transfer payment  lead to measurable long-run economic gains?
+Does access to health insurance lead to health improvements?
+Do transfer payments  lead to measurable long-run economic gains?
 Quasi-experimental variation gives methods to answer these questions, but give no indication of how these effects came about.
 Causal Mediation (CM) aims to estimate the mechanisms behind causal effects, by estimating how much of the treatment effect operates through a proposed mediator.
 For example, how much of the (causal) gain from a transfer payment came from individuals choosing to attend higher education?
@@ -17,13 +17,12 @@ Estimates for the average direct and indirect effects are contaminated by bias t
 I then show how this bias operates in an applied regression framework, with bias coming from a correlated error term.
 %, showing that the bias term grows larger with the degree of unexplained selection.
 If individuals have been choosing whether to partake in a mediator based on expected costs and benefits (i.e., following a rational maximisation process) then sequential ignorability cannot hold.
-% I develop a testable assumption, that $R^2_u = 1$, in this framework, which is likely to be rejected in the majority of applied examples.
 This means the identifying assumption for conventional CM methods are unlikely to hold, and will lead to biased inference in natural experiment settings, if the researcher does not use another design to isolate random variation in the mediator (at the same time).
 
 I consider an alternative control function approach to estimating CM effects.
 This approach solves the identification problem by a structural assumption for selection into the mediator (monotonicity), and assumes the researcher has a valid instrument for mediator take-up.
 While these assumptions are strong, they are plausible in many applied settings.
-% In an accompanying applied paper, \cite{hogan2025direct}
+% In an accompanying applied paper, \cite{hogan2025direct}, etc....
 Mediator monotonicity is in-line with conventional theories for selection-into-treatment, and is accepted widely in many applications using an instrumental variables research design.
 The existence of a valid instrument is a stronger assumption, which will not hold in every setting, though is important to avoid further modelling assumptions. %on unexplained mediator selection.
 The most compelling example is using data on the cost of mediator take-up as a first-stage instrument, if it varies between individuals for exogenous reasons and is strong in explaining compliance.
