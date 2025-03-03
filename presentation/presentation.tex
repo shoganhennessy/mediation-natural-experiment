@@ -74,7 +74,7 @@
 \settowidth{\leftmargini}{\usebeamertemplate{itemize item}}
 \addtolength{\leftmargini}{\labelsep}
 \usepackage{soul,color,xcolor} % Text highlighting
-\newcommand{\eqhighlight}[1]{\colorbox{yellow!75}{$\displaystyle#1$}}
+\newcommand{\eqhighlight}[2]{\colorbox{#1!50}{$\displaystyle#2$}}
 \makeatletter
 \let\HL\hl
 \renewcommand\hl{%
@@ -281,7 +281,7 @@
                     % Label the nodes with econ examples
                     \node[color=blue, above=0.1cm of treatment] {Drafted};
                     \node[color=red, above=0.1cm of outcome] {Earnings};
-                    \node[color=ForestGreen, above=0.1cm of mediator] {Service};
+                    \node[color=ForestGreen, above=0.1cm of mediator] {Military Service};
                     % Add in direct + indirect effects.
                     %\path[->,thick] (treatment) edge[bend right=45] (outcome);
                     % Label the pathways with the colours
@@ -294,6 +294,7 @@
         \end{figure}
         \textbf{Note:} IV further assumes direct $=0$ (exclusion restriction).
         \vspace{0.125cm}
+        \pause
         \item Oregon health insurance experiment (Finkelstein$+$ 2009).
         \vspace{-0.4cm}
 
@@ -341,7 +342,7 @@
         \item \textbf{Causal mediation.}
         \\ Baron Kelly (1986), Imai Keele Yamamoto (2010), Flores Flores-Lagunes (2009), Fr\"olich Huber (2017), Huber (2020), Kwon Roth (2024).
         \item \textbf{Selection-into-treatment, selection models/MTEs.}
-        \\ Roy (1951), Heckman (1979), Heckman Honore (1990), Florens Heckman Meghir Vytlacil (2008).
+        \\ Roy (1951), Heckman (1979), Heckman Honor\'e (1990), Florens Heckman Meghir Vytlacil (2008).
     \end{itemize}
 \end{frame}%-------------------------------------------------------------------------------
 \section{1. Direct \& Indirect Effects}
@@ -350,11 +351,11 @@
     \frametitle{Direct \& Indirect Effects --- Model}
     Consider binary treatment $Z_i = 0, 1$,
     binary mediator $D_i = 0, 1$,
-    and continuous outcome $Y_i$.
+    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    \vskip-0.5cm
     \begin{figure}
         \centering
         \singlespacing
-        \vspace{-1cm}
         \begin{tikzpicture}
             \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
             \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
@@ -371,28 +372,97 @@
             \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
             \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
             \node[color=orange] [below=0.5cm of mediator] {ADE};
-            % Add in the confounders
-            %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
-            %\path[->,RoyalPurple] (confounderX) edge (mediator);
-            %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
-            %\node[state, thick,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
-            %\path[->,dashed,color=RoyalBlue] (confounderU) edge (mediator);
-            %\path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
-            %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
         \end{tikzpicture}
     \end{figure}
-    \vspace{-0.5cm}
+    \vskip-0.25cm
+    \par\noindent\rule{\textwidth}{0.4pt}
     \begin{align*}
-        D_i& \text{ is a function of } Z_i: &
-            Y_i& \text{ is a function of both } Z_i,D_i: \\
-        D_i& = Z_i D_i(1) + (1 - Z_i) D_i(0). &
-            Y_i& = Z_i Y_i(1, D_i(1)) + (1 - Z_i) Y_i(0, D_i(0)).
+        & \textcolor{ForestGreen}{\text{Mediator }D_i} \text{ is a function of } \textcolor{blue}{Z_i}
+        & \textcolor{red}{\text{Outcome }Y_i} \text{ is a function of both }
+        \textcolor{blue}{Z_i}, \textcolor{ForestGreen}{D_i} \\
+        & D_i = \begin{cases}
+            D_i(0), \text{ if } Z_i = 0 \\
+            D_i(1), \text{ if } Z_i = 1.
+        \end{cases}
+        & Y_i = \begin{cases}
+            Y_i(0, D_i(0)), \text{ if } Z_i = 0 \\
+            Y_i(1, D_i(1)), \text{ if } Z_i = 1.
+        \end{cases}
     \end{align*}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Direct \& Indirect Effects --- Model}
+    Consider binary treatment $Z_i = 0, 1$,
+    binary mediator $D_i = 0, 1$,
+    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    \vskip-0.5cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+        \end{tikzpicture}
+    \end{figure}
     \par\noindent\rule{\textwidth}{0.4pt}
     \pause
-    Assume $Z_i$ is ignorable, conditional on $\vec X_i$.
-    \[ Z_i \indep  D_i(z), Y_i(z', d) \; \; | \;\; \vec X_i \text{ for } z, z', d = 0, 1. \]
+    Suppose $Z_i$ is ignorable, conditional on $\vec X_i$.
+    \[ Z_i \indep  D_i(z), Y_i(z', d') \; \; | \;\; \vec X_i \text{ for } z, z', d' = 0, 1. \]
+
+    \vfill
+    E.g., a natural experiment for $\textcolor{blue}{Z_i}$ disrupting open-world selection-into-$Z_i$
+    \begin{itemize}
+        \item Vietnam draft lottery for \textcolor{blue}{military conscription} (Angrist, 1990).
+        \item Oregon wait-list lottery for \textcolor{blue}{health insurance} (Finkelstein+, 2009).
+    \end{itemize}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Direct \& Indirect Effects --- Model}
+    Consider binary treatment $Z_i = 0, 1$,
+    binary mediator $D_i = 0, 1$,
+    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    \vskip-0.5cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+        \end{tikzpicture}
+    \end{figure}
+    \par\noindent\rule{\textwidth}{0.4pt}
     \pause
+    Suppose $Z_i$ is ignorable, conditional on $\vec X_i$.
+    \[ Z_i \indep  D_i(z), Y_i(z', d) \; \; | \;\; \vec X_i \text{ for } z, z', d = 0, 1. \]
+
     Only two causal effects are identified so far.
     \begin{align*}
     \text{ATE:} \;\; \E{Y_i(1, D_i(1)) - Y_i(0, D_i(0))}
@@ -402,9 +472,12 @@
     \end{align*}
 \end{frame}
 %-------------------------------------------------------------------------------
-\begin{frame}
-    \frametitle{Direct \& Indirect Effects --- Definitions}
-    \vskip-1.0cm
+\begin{frame}[noframenumbering]
+    \frametitle{Direct \& Indirect Effects --- Model}
+    Consider binary treatment $Z_i = 0, 1$,
+    binary mediator $D_i = 0, 1$,
+    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    \vskip-0.5cm
     \begin{figure}
         \centering
         \singlespacing
@@ -424,33 +497,75 @@
             \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
             \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
             \node[color=orange] [below=0.5cm of mediator] {ADE};
-            % Add in the confounders
-            %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
-            %\path[->,RoyalPurple] (confounderX) edge (mediator);
-            %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
-            %\node[state, thick,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
-            %\path[->,dashed,color=RoyalBlue] (confounderU) edge (mediator);
-            %\path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
-            %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
         \end{tikzpicture}
     \end{figure}
-    \vspace{-0.75cm}
-    
-    \textbf{Definitions:}
-    \begin{align*}
-        \text{Average Direct Effect (ADE)}: \;\;\;&
-            \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}, \\
-        \text{Average Indirect Effect (AIE):} \;\;\;&
-                \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}.
-    \end{align*}
-    \vfill
+    \vskip-0.5cm
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \pause
+    First-stage and ATE answer important questions:
     \begin{itemize}
-        \item ADE is average effect $Z\to Y$, blocking the $D$ path.
-        \item AIE is causal effect of $D \to Y$, times number of $D(Z)$ compliers.\footnote[frame]{
-            Assume mediator monotonicity to simplify notation.}
+        \item Were drafted men poorer?  Did they conform or dodge?
+        (Angrist, 1990).
+        \item Did socialised health insurance improve health? (Finkelstein+, 2009).
     \end{itemize}
-    \[ \text{AIE } =
-    \E{D_i(1) -D_i(0)} \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) =1, D_i(0) = 0}. \]
+    \vskip0.25cm
+    \pause
+    Open questions:
+    \begin{itemize}
+        \item Did drafted men take education to dodge the draft?
+        Was it entirely military service?
+        (Angrist, 1990).
+        \item Did health benefits come from using health care more?
+        Were there gains from reduced uncertainty (risk averse insurance)?
+        (Finkelstein+, 2009).
+    \end{itemize}
+\end{frame}%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Direct \& Indirect Effects --- Model}
+    Consider binary treatment $Z_i = 0, 1$,
+    binary mediator $D_i = 0, 1$,
+    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    \vskip-0.5cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.5cm
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \[ \text{Average Direct Effect (ADE)}: \;\;\;
+        \E{Y_i\left(\eqhighlight{blue}{1}, D_i(Z_i) \right)
+            - Y_i\left(\eqhighlight{blue}{0}, D_i(Z_i) \right)} \]
+    \vskip-0.35cm
+    \begin{itemize}
+        \item ADE is causal effect $Z\to Y$, blocking the indirect $D$ path.
+    \end{itemize}
+    \pause
+    \vskip0.25cm
+    \[ \text{Average Indirect Effect (AIE):} \;\;\;
+    \E{Y_i\left(Z_i, \eqhighlight{ForestGreen}{D_i(1)} \right)
+        - Y_i\left(Z_i, \eqhighlight{ForestGreen}{D_i(0)} \right)} \]
+    \vskip-0.25cm
+    \begin{itemize}
+        \item AIE is causal effect of $D(Z) \to Y$, blocking the direct $Z$ path.\footnote[frame]{
+            Note: AIE $=$ fraction of $D(Z)$ compliers $\times$ average effect $D\to Y$ among compliers.}
+    \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -460,13 +575,16 @@
     Assume mediator $D_i$ is \textit{also} ignorable, conditional on $\vec X_i$ and $Z_i$ realisation
     \[ D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
     \text{ for } z', d = 0, 1. \]
+    \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
     If \textbf{SI} holds then ADE and AIE are identified by two-stage regression:
     \begin{align*}
         \text{ADE} &= \E{
             \underbrace{\Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i, \vec X_i$ constant}}}
     \end{align*}
-    \vskip-1.0cm
+    \vskip0.75cm
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip-0.6cm
     \begin{figure}
         \centering
         \singlespacing
@@ -500,6 +618,7 @@
     Assume mediator $D_i$ is \textit{also} ignorable, conditional on $\vec X_i$ and $Z_i$ realisation
     \[ D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
     \text{ for } z', d = 0, 1. \]
+    \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
     If \textbf{SI} holds then ADE and AIE are identified by two-stage regression:
     \[ \text{AIE} = \E{
@@ -508,7 +627,8 @@
             & \times \underbrace{\Big(
                 \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i, \vec X_i$ constant}}
         \end{aligned}} \]
-    \vskip-0.75cm
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip-0.5cm
     \begin{figure}
         \centering
         \singlespacing
@@ -529,6 +649,8 @@
             \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
             %\node[color=orange] [below=0.5cm of mediator] {ADE};
             \node[color=red] [below=0.3cm of mediator] {\textbf X};
+            \node[color=red] [below left=0.175cm and 0.75cm of mediator] {\textbf X};
+            \node[color=red] [below right=0.175cm and 0.75cm of mediator] {\textbf X};
         \end{tikzpicture}
     \end{figure}
 \end{frame}
@@ -570,47 +692,18 @@
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Direct \& Indirect Effects --- Selection} 
-    $\implies$ Great, we can use the Imai Keele Yamamoto (2010) approach to CM all our respective applied projects.
+    $\implies$ Great, we can use the Imai Keele Yamamoto (2010) approach to CM in all our respective applied projects.
 
     $\implies$ Learn the mechanism pathways in causal research
     $\to$ big gain!
     \par\noindent\rule{\textwidth}{0.4pt}
 
+    \pause
+    \vfill
     Before we join epidemiologists/psychologists/medical researchers in this conclusion, let us interrogate the \textbf{SI} assumption.
     \[ D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
     \text{ for } z', d = 0, 1. \]
     \colorbox{yellow}{Would this assumption hold true in settings that social scientists consider?}
-    \par\noindent\rule{\textwidth}{0.4pt}
-    \pause  
-    Return to the Oregon health insurance experiment (Finkelstein$+$ 2009).
-    \vspace{-0.4cm}
-
-    \begin{figure}[h!]
-        \centering
-        \singlespacing
-        \begin{subfigure}[c]{0.3\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{presentation-files/headlines/finkelstein-2019.png}
-        \end{subfigure}
-        \begin{subfigure}[c]{0.55\textwidth}
-            \begin{tikzpicture}
-                \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
-                \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
-                \node[state, thick,red] (outcome) [right=1.25cm of mediator] {$Y$};
-                % Label the nodes with econ examples
-                \node[color=blue, above=0.1cm of treatment] {Medicaid};
-                \node[color=red, above=0.1cm of outcome] {Health};
-                \node[color=ForestGreen, above=0.1cm of mediator] {Hospital use};
-                % Add in direct + indirect effects.
-                %\path[->,thick] (treatment) edge[bend right=45] (outcome);
-                % Label the pathways with the colours
-                \path[->, thick] (treatment) edge (mediator);
-                \path[->, thick] (mediator) edge (outcome);
-                \path[->, thick] (treatment) edge[bend right=35] (outcome);
-                \node[color=MidnightBlue, below=0.5cm of mediator] {All else (e.g., less worry)};
-            \end{tikzpicture}
-        \end{subfigure}
-    \end{figure}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -645,11 +738,10 @@
         \end{subfigure}
     \end{figure}
     \par\noindent\rule{\textwidth}{0.4pt}
-
-    \[ \text{\textbf{SI}:} \;\;\;\;
-    D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
+    
+    \textbf{SI} in practice:
+    \[ D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
     \text{ for } z', d = 0, 1. \]
-    \vskip-0.25cm
     \begin{enumerate}
         \item Medicaid assigned randomly (ensured by studying the 2008 Oregon waitlist lottery).
         \item \colorbox{yellow}{Hospital usage is quasi-random, conditional on Medicaid assignment $Z_i$} \\
@@ -671,12 +763,13 @@
     \]
     i.e., Roy (1951) selection into $D_i$.
     \par\noindent\rule{\textwidth}{0.4pt}
+    \pause
     \vfill
     \textbf{Theorem:}
     If selection is Roy-style, and benefits are not 100\% explained by $Z_i, \vec X_i$, then \textbf{SI} does not hold.
 
     \vskip0.125cm
-    \textbf{Proof sketch:} suppose $D_i$ is ignorable $\implies$ selection-into-$D_i$ is explained 100\% by $\left\{ C_i, Z_i, \vec X_i \right\}$, while unobserved gains explain 0\%.
+    \textbf{Proof sketch:} suppose $D_i$ is ignorable $\implies$ selection-into-$D_i$ is explained 100\% by $\left\{ C_i, Z_i, \vec X_i \right\}$, while unobserved benefits explain 0\%.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -693,6 +786,7 @@
     \]
     i.e., Roy (1951) selection into $D_i$.
     \par\noindent\rule{\textwidth}{0.4pt}
+    \pause
     $\implies$ unobserved confounder $\vec U$ \\
     e.g., underlying health conditions.
     \vskip-1.375cm
@@ -800,6 +894,7 @@
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection Bias}
     $\implies$ CM Effects have this same flavour, causal effects contaminated by (less interpretable) bias terms.
+    \hyperlink{cm-model}{\beamergotobutton{Model}}
     \[ \text{\textcolor{purple}{CM Estimand}}
         = \text{\textcolor{blue}{ADE}}
             + \Big(\text{\textcolor{red}{Selection Bias}}
@@ -830,6 +925,7 @@
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection Bias}
     $\implies$ CM Effects have this same flavour, causal effects contaminated by (less interpretable) bias terms.
+    \hyperlink{cm-model}{\beamergotobutton{Model}}
     Put $\pi = \Prob{D_i(1) = 1, D_i(0) = 0}$.
     \[ \text{\textcolor{purple}{CM Estimand}}
         = \text{\textcolor{ForestGreen}{AIE}}
@@ -968,7 +1064,6 @@
     Is there any hope?
     \par\noindent\rule{\textwidth}{0.4pt}
     \vskip0.25cm
-    \pause
     What about the mainstream case, with research design for only $Z$?\\
     How do economists do causal effects in these systems?
     \begin{enumerate}
@@ -1067,11 +1162,11 @@
             \text{Correlated error term.}}
     \end{align*}
     \vskip-0.5cm
-    Where $\beta, \gamma, \delta$ comprise the ADE and AIE.
+    Where $\beta, \gamma, \delta, \pi$ comprise the ADE and AIE.
     \vfill
     
     \par\noindent\rule{\textwidth}{0.4pt}
-    $\implies$ Identify second-stage (despite correlated error term).
+    \textbf{Intuition:} Identify second-stage (despite correlated error term), to get ADE $+$ AIE.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -1109,10 +1204,10 @@
         D_i &= \indicator{
             Z_i(\delta + \beta) + (1 - Z_i)\beta
                 \geq C_i - 
-                \Big(\eqhighlight{U_{1,i} - U_{0,i}} \Big) } \\
+                \Big(\eqhighlight{yellow}{U_{1,i} - U_{0,i}} \Big) } \\
         Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
         + \zeta(\vec X_i)
-        + \underbrace{\eqhighlight{
+        + \underbrace{\eqhighlight{yellow}{
             \left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}}_{
             \text{Correlated error term}}
     \end{align*}
@@ -1161,7 +1256,7 @@
         $U_i, U_{0,i}, U_{1,i} \sim \text{TriNormal}\left(\mat M, \mat\Sigma \right)$.
     \end{itemize}
     \vskip0.25cm
-    $\implies$ identifies second-stage, and thus ADE $+$ AIE.
+    $\implies$ identify second-stage, and thus ADE $+$ AIE.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -1321,6 +1416,32 @@
 \begin{frame}
     \frametitle{Simulation evidence}
     Simulation with Roy selection, trivariate normal errors $+$ unobserved costs.
+    $N = 10,000$.
+    \begin{align*}
+        \text{\textcolor{blue}{Random treatment $Z_i$}}
+            \sim \text{Binom}\left(0.5 \right)\\
+        \left( U_{0,i}, U_{1,i} \right) \sim
+        \text{BivariateNormal}\left( 0, 0, \sigma_0, \sigma_1, \rho \right),
+        \;\; \text{Costs }C_i \sim N(0, 0.5).
+    \end{align*}    
+    Suppose each $i$ chooses to take mediator $D_i$ by a Roy model, with constant partial effects for $z', d' = 0, 1$.
+    \begin{align*}
+        D_i(z') = \indicator{Y_i(z', 1) - Y_i(z', 0) \geq C_i},  \\
+        \mu_{d'}\left(z' ; \vec X_i \right) = \left( z' + d' + z' d' \right).
+    \end{align*}
+    Following the previous, these data have the following first and second-stage equations, where $\vec X_i^\text{IV}$ is an additive cost IV:
+    \begin{align*}
+        D_i &= \indicator{Z_i - \vec X_i^{\text{IV}}
+            \geq C_i - \Big( U_{1,i} - U_{0,i} \Big)},  \\
+        Y_i &= Z_i + D_i + Z_i D_i
+            + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
+    \end{align*}
+    $\implies$ unobserved confounding by BivariateNormal $\Big(U_{0,i}, U_{1,i}\Big)$.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Simulation evidence}
+    Simulation with Roy selection, trivariate normal errors $+$ unobserved costs.
     \vskip-0.25cm
     \begin{figure}
         \caption{Simulated Distribution of CM Effect Estimates from 10,000 DGPs.}
@@ -1367,8 +1488,8 @@
     \begin{enumerate}
         \item Ward economists away from using CM methods unabashedly. \\ 
         $\to$ Noted problems in the most popular methods for CM effects, pertinent for economic applications.
-        \item Bring CM methods into the credibility revolution (Angrist Card Imbens 2022), and labour selection-into-treatment (Heckman 2000) agendas. \\
-        $\to$ Traced out identification by selection models. 
+        \item Bring CM methods away from na\"ive ignorability assumptions. \\
+        $\to$ Methods which are valid in cases that labour theory for selection-into-treatment applies.
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
     \pause
@@ -1376,8 +1497,66 @@
     \begin{itemize}
         \item Connect the control function approach to MTE methods
         \item Large sample properties $+$ analytical SEs
-        \item Use this approach to estimate direct and indirect effects of genetics and education (this is a companion paper)
-        \item (eventually) R package for selection-adjusted CM effects, by Heckman model and IV-assisted CF/MTE.
+        \item Use this approach to estimate direct and indirect effects of genetics and education (companion paper)
+        \item (eventually) \textit{R} package for selection-adjusted CM effects, by Heckman model and IV-assisted CF/MTE.
+    \end{itemize}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Appendix: CM Guiding Model}
+    \label{cm-model}
+    Consider binary treatment $Z_i = 0, 1$,
+    binary mediator $D_i = 0, 1$,
+    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    \vskip-1.00cm
+    \begin{figure}[h!]
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2.5cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2.5cm of mediator] {$Y$};
+            % Label Z, D, Y
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [below left=-0.2cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [below right=-0.2cm and 0.5cm of mediator] {LAIE};
+            \node[color=orange] [below=0.675cm of mediator] {ADE};
+            % Add in the confounders
+            %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
+            %\path[->,RoyalPurple] (confounderX) edge (mediator);
+            %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
+            \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
+                above=0.5cm of outcome] {$\vec U$};
+            \node[color=RoyalBlue] [right=0.1cm of confounderU] {Confounder};
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.5cm
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \[ \text{Average Direct Effect (ADE)}: \;\;\;
+        \E{Y_i\left(\eqhighlight{blue}{1}, D_i(Z_i) \right)
+            - Y_i\left(\eqhighlight{blue}{0}, D_i(Z_i) \right)} \]
+    \vskip-0.35cm
+    \begin{itemize}
+        \item ADE is causal effect $Z\to Y$, blocking the indirect $D$ path.
+    \end{itemize}
+    \vskip0.25cm
+    \[ \text{Average Indirect Effect (AIE):} \;\;\;
+    \E{Y_i\left(Z_i, \eqhighlight{ForestGreen}{D_i(1)} \right)
+        - Y_i\left(Z_i, \eqhighlight{ForestGreen}{D_i(0)} \right)} \]
+    \vskip-0.25cm
+    \begin{itemize}
+        \item AIE is causal effect of $D(Z) \to Y$, blocking the direct $Z$ path.\footnote[frame]{
+            Note: AIE $=$ fraction of $D(Z)$ compliers $\times$ average effect $D\to Y$ among compliers.}
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -1425,7 +1604,7 @@
 \begin{frame}[noframenumbering]
     \frametitle{Appendix: Connection to MTEs}
     \label{MTEs}
-    The ADE is fine to estimate with a selection model/CF, but AIE refers to mediator gains only among mediator compliers.
+    The ADE is fine to estimate with a selection model/CF, but AIE refers to mediator benefits only among mediator compliers.
     \[ \text{AIE } =
     \E{D_i(1) \neq D_i(0)} 
     \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) \neq  D_i(0)}. \]

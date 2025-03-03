@@ -6,7 +6,11 @@
 # Note:
 # "R CMD BATCH" runs an Rscript, and logs output in a corresponding *.Rout file.
 
+
+
 ## Enact simulation evidence, and figures.
+# May need to run on the COrnell BioHPC/econ cluster node.
+# ssh ecco01@XXX.biohpc.cornell.edu
 cd simulations
 # Run the first one.
 R CMD BATCH --no-save roy-sim.R
@@ -39,7 +43,6 @@ cd presentation
 # Remove the pauses for display version
 presOld="dvipsnames"
 presNew="dvipsnames,handout"
-cat presentation.tex | grep -c "$presOld"
 sed -i -e "s/$presOld/$presNew/g" presentation.tex
 latexmk -pdf presentation.tex
 latexmk -c
