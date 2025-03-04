@@ -341,7 +341,7 @@
     \begin{itemize}
         \item \textbf{Causal mediation.}
         \\ Baron Kelly (1986), Imai Keele Yamamoto (2010), Flores Flores-Lagunes (2009), Fr\"olich Huber (2017), Huber (2020), Kwon Roth (2024).
-        \item \textbf{Selection-into-treatment, selection models/MTEs.}
+        \item \textbf{Labour theory, Selection-into-treatment.}
         \\ Roy (1951), Heckman (1979), Heckman Honor\'e (1990), Florens Heckman Meghir Vytlacil (2008).
     \end{itemize}
 \end{frame}%-------------------------------------------------------------------------------
@@ -349,9 +349,9 @@
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Direct \& Indirect Effects --- Model}
-    Consider binary treatment $Z_i = 0, 1$,
-    binary mediator $D_i = 0, 1$,
-    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    Consider binary \textcolor{blue}{treatment $Z_i = 0, 1$},
+    binary \textcolor{ForestGreen}{mediator $D_i = 0, 1$},
+    and continuous \textcolor{red}{outcome $Y_i$} for individuals $i = 1, \hdots, N$.
     \vskip-0.5cm
     \begin{figure}
         \centering
@@ -393,9 +393,49 @@
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Model}
-    Consider binary treatment $Z_i = 0, 1$,
-    binary mediator $D_i = 0, 1$,
-    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    Consider binary \textcolor{blue}{treatment $Z_i = 0, 1$},
+    binary \textcolor{ForestGreen}{mediator $D_i = 0, 1$},
+    and continuous \textcolor{red}{outcome $Y_i$} for individuals $i = 1, \hdots, N$.
+    \vskip-0.5cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
+            % Label Z, D, Y
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            \node[color=orange] [below=0.5cm of mediator] {ADE};
+        \end{tikzpicture}
+    \end{figure}
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \pause
+    Suppose $Z_i$ is ignorable, conditional on controls $\vec X_i$.
+    \[ Z_i \indep  D_i(z), Y_i(z', d') \; \; | \;\; \vec X_i \text{ for } z, z', d' = 0, 1. \]
+
+    \vfill
+    E.g., a natural experiment for $\textcolor{blue}{Z_i}$ disrupting open-world selection-into-$Z_i$
+    \begin{itemize}
+        \item Vietnam draft lottery for \textcolor{blue}{military conscription} (Angrist, 1990).
+        \item Oregon wait-list lottery for \textcolor{blue}{health insurance} (Finkelstein+, 2009).
+    \end{itemize}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Direct \& Indirect Effects --- Model}
+    Consider binary \textcolor{blue}{treatment $Z_i = 0, 1$},
+    binary \textcolor{ForestGreen}{mediator $D_i = 0, 1$},
+    and continuous \textcolor{red}{outcome $Y_i$} for individuals $i = 1, \hdots, N$.
     \vskip-0.5cm
     \begin{figure}
         \centering
@@ -423,46 +463,6 @@
     Suppose $Z_i$ is ignorable, conditional on $\vec X_i$.
     \[ Z_i \indep  D_i(z), Y_i(z', d') \; \; | \;\; \vec X_i \text{ for } z, z', d' = 0, 1. \]
 
-    \vfill
-    E.g., a natural experiment for $\textcolor{blue}{Z_i}$ disrupting open-world selection-into-$Z_i$
-    \begin{itemize}
-        \item Vietnam draft lottery for \textcolor{blue}{military conscription} (Angrist, 1990).
-        \item Oregon wait-list lottery for \textcolor{blue}{health insurance} (Finkelstein+, 2009).
-    \end{itemize}
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}[noframenumbering]
-    \frametitle{Direct \& Indirect Effects --- Model}
-    Consider binary treatment $Z_i = 0, 1$,
-    binary mediator $D_i = 0, 1$,
-    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
-    \vskip-0.5cm
-    \begin{figure}
-        \centering
-        \singlespacing
-        \begin{tikzpicture}
-            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
-            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
-            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
-            % Label Z, D, Y
-            \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
-            \node[color=blue] [left=0.1cm of treatment] {Treatment};
-            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
-            % Draw the causal arrows
-            \path[->, thick] (treatment) edge (mediator);
-            \path[->, thick] (mediator) edge (outcome);
-            \path[->, thick] (treatment) edge[bend right=30] (outcome);
-            % Label direct and indirect effect
-            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
-            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
-            \node[color=orange] [below=0.5cm of mediator] {ADE};
-        \end{tikzpicture}
-    \end{figure}
-    \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
-    Suppose $Z_i$ is ignorable, conditional on $\vec X_i$.
-    \[ Z_i \indep  D_i(z), Y_i(z', d) \; \; | \;\; \vec X_i \text{ for } z, z', d = 0, 1. \]
-
     Only two causal effects are identified so far.
     \begin{align*}
     \text{ATE:} \;\; \E{Y_i(1, D_i(1)) - Y_i(0, D_i(0))}
@@ -474,9 +474,9 @@
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Model}
-    Consider binary treatment $Z_i = 0, 1$,
-    binary mediator $D_i = 0, 1$,
-    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    Consider binary \textcolor{blue}{treatment $Z_i = 0, 1$},
+    binary \textcolor{ForestGreen}{mediator $D_i = 0, 1$},
+    and continuous \textcolor{red}{outcome $Y_i$} for individuals $i = 1, \hdots, N$.
     \vskip-0.5cm
     \begin{figure}
         \centering
@@ -504,27 +504,28 @@
     \pause
     First-stage and ATE answer important questions:
     \begin{itemize}
-        \item Were drafted men poorer?  Did they conform or dodge?
+        \item Were drafted men poorer?
+        Did they conform or dodge?
         (Angrist, 1990).
         \item Did socialised health insurance improve health? (Finkelstein+, 2009).
     \end{itemize}
     \vskip0.25cm
     \pause
-    Open questions:
+    Unanswered questions about the mechanism(s):
     \begin{itemize}
         \item Did drafted men take education to dodge the draft?
         Was it entirely military service?
         (Angrist, 1990).
         \item Did health benefits come from using health care more?
-        Were there gains from reduced uncertainty (risk averse insurance)?
+        Health gains from reduced uncertainty --- i.e., insurance?
         (Finkelstein+, 2009).
     \end{itemize}
 \end{frame}%-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Model}
-    Consider binary treatment $Z_i = 0, 1$,
-    binary mediator $D_i = 0, 1$,
-    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    Consider binary \textcolor{blue}{treatment $Z_i = 0, 1$},
+    binary \textcolor{ForestGreen}{mediator $D_i = 0, 1$},
+    and continuous \textcolor{red}{outcome $Y_i$} for individuals $i = 1, \hdots, N$.
     \vskip-0.5cm
     \begin{figure}
         \centering
@@ -572,15 +573,15 @@
     \frametitle{Direct \& Indirect Effects --- Identification} 
     \textbf{Sequential ignorability} (\textbf{SI}, Imai Keele Yamamoto 2010):
     \vskip0.125cm
-    Assume mediator $D_i$ is \textit{also} ignorable, conditional on $\vec X_i$ and $Z_i$ realisation
-    \[ D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
-    \text{ for } z', d = 0, 1. \]
+    Assume \textcolor{ForestGreen}{mediator $D_i$} is \textit{also} ignorable, conditional on $\vec X_i$ and \textcolor{blue}{$Z_i$ realisation}
+    \[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
+        \text{ for } z', d' = 0, 1. \]
     \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
     If \textbf{SI} holds then ADE and AIE are identified by two-stage regression:
     \begin{align*}
-        \text{ADE} &= \E{
-            \underbrace{\Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i, \vec X_i$ constant}}}
+        \text{ADE} &= \E[D_i, \vec X_i]{
+            \underbrace{\Egiven{Y_i}{Z_i = 1, D_i, \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i, \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i, \vec X_i$ constant}}}
     \end{align*}
     \vskip0.75cm
     \par\noindent\rule{\textwidth}{0.4pt}
@@ -615,9 +616,9 @@
     \frametitle{Direct \& Indirect Effects --- Identification} 
     \textbf{Sequential ignorability} (\textbf{SI}, Imai Keele Yamamoto 2010):
     \vskip0.125cm
-    Assume mediator $D_i$ is \textit{also} ignorable, conditional on $\vec X_i$ and $Z_i$ realisation
-    \[ D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
-    \text{ for } z', d = 0, 1. \]
+    Assume \textcolor{ForestGreen}{mediator $D_i$} is \textit{also} ignorable, conditional on $\vec X_i$ and \textcolor{blue}{$Z_i$ realisation}
+    \[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
+    \text{ for } z', d' = 0, 1. \]
     \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
     If \textbf{SI} holds then ADE and AIE are identified by two-stage regression:
@@ -659,9 +660,9 @@
     \frametitle{Direct \& Indirect Effects --- Identification} 
     \textbf{Sequential ignorability} (\textbf{SI}, Imai Keele Yamamoto 2010):
     \vskip0.125cm
-    Assume mediator $D_i$ is \textit{also} ignorable, conditional on $\vec X_i$ and $Z_i$ realisation
-    \[ D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
-    \text{ for } z', d = 0, 1. \]
+    Assume \textcolor{ForestGreen}{mediator $D_i$} is \textit{also} ignorable, conditional on $\vec X_i$ and \textcolor{blue}{$Z_i$ realisation}
+    \[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
+    \text{ for } z', d' = 0, 1. \]
     \par\noindent\rule{\textwidth}{0.4pt}
     E.g., OLS simultaneous regression (Imai Keele Yamamoto, 2010):
     \begin{align*}
@@ -700,9 +701,9 @@
 
     \pause
     \vfill
-    Before we join epidemiologists/psychologists/medical researchers in this conclusion, let us interrogate the \textbf{SI} assumption.
-    \[ D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
-    \text{ for } z', d = 0, 1. \]
+    Before we import these methods to applied/labour economics and observational research, interrogate the \textbf{SI} assumption.
+    \[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
+    \text{ for } z', d' = 0, 1. \]
     \colorbox{yellow}{Would this assumption hold true in settings that social scientists consider?}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -740,8 +741,8 @@
     \par\noindent\rule{\textwidth}{0.4pt}
     
     \textbf{SI} in practice:
-    \[ D_i \indep Y_i(z', d) \;\; | \;\; \vec X_i, Z_i = z',
-    \text{ for } z', d = 0, 1. \]
+    \[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
+    \text{ for } z', d' = 0, 1. \]
     \begin{enumerate}
         \item Medicaid assigned randomly (ensured by studying the 2008 Oregon waitlist lottery).
         \item \colorbox{yellow}{Hospital usage is quasi-random, conditional on Medicaid assignment $Z_i$} \\
@@ -787,7 +788,7 @@
     i.e., Roy (1951) selection into $D_i$.
     \par\noindent\rule{\textwidth}{0.4pt}
     \pause
-    $\implies$ unobserved confounder $\vec U$ \\
+    Roy selection-into-$D$ $\implies$ unobserved confounder $\vec U$ \\
     e.g., underlying health conditions.
     \vskip-1.375cm
     \begin{figure}[h!]
@@ -833,15 +834,13 @@
             \centering
             \caption{Cells in a lab
                 $\to$ \textbf{SI} believable.}
-            \includegraphics[width=\textwidth]{
-                presentation-files/headlines/science-lab.png}
+            \includegraphics[width=\textwidth]{presentation-files/headlines/science-lab.png}
         \end{subfigure}
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{People choosing healthcare
                 $\to$ \textbf{SI} not.}
-            \includegraphics[width=\textwidth]{
-                presentation-files/headlines/health-differences.jpg}
+            \includegraphics[width=\textwidth]{presentation-files/headlines/health-differences.jpg}
         \end{subfigure}
     \end{figure}
 \end{frame}
@@ -920,6 +919,7 @@
                 \end{aligned} \right) \end{aligned}} }_{
                     \text{\textcolor{orange}{Group difference bias}}}
     \end{align*}}
+    \hyperlink{group-diff-ade}{\beamergotobutton{Group-diff}}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -958,6 +958,7 @@
             \end{aligned} \right)
         \end{aligned} \right]}_{\text{\textcolor{orange}{Groups difference Bias}}}
     \end{align*}}
+    \hyperlink{group-diff-aie}{\beamergotobutton{Group-diff}}
 \end{frame}
 %-------------------------------------------------------------------------------
 \section{2. Identification by Selection Model}
@@ -1424,7 +1425,7 @@
         \text{BivariateNormal}\left( 0, 0, \sigma_0, \sigma_1, \rho \right),
         \;\; \text{Costs }C_i \sim N(0, 0.5).
     \end{align*}    
-    Suppose each $i$ chooses to take mediator $D_i$ by a Roy model, with constant partial effects for $z', d' = 0, 1$.
+    Suppose each $i$ chooses to take \textcolor{ForestGreen}{mediator $D_i$} by a Roy model, with constant partial effects for $z', d' = 0, 1$.
     \begin{align*}
         D_i(z') = \indicator{Y_i(z', 1) - Y_i(z', 0) \geq C_i},  \\
         \mu_{d'}\left(z' ; \vec X_i \right) = \left( z' + d' + z' d' \right).
@@ -1449,14 +1450,12 @@
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{ADE.}
-            \includegraphics[width=\textwidth]{
-                ../programs/simulations/sim-output/direct-boot.png}
+            \includegraphics[width=\textwidth]{../programs/simulations/sim-output/direct-boot.png}
         \end{subfigure}
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{AIE.}
-            \includegraphics[width=\textwidth]{
-                ../programs/simulations/sim-output/indirect-boot.png}
+            \includegraphics[width=\textwidth]{../programs/simulations/sim-output/indirect-boot.png}
         \end{subfigure}
     \end{figure}
 \end{frame}
@@ -1470,14 +1469,12 @@
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{ADE.}
-            \includegraphics[width=\textwidth]{
-                ../programs/simulations/sim-output/rho-directeffect-bias.png}
+            \includegraphics[width=\textwidth]{../programs/simulations/sim-output/rho-directeffect-bias.png}
         \end{subfigure}
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{AIE.}
-            \includegraphics[width=\textwidth]{
-                ../programs/simulations/sim-output/rho-indirecteffect-bias.png}
+            \includegraphics[width=\textwidth]{../programs/simulations/sim-output/rho-indirecteffect-bias.png}
         \end{subfigure}
     \end{figure}
 \end{frame}
@@ -1505,9 +1502,9 @@
 \begin{frame}[noframenumbering]
     \frametitle{Appendix: CM Guiding Model}
     \label{cm-model}
-    Consider binary treatment $Z_i = 0, 1$,
-    binary mediator $D_i = 0, 1$,
-    and continuous outcome $Y_i$ for individuals $i = 1, \hdots, N$.
+    Consider binary \textcolor{blue}{treatment $Z_i = 0, 1$},
+    binary \textcolor{ForestGreen}{mediator $D_i = 0, 1$},
+    and continuous \textcolor{red}{outcome $Y_i$} for individuals $i = 1, \hdots, N$.
     \vskip-1.00cm
     \begin{figure}[h!]
         \centering
@@ -1558,6 +1555,69 @@
         \item AIE is causal effect of $D(Z) \to Y$, blocking the direct $Z$ path.\footnote[frame]{
             Note: AIE $=$ fraction of $D(Z)$ compliers $\times$ average effect $D\to Y$ among compliers.}
     \end{itemize}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Group Difference --- ADE}
+    \label{group-diff-ade}
+    CM effects contaminated by (less interpretable) bias terms.
+    \[ \text{\textcolor{purple}{CM Estimand}}
+        = \text{\textcolor{blue}{ADEM}}
+            + \text{\textcolor{red}{Selection Bias}} \]
+    \vspace{-0.25cm}
+    {\footnotesize
+    \begin{align*}
+        & \underbrace{\mathbb E_{D_i} \Big[
+            \Egiven{Y_i}{Z_i = 1, D_i} - \Egiven{Y_i}{Z_i = 0, D_i} \Big]}_{
+                \text{\textcolor{purple}{Estimand, Direct Effect}} } \\
+        & = \underbrace{\E[D_i= d']{
+            \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d'}} }_{
+            \text{\textcolor{blue}{Average Direct Effect on Mediator (ADEM) take-up --- i.e., $D_i(1)$ weighted}}} \\
+        & \;\;\;\; + \underbrace{ \mathbb E_{D_i} \Big[ 
+            \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d} 
+            - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d} \Big] }_{
+                \text{\textcolor{red}{Selection Bias}}}
+    \end{align*}}
+    The weighted ADE you get here is a positive weighted sum of local ADEs, but with policy irrelevant weights $D_i(1) = d'$.
+
+    \vskip0.5cm
+    $\implies$ consider this group bias, noting difference from true ADE.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Group Difference --- AIE}
+    \label{group-diff-aie}
+    CM effects contaminated by (less interpretable) bias terms.
+    \[ \text{\textcolor{purple}{CM Estimand}}
+        = \text{\textcolor{ForestGreen}{AIEM}}
+            + \Big(\text{\textcolor{red}{Selection Bias}}
+            + \text{\textcolor{orange}{Group difference bias}}\Big) \]
+    \vspace{-0.25cm}
+    {\footnotesize
+    \begin{align*}
+        & \underbrace{\E[Z_i]{
+            \Big( \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0} \Big) \times
+            \Big( \Egiven{Y_i}{Z_i, D_i = 1} - \Egiven{Y_i}{Z_i, D_i = 0} \Big) }}_{ \text{\textcolor{purple}{Estimand, Indirect Effect}} } \\
+        & = \underbrace{
+                \Egiven{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{D_i = 1}
+            }_{\text{\textcolor{ForestGreen}{Average Indirect Effect on Mediated (AIEM) --- i.e., $D_i=1$ weighted}} } \\
+        & \;\;\;\; + \underbrace{\pi  \Big(
+            \Egiven{Y_i(Z_i, 0)}{D_i = 1} - \Egiven{Y_i(Z_i, 0)}{D_i = 0} \Big)}_{
+                \text{\textcolor{red}{Selection Bias}}} \\
+        & \;\;\;\; + \underbrace{ \pi \left[
+            \left( \frac{1 - \Prob{D_i(1) = 1, D_i(0) = 0} }{
+                \Prob{D_i(1) = 1, D_i(0) = 0}} \right)
+            \left( \begin{aligned}
+                &\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 0 \text{ or } D_i(0)=1} \\ 
+                &  - \E{Y_i(Z_i, 1) - Y_i(Z_i, 0)}
+            \end{aligned} \right)
+        \right]}_{\text{\textcolor{orange}{Groups difference Bias}}}
+    \end{align*}}
+    The weighted AIE you get here is not a positive weighted sum of local AIEs, 
+    because the AIE is only about $D(Z)$ compliers.
+    \hyperlink{cm-model}{\beamergotobutton{Model}}.
+
+    $\implies$ consider this group bias, noting difference from true AIE.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
