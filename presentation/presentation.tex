@@ -840,7 +840,7 @@
             \centering
             \caption{People choosing healthcare
                 $\to$ \textbf{SI} not.}
-            \includegraphics[width=\textwidth]{presentation-files/headlines/health-differences.jpg}
+            \includegraphics[width=0.965\textwidth]{presentation-files/headlines/health-differences.jpg}
         \end{subfigure}
     \end{figure}
 \end{frame}
@@ -1106,11 +1106,11 @@
         \end{tikzpicture}
     \end{figure}
     \vskip-0.25cm
-    Put $\mu_{d'}(z';\vec X_i)= \Egiven{Y_i(z',d')}{\vec X_i}$, and $U_{d'}$ the corresponding errors.
+    Write outcomes as sum of means and mean-zero errors, $U_{D_i , i}$.
     \[ Y_i(Z_i, 0)
-        = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
+        = \Egiven{Y_i(Z_i, 0)}{\vec X_i} + U_{0,i}, \;\;
     Y_i(Z_i, 1)
-        = \mu_{1}(Z_i; \vec X_i) + U_{1,i}. \]
+        = \Egiven{Y_i(Z_i, 1)}{\vec X_i} + U_{1,i}. \]
     \par\noindent\rule{\textwidth}{0.4pt}
     Then this system has the following regression equations:
     \begin{align*}
