@@ -1167,7 +1167,7 @@
     \vfill
     
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{Intuition:} Identify second-stage (despite correlated error term), to get ADE $+$ AIE.
+    \textbf{Selection model intuition:} Identify second-stage (despite correlated error term), to get ADE $+$ AIE.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -1214,7 +1214,7 @@
     \end{align*}
     where $C_i$ are costs of taking $D_i$.
     \par\noindent\rule{\textwidth}{0.4pt}
-    Selection model intuition $\implies$ use first-stage errors to purge second-stage correlated errors.
+    \textbf{Selection model intuition:} use first-stage errors to purge second-stage correlated errors.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -1252,7 +1252,7 @@
         \item Mediator monotonicity, $\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1$
         \[ \implies D_i(z') = \indicator{\mu(z';\vec X_i) \geq U_i}. \]
         \item First-stage errors inform second-stage errors, 
-        \[ \text{Corr}\Big[ U_i, \left(1 - D_i \right)U_{0,i} + D_i U_{1,i} \Big] > 0. \]
+        \[ \text{Cov}\Big[ U_i, \left(1 - D_i \right)U_{0,i} + D_i U_{1,i} \Big] > 0. \]
         \item Error-term distribution,
         $U_i, U_{0,i}, U_{1,i} \sim \text{TriNormal}\left(\mat M, \mat\Sigma \right)$.
     \end{itemize}
@@ -1350,7 +1350,7 @@
         \item Mediator monotonicity, $\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1$
         \[ \implies D_i(z') = \indicator{\mu(z';\vec X_i) \geq U_i}. \]
         \item First-stage errors inform second-stage errors, 
-        \[ \text{Corr}\Big[ U_i, \left(1 - D_i \right)U_{0,i} + D_i U_{1,i} \Big] > 0. \]
+        \[ \text{Cov}\Big[ U_i, \left(1 - D_i \right)U_{0,i} + D_i U_{1,i} \Big] > 0. \]
         \item Valid instrument $\vec X_i^\text{IV}$ for $D_i$, to separate CF functional form.
     \hyperlink{MTEs}{\beamergotobutton{MTEs}}
     \end{enumerate}
@@ -1415,33 +1415,41 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{Simulation evidence}
-    Simulation with Roy selection, trivariate normal errors $+$ unobserved costs.
+    \frametitle{Simulation Evidence}
+    Simulation with trivariate normal errors $+$ unobserved costs,
     $N = 10,000$.
+    \vskip0cm
+    \begin{enumerate}
+        \item $\text{\textcolor{blue}{Random treatment $Z_i$}}
+            \sim \text{Binom}\left(0.5 \right) $
+        \item $ \eqhighlight{yellow}{
+            \left( U_{0,i}, U_{1,i} \right) \sim
+        \text{BivariateNormal}\left( 0, 0, \sigma_0, \sigma_1, \rho \right)},
+            \;\; \text{Costs }C_i \sim N(0, 0.5). $
+    \end{enumerate}
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \pause
+    Roy \textcolor{ForestGreen}{selection-into-$D_i$}, with constant partial effects $+$ interaction term.
     \begin{align*}
-        \text{\textcolor{blue}{Random treatment $Z_i$}}
-            \sim \text{Binom}\left(0.5 \right)\\
-        \left( U_{0,i}, U_{1,i} \right) \sim
-        \text{BivariateNormal}\left( 0, 0, \sigma_0, \sigma_1, \rho \right),
-        \;\; \text{Costs }C_i \sim N(0, 0.5).
-    \end{align*}    
-    Suppose each $i$ chooses to take \textcolor{ForestGreen}{mediator $D_i$} by a Roy model, with constant partial effects for $z', d' = 0, 1$.
-    \begin{align*}
-        D_i(z') = \indicator{Y_i(z', 1) - Y_i(z', 0) \geq C_i},  \\
-        \mu_{d'}\left(z' ; \vec X_i \right) = \left( z' + d' + z' d' \right).
+        D_i(z')    &= \indicator{Y_i(z', 1) - Y_i(z', 0) \geq C_i},&  \\
+        Y_i(z',d') &= \left( z' + d' + z' d' \right) + U_{d'}
+        & \text{ for } z',d' = 0,1.
     \end{align*}
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \pause
     Following the previous, these data have the following first and second-stage equations, where $\vec X_i^\text{IV}$ is an additive cost IV:
     \begin{align*}
         D_i &= \indicator{Z_i - \vec X_i^{\text{IV}}
-            \geq C_i - \Big( U_{1,i} - U_{0,i} \Big)},  \\
+            \geq C_i - \Big(\eqhighlight{yellow}{U_{1,i} - U_{0,i}} \Big) } \\
         Y_i &= Z_i + D_i + Z_i D_i
-            + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
+            + \eqhighlight{yellow}{
+                \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}}.
     \end{align*}
     $\implies$ unobserved confounding by BivariateNormal $\Big(U_{0,i}, U_{1,i}\Big)$.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{Simulation evidence}
+    \frametitle{Simulation Evidence}
     Simulation with Roy selection, BivariateNormal errors $+$ unobserved costs.
     \vskip-0.25cm
     \begin{figure}
@@ -1461,7 +1469,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{Simulation evidence}
+    \frametitle{Simulation Evidence}
     Simulation with Roy selection, trivariate normal errors, unobserved costs.    
     \begin{figure}[h!]
         \caption{Point Estimates of CM Effects, OLS versus Control Function, varying $\rho$ values with $\sigma_0 = 1, \sigma_1 = 2$ fixed.}
@@ -1485,8 +1493,8 @@
     \begin{enumerate}
         \item Ward economists away from using CM methods unabashedly. \\ 
         $\to$ Noted problems in the most popular methods for CM effects, pertinent for economic applications.
-        \item Bring CM methods away from na\"ive ignorability assumptions. \\
-        $\to$ Methods which are valid in cases that labour theory for selection-into-treatment applies.
+        \item CM methods away from ignorability assumptions, inappropriate for social sci settings. \\
+        $\to$ Methods valid when labour theory for selection-into-treatment pertinent.
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
     \pause
