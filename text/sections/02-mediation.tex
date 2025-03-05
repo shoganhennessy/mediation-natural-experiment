@@ -77,16 +77,16 @@ The ADE and AIE are not separately identified without further assumptions.
         \path[->, thick] (mediator) edge (outcome);
         \path[->, thick] (treatment) edge[bend right=45] (outcome);
         % Label direct and indirect effect
-        \node[color=orange] [below left=-0.2cm and 0.2cm of mediator] {First-stage};
-        \node[color=orange] [below right=-0.2cm and 0.5cm of mediator] {LAIE};
+        \node[color=orange] [below left=-0.3cm and 0.2cm of mediator] {First-stage};
+        \node[color=orange] [below right=-0.3cm and 0.75cm of mediator] {LAIE};
         \node[color=orange] [below=1.2cm of mediator] {ADE};
         % Add in the confounders
         %\node[state,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
         %\path[->,RoyalPurple] (confounderX) edge (mediator);
         %\node[color=RoyalPurple] [left=0.1cm of confounderX] {Observed controls};
         \node[state,thick,dashed,RoyalBlue] (confounderU) [above=0.75cm of outcome] {$\vec U$};
-        \path[->,dashed,color=RoyalBlue] (confounderU) edge (mediator);
-        \path[->,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+        \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+        \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
         %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
     \end{tikzpicture}
     \justify
