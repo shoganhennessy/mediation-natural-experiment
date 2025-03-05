@@ -622,11 +622,11 @@
     \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
     If \textbf{SI} holds then ADE and AIE are identified by two-stage regression:
-    \[ \text{AIE} = \E{
+    \[ \text{AIE} = \E[Z_i, \vec X_i]{
         \begin{aligned}
             & \underbrace{\Big(\Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i} \Big)}_{\text{First-stage regression, $D_i$ on $Z_i$}} \\
             & \times \underbrace{\Big(
-                \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i, \vec X_i$ constant}}
+                \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i, \vec X_i$ constant}}
         \end{aligned}} \]
     \par\noindent\rule{\textwidth}{0.4pt}
     \vskip-0.5cm
@@ -892,6 +892,7 @@
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection Bias}
+    \label{main:ade-selection-bias}
     $\implies$ CM Effects have this same flavour, causal effects contaminated by (less interpretable) bias terms.
     \hyperlink{cm-model}{\beamergotobutton{Model}}
     \[ \text{\textcolor{purple}{CM Estimand}}
@@ -901,21 +902,21 @@
     \vspace{-0.25cm}
     {\footnotesize
     \begin{align*}
-        & \underbrace{\mathbb E_{D_i} \Big[
-            \Egiven{Y_i}{Z_i = 1, D_i} - \Egiven{Y_i}{Z_i = 0, D_i} \Big]}_{
+        & \underbrace{\mathbb E_{D_i=d'} \Big[
+            \Egiven{Y_i}{Z_i = 1, D_i=d'} - \Egiven{Y_i}{Z_i = 0, D_i=d'} \Big]}_{
                 \text{\textcolor{purple}{Estimand, Direct Effect}} } \\
         & = \underbrace{\E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}}_{
             \text{\textcolor{blue}{Average Direct Effect}}} \\
-        & \;\;\;\; + \underbrace{ \mathbb E_{D_i} \Big[ 
-            \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d} 
-            - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d} \Big] }_{
+        & \;\;\;\; + \underbrace{ \mathbb E_{D_i=d'} \Big[ 
+            \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d'} 
+            - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d'} \Big] }_{
                 \text{\textcolor{red}{Selection Bias}}} \\
-        & \;\;\;\; + \underbrace{ \E[D_i ]{
+        & \;\;\;\; + \underbrace{ \E[D_i =d']{
             \begin{aligned}
-            &\Big(1 - \Prob{D_i(1) = d} \Big) \\
+            &\Big(1 - \Prob{D_i(1) = d'} \Big) \\
             &\times \left( \begin{aligned}
-                &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1-d} \\ 
-                &  - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(0) = d}
+                &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1-d'} \\ 
+                &  - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(0) = d'}
                 \end{aligned} \right) \end{aligned}} }_{
                     \text{\textcolor{orange}{Group difference bias}}}
     \end{align*}}
@@ -924,6 +925,7 @@
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection Bias}
+    \label{main:aie-selection-bias}
     $\implies$ CM Effects have this same flavour, causal effects contaminated by (less interpretable) bias terms.
     \hyperlink{cm-model}{\beamergotobutton{Model}}
     Put $\pi = \Prob{D_i(1) = 1, D_i(0) = 0}$.
@@ -1582,14 +1584,15 @@
             \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d'}} }_{
             \text{\textcolor{blue}{Average Direct Effect on Mediator (ADEM) take-up --- i.e., $D_i(1)$ weighted}}} \\
         & \;\;\;\; + \underbrace{ \mathbb E_{D_i} \Big[ 
-            \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d} 
-            - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d} \Big] }_{
+            \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d'} 
+            - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d'} \Big] }_{
                 \text{\textcolor{red}{Selection Bias}}}
     \end{align*}}
     The weighted ADE you get here is a positive weighted sum of local ADEs, but with policy irrelevant weights $D_i(1) = d'$.
 
     \vskip0.5cm
     $\implies$ consider this group bias, noting difference from true ADE.
+    \hyperlink{main:ade-selection-bias}{\beamergotobutton{Back}}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -1626,6 +1629,7 @@
     \hyperlink{cm-model}{\beamergotobutton{Model}}.
 
     $\implies$ consider this group bias, noting difference from true AIE.
+    \hyperlink{main:aie-selection-bias}{\beamergotobutton{Back}}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
