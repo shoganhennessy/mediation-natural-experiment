@@ -207,8 +207,8 @@ For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differ
     \end{aligned} \right]
 \end{align*}
 
-The selection bias terms come from systematic differences between groups take or refuse the mediator ($D_i = 0$ versus $D_i = 1$), differences not fully unexplained by $\vec X_i$.
-These selection bias terms would equal to zero if the mediator was ignorable \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, but do not necessarily average to zero if not.
+The selection bias terms come from systematic differences between the groups taking or refusing the mediator ($D_i = 1$ versus $D_i = 0$), differences not fully unexplained by $\vec X_i$.
+These selection bias terms would equal zero if the mediator had been ignorable \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, but do not necessarily average to zero if not.
 The group differences represent the fact that a matching estimator gives an average effect on the treated group and, when selection-on-observables does not hold, this is systematically different from the average effect \citep{heckman1998characterizing}.\footnote{
     The bias terms here mirror those in \cite{heckman1998characterizing,angrist2009mostly} for a single $D\to Y$ treatment effect, when $D_i$ is not ignorable:
     \[ \Egiven{ Y_i}{D_i =1} - \Egiven{ Y_i}{D_i =0}
