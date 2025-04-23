@@ -44,9 +44,9 @@ simulate.data <- function(rho, sigma_0, sigma_1, sigma_C,
     ## sigma_C >= 0 measuring standard deviation of U_C.
     ## sample.size: integer, representing output sample size (i.e., N).
     # First covariate (\vec X_i^-)
-    X_minus <- rnorm(sample.size, mean = 0, sd = 1)
+    X_minus <- 4 + rnorm(sample.size, mean = 0, sd = 1)
     # Second covariate (instrument for the control function).
-    X_IV <- runif(sample.size, 0, 1)
+    X_IV <- runif(sample.size, 0, 1) # rbinom(sample.size, 1, 1 / 2)
     # Simulate the unobserved error terms.
     U_all <- mvrnorm(n = sample.size, mu = c(0, 0, 0),
         Sigma = matrix(c(
@@ -63,7 +63,7 @@ simulate.data <- function(rho, sigma_0, sigma_1, sigma_C,
         return(x_minus + (z + d + z * d))
     }
     mu_cost_z_X <- function(z, x_minus, x_iv){
-        return(z + x_minus - x_iv)
+        return(- 3 * z + x_minus - x_iv)
     }
     # Mean outcomes: Y_i(z, d) = mu_d(z; X_i) + U_D
     Y_0_0 <- mu_outcome_z_d_X(0, 0, X_minus) + U_0
@@ -163,8 +163,8 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
 ## Define a function to estimate mediation, given the first + second-stages.
 
 # Estimate the values, given a first and second-stages
-estimated.values <- function(
-    firststage.reg, direct.reg, indirect.reg, example.data){
+estimated.values <- function(firststage.reg, secondstage.reg, example.data,
+    complier.adjustment = NULL){
     ### Inputs:
     ## example.data, a data frame simulated from above.
     # calculate the first-stage by prediction
@@ -173,12 +173,16 @@ estimated.values <- function(
             firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
     # calculate the second-stage direct effect
     direct.est <- predict(
-        direct.reg, newdata = mutate(example.data, Z = 1)) -
-        predict(direct.reg, newdata = mutate(example.data, Z = 0))
+        secondstage.reg, newdata = mutate(example.data, Z = 1)) -
+        predict(secondstage.reg, newdata = mutate(example.data, Z = 0))
     # calculate the second-stage indirect effect
     indirect.est <- predict(
-        indirect.reg, newdata = mutate(example.data, D = 1)) -
-        predict(indirect.reg, newdata = mutate(example.data, D = 0))
+        secondstage.reg, newdata = mutate(example.data, D = 1)) -
+        predict(secondstage.reg, newdata = mutate(example.data, D = 0))
+    # Add the Kline Walters (2019) IV-type complier adjustment (provided external)
+    if (!is.null(complier.adjustment)) {
+        indirect.est <- indirect.est + complier.adjustment
+    }
     # Return the mean estimates.
     output.list <- list(
         "first-stage"     = mean(firststage.est, na.rm = TRUE),
@@ -188,54 +192,42 @@ estimated.values <- function(
     return(output.list)
 }
 
-# Define a function to cross-fit the semi-parametric control function.
-cf_crossfit_mediate <- function(example.data){
-    # 1. Calculate the split in half, two cross-fit samples
-    example.size <- NROW(example.data)
-    cross.index <- sample(seq(1, example.size),
-        size = 0.5 * example.size, replace = FALSE)
-    firstcross.data <- example.data[cross.index,]
-    secondcross.data <- example.data[-cross.index,]
-    # 2. calculate the CF model in the first cross sample.
-    firstcross_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
-        bs(X_minus, df = 10, intercept = TRUE),
-        data = firstcross.data)
-    firstcross.data$K <- firstcross_firststage.reg$residuals
-    firstcross.data$K_0 <- (1 - firstcross.data$D) * firstcross.data$K
-    firstcross.data$K_1 <- (firstcross.data$D) * firstcross.data$K
-    firstcross_indirect.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-        bs(K, knots = seq(-1, 1, by = 0.05), intercept = TRUE),
-        data = firstcross.data)
-    # 3. calculate the CF model on the second cross sample.
-    secondcross_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
-        bs(X_minus, df = 10, intercept = TRUE),
-        data = secondcross.data)
-    secondcross.data$K_0 <- (1 - secondcross.data$D) * secondcross.data$K
-    secondcross.data$K_1 <- (secondcross.data$D) * secondcross.data$K
-    secondcross_indirect.reg <- lm(
-        Y ~ (1 + Z * D) + X_minus +
-        bs(K, knots = seq(-1, 1, by = 0.05), intercept = TRUE),
-        data = secondcross.data)
-    # 4. Predict the estimate on the opposite data.
-    firstcross.est <- estimated.values(firstcross_firststage.reg,
-        firstcross_indirect.reg, firstcross_indirect.reg, secondcross.data)
-    secondcross.est <- estimated.values(secondcross_firststage.reg,
-        secondcross_indirect.reg, secondcross_indirect.reg, firstcross.data)
-    # Resturn the averaged estimates.
+# Define a function to Heckman selection correct mediation est, two-stages.
+mediate.heckit <- function(example.data){
+    # 1. Probit first-stage (well identified).
+    cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
+        family = binomial(link = "probit"),
+        data = example.data)
+    # 2. Define the control functions --- with assumed N(0,1) dist.
+    lambda_1.fun <- function(p){
+        # Inv Mills ratio, taking as input the estimated mediator propensity.
+        return(dnorm(qnorm(p)) / pnorm(qnorm(p)))
+    }
+    P <- predict(cf_firststage.reg, type = "response")
+    example.data$lambda_0 <- (1 - example.data$D) * lambda_1.fun(P) * (- (1 - P) / P)
+    example.data$lambda_1 <- example.data$D * lambda_1.fun(P)
+    # 3. Estimate second-stage, including the CFs.
+    cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
+        data = example.data)
+    # Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
+    P_0 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
+    P_1 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
+    Gamma.big <-  (P_1 * lambda_1.fun(P_1) - P_0 * lambda_1.fun(P_0)) / (P_1 - P_0)
+    rho_0 <- coef(cf_secondstage.reg)["lambda_0"]
+    rho_1 <- coef(cf_secondstage.reg)["lambda_1"]
+    add.term <- (rho_1 - rho_0) * Gamma.big
+    # Return the first and second-stages, and the complier compensating term.
     output.list <- list(
-        "first-stage"     = mean(c(
-            firstcross.est$`first-stage`, secondcross.est$`first-stage`), na.rm = FALSE),
-        "direct-effect"   = mean(c(
-            firstcross.est$`direct-effect`, secondcross.est$`direct-effect`), na.rm = FALSE),
-        "indirect-effect" = mean(c(
-            firstcross.est$`indirect-effect`, secondcross.est$`indirect-effect`), na.rm = FALSE))
-    # Return the output.list
+        "first-stage"         = cf_firststage.reg,
+        "second-stage"        = cf_secondstage.reg,
+        "complier-adjustment" = add.term,
+        "heckit-data"         = example.data)
     return(output.list)
 }
 
 # Bootstrap the estimates.
 estimated.loop <- function(boot.reps, example.data,
-    bootstrap = TRUE, print.progress == FALSE){
+    bootstrap = TRUE, print.progress = FALSE) {
     # Define lists the will be returned:
     # 2. Naive OLS.
     ols_direct_effect <- c()
@@ -244,6 +236,10 @@ estimated.loop <- function(boot.reps, example.data,
     cf_direct_effect <- c()
     cf_indirect_effect <- c()
     # More in the future ....
+    # Calculate the truth values, given the input data
+    truth_direct_effect <- c()
+    truth_indirect_effect <- c()
+    truth.est <- theoretical.values(example.data)
     ## Loop across the bootstraps values.
     for (i in seq(1, boot.reps)){
         # If bootstrapping, just resample from provided data.
@@ -255,6 +251,8 @@ estimated.loop <- function(boot.reps, example.data,
         # If a regular re-simulation, get new data.
         else if (bootstrap == FALSE){
             boot.data <- simulate.data(0.5, 1, 2, 0.5)
+            # Update the truth values to the newest simulated data, if so.
+            truth.est <- theoretical.values(boot.data)
         }
         else {stop("The `bootstrap' option only takes values of TRUE or FALSE.")}
         # Print, if want the consol output of how far we are.
@@ -263,21 +261,25 @@ estimated.loop <- function(boot.reps, example.data,
                 print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
             }
         }
-        # Calculate the truth values, given the simulated data
-        truth.est <- theoretical.values(example.data)
         # Now get the mediation effects, by different approaches.
         # 2. OLS estimate of second-stage
         ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = boot.data)
         ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = boot.data)
-        ols.est <- estimated.values(ols_firststage.reg,
-            ols_secondstage.reg, ols_secondstage.reg, boot.data)
-        # 3. Control Function estimates.
-        cf.est <- cf_crossfit_mediate(boot.data)
+        ols.est <- estimated.values(ols_firststage.reg, ols_secondstage.reg,
+            boot.data)
+        # 3. Heckman-style selection-into-mediator model estimates.
+        heckit.reg <- mediate.heckit(boot.data)
+        cf.est <- estimated.values(
+            heckit.reg$"first-stage", heckit.reg$"second-stage",
+            heckit.reg$"heckit-data",
+            complier.adjustment = heckit.reg$"complier-adjustment")
         # Save the outputs.
-        ols_direct_effect[i]   <- ols.est$`direct-effect`
-        ols_indirect_effect[i] <- ols.est$`indirect-effect`
-        cf_direct_effect[i]    <- cf.est$`direct-effect`
-        cf_indirect_effect[i]  <- cf.est$`indirect-effect`
+        truth_direct_effect[i]   <- truth.est$average_direct_effect
+        truth_indirect_effect[i] <- truth.est$average_indirect_effect
+        ols_direct_effect[i]     <- ols.est$`direct-effect`
+        ols_indirect_effect[i]   <- ols.est$`indirect-effect`
+        cf_direct_effect[i]      <- cf.est$`direct-effect`
+        cf_indirect_effect[i]    <- cf.est$`indirect-effect`
     }
     # Return the bootstrap data.
     output.list <- list()
@@ -287,8 +289,7 @@ estimated.loop <- function(boot.reps, example.data,
         cf_direct_effect      = cf_direct_effect,
         truth_indirect_effect = as.numeric(truth.est$average_indirect_effect),
         ols_indirect_effect   = ols_indirect_effect,
-        cf_indirect_effect    = cf_indirect_effect
-    )
+        cf_indirect_effect    = cf_indirect_effect)
     # Calculate the needed statistics, to return
     output.list$estimates <- data.frame(
         # Truth
@@ -319,8 +320,7 @@ estimated.loop <- function(boot.reps, example.data,
         cf_indirect_effect_up   = as.numeric(quantile(cf_indirect_effect,
             probs = 0.975, na.rm = TRUE)),
         cf_indirect_effect_low  = as.numeric(quantile(cf_indirect_effect,
-            probs = 0.025, na.rm = TRUE))
-    )
+            probs = 0.025, na.rm = TRUE)))
     return(output.list)
 }
 
@@ -343,8 +343,7 @@ true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
     U_0 + (D * U_0) + (D * U_1),
     data = simulated.data)
 print(theoretical.values(simulated.data))
-print(estimated.values(true_firststage.reg,
-    true_secondstage.reg, true_secondstage.reg, simulated.data))
+print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
 # See how the first and second-stages are perfect:
 print(summary(true_firststage.reg))
 print(summary(true_secondstage.reg))
@@ -356,41 +355,28 @@ print(summary(true_secondstage.reg))
 ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = simulated.data)
 ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
 print(theoretical.values(simulated.data))
-print(estimated.values(ols_firststage.reg,
-    ols_secondstage.reg, ols_secondstage.reg, simulated.data))
+print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 
 # Show how a control function gets it correct, in 2 steps.
 cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
     family = binomial(link = "probit"),
     data = simulated.data)
 # Second-stage, with Heckman normal errors
-P <- predict(cf_firststage.reg, type = "response")
 lambda_1.fun <- function(p){
     return(dnorm(qnorm(p)) / pnorm(qnorm(p)))
 }
+P <- predict(cf_firststage.reg, type = "response")
 simulated.data$lambda_0 <- (1 - simulated.data$D) * lambda_1.fun(P) * (- (1 - P) / P)
 simulated.data$lambda_1 <- simulated.data$D * lambda_1.fun(P)
+# Second-stage, including the control functions lambda_0, lambda_1
 cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
     data = simulated.data)
 print(summary(cf_secondstage.reg))
-# Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
-P_0 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
-P_1 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response")
-Gamma.big <-  (P_1 * lambda_1.fun(P_1) - P_0 * lambda_1.fun(P_0)) / (P_1 - P_0)
-rho_0 <- coef(cf_secondstage.reg)["lambda_0"]
-rho_1 <- coef(cf_secondstage.reg)["lambda_1"]
-add.term <- (rho_1 - rho_0) * Gamma.big
-# Calculate the average indirect effect (accounting for the complier add term).
-indirect.est <- predict(
-    true_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
-    predict(true_secondstage.reg, newdata = mutate(simulated.data, D = 0))
-print(mean((P_1 - P_0) * (indirect.est + add.term)))
-print(theoretical.values(simulated.data)$average_indirect_effect)
-
-#! Update -> Kline Wlaters (2019) complier adjustment workds well for indirect
-#!           effect in mediation (i.e., adjusting for complier differences by CF). 
-#todo: back this in to my DGP similation code for the new selection model sec.
-#todo: then explore the complier comensation in semi-parametric spline approach.
+# Show how it gets these correct (with complier adjustment).
+print(theoretical.values(simulated.data))
+print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
+    complier.adjustment = mediate.heckit(simulated.data)$"complier-adjustment"))
+#todo: Explore the complier comensation in semi-parametric spline approach.
 
 
 ################################################################################
@@ -405,106 +391,5 @@ sim.est <- estimated.loop(sim.reps, simulated.data,
     bootstrap = FALSE, print.progress = TRUE)
 sim.data <- sim.est$data
 
-## Save the repated DGPs' point estimates as separate data.
-sim.data %>% write_csv(file.path(output.folder, "boot-sim-data.csv"))
-
-
-################################################################################
-## Compare estimation methods, across different sigma values.
-
-# Define an empty dataframe, to start adding to.
-boot.values <- estimated.loop(1, simulated.data)$estimates
-boot.values$sigma <- NA
-sigma.data <- boot.values[0, ]
-# Define values in rho \in [-1, 1] to go across
-sigma.values <- seq(0, 2, by = 0.25)
-# Define the number of boot reps for each
-boot.reps <- 10^3
-i <- 0
-
-# Start the sigma loop
-for (sigma in sigma.values){
-    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
-    sigma_sim.data <- simulate.data(0.5, sigma, 2 * sigma, 0.5)
-    # Get the truth + estimates + bootstrapped SEs, and save rho value
-    sigma.boot <- estimated.loop(boot.reps, sigma_sim.data,
-        bootstrap = FALSE)$estimates
-    sigma.boot$sigma <- sigma
-    # Add to the dataframe.
-    i <- i + 1
-    sigma.data[i, ] <- sigma.boot
-    # SHow far we are.
-    print(paste0("simga = ", sigma,
-        " in [0, 2], ", 100 * i / length(sigma.values), "% done."))
-    gc()
-}
-# Save the output data.
-sigma.data %>% write_csv(file.path(output.folder, "sigma-sim-data.csv"))
-
-
-################################################################################
-## Compare estimation methods, across different sigma_1 values.
-
-# Define an empty dataframe, to start adding to.
-boot.values <- estimated.loop(1, simulated.data)$estimates
-boot.values$sigma_1 <- NA
-sigma_1.data <- boot.values[0, ]
-# Define values in rho \in [-1, 1] to go across
-sigma_1.values <- seq(0, 2, by = 0.25)
-# Define the number of boot reps for each
-boot.reps <- 10^3
-i <- 0
-
-# Start the sigma_1 loop
-for (sigma_1 in sigma_1.values){
-    i <- i + 1
-    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
-    sigma_1_sim.data <- simulate.data(0.5, 1, sigma_1, 0.5)
-    # Get the truth + estimates + bootstrapped SEs, and save rho value
-    sigma_1.boot <- estimated.loop(boot.reps, sigma_1_sim.data,
-        bootstrap = FALSE)$estimates
-    sigma_1.boot$sigma_1 <- sigma_1
-    # Add to the dataframe.
-    sigma_1.data[i, ] <- sigma_1.boot
-    # SHow far we are.
-    print(paste0("sigma_1 = ", sigma_1,
-        " in [0, 2], ", 100 * i / length(sigma_1.values), "% done."))
-    gc()
-}
-# Save the output data.
-sigma_1.data %>% write_csv(file.path(output.folder, "sigma-1-sim-data.csv"))
-
-
-################################################################################
-## Compare estimation methods, across different rho values.
-
-# Define an empty dataframe, to start adding to.
-boot.values <- estimated.loop(1, simulated.data)$estimates
-boot.values$rho <- NA
-rho.data <- boot.values[0, ]
-print(rho.data)
-# Define values in rho \in [-1, 1] to go across
-rho.values <- seq(-1, 1, by = 0.25)
-# Define the number of boot reps for each
-boot.reps <- 10^3
-i <- 0
-
-# Start the rho loop
-for (rho in rho.values){
-    i <- i + 1
-    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
-    rho_sim.data <- simulate.data(rho, 1, 2, 0.5)
-    # Get the truth + estimates + bootstrapped SEs, and save rho value
-    rho.boot  <- estimated.loop(boot.reps, rho_sim.data,
-        bootstrap = FALSE)$estimates
-    rho.boot$rho <- rho
-    # Add to the dataframe.
-    rho.data[i, ] <- rho.boot
-    # Show how far we 
-    print(paste0("rho = ", rho,
-        " in [-1, 1], ", 100 * i / length(rho.values), "% done."))
-    gc()
-}
-
-## Save the output data.
-rho.data %>% write_csv(file.path(output.folder, "rho-sim-data.csv"))
+## Save the repeated DGPs' point estimates as separate data.
+sim.data %>% write_csv(file.path(output.folder, "boot-heckit-data.csv"))

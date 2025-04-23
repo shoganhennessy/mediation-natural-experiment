@@ -12,7 +12,9 @@
 # May need to run on the COrnell BioHPC/econ cluster node.
 # ssh ecco01@XXX.biohpc.cornell.edu
 cd simulations
-# Run the first one.
+# Run the Heckman correction simulation
+R CMD BATCH --no-save heckman-sim.R
+# Run the Roy selection simulation
 R CMD BATCH --no-save roy-sim.R
 # Present the results
 R CMD BATCH --no-save plot-sim.R

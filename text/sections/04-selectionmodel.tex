@@ -41,3 +41,27 @@ E[Y | Z, D, X] = … + \rho_0 \lamda_0( \pi(Z_i, X_i)) + \rho_1 \lamda_1( \pi(Z_
 Where \lambda_0, \lambda_1 are the control functions. For J(u) = F^-1_V(u) - E[ F^-1_V(U_i) ]
 
 This is a special case of Heckman (1980), notation from Kiline Walters (2019).
+
+\begin{figure}[h!]
+    \caption{Simulated Distribution of CM Effect Estimates.}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{ADE.}
+        \includegraphics[width=\textwidth]{
+            ../programs/simulations/sim-output/heckit-direct-dist.png}
+    \end{subfigure}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{AIE.}
+        \includegraphics[width=\textwidth]{
+            ../programs/simulations/sim-output/heckit-indirect-dist.png}
+    \end{subfigure}
+    \label{fig:cm-heckit-dist}
+    \justify
+    \footnotesize    
+    \textbf{Note:}
+    These figures show the empirical density of point estimates, for 10,000 replications of the data generated from a Roy model (described in \autoref{sec:controlfun}).
+    The black dashed line is the true value;
+    orange is the distribution of conventional CM estimates,
+    and blue estimates with a Heckman selection adjustment.
+\end{figure}
