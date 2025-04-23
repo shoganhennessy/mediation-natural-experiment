@@ -1,6 +1,6 @@
 #!/usr/bin/R
-## Senan Hogan-Hennessy, 16 Jan 2025
-## Simulate the system for indirect + direct effects, with Roy selection.
+## Senan Hogan-Hennessy, 18 April 2025
+## Testing out the LATE identification, following Kline Walters (2019).
 # Show the date:
 print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 
@@ -44,9 +44,9 @@ simulate.data <- function(rho, sigma_0, sigma_1, sigma_C,
     ## sigma_C >= 0 measuring standard deviation of U_C.
     ## sample.size: integer, representing output sample size (i.e., N).
     # First covariate (\vec X_i^-)
-    X_minus <- 4 + rnorm(sample.size, mean = 0, sd = 1)
+    X_minus <- rnorm(sample.size, mean = 0, sd = 1)
     # Second covariate (instrument for the control function).
-    X_IV <- runif(sample.size, 0, 1) # rbinom(sample.size, 1, 1 / 2)
+    X_IV <- runif(sample.size, 0, 1)
     # Simulate the unobserved error terms.
     U_all <- mvrnorm(n = sample.size, mu = c(0, 0, 0),
         Sigma = matrix(c(
@@ -63,7 +63,7 @@ simulate.data <- function(rho, sigma_0, sigma_1, sigma_C,
         return(x_minus + (z + d + z * d))
     }
     mu_cost_z_X <- function(z, x_minus, x_iv){
-        return(- 3 * z + x_minus - x_iv)
+        return(z + x_minus - x_iv)
     }
     # Mean outcomes: Y_i(z, d) = mu_d(z; X_i) + U_D
     Y_0_0 <- mu_outcome_z_d_X(0, 0, X_minus) + U_0
@@ -128,13 +128,11 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
     average_total_effect <- mean(total_effect)
     # Get the theoretical indirect effect.
     indirect_effect <-
-        (Z * (Y_1_1 - Y_1_0) + (1 - Z) * (Y_0_1 - Y_0_0)) * (D_1 == 1 & D_0 == 0)
-    average_indirect_effect <- mean(indirect_effect)
+        (Z * (Y_1_1 - Y_1_0) + (1 - Z) * (Y_0_1 - Y_0_0))
+    controlled_indirect_effect <- mean(indirect_effect)
+    average_indirect_effect <- mean((D_1 == 1 & D_0 == 0) * indirect_effect)
     # Get the theoretical direct effect.
     direct_effect <- (D * (Y_1_1 - Y_0_1) + (1 - D) * (Y_1_0 - Y_0_0))
-        #(D * (Y_1_1 - Y_0_1) + (1 - D) * (Y_1_0 - Y_0_0)) * (D_1 == 1 & D_0 == 0) +
-        #(Y_1_1 - Y_0_1) * (D_1 == 1 & D_0 == 1) +
-        #(Y_1_0 - Y_0_0) * (D_1 == 0 & D_0 == 0)
     average_direct_effect <- mean(direct_effect)
     # Show the real underlying values.
     if (print.truth == TRUE){
@@ -159,6 +157,7 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
     # Return the output.list
     return(output.list)
 }
+
 
 ################################################################################
 ## Define a function to estimate mediation, given the first + second-stages.
@@ -334,9 +333,9 @@ simulated.data <- simulate.data(0.5, 1, 2, 0.5)
 # SHow the theoretical direct + indirect values
 print(theoretical.values(simulated.data, print.truth = TRUE))
 
-# Show that the regression specification holds exactly (after debiasing outcome).
+# Show that the regression specification holds exactly, if specified correctly.
 true_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus +
-    U_C, #U_0 + U_1,
+        U_C + U_0 + U_1,
     family = binomial(link = "probit"),
     data = simulated.data)
 true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
@@ -349,6 +348,8 @@ print(estimated.values(true_firststage.reg,
 # See how the first and second-stages are perfect:
 print(summary(true_firststage.reg))
 print(summary(true_secondstage.reg))
+#! Note: this automatically includes the complier term in the indirect effect
+#!       without full access to U_0, U_1 this is not automatic.
 
 # Show how the OLS result gives a bias result (if rho != 0),
 # using the same second-stage for both direct + indirect estimates.
@@ -358,59 +359,38 @@ print(theoretical.values(simulated.data))
 print(estimated.values(ols_firststage.reg,
     ols_secondstage.reg, ols_secondstage.reg, simulated.data))
 
-# Show how (unknown) control function gets it correct, in 2 steps (with splines)
-cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV  *
-    bs(X_minus, df = 10, intercept = TRUE),
+# Show how a control function gets it correct, in 2 steps.
+cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
+    family = binomial(link = "probit"),
     data = simulated.data)
-# Direct estimate.
-simulated.data$K <- cf_firststage.reg$residuals
-cf_direct.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    bs(K, knots = seq(-1, 1, by = 0.05), intercept = FALSE),
+# Second-stage, with Heckman normal errors
+P <- predict(cf_firststage.reg, type = "response")
+lambda_1.fun <- function(p){
+    return(dnorm(qnorm(p)) / pnorm(qnorm(p)))
+}
+simulated.data$lambda_0 <- (1 - simulated.data$D) * lambda_1.fun(P) * (- (1 - P) / P)
+simulated.data$lambda_1 <- simulated.data$D * lambda_1.fun(P)
+cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
     data = simulated.data)
-# Indirect estimate.
-simulated.data$K_0 <- (1 - simulated.data$D) * simulated.data$K
-simulated.data$K_1 <- (simulated.data$D) * simulated.data$K
-cf_indirect.reg <- lm(Y ~ (1 + Z * D) + X_minus +
-    bs(K_0, knots = seq(0, 1, by = 0.05), intercept = TRUE) +
-    bs(K_1, knots = seq(0, 1, by = 0.05), intercept = TRUE),
-    data = simulated.data)
-print(theoretical.values(simulated.data))
-print(estimated.values(cf_firststage.reg,
-    cf_direct.reg, cf_indirect.reg, simulated.data))
-# Cross-fit the CF approach to avoid over-fitting bias in the semi-para step.
-print(theoretical.values(simulated.data))
-print(cf_crossfit_mediate(simulated.data))
-
-#! Test, add on the K_0 and K_1 conditional on D_i = 0,1 respectively in truth
-firststage.est <- predict(
-    true_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response") - predict(
-        true_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
-# calculate the second-stage indirect effect
+print(summary(cf_secondstage.reg))
+# Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
+P_0 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+P_1 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response")
+Gamma.big <-  (P_1 * lambda_1.fun(P_1) - P_0 * lambda_1.fun(P_0)) / (P_1 - P_0)
+rho_0 <- coef(cf_secondstage.reg)["lambda_0"]
+rho_1 <- coef(cf_secondstage.reg)["lambda_1"]
+add.term <- (rho_1 - rho_0) * Gamma.big
+# Calculate the average indirect effect (accounting for the complier add term).
 indirect.est <- predict(
     true_secondstage.reg, newdata = mutate(simulated.data, D = 1)) -
     predict(true_secondstage.reg, newdata = mutate(simulated.data, D = 0))
-add.term <- weighted.mean(simulated.data$U_1 - simulated.data$U_0,
-    simulated.data$D_0 == 0 & simulated.data$D_1 == 1)
-mean(firststage.est * (indirect.est + add.term))
+print(mean((P_1 - P_0) * (indirect.est + add.term)))
 print(theoretical.values(simulated.data)$average_indirect_effect)
 
-#! Do the same thing, but kappa weighted to the compliers inside the CF estimate.
-# Estimate the kappa-weight.
-hat_probZ <- lm(Z ~ 1 * X_IV * bs(X_minus, df = 10, intercept = TRUE),
-    data = simulated.data)$fitted
-kappa_1 <- simulated.data$D * ((simulated.data$Z - hat_probZ) / (
-    (1 - hat_probZ) * hat_probZ))
-kappa_0 <- (1 - simulated.data$D) * (((1 - simulated.data$Z) - (1 - hat_probZ)) / (
-    (1 - hat_probZ) * hat_probZ))
-kappa.weight <- kappa_1 * hat_probZ + kappa_0 * (1 - hat_probZ)
-# Calculate the term to add on.
-errors <- predict(cdf_direct.reg, newdata = mutate(simulated.data,
-    Z = 0, D = 0, X_minus = 0))
-add.term <- weighted.mean(errors, simulated.data$D * kappa.weight) -
-    weighted.mean(errors, (1 - simulated.data$D) * kappa.weight)
-add.term <- weighted.mean(simulated.data$D * errors -
-    (1 - simulated.data$D) * errors, kappa.weight)
-mean(firststage.est * (indirect.est + add.term))
+#! Update -> Kline Wlaters (2019) complier adjustment workds well for indirect
+#!           effect in mediation (i.e., adjusting for complier differences by CF). 
+#todo: back this in to my DGP similation code for the new selection model sec.
+#todo: then explore the complier comensation in semi-parametric spline approach.
 
 
 ################################################################################

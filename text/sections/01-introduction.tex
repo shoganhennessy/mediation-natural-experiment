@@ -3,32 +3,31 @@
 % \textbf{The introduction formula \url{https://blogs.ubc.ca/khead/research/research-advice/formula}.}
 %\textbf{Hook:}
 Economists use natural experiments to credibly answer social questions, when an experiment was infeasible.
-Did Vietnam-era military service lead to income losses?
 Does access to health insurance lead to health improvements?
 Do transfer payments  lead to measurable long-run economic gains?
-Quasi-experimental variation gives methods to answer these questions, but give no indication of how these effects came about.
+Quasi-experimental variation gives methods to answer these questions, but no indication of how these effects came about.
 Causal Mediation (CM) aims to estimate the mechanisms behind causal effects, by estimating how much of the treatment effect operates through a proposed mediator.
 For example, how much of the (causal) gain from a transfer payment came from individuals choosing to attend higher education?
 This paper shows that the conventional approach to estimating CM effects is inappropriate in a natural experiment setting, giving a theoretical framework for how bias operates, and an approach to correctly estimate CM effects under alternative assumptions.
 
 %\textbf{Question:}
 This paper starts by answering the following question: what does a selection-on-observables approach to CM actually estimate when a mediator is not ignorable?
-Estimates for the average direct and indirect effects are contaminated by bias terms --- a sum of selection bias and non-parametric group differences.
+Estimates for the average direct and indirect effects are contaminated by bias terms --- selection bias plus group difference terms.
 I then show how this bias operates in an applied regression framework, with bias coming from a correlated error term.
 %, showing that the bias term grows larger with the degree of unexplained selection.
-If individuals have been choosing whether to partake in a mediator based on expected costs and benefits (i.e., following a rational maximisation process) then sequential ignorability cannot hold.
-This means the identifying assumption for conventional CM methods are unlikely to hold, and will lead to biased inference in natural experiment settings, if the researcher does not use another design to isolate random variation in the mediator (at the same time).
+If individuals have been choosing to take or refuse a mediator based on expected costs and benefits (i.e., following a rational maximisation process) then sequential ignorability only holds if the set of observed control variable explains every conceivable source of mediator gains.
+Should a researcher consider running a CM analysis without using another natural experiment to isolate random variation in the mediator (in addition to the one for the original treatment), then mediator ignorability is unlikely to hold true.
+This means investigating mechanisms by CM methods will lead to biased inference in natural experiment settings.
 
-I consider an alternative control function approach to estimating CM effects.
-This approach solves the identification problem by a structural assumption for selection into the mediator (monotonicity), and assumes the researcher has a valid instrument for mediator take-up.
+I consider an alternative approach to estimating CM effects, correcting for unobserved selection-into-mediator with a selection model.
+This approach solves the identification problem with structural assumptions for selection-into-mediator --- mediator monotonicity and selection based on costs and benefits --- and requires a valid cost instrument for mediator take-up.
 While these assumptions are strong, they are plausible in many applied settings.
 % In an accompanying applied paper, \cite{hogan2025direct}, etc....
 Mediator monotonicity is in-line with conventional theories for selection-into-treatment, and is accepted widely in many applications using an instrumental variables research design.
-The existence of a valid instrument is a stronger assumption, which will not hold in every setting, though is important to avoid further modelling assumptions. %on unexplained mediator selection.
-The most compelling example is using data on the cost of mediator take-up as a first-stage instrument, if it varies between individuals for exogenous reasons and is strong in explaining compliance.
-Using an instrument avoids parametric assumptions on unexplained mediator selection, though limits the wider applicability of the method.
-This approach is not perfect: it is computationally demanding, and requires large sample sizes for semi-parametric estimation steps.
-Additionally, it provides no harbour for estimating CM effects if the core structural assumptions do not hold true.
+Selection based on costs and benefits is central to economic theory, and is the dominant concern for judging empirical designs that use quasi-experimental variation in treatment to estimate causal effects.
+Access to a valid instrument is a string assumption, though is important to avoid further modelling assumptions; the most compelling example is using variation in mediator take-up cost as a first-stage instrument.
+This approach is not perfect in every setting: the structural assumptions are string, and are tailored to selection-into-mediator concerns pertinent to economic applications.
+This approach provides no harbour for estimating CM effects when a mediator is not ignorable, if these structural assumptions do not hold true.
 
 %\textbf{Antecedents:}
 The most popular approach to CM assumes that the original treatment, and the subsequent mediator, are both ignorable \citep{imai2010identification}.
@@ -37,12 +36,15 @@ Assuming mediator ignorability (also known as selection-on-observables) convenie
 If a researcher is studying single-celled organisms in a laboratory, then it may make sense to study causal mechanisms with this approach; single-celled organisms would make simple decisions to take or refuse a treatment or mediator.
 On the other hand, social science researchers study social settings where humans make complex decisions based on costs, benefits, and preferences --- all of which may not be observed fully by the researcher.
 Assuming a mediator is ignorable in such a setting would be na\"ive at best.
-In practice, the only setting where the mediator ignorability assumption is credible is using another natural experiment for the mediator --- in addition to the one that guaranteed the original treatment is ignorable.
+In practice, the only setting where the mediator ignorability assumption is credible is using another natural experiment for the mediator.
+Given how hard it is to find random variation for one variable, it is a very limited setting to find another happening at the same time for the mediator of interest.
 
-The applied economics literature has not picked up the practice of estimating CM effects by selection-on-observables, partially in an understanding that this assumption would be invalid in most observational settings.
-Indeed, a new strand of the econometric literature has developed estimators for CM effects under overlapping quasi-experimental research designs \citep{deuchert2019direct,frolich2017direct}, a partial identification approach \citep{flores2009identification,blackwell2024assumption}, or testing full mediation through observed channels \citep{kwon2024testing} --- see \cite{huber2019review} for an overview.
+The applied econometrics literature has been hesitant to use explicit mediation analyses, but has picked up the practice of controlling for a mediator in an informal mechanism investigation \citep{blackwell2024assumption}.
+This practice is fundamentally a CM analysis, despite not being named so explicitly, so falls prey to the assumptions of explicit CM analyses.
+Indeed, a new strand of the econometric literature has developed estimators for CM effects under a variety of strategies to avoid this.
+This includes overlapping quasi-experimental research designs \citep{deuchert2019direct,frolich2017direct,heckman2015econometric}, partial identification \citep{flores2009identification}, or a hypothesis test of full mediation through observed channels \citep{kwon2024testing} --- see \cite{huber2019review} for an overview.
 The new literature has arisen in partial acknowledgement that a conventional selection-on-observables approach to CM in an applied setting can lead to biased inference, and needs alternative methods for credible inference.
-This paper makes this part explicit, showing exactly how a conventional approach to CM in a natural experiment can fail in practice, and warding the applied economics literature away from picking up this practice.
+This paper makes this part explicit, showing exactly how a conventional approach to CM in a natural experiment can fail in practice, and warding the applied economics literature away from this approach to investigating mechanisms.
 
 %\textbf{Value-added:}
 This paper considers the case when it is not credible to assume the mediator is ignorable, leveraging classic labour economic theory for selection-into-treatment to identify direct and indirect effects.
@@ -52,17 +54,20 @@ The group differences-bias is a non-parametric version of bad controls bias, whi
 
 Throughout, I use the \cite{roy1951some} model as a benchmark for judging the \cite{imai2010identification} mediator ignorability assumption in a natural experiment setting, and find it unlikely to hold in practice.\footnote{
     An alternative method to estimate CM effects is ensuring treatment and mediator ignorability holds by a running randomised controlled trial for both treatment and mediator at the same time.
-    This setting has been considered in the literature previously, in theory \citep{imai2013experimental} and in practice \citep{ludwig2011mechanism}.
+    This set-up has been considered in the literature previously, in theory \citep{imai2013experimental,heckman2015experimental} and in practice \citep{ludwig2011mechanism,heckman2013understanding}.
 }
 This motivates a solution to the identification problem inspired by classic labour economic work, which also uses the Roy model as a benchmark \citep{heckman1979sample,heckman1990empirical}.
-I follow the lead of these papers by using a control function approach to correct for the bias developed above.
-This approach assumes mediator monotonicity, to ensure the mediator follows a selection model \citep{vytlacil2002independence}, requiring a valid instrument for mediator take-up, to avoid parametric assumptions on unobserved selection \citep{heckman2004using,florens2008identification}.
-Doing so is as an extension of using instruments to identify CM effects --- as noted by \cite{frolich2017direct}.\footnote{
-    Indeed, this paper does not improve on control function methods in any way, instead noting its applicability in this setting.
+I follow the lead of these papers by using a selection model approach to correct for the bias developed above.
+This approach assumes mediator monotonicity, exploiting the instrumental variables equivalence result in a mediation setting \citep{vytlacil2002independence}.
+Second, it assumes that mediator take-up is motivated by mediator costs and benefits so that first-stage errors inform second-stage unobserved confounding \citep{florens2008identification}.
+Last, it requires a valid instrument for mediator take-up, to avoid relying on parametric assumptions on unobserved selection \citep{heckman2004using}.
+Doing so is related to using instruments to identify CM effects among instrument complier groups --- as noted by \cite{frolich2017direct}.\footnote{
+    Indeed, this paper does not improve on selection model or control function methods, instead noting its applicability in this setting.
     See \cite{frolich2017direct} for the newest development of control function methods with instruments, and \cite{imbens2007nonadditive} for a general overview of the approach.
 }
-Using a control function to estimate CM effects builds on the influential \cite{imai2010identification} approach, marrying the CM literature with labour economic theory on selection-into-treatment for the first time. 
+Using a selection model to estimate CM effects builds on the influential \cite{imai2010identification} approach, marrying the CM literature with labour economic theory on selection-into-treatment for the first time. 
 
+%\textbf{Road-map:}
 This paper proceeds as follows.
 \autoref{sec:mediation} introduces CM, and develops expressions for the bias in CM estimates in natural experiments.
 \autoref{sec:applied} describes this bias in applied settings with (1) a regression framework, (2) a setting with selection based on costs and benefits.

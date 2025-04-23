@@ -1,14 +1,14 @@
 \noindent
 Natural experiments are a cornerstone of applied economics, providing settings for estimating causal effects with a compelling argument for treatment ignorability.
-Causal Mediation (CM) methods aim to estimate how much of the treatment effect operates through a proposed mediator, illuminating mechanisms that causal effects operate through.
-The most popular approach to CM relies on assuming the mediator is conditionally ignorable --- in addition to the causal research design for the initial treatment.
-This assumption conveniently ignores individuals' choice to take or refuse the mediator, by assuming they did so na\"ively or the researcher observed everything that could have affected this decision.
-This paper shows that the conventional approach to CM can lead to biased inference, solving for explicit bias terms when the mediator is not ignorable.
-Individuals' selection based on expected gains and costs is inconsistent with mediator ignorability in a natural experiment setting, suggesting bias would be present in practice.
-I consider a control function approach, which overcomes these hurdles under alternative assumptions, using cost of mediator take-up as an instrument.
-Simulations confirm that this method corrects for persistent bias in conventional CM estimates, though require large sample sizes for correct inference.
-% I illustrate the approach by estimating the proportion of the causal effect of genes associated with education that operates via schooling decisions versus a direct genetic channel.
-% Finally, I provide an implementation of this method in the \textit{R} package \textit{mediate-controlfun}, offering an accessible tool for robust mediation analysis in natural experiment settings.
+Applied researchers often investigate mechanisms behind treatment effects by controlling for a mediator of interest, alluding to Causal Mediation (CM) methods for estimating direct and indirect effects (CM effects).
+This approach to investigating mechanisms unintentionally assumes the mediator is ignorable --- in addition to the causal research design for the initial treatment.
+Individuals' choice to take (or refuse) a mediator based on expected gains (and costs) is inconsistent with mediator ignorability, suggesting in-practice estimates of CM effects are biased in natural experiment settings.
+I solve for explicit bias terms when the mediator is not ignorable, imitating classical selection bias for average causal estimates.
+I consider an alternative approach to credibly estimate CM effects, when mediator selection is driven by unobserved gains and costs.
+The approach uses a selection model to correct for unobserved selection-into-mediator, and relies on mediator take-up cost as an instrument.
+Simulations confirm that this method corrects for selection bias in conventional CM estimates.
+% I illustrate the approach by estimating the proportion of the causal effect of genes associated with education that operates via higher education decisions versus a direct genetic channel.
+% Finally, I provide an implementation of this method in the \textit{R} package \textit{mediate-selection}, offering an accessible tool to investigate mechanisms in natural experiment settings.
 This approach gives applied researchers an alternative method to estimate CM effects when they can only establish a credible argument for quasi-random assignment of the initial treatment, and not a mediator, as is common in natural experiments.
 
 \vspace{0.5cm}

@@ -48,16 +48,14 @@ CM aims to decompose the ATE of $Z \to Y$ into these two separate pathways:
             \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}.
 \end{align*}
 Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
-If a researcher is studying the income effect of a man being randomly drafted into the US military, and is interested in military service as the mediator, the AIE represents how much of the effect comes from military service \citep{angrist1990lifetime}.
+If a researcher is studying the health gains of access to health insurance, and wants to study the role of healthcare usage, the AIE represents how much of the effect comes from using the hospital more often \citep{finkelstein2008oregon}.
 Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
-    In a non-parametric setting it is not necessary that the ADE and AIE sum to the ATE.
+    In a non-parametric setting it is not necessary that ADE $+$ AIE $=$ ATE.
     See \cite{imai2010identification} for this point in full.
 }
-For the military draft example, how much of the effect of random conscription is a direct effect, other than military service --- e.g., from an education/child deferment to dodge the draft?
-An instrumental variables approach is a setting where this direct effect is assumed to be zero for everyone --- that the draft had no other effects (i.e., the exclusion restriction).
-CM is a different framework attempting to explicitly model the direct effect, not assuming the ADE is zero.
-
-The ADE and AIE are not separately identified without further assumptions.
+For the health insurance example, how much of the health insurance effect is a direct effect, other than increased healthcare usage --- e.g., long-term effects of lower medical debt, or less worry over health shocks.
+An instrumental variables approach assumes this direct effect is zero for everyone --- that health insurance increased health only via healthcare usage (i.e., the exclusion restriction).
+CM is a similar, yet distinct, framework attempting to explicitly model the direct effect, and not assuming it is zero.
 
 \begin{figure}[h!]
     \centering
@@ -98,6 +96,8 @@ The ADE and AIE are not separately identified without further assumptions.
     \autoref{sec:regression} formally defines $\vec U$ in an applied setting.
 \end{figure}
 
+The ADE and AIE are not separately identified without further assumptions.
+
 \subsection{Identifying Causal Mediation (CM) Effects}
 The conventional approach to estimating direct and indirect effects assumes both $Z_i$ and $D_i$ are ignorable, conditional on a set of control variables $\vec X_i$.
 \begin{definition}
@@ -113,7 +113,8 @@ The conventional approach to estimating direct and indirect effects assumes both
     \end{align}
 \end{definition}
 Sequential ignorability assumes that the initial treatment $Z_i$ is ignorable conditional on $\vec X_i$.
-It then also assumes that, after $Z_i$ is assigned, that $D_i$ is ignorable conditional on $\vec X_i, Z_i$.
+It then also assumes that, after $Z_i$ is assigned, that $D_i$ is ignorable conditional on $\vec X, Z$.
+In addition, a common support condition for both $Z_i, D_i$ (across $\vec X_i$) is necessary.
 If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, holds then the ADE and AIE are identified by two-stage mean differences, after conditioning on $\vec X_i$.\footnote{
     \cite{imai2010identification} show a general identification statement; I show identification in terms of two-stage regression, notation for which is more familiar in economics.
     This reasoning is in line with G-computation reasoning \citep{robins1986g};
@@ -215,7 +216,7 @@ The group differences represent the fact that a matching estimator gives an aver
         %& = \text{ATT}
         %+ \Big( \Egiven{ Y_i(0)}{D_i =1} - \Egiven{ Y_i(0)}{D_i =0} \Big) \\
         = \text{ATE}
-        + \underbrace{\Big( \Egiven{ Y_i(0)}{D_i =1} - \Egiven{ Y_i(0)}{D_i =0} \Big)}_{
+        + \underbrace{\Big( \Egiven{ Y_i(.,0)}{D_i =1} - \Egiven{ Y_i(.,0)}{D_i =0} \Big)}_{
             \text{Selection Bias}}
         + \underbrace{ \Prob{D_i=0} (\text{ATT}- \text{ATU}) }_{
             \text{Group-differences Bias}}. \]

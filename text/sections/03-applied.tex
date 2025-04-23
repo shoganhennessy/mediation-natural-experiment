@@ -43,7 +43,8 @@ The ADE and AIE are averages of these coefficients.\footnote{
     The AIE, in fact, refers only to treatment gains among $D_i(z)$ compliers, so includes a group differences term, $\pi \times\Egiven{
             D_i U_{1,i} - \left(1 - D_i \right)U_{0,i}
         }{\vec X_i, D_i(1) = 1, D_i(0) = 0} $.
-    The formula above skips this part, which would equal zero if there are constant treatment effects (for example), to keep with regression notation.
+    The formula above skips this part to keep with regression notation.
+    \autoref{sec:selectionmodel} returns to the issue of accounting for mediator compliers in identifying the average indirect effect.
 }
 \begin{align*}
     \text{ADE}
@@ -54,13 +55,13 @@ The ADE and AIE are averages of these coefficients.\footnote{
         &= \E{ \pi \left( \beta +  \delta Z_i \right)}.
 \end{align*}
 By construction, $\vec U_i \coloneqq \left(U_{0, i}, U_{1, i} \right)$ is an unobserved confounder.
-The regression estimates of second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  \vec U_{i} $.
-If not, then regression estimates suffer from omitted variables bias from failing to adjust for the unobserved confounder, $\vec U_i$.
+The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  \vec U_{i} $.
+If not, then estimates of CM effects suffer from omitted variables bias from failing to adjust for the unobserved confounder, $\vec U_i$.
 
 \subsection{Selection on Costs and Benefits}
 CM is at risk of bias because $D_i \indep  \left(U_{0, i}, U_{1, i} \right)$ is unlikely to hold in applied settings.
-A separate identification strategy could disrupt the selection into $D_i$ based on unobserved factors, and lend credibility to the mediator ignorability assumption.
-Without it, bias will persist, given how we conventionally think of selection into treatment.
+A separate identification strategy could disrupt the selection-into-$D_i$ based on unobserved factors, and lend credibility to the mediator ignorability assumption.
+Without it, bias will persist, given how we conventionally think of selection-into-treatment.
 
 Consider a model where individual $i$ selects into a mediator based on costs and benefits (in terms of outcome $Y_i$), after $Z_i, \vec X_i$ have been assigned.
 In a natural experiment setting, an external factor has disrupted individuals selecting $Z_i$ by choice (thus $Z_i$ is ignorable), but it has not disrupted the choice to take mediator (thus $D_i$ is not ignorable).
