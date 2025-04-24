@@ -1,0 +1,702 @@
+
+R version 4.5.0 (2025-04-11) -- "How About a Twenty-Six"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #!/usr/bin/R
+> ## Senan Hogan-Hennessy, 18 April 2025
+> ## Testing out the LATE identification, following Kline Walters (2019).
+> # Show the date:
+> print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
+[1] "18:30 EDT Thursday, 24 April 2025"
+> ## Load libraries
+> # Functions for data manipulation and visualisation
+> library(tidyverse)
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+> # Causal medation package, Imai Keele Yamamoto (2010)
+> library(mediation)
+Loading required package: MASS
+
+Attaching package: ‘MASS’
+
+The following object is masked from ‘package:dplyr’:
+
+    select
+
+Loading required package: Matrix
+
+Attaching package: ‘Matrix’
+
+The following objects are masked from ‘package:tidyr’:
+
+    expand, pack, unpack
+
+Loading required package: mvtnorm
+Loading required package: sandwich
+mediation: Causal Mediation Analysis
+Version: 4.5.0
+
+> # Package for more distributions to sample from.
+> library(MASS)
+> # Package for semi-parametric regressor, splines by bs(.).
+> library(splines)
+> 
+> ## Set up the R environment
+> set.seed(47)
+> # Define number of digits in tables and graphs
+> digits.no <- 3
+> # Define where output files go.
+> output.folder <- file.path("sim-output")
+> # Set the options for the plot sizes, in saving ggplot output.
+> fig.height <- 10
+> fig.width <- fig.height
+> 
+> # Define the sample size to work with.
+> sample.N <- 10^3
+> 
+> 
+> ################################################################################
+> ## Define a function to simulate data in the triangular system.
+> 
+> # Define a function to simulate all observed + unobserved data 
+> simulate.data <- function(rho, sigma_0, sigma_1, sigma_C,
++         sample.size = sample.N){
++     ### Inputs:
++     ## X, a matrix of covariates, continuous or binary values.
++     ## rho \in [-1, +1] measuring correlation between U_0, U_1.
++     ## sigma_0 >= 0 measuring standard deviation of U_0.
++     ## sigma_1 >= 0 measuring standard deviation of U_1.
++     ## sigma_C >= 0 measuring standard deviation of U_C.
++     ## sample.size: integer, representing output sample size (i.e., N).
++     # First covariate (\vec X_i^-)
++     X_minus <- 4 + rnorm(sample.size, mean = 0, sd = 1)
++     # Second covariate (instrument for the control function).
++     X_IV <- runif(sample.size, 0, 1) # rbinom(sample.size, 1, 1 / 2)
++     # Simulate the unobserved error terms.
++     U_all <- mvrnorm(n = sample.size, mu = c(0, 0, 0),
++         Sigma = matrix(c(
++             sigma_0^2,               rho * sigma_0 * sigma_1, 0,
++             rho * sigma_0 * sigma_1, sigma_1^2,               0,
++             0,                       0,                       sigma_C^2),
++                 ncol = 3),
++         empirical = FALSE)
++     U_0 <- U_all[, 1]
++     U_1 <- U_all[, 2]
++     U_C <- U_all[, 3]
++     # Define the mean potential outcomes.
++     mu_outcome_z_d_X <- function(z, d, x_minus){
++         return(x_minus + (z + d + z * d))
++     }
++     mu_cost_z_X <- function(z, x_minus, x_iv){
++         return(- 3 * z + x_minus - x_iv)
++     }
++     # Mean outcomes: Y_i(z, d) = mu_d(z; X_i) + U_D
++     Y_0_0 <- mu_outcome_z_d_X(0, 0, X_minus) + U_0
++     Y_0_1 <- mu_outcome_z_d_X(0, 1, X_minus) + U_1
++     Y_1_0 <- mu_outcome_z_d_X(1, 0, X_minus) + U_0
++     Y_1_1 <- mu_outcome_z_d_X(1, 1, X_minus) + U_1
++     # Roy selection: D_i(z) = 1{ Y(z, 1) - Y(z, 0) >= C_i }
++     D_0 <- as.integer(Y_0_1 - Y_0_0 >= mu_cost_z_X(0, X_minus, X_IV) + U_C)
++     D_1 <- as.integer(Y_1_1 - Y_1_0 >= mu_cost_z_X(1, X_minus, X_IV) + U_C)
++     # Observed outcomes: treatment Z
++     probZ <- 0.5
++     Z <- rbinom(sample.size, 1, probZ)
++     # Observed outcomes: mediator D
++     D <- (Z * D_1) + ((1 - Z) * D_0)
++     # Observed outcomes: outcome Y
++     Y <- (Z * D * Y_1_1) +
++         (Z * (1 - D) * Y_1_0) +
++         ((1 - Z) * D * Y_0_1) +
++         ((1 - Z) * (1 - D) * Y_0_0)
++     # Put these data to a coherent data frame.
++     combined.data <- data.frame(
++         # Observed data
++         Z, D, Y,  X_minus, X_IV,
++         # Unobserved, potential outcomes and compliance.
++         D_0, D_1,
++         Y_0_0, Y_0_1, Y_1_0, Y_1_1,
++         #mu0_Z0_X, mu1_Z0_X, mu0_Z1_X, mu1_Z1_X, muC_Z0_X, muC_Z1_X, 
++         U_0, U_1, U_C)
++     # Return the simulated data as a data frame.
++     return(combined.data)
++ }
+> 
+> 
+> ################################################################################
+> ## Define a function to show the theoretical values for the data.
+> theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
++     ### Inputs:
++     ## sim.data, a data frame simulated from above.
++     # Extract the potentials from simulated data.
++     Z <- sim.data$Z
++     D <- sim.data$D
++     Y <- sim.data$Y
++     X_minus <- sim.data$X_minus
++     X_IV <- sim.data$X_IV
++     D_0 <- sim.data$D_0
++     D_1 <- sim.data$D_1
++     Y_0_0 <- sim.data$Y_0_0
++     Y_0_1 <- sim.data$Y_0_1
++     Y_1_0 <- sim.data$Y_1_0
++     Y_1_1 <- sim.data$Y_1_1
++     U_0 <- sim.data$U_0
++     U_1 <- sim.data$U_1
++     U_C <- sim.data$U_C
++     # Get the true first-stage effects
++     first_stage <- D_1 - D_0
++     average_first_stage <- mean(first_stage)
++     # Get the theoretical total effect/reduced form/ATE
++     total_effect <-
++         (Y_1_1 - Y_0_0) * (D_1 == 1 & D_0 == 0) +
++         (Y_1_1 - Y_0_1) * (D_1 == 1 & D_0 == 1) +
++         (Y_1_0 - Y_0_0) * (D_1 == 0 & D_0 == 0)
++     average_total_effect <- mean(total_effect)
++     # Get the theoretical indirect effect.
++     indirect_effect <-
++         (Z * (Y_1_1 - Y_1_0) + (1 - Z) * (Y_0_1 - Y_0_0))
++     controlled_indirect_effect <- mean(indirect_effect)
++     average_indirect_effect <- mean((D_1 == 1 & D_0 == 0) * indirect_effect)
++     # Get the theoretical direct effect.
++     direct_effect <- (D * (Y_1_1 - Y_0_1) + (1 - D) * (Y_1_0 - Y_0_0))
++     average_direct_effect <- mean(direct_effect)
++     # Show the real underlying values.
++     if (print.truth == TRUE){
++         print("Here is a summary of the (unobserved) true effects:")
++         # Show how many ATs, NTs, Compliers in terms of D_i(Z) for Z = 0, 1.
++         print("How many mediator compliers in the system?")
++         print(table(D_1, D_0) / NROW(sim.data))
++         print("How many actually took the mediator, i.e. Pr(D = 1)?")
++         print(mean(D))
++         # Show the real treatment effects
++         print(paste0(c("The average total effect:",    as.numeric(average_total_effect))))
++         print(paste0(c("The average first-stage:",     as.numeric(average_first_stage))))
++         print(paste0(c("The average direct effect:",   as.numeric(average_direct_effect))))
++         print(paste0(c("The average indirect effect:", as.numeric(average_indirect_effect))))
++     }
++     # Define a named list to return
++     output.list <- list(
++         average_first_stage     = average_first_stage,
++         average_total_effect    = average_total_effect,
++         average_direct_effect   = average_direct_effect,
++         average_indirect_effect = average_indirect_effect)
++     # Return the output.list
++     return(output.list)
++ }
+> 
+> 
+> ################################################################################
+> ## Define a function to estimate mediation, given the first + second-stages.
+> 
+> # Estimate the values, given a first and second-stages
+> estimated.values <- function(firststage.reg, secondstage.reg, example.data,
++     complier.adjustment = NULL){
++     ### Inputs:
++     ## example.data, a data frame simulated from above.
++     # calculate the first-stage by prediction
++     firststage.est <- predict(
++         firststage.reg, newdata = mutate(example.data, Z = 1), type = "response") - predict(
++             firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
++     # calculate the second-stage direct effect
++     direct.est <- predict(
++         secondstage.reg, newdata = mutate(example.data, Z = 1)) -
++         predict(secondstage.reg, newdata = mutate(example.data, Z = 0))
++     # calculate the second-stage indirect effect
++     indirect.est <- predict(
++         secondstage.reg, newdata = mutate(example.data, D = 1)) -
++         predict(secondstage.reg, newdata = mutate(example.data, D = 0))
++     # Add the Kline Walters (2019) IV-type complier adjustment (provided external)
++     if (!is.null(complier.adjustment)) {
++         indirect.est <- indirect.est + complier.adjustment
++     }
++     # Return the mean estimates.
++     output.list <- list(
++         "first-stage"     = mean(firststage.est, na.rm = TRUE),
++         "direct-effect"   = mean(direct.est, na.rm = TRUE),
++         "indirect-effect" = mean(firststage.est * indirect.est, na.rm = TRUE))
++     # Return the output.list
++     return(output.list)
++ }
+> 
+> # Define a function to Heckman selection correct mediation est, two-stages.
+> mediate.heckit <- function(example.data){
++     # 1. Probit first-stage (well identified).
++     cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
++         family = binomial(link = "probit"),
++         data = example.data)
++     # 2. Define the control functions --- with assumed N(0,1) dist.
++     lambda_1.fun <- function(p){
++         # Inv Mills ratio, taking as input the estimated mediator propensity.
++         return(dnorm(qnorm(p)) / pnorm(qnorm(p)))
++     }
++     P <- predict(cf_firststage.reg, type = "response")
++     example.data$lambda_0 <- (1 - example.data$D) * lambda_1.fun(P) * (- (1 - P) / P)
++     example.data$lambda_1 <- example.data$D * lambda_1.fun(P)
++     # 3. Estimate second-stage, including the CFs.
++     cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
++         data = example.data)
++     # Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
++     P_0 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
++     P_1 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
++     Gamma.big <-  (P_1 * lambda_1.fun(P_1) - P_0 * lambda_1.fun(P_0)) / (P_1 - P_0)
++     rho_0 <- coef(cf_secondstage.reg)["lambda_0"]
++     rho_1 <- coef(cf_secondstage.reg)["lambda_1"]
++     add.term <- (rho_1 - rho_0) * Gamma.big
++     # Return the first and second-stages, and the complier compensating term.
++     output.list <- list(
++         "first-stage"         = cf_firststage.reg,
++         "second-stage"        = cf_secondstage.reg,
++         "complier-adjustment" = add.term,
++         "heckit-data"         = example.data)
++     return(output.list)
++ }
+> 
+> # Bootstrap the estimates.
+> estimated.loop <- function(boot.reps, example.data,
++     bootstrap = TRUE, print.progress = FALSE) {
++     # Define lists the will be returned:
++     # 2. Naive OLS.
++     ols_direct_effect <- c()
++     ols_indirect_effect <- c()
++     # 3. Control function.
++     cf_direct_effect <- c()
++     cf_indirect_effect <- c()
++     # More in the future ....
++     # Calculate the truth values, given the input data
++     truth_direct_effect <- c()
++     truth_indirect_effect <- c()
++     truth.est <- theoretical.values(example.data)
++     ## Loop across the bootstraps values.
++     for (i in seq(1, boot.reps)){
++         # If bootstrapping, just resample from provided data.
++         if (bootstrap == TRUE) {
++             boot.indicies <- sample(
++                 seq(1, NROW(example.data)), NROW(example.data), replace = TRUE)
++             boot.data <- example.data[boot.indicies, ]
++         }
++         # If a regular re-simulation, get new data.
++         else if (bootstrap == FALSE){
++             boot.data <- simulate.data(0.5, 1, 2, 2)
++             # Update the truth values to the newest simulated data, if so.
++             truth.est <- theoretical.values(boot.data)
++         }
++         else {stop("The `bootstrap' option only takes values of TRUE or FALSE.")}
++         # Print, if want the consol output of how far we are.
++         if (print.progress == TRUE){
++             if ((100 * (i / boot.reps)) %% 1 == 0) {
++                 print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
++             }
++         }
++         # Now get the mediation effects, by different approaches.
++         # 2. OLS estimate of second-stage
++         ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = boot.data)
++         ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = boot.data)
++         ols.est <- estimated.values(ols_firststage.reg, ols_secondstage.reg,
++             boot.data)
++         # 3. Heckman-style selection-into-mediator model estimates.
++         heckit.reg <- mediate.heckit(boot.data)
++         cf.est <- estimated.values(
++             heckit.reg$"first-stage", heckit.reg$"second-stage",
++             heckit.reg$"heckit-data",
++             complier.adjustment = heckit.reg$"complier-adjustment")
++         # Save the outputs.
++         truth_direct_effect[i]   <- truth.est$average_direct_effect
++         truth_indirect_effect[i] <- truth.est$average_indirect_effect
++         ols_direct_effect[i]     <- ols.est$`direct-effect`
++         ols_indirect_effect[i]   <- ols.est$`indirect-effect`
++         cf_direct_effect[i]      <- cf.est$`direct-effect`
++         cf_indirect_effect[i]    <- cf.est$`indirect-effect`
++     }
++     # Return the bootstrap data.
++     output.list <- list()
++     output.list$data <- data.frame(
++         truth_direct_effect   = as.numeric(truth.est$average_direct_effect),
++         ols_direct_effect     = ols_direct_effect,
++         cf_direct_effect      = cf_direct_effect,
++         truth_indirect_effect = as.numeric(truth.est$average_indirect_effect),
++         ols_indirect_effect   = ols_indirect_effect,
++         cf_indirect_effect    = cf_indirect_effect)
++     # Calculate the needed statistics, to return
++     output.list$estimates <- data.frame(
++         # Truth
++         truth_direct_effect     = as.numeric(truth.est$average_direct_effect),
++         truth_indirect_effect   = as.numeric(truth.est$average_indirect_effect),
++         # OLS mean, and the 95% confidence intervals
++         ols_direct_effect       = as.numeric(mean(ols_direct_effect)),
++         ols_direct_effect_se    = as.numeric(sd(ols_direct_effect)),
++         ols_direct_effect_up    = as.numeric(quantile(ols_direct_effect,
++             probs = 0.975, na.rm = TRUE)),
++         ols_direct_effect_low   = as.numeric(quantile(ols_direct_effect,
++             probs = 0.025, na.rm = TRUE)),
++         ols_indirect_effect     = as.numeric(mean(ols_indirect_effect)),
++         ols_indirect_effect_se  = as.numeric(sd(ols_indirect_effect)),
++         ols_indirect_effect_up  = as.numeric(quantile(ols_indirect_effect,
++             probs = 0.975, na.rm = TRUE)),
++         ols_indirect_effect_low = as.numeric(quantile(ols_indirect_effect,
++             probs = 0.025, na.rm = TRUE)),
++         # Control Fun mean, and the 95% confidence intervals
++         cf_direct_effect        = as.numeric(mean(cf_direct_effect)),
++         cf_direct_effect_se     = as.numeric(sd(cf_direct_effect)),
++         cf_direct_effect_up     = as.numeric(quantile(cf_direct_effect,
++             probs = 0.975, na.rm = TRUE)),
++         cf_direct_effect_low    = as.numeric(quantile(cf_direct_effect,
++             probs = 0.025, na.rm = TRUE)),
++         cf_indirect_effect      = as.numeric(mean(cf_indirect_effect)),
++         cf_indirect_effect_se   = as.numeric(sd(cf_indirect_effect)),
++         cf_indirect_effect_up   = as.numeric(quantile(cf_indirect_effect,
++             probs = 0.975, na.rm = TRUE)),
++         cf_indirect_effect_low  = as.numeric(quantile(cf_indirect_effect,
++             probs = 0.025, na.rm = TRUE)))
++     return(output.list)
++ }
+> 
+> 
+> ################################################################################
+> ## Compare estimation methods, in one simulation.
+> 
+> ## Simulate the data: rho, sigma_0, sigma_1, sigma_C = 0.5, 1, 2, 0.5
+> simulated.data <- simulate.data(0.5, 1, 2, 2)
+> # SHow the theoretical direct + indirect values
+> print(theoretical.values(simulated.data, print.truth = TRUE))
+[1] "Here is a summary of the (unobserved) true effects:"
+[1] "How many mediator compliers in the system?"
+   D_0
+D_1     0     1
+  0 0.302 0.000
+  1 0.483 0.215
+[1] "How many actually took the mediator, i.e. Pr(D = 1)?"
+[1] 0.453
+[1] "The average total effect:" "2.24382318798648"         
+[1] "The average first-stage:" "0.483"                   
+[1] "The average direct effect:" "1.453"                     
+[1] "The average indirect effect:" "0.783823187986484"           
+$average_first_stage
+[1] 0.483
+
+$average_total_effect
+[1] 2.243823
+
+$average_direct_effect
+[1] 1.453
+
+$average_indirect_effect
+[1] 0.7838232
+
+> 
+> # Show that the regression specification holds exactly, if specified correctly.
+> true_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus +
++         U_C + U_0 + U_1,
++     family = binomial(link = "probit"),
++     data = simulated.data)
+Warning messages:
+1: glm.fit: algorithm did not converge 
+2: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+> true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
++     # including the unobserved errors:
++     U_0 + (D * U_0) + (D * U_1),
++     data = simulated.data)
+> print(theoretical.values(simulated.data))
+$average_first_stage
+[1] 0.483
+
+$average_total_effect
+[1] 2.243823
+
+$average_direct_effect
+[1] 1.453
+
+$average_indirect_effect
+[1] 0.7838232
+
+> print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
+$`first-stage`
+[1] 0.485452
+
+$`direct-effect`
+[1] 1.453
+
+$`indirect-effect`
+[1] 0.7886225
+
+> # See how the first and second-stages are perfect:
+> print(summary(true_firststage.reg))
+
+Call:
+glm(formula = D ~ (1 + Z) + X_IV + X_minus + U_C + U_0 + U_1, 
+    family = binomial(link = "probit"), data = simulated.data)
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)
+(Intercept)    120.4     1570.6   0.077    0.939
+Z              545.8     5645.1   0.097    0.923
+X_IV           139.8     1484.1   0.094    0.925
+X_minus       -133.1     1414.1  -0.094    0.925
+U_C           -134.1     1388.8  -0.097    0.923
+U_0           -135.4     1417.3  -0.096    0.924
+U_1            134.3     1370.3   0.098    0.922
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 1.3774e+03  on 999  degrees of freedom
+Residual deviance: 1.6328e-05  on 993  degrees of freedom
+AIC: 14
+
+Number of Fisher Scoring iterations: 25
+
+> print(summary(true_secondstage.reg))
+
+Call:
+lm(formula = Y ~ (1 + Z * D) + X_minus + U_0 + (D * U_0) + (D * 
+    U_1), data = simulated.data)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-3.038e-14 -1.410e-15 -5.000e-16  3.700e-16  4.072e-13 
+
+Coefficients:
+              Estimate Std. Error    t value Pr(>|t|)    
+(Intercept)  1.298e-14  1.949e-15  6.659e+00 4.56e-11 ***
+Z            1.000e+00  1.405e-15  7.115e+14  < 2e-16 ***
+D            1.000e+00  1.712e-15  5.841e+14  < 2e-16 ***
+X_minus      1.000e+00  4.368e-16  2.290e+15  < 2e-16 ***
+U_0          1.000e+00  7.133e-16  1.402e+15  < 2e-16 ***
+U_1         -7.851e-16  3.990e-16 -1.968e+00   0.0494 *  
+Z:D          1.000e+00  2.142e-15  4.668e+14  < 2e-16 ***
+D:U_0       -1.000e+00  1.074e-15 -9.307e+14  < 2e-16 ***
+D:U_1        1.000e+00  5.894e-16  1.697e+15  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1.405e-14 on 991 degrees of freedom
+Multiple R-squared:      1,	Adjusted R-squared:      1 
+F-statistic: 3.197e+30 on 8 and 991 DF,  p-value: < 2.2e-16
+
+> #! Note: this automatically includes the complier term in the indirect effect
+> #!       without full access to U_0, U_1 this is not automatic.
+> 
+> # Show how the OLS result gives a biased result
+> # using the same second-stage for both direct + indirect estimates.
+> ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = simulated.data)
+> ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
+> print(theoretical.values(simulated.data))
+$average_first_stage
+[1] 0.483
+
+$average_total_effect
+[1] 2.243823
+
+$average_direct_effect
+[1] 1.453
+
+$average_indirect_effect
+[1] 0.7838232
+
+> print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
+$`first-stage`
+[1] 0.4879674
+
+$`direct-effect`
+[1] 0.9888647
+
+$`indirect-effect`
+[1] 1.198308
+
+> 
+> # Show how a control function gets it correct, in 2 steps.
+> cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
++     family = binomial(link = "probit"),
++     data = simulated.data)
+> # Second-stage, with Heckman normal errors
+> lambda_1.fun <- function(p){
++     return(dnorm(qnorm(p)) / pnorm(qnorm(p)))
++ }
+> P <- predict(cf_firststage.reg, type = "response")
+> simulated.data$lambda_0 <- (1 - simulated.data$D) * lambda_1.fun(P) * (- P / (1 - P))
+> simulated.data$lambda_1 <- simulated.data$D * lambda_1.fun(P)
+> # Second-stage, including the control functions lambda_0, lambda_1
+> cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
++     data = simulated.data)
+> print(summary(cf_secondstage.reg))
+
+Call:
+lm(formula = Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1, 
+    data = simulated.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.3299 -0.8426  0.0106  0.7941  5.3828 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  1.53417    0.58270   2.633   0.0086 ** 
+Z            2.13214    0.49293   4.325 1.68e-05 ***
+D           -1.52009    0.97231  -1.563   0.1183    
+X_minus      0.76026    0.09545   7.965 4.49e-15 ***
+lambda_0     1.47407    0.60958   2.418   0.0158 *  
+lambda_1     2.51284    0.58614   4.287 1.99e-05 ***
+Z:D          1.05896    0.43345   2.443   0.0147 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 1.383 on 993 degrees of freedom
+Multiple R-squared:  0.6242,	Adjusted R-squared:  0.6219 
+F-statistic: 274.9 on 6 and 993 DF,  p-value: < 2.2e-16
+
+> # Show how it gets these correct (with complier adjustment).
+> print(theoretical.values(simulated.data))
+$average_first_stage
+[1] 0.483
+
+$average_total_effect
+[1] 2.243823
+
+$average_direct_effect
+[1] 1.453
+
+$average_indirect_effect
+[1] 0.7838232
+
+> print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
++     complier.adjustment = mediate.heckit(simulated.data)$"complier-adjustment"))
+$`first-stage`
+[1] 0.4883719
+
+$`direct-effect`
+[1] 2.611853
+
+$`indirect-effect`
+[1] -0.3523973
+
+> #todo: Explore the complier compensation in the semi-parametric spline approach.
+> 
+> 
+> ################################################################################
+> ## Plot bootstrap results for one DGP, repeatedly drawn
+> 
+> # Base data to test out.
+> simulated.data <- simulate.data(0.5, 1, 2, 2)
+> 
+> # Get bootstrapped point est for the CF approach
+> sim.reps <- 10^4
+> sim.est <- estimated.loop(sim.reps, simulated.data,
++     bootstrap = FALSE, print.progress = TRUE)
+[1] "100 out of 10000, 1% done."
+[1] "200 out of 10000, 2% done."
+[1] "300 out of 10000, 3% done."
+[1] "400 out of 10000, 4% done."
+[1] "500 out of 10000, 5% done."
+[1] "600 out of 10000, 6% done."
+[1] "800 out of 10000, 8% done."
+[1] "900 out of 10000, 9% done."
+[1] "1000 out of 10000, 10% done."
+[1] "1100 out of 10000, 11% done."
+[1] "1200 out of 10000, 12% done."
+[1] "1300 out of 10000, 13% done."
+[1] "1500 out of 10000, 15% done."
+[1] "1600 out of 10000, 16% done."
+[1] "1700 out of 10000, 17% done."
+[1] "1800 out of 10000, 18% done."
+[1] "1900 out of 10000, 19% done."
+[1] "2000 out of 10000, 20% done."
+[1] "2100 out of 10000, 21% done."
+[1] "2200 out of 10000, 22% done."
+[1] "2300 out of 10000, 23% done."
+[1] "2400 out of 10000, 24% done."
+[1] "2500 out of 10000, 25% done."
+[1] "2600 out of 10000, 26% done."
+[1] "2700 out of 10000, 27% done."
+[1] "3000 out of 10000, 30% done."
+[1] "3100 out of 10000, 31% done."
+[1] "3200 out of 10000, 32% done."
+[1] "3300 out of 10000, 33% done."
+[1] "3400 out of 10000, 34% done."
+[1] "3500 out of 10000, 35% done."
+[1] "3600 out of 10000, 36% done."
+[1] "3700 out of 10000, 37% done."
+[1] "3800 out of 10000, 38% done."
+[1] "3900 out of 10000, 39% done."
+[1] "4000 out of 10000, 40% done."
+[1] "4100 out of 10000, 41% done."
+[1] "4200 out of 10000, 42% done."
+[1] "4300 out of 10000, 43% done."
+[1] "4400 out of 10000, 44% done."
+[1] "4500 out of 10000, 45% done."
+[1] "4600 out of 10000, 46% done."
+[1] "4700 out of 10000, 47% done."
+[1] "4800 out of 10000, 48% done."
+[1] "4900 out of 10000, 49% done."
+[1] "5000 out of 10000, 50% done."
+[1] "5100 out of 10000, 51% done."
+[1] "5200 out of 10000, 52% done."
+[1] "5300 out of 10000, 53% done."
+[1] "5400 out of 10000, 54% done."
+[1] "5900 out of 10000, 59% done."
+[1] "6000 out of 10000, 60% done."
+[1] "6100 out of 10000, 61% done."
+[1] "6200 out of 10000, 62% done."
+[1] "6300 out of 10000, 63% done."
+[1] "6400 out of 10000, 64% done."
+[1] "6500 out of 10000, 65% done."
+[1] "6600 out of 10000, 66% done."
+[1] "6700 out of 10000, 67% done."
+[1] "6800 out of 10000, 68% done."
+[1] "6900 out of 10000, 69% done."
+[1] "7000 out of 10000, 70% done."
+[1] "7100 out of 10000, 71% done."
+[1] "7200 out of 10000, 72% done."
+[1] "7300 out of 10000, 73% done."
+[1] "7400 out of 10000, 74% done."
+[1] "7500 out of 10000, 75% done."
+[1] "7600 out of 10000, 76% done."
+[1] "7700 out of 10000, 77% done."
+[1] "7800 out of 10000, 78% done."
+[1] "7900 out of 10000, 79% done."
+[1] "8000 out of 10000, 80% done."
+[1] "8100 out of 10000, 81% done."
+[1] "8200 out of 10000, 82% done."
+[1] "8300 out of 10000, 83% done."
+[1] "8400 out of 10000, 84% done."
+[1] "8500 out of 10000, 85% done."
+[1] "8600 out of 10000, 86% done."
+[1] "8700 out of 10000, 87% done."
+[1] "8800 out of 10000, 88% done."
+[1] "8900 out of 10000, 89% done."
+[1] "9000 out of 10000, 90% done."
+[1] "9100 out of 10000, 91% done."
+[1] "9200 out of 10000, 92% done."
+[1] "9300 out of 10000, 93% done."
+[1] "9400 out of 10000, 94% done."
+[1] "9500 out of 10000, 95% done."
+[1] "9600 out of 10000, 96% done."
+[1] "9700 out of 10000, 97% done."
+[1] "9800 out of 10000, 98% done."
+[1] "9900 out of 10000, 99% done."
+[1] "10000 out of 10000, 100% done."
+> sim.data <- sim.est$data
+> 
+> ## Save the repeated DGPs' point estimates as separate data.
+> sim.data %>% write_csv(file.path(output.folder, "dist-heckit-data.csv"))
+> 
+> proc.time()
+   user  system elapsed 
+386.981   0.448 388.261 
