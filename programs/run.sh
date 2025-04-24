@@ -13,7 +13,8 @@
 # ssh ecco01@XXX.biohpc.cornell.edu
 cd simulations
 # Run the Heckman correction simulation
-R CMD BATCH --no-save heckman-sim.R
+R CMD BATCH --no-save heckit-sim.R ; R CMD BATCH --no-save heckit-plot.R
+
 # Run the Roy selection simulation
 R CMD BATCH --no-save roy-sim.R
 # Present the results

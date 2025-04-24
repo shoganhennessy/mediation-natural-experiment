@@ -242,9 +242,9 @@ Thus, the first-stage regression of $Z \to Y$ has unbiased estimates.
                 D_i(0) - \Egiven{D_i(0)}{\vec X_i}
                 + Z_i \big( D_i(1) - D_i(0) - \Egiven{ D_i(1) - D_i(0)}{\vec X_i}\big)}_{
                 \text{Mean-zero independent error term, since }Z_i \indep D_i \; | \; \vec X_i} \\
-        &\eqqcolon \phi + \pi Z_i + \varphi(\vec X_i) + \eta_i \\
+        &\eqqcolon \phi + \pi Z_i + \zeta(\vec X_i) + \eta_i \\
     \implies \Egiven{D_i}{Z_i, \vec X_i}&=
-        \phi + \pi Z_i + \varphi(\vec X_i)
+        \phi + \pi Z_i + \zeta(\vec X_i)
         \text{, and thus unbiased estimates since } Z_i \indep \phi, \eta_i.
 \end{align*}
 
@@ -274,12 +274,12 @@ And so $Y_i$ can be written as a regression equation in terms of the observed fa
         & \;\;\;\; + U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right) \\
         &\eqqcolon
             \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
-            + \zeta(\vec X_i)
+            + \varphi(\vec X_i)
             + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}
 \end{align*}
 With the following definitions:
 \begin{enumerate}[label=\textbf{(\alph*)}]
-    \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\zeta(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
+    \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\varphi(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
     \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the indirect effect under $Z_i = 0$
     \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the direct effect under $D_i = 0$.
     \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)- \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)$ is the interaction effect.
@@ -292,22 +292,21 @@ This sequence gives us the resulting regression equation:
         + \beta D_i
         + \gamma Z_i
         + \delta Z_i D_i
-        + \zeta(\vec X_i) \\
+        + \varphi(\vec X_i) \\
         & \;\; +\left( 1 - D_i \right) \Egiven{ U_{0,i} }{D_i = 0, \vec X_i}
             + D_i \Egiven{ U_{1,i} }{D_i = 1, \vec X_i}
 \end{align*}
-Taking the conditional expectation, and collecting for the expressions of the direct and indirect effects:\footnote{
-    These equations have simpler expressions after assuming constant treatment effects in a linear framework;
-    I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
-}
+Taking the conditional expectation, and collecting for the expressions of the direct and indirect effects:
 \begin{align*}
     \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
         &= \E{\pi \left( \beta +  Z_i \delta \right)} \\
     \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
-        &= \E{\gamma + \delta D_i}
+        &= \E{\gamma + \delta D_i + \tilde U_i}
 \end{align*}
-These terms are conventionally estimated in a simultaneous regression \citep{imai2010identification}.
+These equations have simpler expressions after assuming constant treatment effects in a linear framework;
+I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
 
+These terms are conventionally estimated in a simultaneous regression \citep{imai2010identification}.
 If sequential ignorability does not hold, then the regression estimates from estimating the mediation equations (without adjusting for the contaminated bias term) suffer from omitted variables bias.
 
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
@@ -331,9 +330,7 @@ If sequential ignorability does not hold, then the regression estimates from est
 \end{align*}
 }}
 And so the ADE and AIE estimates are contaminated by these bias terms.
-Additionally, the AIE estimates refers to gains from the mediator among $D(z)$ compliers (not the entire average), so will be biased when not accounting for this, too.
-
-% Senan note: should write CM estimand = \E{\gamma + \delta D_i} + bias, where bias is a term of simila flavour to E[ U_1 | D = 1] - E[ U_0 | D = 0] term.
+Additionally, the AIE estimates refers to gains from the mediator among $D(z)$ compliers (not the entire average), so will be biased when not accounting for $+ \tilde U_i$, too.
 
 \subsection{Roy Model and Sequential Ignorability}
 \label{appendix:roy-seq-ig}

@@ -28,32 +28,42 @@ In these terms, the ADE and AIE are represented as follows,
 With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following outcome equations --- which characterise direct effects, indirect effects, and selection bias.
 \begin{align}
     \label{eqn:parametric-firststage}
-    D_i &= \phi + \pi Z_i + \varphi(\vec X_i) + \eta_i  \\
+    D_i &= \phi + \pi Z_i + \zeta(\vec X_i) + \eta_i  \\
     \label{eqn:parametric-secondstage}
     Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
-    + \zeta(\vec X_i)
+    + \varphi(\vec X_i)
     + \underbrace{\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}_{
         \text{Correlated error term.}}
 \end{align}
-First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \varphi(\vec X_i)$ the intercept, and $\pi$ the first-stage compliance rate (which may depend on $\vec X_i$).
-Second-stage \eqref{eqn:parametric-secondstage} is not identified thanks to omitted variables bias.
-$\alpha + \zeta(\vec X_i)$ is the intercept term, and $\beta, \gamma, \delta$ are conditional direct and indirect effects --- all whose value may depend on $\vec X_i$, see \autoref{appendix:regression-model} for full definitions.
-$\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}$ is the possibly correlated error term, which disrupts identification.
-The ADE and AIE are averages of these coefficients.\footnote{
-    The AIE, in fact, refers only to treatment gains among $D_i(z)$ compliers, so includes a group differences term, $\pi \times\Egiven{
-            D_i U_{1,i} - \left(1 - D_i \right)U_{0,i}
-        }{\vec X_i, D_i(1) = 1, D_i(0) = 0} $.
-    The formula above skips this part to keep with regression notation.
-    \autoref{sec:selectionmodel} returns to the issue of accounting for mediator compliers in identifying the average indirect effect.
+First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \zeta(\vec X_i)$ the intercept, and $\pi$ the first-stage compliance rate (which may depend on $\vec X_i$).
+Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to omitted variables bias.\footnote{
+    See \autoref{appendix:regression-model} for the derivation.
 }
+\begin{enumerate}[label=\textbf{(\alph*)}]
+    \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\varphi(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
+    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the AIE local to $Z_i = 0$.
+    \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the ADE local to $D_i = 0$.
+    \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)- \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)$ is the average interaction effect.
+    \item $\left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}$ is the disruptive error term.
+\end{enumerate}
+
+The ADE and AIE are averages of these regression coefficients.
 \begin{align*}
     \text{ADE}
     %= \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
         &= \E{\gamma + \delta D_i}, \\
-    \text{AIE} 
+    \text{AIE}
     %= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{ \pi \left( \beta +  \delta Z_i \right)}.
+        &= \E{ \pi \left( \beta +  \delta Z_i + \tilde U_i \right)},
+        \;\;\;\; \text{ with } \tilde U_i
+            = \underbrace{\Egiven{ D_i U_{1,i} - \left(1 - D_i \right)U_{0,i}}{
+                \vec X_i, D_i(1) = 1, D_i(0) = 0}}_{
+                    \text{Unobserved complier differences.}}.
 \end{align*}
+The ADE is a simple sum of the coefficients, while the AIE includes a group differences term because it only refers to the mediator compliers.\footnote{
+    \autoref{sec:selectionmodel} returns to the issue of accounting for mediator compliers in identifying the average indirect effect.
+}
+
 By construction, $\vec U_i \coloneqq \left(U_{0, i}, U_{1, i} \right)$ is an unobserved confounder.
 The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  \vec U_{i} $.
 If not, then estimates of CM effects suffer from omitted variables bias from failing to adjust for the unobserved confounder, $\vec U_i$.
@@ -76,7 +86,7 @@ The Roy model has $i$ taking the mediator if the benefits exceed the costs,
 The Roy model provides an intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome under study \citep{roy1951some,heckman1990empirical}.
 If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking education, then it models an individual choice to attend more education in terms of gaining a higher income compared to the costs.\footnote{
     If the choice is made for a sum of outcomes, then a simple extension to a utility maximisation model maintains this same framework.
-    See \cite{heckman1990empirical}.
+    See \cite{heckman1990empirical,eisenhauer2015generalized}.
 }
 This makes it particularly useful as a base case for CM, where selection into the mediator may be driven by private information (unobserved by the researcher).
 % Additionally, the Roy model aligns well with many real-world settings, such as education or labour market participation, where decisions are based on a comparison of expected outcomes across alternatives. 

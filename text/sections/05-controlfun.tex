@@ -1,16 +1,14 @@
-\section{A Control Function Approach}
+\section{Estimation with a Selection Model}
 \label{sec:controlfun}
-% A selection model relies on the errors follow a known distribution, and identification is disrupted when the errors follow some other distribution.
-% A control function approach avoids these assumptions, which are dubious in practice, by instead relying on instrument.\footnote{
-%     This section does not improve on the control function approach, instead only noting its utility to solve the identification problem of CM in a natural experiment setting.
-% }
-If your goal is to estimate CM effects, and you could control for unobserved selection terms $U_{0,i}, U_{1,i}$, then you would.
-This ideal example would yield unbiased estimates.
-% Alas, $U_i$ is by definition unobserved.
-The control function method takes this insight seriously, providing conditions to model the unobserved $\left(U_{0,i}, U_{1,i}\right)$, and then control for it.\footnote{
-    This section does not improve on the control function approach, instead only noting its utility to solve the identification problem of CM in a natural experiment setting.
-}
+This paper only considers a modern two-stage approach to selection models --- also known as a control function approach.
+Indeed, the conventional approach to estimating CM effects already uses a two-stage estimation procedure to estimate the first and second-stages.
+It is a simple, and intuition addition to include a two-stage control function adjustment to CM estimation.
 
+Go through the steps of a Heckman selection model,  and the corresponding SEs + reference $\sqrt{n}$-consistency.
+Note Nancy Heckamn (1986) gives $\sqrt{n}$-consistency of splines.
+The two-stage semi-parametric procedure of Robinson (1988) is not appropriate, as we want the $\lambda_1(.)$ function, too.
+
+\subsection{Old writing}
 Write $K_i$ for the expected values in predicting the mediator with observed data $Z_i, \vec X_i$.
 %Then take the two components of $K_i$ into $K_{0 ,i}, K_{1,i}$, corresponding to whether $i$ refuses or takes the mediator, respectively.
 \begin{align*}
