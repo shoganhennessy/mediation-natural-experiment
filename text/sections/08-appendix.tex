@@ -242,9 +242,9 @@ Thus, the first-stage regression of $Z \to Y$ has unbiased estimates.
                 D_i(0) - \Egiven{D_i(0)}{\vec X_i}
                 + Z_i \big( D_i(1) - D_i(0) - \Egiven{ D_i(1) - D_i(0)}{\vec X_i}\big)}_{
                 \text{Mean-zero independent error term, since }Z_i \indep D_i \; | \; \vec X_i} \\
-        &\eqqcolon \phi + \pi Z_i + \zeta(\vec X_i) + \eta_i \\
+        &\eqqcolon \phi + \bar \pi Z_i + \zeta(\vec X_i) + \eta_i \\
     \implies \Egiven{D_i}{Z_i, \vec X_i}&=
-        \phi + \pi Z_i + \zeta(\vec X_i)
+        \phi + \bar \pi Z_i + \zeta(\vec X_i)
         \text{, and thus unbiased estimates since } Z_i \indep \phi, \eta_i.
 \end{align*}
 
@@ -299,7 +299,7 @@ This sequence gives us the resulting regression equation:
 Taking the conditional expectation, and collecting for the expressions of the direct and indirect effects:
 \begin{align*}
     \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{\pi \left( \beta +  Z_i \delta \right)} \\
+        &= \E{\bar \pi \left( \beta +  Z_i \delta \right)} \\
     \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
         &= \E{\gamma + \delta D_i + \tilde U_i}
 \end{align*}

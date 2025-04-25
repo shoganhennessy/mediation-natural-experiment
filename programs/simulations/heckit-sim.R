@@ -281,17 +281,19 @@ estimated.loop <- function(boot.reps, example.data,
     # Return the bootstrap data.
     output.list <- list()
     output.list$data <- data.frame(
-        truth_direct_effect   = as.numeric(truth.est$average_direct_effect),
+        # Compiling the direct effects
+        truth_direct_effect   = truth_direct_effect,
         ols_direct_effect     = ols_direct_effect,
         cf_direct_effect      = cf_direct_effect,
-        truth_indirect_effect = as.numeric(truth.est$average_indirect_effect),
+        # Compiling the indirect effects
+        truth_indirect_effect = truth_indirect_effect,
         ols_indirect_effect   = ols_indirect_effect,
         cf_indirect_effect    = cf_indirect_effect)
     # Calculate the needed statistics, to return
     output.list$estimates <- data.frame(
         # Truth
-        truth_direct_effect     = as.numeric(truth.est$average_direct_effect),
-        truth_indirect_effect   = as.numeric(truth.est$average_indirect_effect),
+        truth_direct_effect     = as.numeric(mean(truth_direct_effect)),
+        truth_indirect_effect   = as.numeric(mean(truth_indirect_effect)),
         # OLS mean, and the 95% confidence intervals
         ols_direct_effect       = as.numeric(mean(ols_direct_effect)),
         ols_direct_effect_se    = as.numeric(sd(ols_direct_effect)),

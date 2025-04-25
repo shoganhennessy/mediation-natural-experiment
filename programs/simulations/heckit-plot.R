@@ -28,7 +28,7 @@ colour.list <- c("orange", "blue")
 ################################################################################
 ## Load the simulated data.  (saved as separate file in advance.)
 
-# Load data from diststrapping 10,000 times.
+# Load data from DGP-strapping 10,000 times.
 sim.data <- read_csv(file.path(output.folder, "dist-heckit-data.csv"))
 print(sim.data)
 
@@ -45,7 +45,7 @@ direct_dist.plot <- sim.data %>%
     annotate("text", colour = colour.list[1],
         x = 0.25, y = 3,
         fontface = "bold",
-        label = ("OLS"),
+        label = ("Unadjusted"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
         x = 0.35, y = 2.75,
@@ -69,13 +69,13 @@ direct_dist.plot <- sim.data %>%
     geom_vline(xintercept = mean(sim.data$truth_direct_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     annotate("text", colour = "black",
-        x = 2, y = 3.75,
+        x = 2, y = 3.5,
         fontface = "bold",
         label = ("Truth"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = "black",
         x = 1.875, y = 3.5,
-        xend = 1.5, yend = 3.25,
+        xend = 1.625, yend = 3.25,
         linewidth = 0.75,
         curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
@@ -87,7 +87,7 @@ direct_dist.plot <- sim.data %>%
         limits = c(0, 2.5)) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
-        limits = c(0, 4.25)) +
+        limits = c(0, 4.5)) +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
@@ -116,7 +116,7 @@ indirect_dist.plot <- sim.data %>%
         limits = c(0, 2.5)) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
-        limits = c(0, 4.25)) +
+        limits = c(0, 4.5)) +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))

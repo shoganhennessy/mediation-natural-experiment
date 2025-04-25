@@ -20,7 +20,7 @@ Type 'q()' to quit R.
 > ## Testing out the LATE identification, following Kline Walters (2019).
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "18:30 EDT Thursday, 24 April 2025"
+[1] "09:31 EDT Friday, 25 April 2025"
 > ## Load libraries
 > # Functions for data manipulation and visualisation
 > library(tidyverse)
@@ -330,17 +330,19 @@ Version: 4.5.0
 +     # Return the bootstrap data.
 +     output.list <- list()
 +     output.list$data <- data.frame(
-+         truth_direct_effect   = as.numeric(truth.est$average_direct_effect),
++         # Compiling the direct effects
++         truth_direct_effect   = truth_direct_effect,
 +         ols_direct_effect     = ols_direct_effect,
 +         cf_direct_effect      = cf_direct_effect,
-+         truth_indirect_effect = as.numeric(truth.est$average_indirect_effect),
++         # Compiling the indirect effects
++         truth_indirect_effect = truth_indirect_effect,
 +         ols_indirect_effect   = ols_indirect_effect,
 +         cf_indirect_effect    = cf_indirect_effect)
 +     # Calculate the needed statistics, to return
 +     output.list$estimates <- data.frame(
 +         # Truth
-+         truth_direct_effect     = as.numeric(truth.est$average_direct_effect),
-+         truth_indirect_effect   = as.numeric(truth.est$average_indirect_effect),
++         truth_direct_effect     = as.numeric(mean(truth_direct_effect)),
++         truth_indirect_effect   = as.numeric(mean(truth_indirect_effect)),
 +         # OLS mean, and the 95% confidence intervals
 +         ols_direct_effect       = as.numeric(mean(ols_direct_effect)),
 +         ols_direct_effect_se    = as.numeric(sd(ols_direct_effect)),
@@ -699,4 +701,4 @@ $`indirect-effect`
 > 
 > proc.time()
    user  system elapsed 
-386.981   0.448 388.261 
+412.790   0.428 413.931 

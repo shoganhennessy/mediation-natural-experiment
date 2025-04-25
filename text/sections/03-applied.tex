@@ -28,14 +28,14 @@ In these terms, the ADE and AIE are represented as follows,
 With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following outcome equations --- which characterise direct effects, indirect effects, and selection bias.
 \begin{align}
     \label{eqn:parametric-firststage}
-    D_i &= \phi + \pi Z_i + \zeta(\vec X_i) + \eta_i  \\
+    D_i &= \phi + \bar \pi Z_i + \zeta(\vec X_i) + \eta_i  \\
     \label{eqn:parametric-secondstage}
     Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
     + \varphi(\vec X_i)
     + \underbrace{\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}_{
         \text{Correlated error term.}}
 \end{align}
-First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \zeta(\vec X_i)$ the intercept, and $\pi$ the first-stage compliance rate (which may depend on $\vec X_i$).
+First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \zeta(\vec X_i)$ the intercept, and $\bar \pi$ the first-stage compliance rate (which may depend on $\vec X_i$).
 Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to omitted variables bias.\footnote{
     See \autoref{appendix:regression-model} for the derivation.
 }
@@ -54,7 +54,7 @@ The ADE and AIE are averages of these regression coefficients.
         &= \E{\gamma + \delta D_i}, \\
     \text{AIE}
     %= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{ \pi \left( \beta +  \delta Z_i + \tilde U_i \right)},
+        &= \E{ \bar \pi \left( \beta +  \delta Z_i + \tilde U_i \right)},
         \;\;\;\; \text{ with } \tilde U_i
             = \underbrace{\Egiven{ D_i U_{1,i} - \left(1 - D_i \right)U_{0,i}}{
                 \vec X_i, D_i(1) = 1, D_i(0) = 0}}_{

@@ -69,7 +69,7 @@ Under these assumptions, outcome regression has the following form.
 Where $\lambda_0, \lambda_1$ are the control functions.
 For $J(u) = F^-1_V(u) - E[ F^-1_V(U_i) ]$
 
-This is a special case of Heckman (1980), notation from Kiline Walters (2019).
+This is a special case of Heckman (1980), notation from Kline Walters (2019).
 
 \begin{figure}[h!]
     \caption{Simulated Distribution of CM Effect Estimates.}
@@ -91,6 +91,6 @@ This is a special case of Heckman (1980), notation from Kiline Walters (2019).
     \textbf{Note:}
     These figures show the empirical density of point estimates, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms (further described in \autoref{sec:controlfun}).
     The black dashed line is the true value;
-    orange is the distribution of conventional CM estimates,
-    and blue estimates with a Heckman selection adjustment.
+    orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
+    and blue estimates with a two-stage Heckman selection adjustment.
 \end{figure}
