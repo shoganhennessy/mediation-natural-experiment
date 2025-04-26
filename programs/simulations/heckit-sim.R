@@ -3,18 +3,21 @@
 ## Testing out the LATE identification, following Kline Walters (2019).
 # Show the date:
 print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
+
 ## Load libraries
 # Functions for data manipulation and visualisation
 library(tidyverse)
 # Causal medation package, Imai Keele Yamamoto (2010)
 library(mediation)
+# Package for classical selection estimators (i.e., MLE)
+library(sampleSelection)
 # Package for more distributions to sample from.
 library(MASS)
 # Package for semi-parametric regressor, splines by bs(.).
 library(splines)
 
 ## Set up the R environment
-set.seed(47)
+#set.seed(47)
 # Define number of digits in tables and graphs
 digits.no <- 3
 # Define where output files go.
@@ -43,7 +46,7 @@ simulate.data <- function(rho, sigma_0, sigma_1, sigma_C,
     # First covariate (\vec X_i^-)
     X_minus <- 4 + rnorm(sample.size, mean = 0, sd = 1)
     # Second covariate (instrument for the control function).
-    X_IV <- runif(sample.size, 0, 1) # rbinom(sample.size, 1, 1 / 2)
+    X_IV <- 2 * runif(sample.size, -1, 1)
     # Simulate the unobserved error terms.
     U_all <- mvrnorm(n = sample.size, mu = c(0, 0, 0),
         Sigma = matrix(c(
@@ -172,7 +175,7 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data,
     direct.est <- predict(
         secondstage.reg, newdata = mutate(example.data, Z = 1)) -
         predict(secondstage.reg, newdata = mutate(example.data, Z = 0))
-    # calculate the second-stage indirect effect
+    # calculate the second-stage (controlled) indirect effect
     indirect.est <- predict(
         secondstage.reg, newdata = mutate(example.data, D = 1)) -
         predict(secondstage.reg, newdata = mutate(example.data, D = 0))
@@ -201,7 +204,7 @@ mediate.heckit <- function(example.data){
         return(dnorm(qnorm(p)) / pnorm(qnorm(p)))
     }
     P <- predict(cf_firststage.reg, type = "response")
-    example.data$lambda_0 <- (1 - example.data$D) * lambda_1.fun(P) * (- (1 - P) / P)
+    example.data$lambda_0 <- (1 - example.data$D) * lambda_1.fun(P) * (- P / (1 - P))
     example.data$lambda_1 <- example.data$D * lambda_1.fun(P)
     # 3. Estimate second-stage, including the CFs.
     cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
@@ -224,7 +227,9 @@ mediate.heckit <- function(example.data){
 
 # Bootstrap the estimates.
 estimated.loop <- function(boot.reps, example.data,
-    bootstrap = TRUE, print.progress = FALSE) {
+        bootstrap = TRUE, print.progress = FALSE,
+        # Default data parameters
+        rho = 0.5, sigma_0 = 1, sigma_1 = 3, sigma_C = 2) {
     # Define lists the will be returned:
     # 2. Naive OLS.
     ols_direct_effect <- c()
@@ -267,7 +272,8 @@ estimated.loop <- function(boot.reps, example.data,
         # 3. Heckman-style selection-into-mediator model estimates.
         heckit.reg <- mediate.heckit(boot.data)
         cf.est <- estimated.values(
-            heckit.reg$"first-stage", heckit.reg$"second-stage",
+            heckit.reg$"first-stage",
+            heckit.reg$"second-stage",
             heckit.reg$"heckit-data",
             complier.adjustment = heckit.reg$"complier-adjustment")
         # Save the outputs.
@@ -281,11 +287,9 @@ estimated.loop <- function(boot.reps, example.data,
     # Return the bootstrap data.
     output.list <- list()
     output.list$data <- data.frame(
-        # Compiling the direct effects
         truth_direct_effect   = truth_direct_effect,
         ols_direct_effect     = ols_direct_effect,
         cf_direct_effect      = cf_direct_effect,
-        # Compiling the indirect effects
         truth_indirect_effect = truth_indirect_effect,
         ols_indirect_effect   = ols_indirect_effect,
         cf_indirect_effect    = cf_indirect_effect)
@@ -327,8 +331,12 @@ estimated.loop <- function(boot.reps, example.data,
 ################################################################################
 ## Compare estimation methods, in one simulation.
 
-## Simulate the data: rho, sigma_0, sigma_1, sigma_C = 0.5, 1, 2, 0.5
-simulated.data <- simulate.data(0.5, 1, 2, 2)
+## Simulate the data with given rho, sigma_0, sigma_1, sigma_C values.
+rho <- 0.5
+sigma_0 <- 1
+sigma_1 <- 3
+sigma_C <- 2
+simulated.data <- simulate.data(rho, sigma_0, sigma_1, sigma_C)
 # SHow the theoretical direct + indirect values
 print(theoretical.values(simulated.data, print.truth = TRUE))
 
@@ -337,9 +345,9 @@ true_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus +
         U_C + U_0 + U_1,
     family = binomial(link = "probit"),
     data = simulated.data)
-true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
+true_secondstage.reg <- lm(Y ~ (-1 + Z * D) + X_minus +
     # including the unobserved errors:
-    U_0 + (D * U_0) + (D * U_1),
+    I((1 - D) * U_0) + I(D * U_1),
     data = simulated.data)
 print(theoretical.values(simulated.data))
 print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
@@ -349,7 +357,7 @@ print(summary(true_secondstage.reg))
 #! Note: this automatically includes the complier term in the indirect effect
 #!       without full access to U_0, U_1 this is not automatic.
 
-# Show how the OLS result gives a biased result
+# Show how the OLS result gives a bias result (if rho != 0),
 # using the same second-stage for both direct + indirect estimates.
 ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = simulated.data)
 ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
@@ -375,14 +383,14 @@ print(summary(cf_secondstage.reg))
 print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
     complier.adjustment = mediate.heckit(simulated.data)$"complier-adjustment"))
-#todo: Explore the complier compensation in the semi-parametric spline approach.
+#todo: Explore the complier comensation in semi-parametric spline approach.
 
 
 ################################################################################
 ## Plot bootstrap results for one DGP, repeatedly drawn
 
-# Base data to test out.
-simulated.data <- simulate.data(0.5, 1, 2, 2)
+# Base data to input
+simulated.data <- simulate.data(rho, sigma_0, sigma_1, sigma_C)
 
 # Get bootstrapped point est for the CF approach
 sim.reps <- 10^4

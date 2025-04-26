@@ -20,7 +20,7 @@ Type 'q()' to quit R.
 > ## Plot the system for indirect + direct effects, with Heckman correction.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "09:38 EDT Friday, 25 April 2025"
+[1] "12:42 EDT Saturday, 26 April 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -69,18 +69,19 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 # A tibble: 10,000 × 6
    truth_direct_effect ols_direct_effect cf_direct_effect truth_indirect_effect
                  <dbl>             <dbl>            <dbl>                 <dbl>
- 1                1.48             0.925             1.71                 0.902
- 2                1.47             0.839             2.05                 0.842
- 3                1.42             1.21              1.73                 0.836
- 4                1.49             0.882             1.40                 0.888
- 5                1.44             1.04              1.70                 0.831
- 6                1.44             0.974             1.58                 0.871
- 7                1.44             1.02              1.53                 0.833
- 8                1.45             1.07              1.33                 0.777
- 9                1.45             1.03              1.58                 0.973
-10                1.41             1.17              1.36                 0.793
+ 1                1.38             0.977             1.17                 0.794
+ 2                1.38             0.840             1.32                 0.827
+ 3                1.40             0.861             1.33                 0.818
+ 4                1.38             0.973             1.28                 0.769
+ 5                1.38             0.899             1.42                 0.750
+ 6                1.42             1.17              1.40                 0.732
+ 7                1.40             1.05              1.52                 0.829
+ 8                1.41             1.00              1.15                 0.833
+ 9                1.39             1.20              1.40                 0.802
+10                1.40             1.14              1.45                 0.830
 # ℹ 9,990 more rows
 # ℹ 2 more variables: ols_indirect_effect <dbl>, cf_indirect_effect <dbl>
+> #View(sim.data)
 > 
 > 
 > ################################################################################
@@ -90,54 +91,45 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 > direct_dist.plot <- sim.data %>%
 +     ggplot() +
 +     # Dist of OLS estimates.
-+     geom_density(aes(x = ols_direct_effect, y = after_stat(density)),
++     geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
++         y = after_stat(density)),
 +         colour = "black", fill = colour.list[1], alpha = 0.75) +
 +     annotate("text", colour = colour.list[1],
-+         x = 0.25, y = 3,
++         x = 0.5, y = 4,
 +         fontface = "bold",
 +         label = ("Unadjusted"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[1],
-+         x = 0.35, y = 2.75,
-+         xend = 0.75, yend = 2.5,
-+         linewidth = 0.75, curvature = 0.25,
++         x = 0.5, y = 3.875,
++         xend = -0.25, yend = 3,
++         linewidth = 0.75, curvature = -0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Dist of CF estimates.
-+     geom_density(aes(x = cf_direct_effect, y = after_stat(density)),
++     geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
++         y = after_stat(density)),
 +         colour = "black", fill = colour.list[2], alpha = 0.75) +
 +     annotate("text", colour = colour.list[2],
-+         x = 2, y = 2,
++         x = 0.5, y = 2.5,
 +         fontface = "bold",
 +         label = ("Selection model"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[2],
-+         x = 1.875, y = 1.75,
-+         xend = 1.5, yend = 1.25,
++         x = 0.5, y = 2.375,
++         xend = 0.15, yend = 1.6,
 +         linewidth = 0.75, curvature = -0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Truth value
-+     geom_vline(xintercept = mean(sim.data$truth_direct_effect),
++     geom_vline(xintercept = 0,
 +         colour = "black", linetype = "dashed", linewidth = 1) +
-+     annotate("text", colour = "black",
-+         x = 2, y = 3.5,
-+         fontface = "bold",
-+         label = ("Truth"),
-+         size = 4.25, hjust = 0.5, vjust = 0) +
-+     annotate("curve", colour = "black",
-+         x = 1.875, y = 3.5,
-+         xend = 1.625, yend = 3.25,
-+         linewidth = 0.75,
-+         curvature = -0.25,
-+         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Other presentation options
 +     theme_bw() +
 +     scale_x_continuous(expand = c(0, 0),
-+         name = "Estimate",
-+         breaks = seq(0, 2.5, by = 0.25),
-+         limits = c(0, 2.5)) +
++         name = TeX("Estimate$-$ True Value"),,
++         breaks = seq(-1.0, 1.0, by = 0.25),
++         limits = c(-1.0, 1.0)) +
 +     scale_y_continuous(expand = c(0, 0),
-+         name = "",
-+         limits = c(0, 4.5)) +
++         name = "", limits = c(0, 5.1)) +
++     ggtitle("Density") +
 +     theme(plot.title = element_text(size = rel(1), hjust = 0),
 +         plot.title.position = "plot",
 +         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
@@ -145,31 +137,30 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 > ggsave(file.path(output.folder, "heckit-direct-dist.png"),
 +     plot = direct_dist.plot,
 +     units = "cm", width = fig.width, height = fig.height)
-Warning message:
-Removed 3 rows containing non-finite outside the scale range
-(`stat_density()`). 
 > 
 > # AIE estimates, by type.
 > indirect_dist.plot <- sim.data %>%
 +     ggplot() +
 +     # Dist of OLS estimates.
-+     geom_density(aes(x = ols_indirect_effect, y = after_stat(density)),
++     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
++         y = after_stat(density)),
 +         colour = "black", fill = colour.list[1], alpha = 0.75) +
 +     # Dist of CF estimates.
-+     geom_density(aes(x = cf_indirect_effect, y = after_stat(density)),
++     geom_density(aes(x = cf_indirect_effect - truth_indirect_effect,
++         y = after_stat(density)),
 +         colour = "black", fill = colour.list[2], alpha = 0.75) +
 +     # Truth value
-+     geom_vline(xintercept = mean(sim.data$truth_indirect_effect),
++     geom_vline(xintercept = 0,
 +         colour = "black", linetype = "dashed", linewidth = 1) +
 +     # Other presentation options
 +     theme_bw() +
 +     scale_x_continuous(expand = c(0, 0),
-+         name = "Estimate",
-+         breaks = seq(0, 2.5, by = 0.25),
-+         limits = c(0, 2.5)) +
++         name = TeX("Estimate$-$ True Value"),
++         breaks = seq(-1.0, 1.0, by = 0.25),
++         limits = c(-1.0, 1.0)) +
 +     scale_y_continuous(expand = c(0, 0),
-+         name = "",
-+         limits = c(0, 4.5)) +
++         name = "", limits = c(0, 5.1)) +
++     ggtitle("Density") +
 +     theme(plot.title = element_text(size = rel(1), hjust = 0),
 +         plot.title.position = "plot",
 +         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
@@ -177,10 +168,7 @@ Removed 3 rows containing non-finite outside the scale range
 > ggsave(file.path(output.folder, "heckit-indirect-dist.png"),
 +     plot = indirect_dist.plot,
 +     units = "cm", width = fig.width, height = fig.height)
-Warning message:
-Removed 5 rows containing non-finite outside the scale range
-(`stat_density()`). 
 > 
 > proc.time()
    user  system elapsed 
-  2.529   0.160   2.743 
+  2.418   0.166   2.626 

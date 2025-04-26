@@ -123,13 +123,13 @@ If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:
 \vspace{0.1cm}
 
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
-\[ \E[D_i = d', \vec X_i]{
-    \underbrace{\Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i, \vec X_i$ constant}}}
+\[ \E[D_i, \vec X_i]{
+    \underbrace{\Egiven{Y_i}{Z_i = 1, D_i, \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i, \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i, \vec X_i$ constant}}}
     = \underbrace{\E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}}_{\text{Average Direct Effect (ADE)}} \]
-\[ \E[Z_i = z', \vec X_i]{ \underbrace{\Big(
+\[ \E[Z_i, \vec X_i]{ \underbrace{\Big(
     \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i} \Big)}_{\text{First-stage regression, $D_i$ on $Z_i$}}
     \times \underbrace{\Big(
-    \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i, \vec X_i$ constant}} } \]
+    \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i, \vec X_i$ constant}} } \]
 \[ = \underbrace{\E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}}_{\text{Average Indirect Effect (AIE)}} \]
 }}
 I refer to the estimands on the left-hand side as Causal Mediation (CM) estimands.
@@ -169,8 +169,8 @@ This approach leads to biased estimates, and contaminates inference regarding di
 \noindent
 For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differences.
 \begin{align*}
-    & \mathbb E_{D_i = d'} \Big[
-        \Egiven{Y_i}{Z_i = 1, D_i = d'} - \Egiven{Y_i}{Z_i = 0, D_i = d'} \Big] \\
+    & \mathbb E_{D_i} \Big[
+        \Egiven{Y_i}{Z_i = 1, D_i} - \Egiven{Y_i}{Z_i = 0, D_i} \Big] \\
     & = \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))} \\
     & \;\;\;\; + \mathbb E_{D_i = d'} \Big[
         \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d'} 
@@ -186,9 +186,9 @@ For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differen
 \noindent
 For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differences.
 \begin{align*}
-    &\E[Z_i = z']{
+    &\E[Z_i]{
         \Big( \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0} \Big) \times
-        \Big( \Egiven{Y_i}{Z_i = z', D_i = 1} - \Egiven{Y_i}{Z_i = z', D_i = 0} \Big) } \\
+        \Big( \Egiven{Y_i}{Z_i, D_i = 1} - \Egiven{Y_i}{Z_i, D_i = 0} \Big) } \\
     & = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
     & \;\;\;\; + \Prob{D_i(1) = 1, D_i(0) = 0} \Big(
         \Egiven{Y_i(Z_i, 0)}{D_i = 1} - \Egiven{Y_i(Z_i, 0)}{D_i = 0} \Big) \\

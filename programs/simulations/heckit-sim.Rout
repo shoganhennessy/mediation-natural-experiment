@@ -20,7 +20,8 @@ Type 'q()' to quit R.
 > ## Testing out the LATE identification, following Kline Walters (2019).
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "09:31 EDT Friday, 25 April 2025"
+[1] "12:26 EDT Saturday, 26 April 2025"
+> 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
 > library(tidyverse)
@@ -57,13 +58,23 @@ Loading required package: sandwich
 mediation: Causal Mediation Analysis
 Version: 4.5.0
 
+> # Package for classical selection estimators (i.e., MLE)
+> library(sampleSelection)
+Loading required package: maxLik
+Loading required package: miscTools
+
+Please cite the 'maxLik' package as:
+Henningsen, Arne and Toomet, Ott (2011). maxLik: A package for maximum likelihood estimation in R. Computational Statistics 26(3), 443-458. DOI 10.1007/s00180-010-0217-1.
+
+If you have questions, suggestions, or comments regarding the 'maxLik' package, please use a forum or 'tracker' at maxLik's R-Forge site:
+https://r-forge.r-project.org/projects/maxlik/
 > # Package for more distributions to sample from.
 > library(MASS)
 > # Package for semi-parametric regressor, splines by bs(.).
 > library(splines)
 > 
 > ## Set up the R environment
-> set.seed(47)
+> #set.seed(47)
 > # Define number of digits in tables and graphs
 > digits.no <- 3
 > # Define where output files go.
@@ -92,7 +103,7 @@ Version: 4.5.0
 +     # First covariate (\vec X_i^-)
 +     X_minus <- 4 + rnorm(sample.size, mean = 0, sd = 1)
 +     # Second covariate (instrument for the control function).
-+     X_IV <- runif(sample.size, 0, 1) # rbinom(sample.size, 1, 1 / 2)
++     X_IV <- 2 * runif(sample.size, -1, 1)
 +     # Simulate the unobserved error terms.
 +     U_all <- mvrnorm(n = sample.size, mu = c(0, 0, 0),
 +         Sigma = matrix(c(
@@ -221,7 +232,7 @@ Version: 4.5.0
 +     direct.est <- predict(
 +         secondstage.reg, newdata = mutate(example.data, Z = 1)) -
 +         predict(secondstage.reg, newdata = mutate(example.data, Z = 0))
-+     # calculate the second-stage indirect effect
++     # calculate the second-stage (controlled) indirect effect
 +     indirect.est <- predict(
 +         secondstage.reg, newdata = mutate(example.data, D = 1)) -
 +         predict(secondstage.reg, newdata = mutate(example.data, D = 0))
@@ -250,7 +261,7 @@ Version: 4.5.0
 +         return(dnorm(qnorm(p)) / pnorm(qnorm(p)))
 +     }
 +     P <- predict(cf_firststage.reg, type = "response")
-+     example.data$lambda_0 <- (1 - example.data$D) * lambda_1.fun(P) * (- (1 - P) / P)
++     example.data$lambda_0 <- (1 - example.data$D) * lambda_1.fun(P) * (- P / (1 - P))
 +     example.data$lambda_1 <- example.data$D * lambda_1.fun(P)
 +     # 3. Estimate second-stage, including the CFs.
 +     cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
@@ -273,7 +284,9 @@ Version: 4.5.0
 > 
 > # Bootstrap the estimates.
 > estimated.loop <- function(boot.reps, example.data,
-+     bootstrap = TRUE, print.progress = FALSE) {
++         bootstrap = TRUE, print.progress = FALSE,
++         # Default data parameters
++         rho = 0.5, sigma_0 = 1, sigma_1 = 3, sigma_C = 2) {
 +     # Define lists the will be returned:
 +     # 2. Naive OLS.
 +     ols_direct_effect <- c()
@@ -316,7 +329,8 @@ Version: 4.5.0
 +         # 3. Heckman-style selection-into-mediator model estimates.
 +         heckit.reg <- mediate.heckit(boot.data)
 +         cf.est <- estimated.values(
-+             heckit.reg$"first-stage", heckit.reg$"second-stage",
++             heckit.reg$"first-stage",
++             heckit.reg$"second-stage",
 +             heckit.reg$"heckit-data",
 +             complier.adjustment = heckit.reg$"complier-adjustment")
 +         # Save the outputs.
@@ -330,11 +344,9 @@ Version: 4.5.0
 +     # Return the bootstrap data.
 +     output.list <- list()
 +     output.list$data <- data.frame(
-+         # Compiling the direct effects
 +         truth_direct_effect   = truth_direct_effect,
 +         ols_direct_effect     = ols_direct_effect,
 +         cf_direct_effect      = cf_direct_effect,
-+         # Compiling the indirect effects
 +         truth_indirect_effect = truth_indirect_effect,
 +         ols_indirect_effect   = ols_indirect_effect,
 +         cf_indirect_effect    = cf_indirect_effect)
@@ -376,33 +388,37 @@ Version: 4.5.0
 > ################################################################################
 > ## Compare estimation methods, in one simulation.
 > 
-> ## Simulate the data: rho, sigma_0, sigma_1, sigma_C = 0.5, 1, 2, 0.5
-> simulated.data <- simulate.data(0.5, 1, 2, 2)
+> ## Simulate the data with given rho, sigma_0, sigma_1, sigma_C values.
+> rho <- 0.5
+> sigma_0 <- 1
+> sigma_1 <- 3
+> sigma_C <- 2
+> simulated.data <- simulate.data(rho, sigma_0, sigma_1, sigma_C)
 > # SHow the theoretical direct + indirect values
 > print(theoretical.values(simulated.data, print.truth = TRUE))
 [1] "Here is a summary of the (unobserved) true effects:"
 [1] "How many mediator compliers in the system?"
    D_0
 D_1     0     1
-  0 0.302 0.000
-  1 0.483 0.215
+  0 0.392 0.000
+  1 0.400 0.208
 [1] "How many actually took the mediator, i.e. Pr(D = 1)?"
-[1] 0.453
-[1] "The average total effect:" "2.24382318798648"         
-[1] "The average first-stage:" "0.483"                   
-[1] "The average direct effect:" "1.453"                     
-[1] "The average indirect effect:" "0.783823187986484"           
+[1] 0.416
+[1] "The average total effect:" "2.2502766729002"          
+[1] "The average first-stage:" "0.4"                     
+[1] "The average direct effect:" "1.416"                     
+[1] "The average indirect effect:" "0.850276672900199"           
 $average_first_stage
-[1] 0.483
+[1] 0.4
 
 $average_total_effect
-[1] 2.243823
+[1] 2.250277
 
 $average_direct_effect
-[1] 1.453
+[1] 1.416
 
 $average_indirect_effect
-[1] 0.7838232
+[1] 0.8502767
 
 > 
 > # Show that the regression specification holds exactly, if specified correctly.
@@ -413,32 +429,32 @@ $average_indirect_effect
 Warning messages:
 1: glm.fit: algorithm did not converge 
 2: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-> true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
+> true_secondstage.reg <- lm(Y ~ (-1 + Z * D) + X_minus +
 +     # including the unobserved errors:
-+     U_0 + (D * U_0) + (D * U_1),
++     I((1 - D) * U_0) + I(D * U_1),
 +     data = simulated.data)
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.483
+[1] 0.4
 
 $average_total_effect
-[1] 2.243823
+[1] 2.250277
 
 $average_direct_effect
-[1] 1.453
+[1] 1.416
 
 $average_indirect_effect
-[1] 0.7838232
+[1] 0.8502767
 
 > print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
 $`first-stage`
-[1] 0.485452
+[1] 0.400556
 
 $`direct-effect`
-[1] 1.453
+[1] 1.416
 
 $`indirect-effect`
-[1] 0.7886225
+[1] 0.8494497
 
 > # See how the first and second-stages are perfect:
 > print(summary(true_firststage.reg))
@@ -449,18 +465,18 @@ glm(formula = D ~ (1 + Z) + X_IV + X_minus + U_C + U_0 + U_1,
 
 Coefficients:
             Estimate Std. Error z value Pr(>|z|)
-(Intercept)    120.4     1570.6   0.077    0.939
-Z              545.8     5645.1   0.097    0.923
-X_IV           139.8     1484.1   0.094    0.925
-X_minus       -133.1     1414.1  -0.094    0.925
-U_C           -134.1     1388.8  -0.097    0.923
-U_0           -135.4     1417.3  -0.096    0.924
-U_1            134.3     1370.3   0.098    0.922
+(Intercept)    76.22    1162.06   0.066    0.948
+Z             300.03    4172.12   0.072    0.943
+X_IV           75.10    1046.18   0.072    0.943
+X_minus       -74.55    1038.44  -0.072    0.943
+U_C           -74.94    1050.57  -0.071    0.943
+U_0           -73.74    1057.61  -0.070    0.944
+U_1            74.87    1041.20   0.072    0.943
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 1.3774e+03  on 999  degrees of freedom
-Residual deviance: 1.6328e-05  on 993  degrees of freedom
+    Null deviance: 1.3579e+03  on 999  degrees of freedom
+Residual deviance: 6.7767e-06  on 993  degrees of freedom
 AIC: 14
 
 Number of Fisher Scoring iterations: 25
@@ -468,60 +484,57 @@ Number of Fisher Scoring iterations: 25
 > print(summary(true_secondstage.reg))
 
 Call:
-lm(formula = Y ~ (1 + Z * D) + X_minus + U_0 + (D * U_0) + (D * 
-    U_1), data = simulated.data)
+lm(formula = Y ~ (-1 + Z * D) + X_minus + I((1 - D) * U_0) + 
+    I(D * U_1), data = simulated.data)
 
 Residuals:
        Min         1Q     Median         3Q        Max 
--3.038e-14 -1.410e-15 -5.000e-16  3.700e-16  4.072e-13 
+-2.326e-13 -3.130e-16  1.800e-17  5.800e-16  1.579e-13 
 
 Coefficients:
-              Estimate Std. Error    t value Pr(>|t|)    
-(Intercept)  1.298e-14  1.949e-15  6.659e+00 4.56e-11 ***
-Z            1.000e+00  1.405e-15  7.115e+14  < 2e-16 ***
-D            1.000e+00  1.712e-15  5.841e+14  < 2e-16 ***
-X_minus      1.000e+00  4.368e-16  2.290e+15  < 2e-16 ***
-U_0          1.000e+00  7.133e-16  1.402e+15  < 2e-16 ***
-U_1         -7.851e-16  3.990e-16 -1.968e+00   0.0494 *  
-Z:D          1.000e+00  2.142e-15  4.668e+14  < 2e-16 ***
-D:U_0       -1.000e+00  1.074e-15 -9.307e+14  < 2e-16 ***
-D:U_1        1.000e+00  5.894e-16  1.697e+15  < 2e-16 ***
+                  Estimate Std. Error   t value Pr(>|t|)    
+Z                1.000e+00  9.540e-16 1.048e+15   <2e-16 ***
+D                1.000e+00  1.307e-15 7.650e+14   <2e-16 ***
+X_minus          1.000e+00  1.284e-16 7.789e+15   <2e-16 ***
+I((1 - D) * U_0) 1.000e+00  4.735e-16 2.112e+15   <2e-16 ***
+I(D * U_1)       1.000e+00  2.029e-16 4.929e+15   <2e-16 ***
+Z:D              1.000e+00  1.590e-15 6.289e+14   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.405e-14 on 991 degrees of freedom
+Residual standard error: 1.103e-14 on 994 degrees of freedom
 Multiple R-squared:      1,	Adjusted R-squared:      1 
-F-statistic: 3.197e+30 on 8 and 991 DF,  p-value: < 2.2e-16
+F-statistic: 5.877e+31 on 6 and 994 DF,  p-value: < 2.2e-16
 
 > #! Note: this automatically includes the complier term in the indirect effect
 > #!       without full access to U_0, U_1 this is not automatic.
 > 
-> # Show how the OLS result gives a biased result
+> # Show how the OLS result gives a bias result (if rho != 0),
 > # using the same second-stage for both direct + indirect estimates.
 > ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = simulated.data)
 > ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.483
+[1] 0.4
 
 $average_total_effect
-[1] 2.243823
+[1] 2.250277
 
 $average_direct_effect
-[1] 1.453
+[1] 1.416
 
 $average_indirect_effect
-[1] 0.7838232
+[1] 0.8502767
 
 > print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 $`first-stage`
-[1] 0.4879674
+[1] 0.4082534
 
 $`direct-effect`
-[1] 0.9888647
+[1] 0.8479542
 
 $`indirect-effect`
-[1] 1.198308
+[1] 1.5286
 
 > 
 > # Show how a control function gets it correct, in 2 steps.
@@ -546,57 +559,57 @@ lm(formula = Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--4.3299 -0.8426  0.0106  0.7941  5.3828 
+-8.2297 -0.9619 -0.0047  0.9151  8.2653 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept)  1.53417    0.58270   2.633   0.0086 ** 
-Z            2.13214    0.49293   4.325 1.68e-05 ***
-D           -1.52009    0.97231  -1.563   0.1183    
-X_minus      0.76026    0.09545   7.965 4.49e-15 ***
-lambda_0     1.47407    0.60958   2.418   0.0158 *  
-lambda_1     2.51284    0.58614   4.287 1.99e-05 ***
-Z:D          1.05896    0.43345   2.443   0.0147 *  
+(Intercept) -0.27544    0.35901  -0.767 0.443129    
+Z            0.96962    0.26411   3.671 0.000254 ***
+D            1.04872    0.55256   1.898 0.057997 .  
+X_minus      1.01517    0.06775  14.983  < 2e-16 ***
+lambda_0    -0.21121    0.37200  -0.568 0.570324    
+lambda_1     2.36973    0.36823   6.435 1.91e-10 ***
+Z:D          1.25984    0.40083   3.143 0.001721 ** 
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.383 on 993 degrees of freedom
-Multiple R-squared:  0.6242,	Adjusted R-squared:  0.6219 
-F-statistic: 274.9 on 6 and 993 DF,  p-value: < 2.2e-16
+Residual standard error: 1.832 on 993 degrees of freedom
+Multiple R-squared:  0.5998,	Adjusted R-squared:  0.5974 
+F-statistic: 248.1 on 6 and 993 DF,  p-value: < 2.2e-16
 
 > # Show how it gets these correct (with complier adjustment).
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.483
+[1] 0.4
 
 $average_total_effect
-[1] 2.243823
+[1] 2.250277
 
 $average_direct_effect
-[1] 1.453
+[1] 1.416
 
 $average_indirect_effect
-[1] 0.7838232
+[1] 0.8502767
 
 > print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
 +     complier.adjustment = mediate.heckit(simulated.data)$"complier-adjustment"))
 $`first-stage`
-[1] 0.4883719
+[1] 0.4082949
 
 $`direct-effect`
-[1] 2.611853
+[1] 1.493713
 
 $`indirect-effect`
-[1] -0.3523973
+[1] 0.9085548
 
-> #todo: Explore the complier compensation in the semi-parametric spline approach.
+> #todo: Explore the complier comensation in semi-parametric spline approach.
 > 
 > 
 > ################################################################################
 > ## Plot bootstrap results for one DGP, repeatedly drawn
 > 
-> # Base data to test out.
-> simulated.data <- simulate.data(0.5, 1, 2, 2)
+> # Base data to input
+> simulated.data <- simulate.data(rho, sigma_0, sigma_1, sigma_C)
 > 
 > # Get bootstrapped point est for the CF approach
 > sim.reps <- 10^4
@@ -701,4 +714,4 @@ $`indirect-effect`
 > 
 > proc.time()
    user  system elapsed 
-412.790   0.428 413.931 
+387.864   0.409 390.121 

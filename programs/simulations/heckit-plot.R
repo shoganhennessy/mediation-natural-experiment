@@ -31,6 +31,7 @@ colour.list <- c("orange", "blue")
 # Load data from DGP-strapping 10,000 times.
 sim.data <- read_csv(file.path(output.folder, "dist-heckit-data.csv"))
 print(sim.data)
+#View(sim.data)
 
 
 ################################################################################
@@ -40,54 +41,45 @@ print(sim.data)
 direct_dist.plot <- sim.data %>%
     ggplot() +
     # Dist of OLS estimates.
-    geom_density(aes(x = ols_direct_effect, y = after_stat(density)),
+    geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
+        y = after_stat(density)),
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     annotate("text", colour = colour.list[1],
-        x = 0.25, y = 3,
+        x = 0.5, y = 4,
         fontface = "bold",
         label = ("Unadjusted"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.35, y = 2.75,
-        xend = 0.75, yend = 2.5,
-        linewidth = 0.75, curvature = 0.25,
+        x = 0.5, y = 3.875,
+        xend = -0.25, yend = 3,
+        linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Dist of CF estimates.
-    geom_density(aes(x = cf_direct_effect, y = after_stat(density)),
+    geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
+        y = after_stat(density)),
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     annotate("text", colour = colour.list[2],
-        x = 2, y = 2,
+        x = 0.5, y = 2.5,
         fontface = "bold",
         label = ("Selection model"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[2],
-        x = 1.875, y = 1.75,
-        xend = 1.5, yend = 1.25,
+        x = 0.5, y = 2.375,
+        xend = 0.15, yend = 1.6,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth value
-    geom_vline(xintercept = mean(sim.data$truth_direct_effect),
+    geom_vline(xintercept = 0,
         colour = "black", linetype = "dashed", linewidth = 1) +
-    annotate("text", colour = "black",
-        x = 2, y = 3.5,
-        fontface = "bold",
-        label = ("Truth"),
-        size = 4.25, hjust = 0.5, vjust = 0) +
-    annotate("curve", colour = "black",
-        x = 1.875, y = 3.5,
-        xend = 1.625, yend = 3.25,
-        linewidth = 0.75,
-        curvature = -0.25,
-        arrow = arrow(length = unit(0.25, 'cm'))) +
     # Other presentation options
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
-        name = "Estimate",
-        breaks = seq(0, 2.5, by = 0.25),
-        limits = c(0, 2.5)) +
+        name = TeX("Estimate$-$ True Value"),,
+        breaks = seq(-1.0, 1.0, by = 0.25),
+        limits = c(-1.0, 1.0)) +
     scale_y_continuous(expand = c(0, 0),
-        name = "",
-        limits = c(0, 4.5)) +
+        name = "", limits = c(0, 5.1)) +
+    ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
@@ -100,23 +92,25 @@ ggsave(file.path(output.folder, "heckit-direct-dist.png"),
 indirect_dist.plot <- sim.data %>%
     ggplot() +
     # Dist of OLS estimates.
-    geom_density(aes(x = ols_indirect_effect, y = after_stat(density)),
+    geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
+        y = after_stat(density)),
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     # Dist of CF estimates.
-    geom_density(aes(x = cf_indirect_effect, y = after_stat(density)),
+    geom_density(aes(x = cf_indirect_effect - truth_indirect_effect,
+        y = after_stat(density)),
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     # Truth value
-    geom_vline(xintercept = mean(sim.data$truth_indirect_effect),
+    geom_vline(xintercept = 0,
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Other presentation options
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
-        name = "Estimate",
-        breaks = seq(0, 2.5, by = 0.25),
-        limits = c(0, 2.5)) +
+        name = TeX("Estimate$-$ True Value"),
+        breaks = seq(-1.0, 1.0, by = 0.25),
+        limits = c(-1.0, 1.0)) +
     scale_y_continuous(expand = c(0, 0),
-        name = "",
-        limits = c(0, 4.5)) +
+        name = "", limits = c(0, 5.1)) +
+    ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
