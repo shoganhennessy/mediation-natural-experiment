@@ -1,7 +1,7 @@
 \section{Solving Identification with a Control Function}
 \label{sec:selectionmodel}
 If your goal is to estimate CM effects, and you could control for unobserved selection terms $U_{0,i}, U_{1,i}$, then you would.
-This ideal example would yield unbiased estimates for the ADE and AIE.
+This ideal (but infeasible) example would yield unbiased estimates for the ADE and AIE.
 % Alas, $U_i$ is by definition unobserved.
 A control function approach takes this insight seriously, providing conditions to model the implied confounding by $U_{0,i}, U_{1,i}$, and then controlling for it.
 
@@ -17,14 +17,17 @@ The main problem is that second-stage reqression equation \eqref{eqn:parametric-
             + D_i \Egiven{ U_{1,i} }{D_i = 1, \vec X_i}
 \end{align*}
 
+Control function methods were first devised to correct for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem \citep{heckman1979sample}.
+The approach works in the following manner: (1) assume that the variable of interest follows a selection model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage residuals; and (3) incorporate these residuals as control terms in the outcome equation to adjust for selection bias.
+Identification typically relies on either distributional assumptions about the unobserved error terms in the second-stage, or exclusion restrictions provided by instrumental variables in the first-stage, or both.
+By explicitly accounting for the information contained in the first-stage selection model, control function methods enable consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors \citep{florens2008identification}.
 
+In the empirical example of research analysing the health gains of new access to health insurance \citep{finkelstein2008oregon}, a control function approach could be used to address the unobserved confounding from not observing underlying health conditions.
+It would do so by assuming that unobserved selection into health care usage (first-stage) is informative for underlying health conditions; assuming that people with more sever underlying conditions visit the doctor more often than those without.
+Then it includes this information in the estimation of how much the effect goes through increased usage of healthcare (i.e., the ADE and AIE).
+
+\subsection{Re-identifying Causal Mediation (CM) Effects}
 The following assumptions are sufficient to model the correlated error terms, identifying $\beta, \gamma, \delta$ in a regression, and thus both the ADE and AIE.
-
-%\textbf{Needs more story telling of how this happens.}
-%
-%\textbf{Writing plan:} set up a sequence of assumption X $\implies$ implcation X.
-%Then a paragraph underneath, explaining what it is doing.
-%See \cite{kline2019heckits} for an excellent example of this.
 \theoremstyle{definition}
 \newtheorem{assumptionCF}{Assumption}
 \renewcommand\theassumptionCF{CF--\arabic{assumptionCF}}
@@ -63,9 +66,9 @@ Instrument separately identifies the propensity score (not technically required 
 Assuming that an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu_1-\mu_0$), and has a non-zero influence on the mediator (i.e., strong first-stage).
 The exclusion restriction is untestable, and must be guided by domain-specific knowledge; strength of the first-stage is testable, and must be justified with data by methods common in the instrumental variables literature.
 
-\newtheorem{lemma}{Lemma}
-\begin{lemma}
-    \label{lemma:secondstage}
+\newtheorem{proposition}{Proposition}
+\begin{proposition}
+    \label{proposition:secondstage}
     If control function assumptions hold (\ref{cf:monotonicity}, \ref{cf:identification}, \ref{cf:instrument}), then second-stage regression equation \eqref{eqn:parametric-secondstage} is identified with a control function adjustment.
     \begin{align*}
         \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
@@ -77,7 +80,7 @@ The exclusion restriction is untestable, and must be guided by domain-specific k
             & \;\; +  \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
                 + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big)
     \end{align*}
-\end{lemma}
+\end{proposition}
 
 Where $\lambda_0, \lambda_1$ are the control functions.
 For $J(u) = F^-1_V(u) - E[ F^-1_V(U_i) ]$
@@ -90,7 +93,7 @@ This is a special case of Heckman (1980), notation from Kline Walters (2019).
 \renewcommand\thetheoremCF{CF}
 \begin{theoremCF}
     \label{thm:cf-identification}
-    The ADE and AIE are identified, with parameters identified in the control function model (Lemma \ref{lemma:secondstage}).
+    The ADE and AIE are identified, with parameters identified in the control function model (Proposition \ref{proposition:secondstage}).
     \begin{align*}
     \text{ADE}
     %= \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
@@ -106,7 +109,6 @@ For $\Gamma\left(p,p'\right) = \frac{p'\lambda_1\left(p'\right) - p\lambda_1\lef
 
 This is exploiting ideas from selection models + marginal TEs to identify this system, including using the selection model to identify the mediator compilers’ effect.
 Indeed, mediation estimates already do a two-step procedure; it is a minor adjustment to include a CF  in the second-stage, to guard against selection-on-gains (chief among which is the Roy model).
-
 
 \begin{figure}[h!]
     \caption{Simulated Distribution of CM Effect Estimates, Relative to True Value.}

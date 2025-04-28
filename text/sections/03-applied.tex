@@ -1,7 +1,21 @@
 \section{Causal Mediation (CM) in Applied Settings}
 \label{sec:applied}
-In this section, I further develop the issue of selection in CM estimates. First, I show the non-parametric bias terms from above can be written as omitted variables bias in a regression framework.
-Second, I show how selection bias operates in an applied model for selection into a mediator based on costs and benefits.
+Unobserved confounding is particularly salient in studying the mechanisms behind treatment effects.
+For example, in studying new access to health insurance, we might expect that health gains came about because individuals started visiting their healthcare provider more often, when in past they forewent using healthcare over financial concerns \citep{finkelstein2008oregon}.
+Applying conventional CM methods to investigate this expectation would be dismissing unobserved confounders for how often individuals visit healthcare providers, leading to biased results.
+
+The wider population does not have one uniform bill of health; many people are born predisposed to ailments, due to genetic variation or other unrelated factors.
+Before these underlying health conditions are fully diagnosed, their suffers may visit healthcare providers more often than the rest of the population, to investigate or begin treating the ill-effects.
+And yet, before diagnosis this underlying condition is not observed a researcher examining healthcare data, but it may have already impacted the sufferers health and made them visit the hospital more often.
+This means underlying health conditions are an unobserved confounder.
+
+If we had estimated the AIE with conventional methods in this setting, it would have been assuming that people used healthcare more often based only on data available in their health records.
+It rules out individuals feeling the health effects of underlying conditions, and visiting their healthcare providers more often to diagnose or begin treating them.
+In this setting, conventional CM methods would over estimate the proportion of health gains that flow through the healthcare utilisation channel (AIE), for failing to acknowledge this confounder.
+
+In this section, I further develop the issue of selection on unobserved factors in CM estimates.
+First, I show the non-parametric bias terms from \autoref{sec:mediation} can be written as omitted variables bias in a regression framework.
+Second, I show how selection bias operates in a general model for selection into a mediator based on costs and benefits.
 
 \subsection{Regression Framework}
 \label{sec:regression}
@@ -81,6 +95,7 @@ The Roy model has $i$ taking the mediator if the benefits exceed the costs,
     \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
     \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1.
 \end{equation}
+
 The Roy model provides an intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome under study \citep{roy1951some,heckman1990empirical}.
 If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking education, then it models an individual choice to attend more education in terms of gaining a higher income compared to the costs.\footnote{
     If the choice is made for a sum of outcomes, then a simple extension to a utility maximisation model maintains this same framework.

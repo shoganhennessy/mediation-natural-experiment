@@ -227,29 +227,27 @@ Put $\mu_{d'}(z'; \vec X) = \Egiven{Y_i(z', d')}{\vec X}$ and $U_{d', i} = Y_i(z
     Y_i(Z_i, 1)
         = \mu_{1}(Z_i; \vec X_i) + U_{1,i}. \]
 $U_{0,i}, U_{1,i}$ are error terms with unknown distributions, mean independent of $Z_i, \vec X_i$ by definition --- but possibly correlated with $D_i$.
-
 $Z_i$ is conditionally independent of potential outcomes, so that $U_{0,i}, U_{1,i} \indep Z_i$.
-Thus, the first-stage regression of $Z \to Y$ has unbiased estimates.
+
+The first-stage regression of $Z \to Y$ has unbiased estimates, since $Z_i \indep D_i(.) \big| \vec X_i$.
+Put $\pi(z'; \vec X) = \Egiven{D_i(z')}{\vec X}$, and $\eta_{z', i} = D_i(z') - \pi(z'; \vec X)$ the first-stage error terms.
 \begin{align*}
     D_i &= Z_i D_i(1) + (1 - Z_i) D_i(0) \\
         &= D_i(0) +
             Z_i \left[ D_i(1) - D_i(0) \right] \\
-        &= \underbrace{\Egiven{D_i(0)}{\vec X_i}        
-        }_{\text{Intercept}} +
-            \underbrace{Z_i \E{ D_i(1) - D_i(0)}}_{
-                \text{Regressor}} \\
-            & \;\;\;\; + \underbrace{
-                D_i(0) - \Egiven{D_i(0)}{\vec X_i}
-                + Z_i \big( D_i(1) - D_i(0) - \Egiven{ D_i(1) - D_i(0)}{\vec X_i}\big)}_{
-                \text{Mean-zero independent error term, since }Z_i \indep D_i \; | \; \vec X_i} \\
-        &\eqqcolon \phi + \bar \pi Z_i + \zeta(\vec X_i) + \eta_i \\
-    \implies \Egiven{D_i}{Z_i, \vec X_i}&=
-        \phi + \bar \pi Z_i + \zeta(\vec X_i)
-        \text{, and thus unbiased estimates since } Z_i \indep \phi, \eta_i.
+        &= \underbrace{\pi(0; \vec X_i) 
+        }_{\text{Intercept, } \coloneqq \phi + \zeta(\vec X_i)} +
+            \underbrace{Z_i \E{ \pi(1; \vec X_i) - \pi(0; \vec X_i)}}_{
+                \text{Regressor, } \coloneqq \bar\pi Z_i }
+        + \underbrace{(1- Z_i) \eta_{0,i} + Z_i \eta_{1,i}}_{
+            \text{Errors, } \coloneqq \eta_i} \\
+    \implies \Egiven{D_i}{Z_i, \vec X_i}
+        &= \phi + \bar \pi Z_i + \zeta(\vec X_i).
 \end{align*}
+Since the ignorability assumption gives $\E{Z_i \eta_{z',i}} = \E{Z_i} \E{\eta_{z',i}} = 0$, for each $z' =0,1$.
 
-$Z_i$ is also assumed independent of potential outcomes $Y_i(.,.)$, so that $U_{0,i}, U_{1,i} \indep Z_i$.
-Thus, the reduced form regression $Z \to Y$ also leads to unbiased estimates.
+By the same argument $Z_i$ is also assumed independent of potential outcomes $Y_i(.,.)$, so that $U_{0,i}, U_{1,i} \indep Z_i$.
+Thus, the reduced form regression $Z \to Y$ also leads to unbiased estimates for the ATE.
 
 The same cannot be said of the regression that estimates direct and indirect effects, without further assumptions.
 \begin{align*}
@@ -272,7 +270,7 @@ And so $Y_i$ can be written as a regression equation in terms of the observed fa
         & \;\;\;\; + Z_i D_i \left[\mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)
             - \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)\right] \\
         & \;\;\;\; + U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right) \\
-        &\eqqcolon
+        &=
             \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
             + \varphi(\vec X_i)
             + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}
@@ -330,7 +328,7 @@ If sequential ignorability does not hold, then the regression estimates from est
 \end{align*}
 }}
 And so the ADE and AIE estimates are contaminated by these bias terms.
-Additionally, the AIE estimates refers to gains from the mediator among $D(z)$ compliers (not the entire average), so will be biased when not accounting for $+ \tilde U_i$, too.
+Additionally, the AIE estimates refers to gains from the mediator among $D(z)$ compliers (not the entire average), so will be biased when not accounting for $\tilde U_i$, too.
 
 \subsection{Roy Model and Sequential Ignorability}
 \label{appendix:roy-seq-ig}
