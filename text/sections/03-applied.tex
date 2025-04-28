@@ -58,11 +58,9 @@ The ADE and AIE are averages of these regression coefficients.
         \;\;\;\; \text{ with } \tilde U_i
             = \underbrace{\Egiven{ D_i U_{1,i} - \left(1 - D_i \right)U_{0,i}}{
                 \vec X_i, D_i(1) = 1, D_i(0) = 0}}_{
-                    \text{Unobserved complier differences.}}.
+                    \text{Unobserved complier gains.}}.
 \end{align*}
-The ADE is a simple sum of the coefficients, while the AIE includes a group differences term because it only refers to the mediator compliers.\footnote{
-    \autoref{sec:selectionmodel} returns to the issue of accounting for mediator compliers in identifying the AIE.
-}
+The ADE is a simple sum of the coefficients, while the AIE includes a group differences term because it only refers to $D(z)$ compliers.
 
 By construction, $\vec U_i \coloneqq \left(U_{0, i}, U_{1, i} \right)$ is an unobserved confounder.
 The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  \vec U_{i} $.

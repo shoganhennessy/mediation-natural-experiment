@@ -20,7 +20,7 @@ Type 'q()' to quit R.
 > ## Plot the system for indirect + direct effects, with Heckman correction.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "12:42 EDT Saturday, 26 April 2025"
+[1] "13:33 EDT Saturday, 26 April 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -111,7 +111,7 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 +     annotate("text", colour = colour.list[2],
 +         x = 0.5, y = 2.5,
 +         fontface = "bold",
-+         label = ("Selection model"),
++         label = "Control function",#("Selection model"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[2],
 +         x = 0.5, y = 2.375,
@@ -171,4 +171,4 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 > 
 > proc.time()
    user  system elapsed 
-  2.418   0.166   2.626 
+  2.319   0.176   2.472 

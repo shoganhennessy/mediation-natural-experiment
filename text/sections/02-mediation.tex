@@ -47,15 +47,6 @@ CM aims to decompose the ATE of $Z \to Y$ into these two separate pathways:
     \text{Average Indirect Effect (AIE), } D(Z) \to Y: \;\;\;&
             \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}.
 \end{align*}
-Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
-If a researcher is studying the health gains of access to health insurance, and wants to study the role of healthcare usage, the AIE represents how much of the effect comes from using the hospital more often \citep{finkelstein2008oregon}.
-Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
-    In a non-parametric setting it is not necessary that ADE $+$ AIE $=$ ATE.
-    See \cite{imai2010identification} for this point in full.
-}
-For the health insurance example, how much of the health insurance effect is a direct effect, other than increased healthcare usage --- e.g., long-term effects of lower medical debt, or less worry over health shocks.
-An instrumental variables approach assumes this direct effect is zero for everyone --- that health insurance increased health only via healthcare usage (i.e., the exclusion restriction).
-CM is a similar, yet distinct, framework attempting to explicitly model the direct effect, and not assuming it is zero.
 
 \begin{figure}[h!]
     \centering
@@ -95,6 +86,16 @@ CM is a similar, yet distinct, framework attempting to explicitly model the dire
     Unobserved confounder $\vec U$ represents this paper's focus on the case that $D$ is not ignorable, by showing an unobserved confounder.
     \autoref{sec:regression} formally defines $\vec U$ in an applied setting.
 \end{figure}
+
+Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
+If a researcher is studying the health gains of access to health insurance, and wants to study the role of healthcare usage, the AIE represents how much of the effect comes from using the hospital more often \citep{finkelstein2008oregon}.
+Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
+    In a non-parametric setting it is not necessary that ADE $+$ AIE $=$ ATE.
+    See \cite{imai2010identification} for this point in full.
+}
+For the health insurance example, how much of the health insurance effect is a direct effect, other than increased healthcare usage --- e.g., long-term effects of lower medical debt, or less worry over health shocks.
+An instrumental variables approach assumes this direct effect is zero for everyone --- i.e., the exclusion restriction.
+CM is a similar, yet distinct, framework attempting to explicitly model the direct effect, and not assuming it is zero.
 
 The ADE and AIE are not separately identified without further assumptions.
 
@@ -234,9 +235,10 @@ The AIE group differences term is longer, because the indirect effect is compris
 \[ \text{AIE}
     = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
     = \E{D_i(1) - D_i(0)} \; 
-        \underbrace{\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) - D_i(0)}}_{
-            \text{Average $D \to Y$ effect for compliers}
+        \underbrace{\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1)=1, D_i(0)=0}}_{
+            \text{Average $D \to Y$ effect among $D(z)$ compliers}
         } \]
 This group differences term in the AIE arises because the selection-on-observables approach does not account for complier differences.\footnote{
     If the mediator had been ignorable, the complier indirect effect would equal the AIE; this differences term represents the difference between the two when it is not.
+    %This distinction between average effects and complier average effects in the AIE is skipped over by the ``controlled direct effect'' definitions of \cite{pearl2003direct}.
 }

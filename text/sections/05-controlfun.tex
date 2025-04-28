@@ -9,6 +9,12 @@ Note Nancy Heckamn (1986) gives $\sqrt{n}$-consistency of splines.
 The two-stage semi-parametric procedure of Robinson (1988) is not appropriate, as we want the $\lambda_1(.)$ function, too.
 
 \subsection{Old writing}
+If your goal is to estimate CM effects, and you could control for unobserved selection terms $U_{0,i}, U_{1,i}$, then you would.
+This ideal example would yield unbiased estimates for the ADE and AIE.
+% Alas, $U_i$ is by definition unobserved.
+A control function approach takes this insight seriously, providing conditions to model the implied confounding by $U_{0,i}, U_{1,i}$, and then controlling for it.
+
+
 Write $K_i$ for the expected values in predicting the mediator with observed data $Z_i, \vec X_i$.
 %Then take the two components of $K_i$ into $K_{0 ,i}, K_{1,i}$, corresponding to whether $i$ refuses or takes the mediator, respectively.
 \begin{align*}
@@ -69,11 +75,11 @@ $K_{i}$ serves as a control function in this setting.
     \end{align*}
 \end{theorem}
 \begin{proof}
-    Special case of \citet[Theorem~1]{florens2008identification}, \citet[Theorem~3]{imbens2009identification}.
+    Special case of \citet[Theorem~1]{florens2008identification}.
     %; see \autoref{appendix:controlfun-proof}.
 \end{proof}
 
-Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} guarantees that mediator can be represented by a selection model \citep{vytlacil2002independence}, $D_i(.) = \indicator{\bar\mu(.,;\vec X_i) \geq K_i}$, for some function $\bar\mu$.
+Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:firststage-monotonicity} guarantees that mediator can be represented by a selection model \citep{vytlacil2002independence}, $D_i(.) = \indicator{\pi(.,;\vec X_i) \geq K_i}$, for some function $\pi$.
 Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-ident} connects the first and second-stages for identification.
 Assumption \ref{dfn:controlfun-assumptions}\eqref{eqn:controlfun-iv} separately identifies the control function to identify the second-stage.
 This approach exploits the fact that the bias terms, coming from correlated errors in \autoref{sec:regression}, can be modelled by the first-stage regression and included as controls in the second-stage.
@@ -123,7 +129,7 @@ With these concerns in mind, I propose the following method to estimate CM effec
         %    \hat K_{1,i} = D_i \hat K_i.
     \end{align*}
     \item Estimate the second-stage with OLS (including an interaction term between $Z_i$ and $D_i$), and a semi-parametric regressor of the control function.
-    \[ \mathbb{E} \left[Y_i \middle\vert Z_i, D_i, \vec X_i^-, \hat K_{0,i}, \hat K_{i}\right]
+    \[ \mathbb{E} \left[Y_i \middle\vert Z_i, D_i, \vec X_i^-, \hat K_{i}\right]
     = \beta D_i + \gamma Z_i + \delta Z_i D_i + l\left( \hat K_{i}\right) \]
     %$l_0(.), l_1(.)$ are
     $l(.)$ is a nuisance function with unknown form, so can be approximated with a semi-parametric spline specification, for example.
@@ -192,8 +198,8 @@ $Z_i$ has an effect on outcome $Y_i$, and it operates partially through mediator
 Outcome mean $\mu_{D_i}(Z_i;.)$ contains an interaction term, $Z_i D_i$, so while both $Z_i$ and $D_i$ have constant partial effects, the ATE depends on how many $i$ choose to take the mediator.
 In this simulation $\Prob{D_i = 1} = 0.437$, and $65.29\%$ of the sample are mediator compliers (where $D_i(1)=1$ and $D_i(0) = 0$).
 This gives an ATE ($Z\to Y$) value of 2.58, ADE 1.44, and AIE 1.13, respectively.\footnote{
-    Note that ATE $=$ ADE $+$ AIE, in this setting.
-    $\Prob{Z_i=1} = 0.5$ ensures this equality, but is not guaranteed in general.
+    Note that ATE $=$ ADE $+$ AIE in this setting.
+    $\Prob{Z_i=1} = 0.5$ ensures this equality, but it is not guaranteed in general.
 }
 
 After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-degenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
@@ -202,26 +208,27 @@ Thus, a standard OLS (selection-on-observables) approach to CM does not give an 
 Instead, the OLS approach gives biased inference.
 
 \begin{figure}[h!]
-    \caption{Simulated Distribution of CM Effect Estimates.}
+    \caption{Simulated Distribution of CM Effect Estimates, Relative to True Value.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
-        \caption{ADE.}
+        \caption{$\hat{\text{ADE}} - \text{ADE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/direct-boot.png}
+            ../programs/simulations/sim-output/heckit-direct-dist.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
-        \caption{AIE.}
+        \caption{$\hat{\text{AIE}} - \text{AIE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/indirect-boot.png}
+            ../programs/simulations/sim-output/heckit-indirect-dist.png}
     \end{subfigure}
     \label{fig:cm-boot-dist}
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the empirical density of point estimates, for 10,000 replications of the data generating process described above.
+    These figures show the empirical density of point estimates, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms (described above).
     The black dashed line is the true value;
-    orange is the distribution of na\"ive OLS estimates, and blue the control function approach.
+    orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
+    and blue estimates with a two-stage control function estimation, described above.
 \end{figure}
 
 The bias in OLS estimates comes from the unobserved error terms being related.
