@@ -1,11 +1,12 @@
 \section{Direct and Indirect Effects}
 \label{sec:mediation}
 Causal mediation decomposes causal effects into two channels, through a mediator (indirect effect) and through all other paths (direct effect).
-To develop notation for direct and indirect effects, write $Z_i$ for an exogenous binary treatment, $D_i$ a binary mediator, and $Y_i$ an outcome for individuals $i = 1, \hdots, n$.\footnote{
-    Other literatures use different notation.
-    For example, \cite{imai2010identification} write $T_i, M_i, Y_i$ for the randomised treatment, mediator, and outcome, respectively.
-    I use the $Z_i, D_i, Y_i$ instrumental variables notation, more familiar in empirical economics \citep{angrist1996identification}.
-}
+To develop notation for direct and indirect effects, write $Z_i$ for an exogenous binary treatment, $D_i$ a binary mediator, and $Y_i$ an outcome for individuals $i = 1, \hdots, n$.
+%\footnote{
+%    Other literatures use different notation.
+%    For example, \cite{imai2010identification} write $T_i, M_i, Y_i$ for the randomised treatment, mediator, and outcome, respectively.
+%    I use the $Z_i, D_i, Y_i$ instrumental variables notation, more familiar in empirical economics \citep{angrist1996identification}.
+%}
 The outcomes are a sum of their potential outcomes.\footnote{
     This paper exclusively focuses on the binary case.
     See \cite{huber2020direct} for a discussion of CM with continuous treatment and/or mediator, and the assumptions required.
@@ -30,9 +31,10 @@ There are only two average effects which are identified (without additional assu
     \[ \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0}
         = \E{D_i(1) - D_i(0)}. \]
     It common in the economics literature to assume that $Z$ influences $D$ in at most one direction, $\Prob{D_i(1) \geq D_i(0)} = 1$ --- monotonicity \citep{imbens1994identification}.
-    I assume monotonicity (and its conditional variant) holds through-out to simplify notation.\footnote{
-        Assuming monotonicity also brings closer to the IV notation, and has other beneficial implications in this setting (see \autoref{sec:controlfun}).
-    }
+    I assume mediator monotonicity (and its conditional variant) holds through-out to simplify notation.
+    %\footnote{
+    %    Assuming monotonicity also brings closer to the IV notation, and has other beneficial implications in this setting (see \autoref{sec:controlfun}).
+    %}
     \item The Average Treatment Effect (ATE) refers to the effect of the treatment on outcome, $Z \to Y$, and is also known as the average total effect or intent-to-treat effect in social science settings, or reduced-form effect in the instrumental variables literature:
     \[ \Egiven{Y_i}{Z_i = 1} - \Egiven{Y_i}{Z_i = 0}
         = \E{Y_i(1, D_i(1)) - Y_i(0, D_i(0))}. \]
@@ -88,7 +90,7 @@ CM aims to decompose the ATE of $Z \to Y$ into these two separate pathways:
 \end{figure}
 
 Estimating the AIE answers the following question: how much of the causal effect $Z \to Y$ goes through the $D$ channel?
-If a researcher is studying the health gains of access to health insurance, and wants to study the role of healthcare usage, the AIE represents how much of the effect comes from using the hospital more often \citep{finkelstein2008oregon}.
+If a researcher is studying the health gains of health insurance \citep{finkelstein2008oregon}, and wants to study the role of healthcare usage, the AIE represents how much of the effect comes from using the hospital more often.
 Estimating the ADE answers the following equation: how much is left over after accounting for the $D$ channel?\footnote{
     In a non-parametric setting it is not necessary that ADE $+$ AIE $=$ ATE.
     See \cite{imai2010identification} for this point in full.
@@ -100,7 +102,7 @@ CM is a similar, yet distinct, framework attempting to explicitly model the dire
 The ADE and AIE are not separately identified without further assumptions.
 
 \subsection{Identifying Causal Mediation (CM) Effects}
-The conventional approach to estimating direct and indirect effects assumes both $Z_i$ and $D_i$ are ignorable, conditional on a set of control variables $\vec X_i$.
+The conventional approach to estimating direct and indirect effects assumes both $Z_i$ and $D_i$ are ignorable, conditional on a vector of control variables $\vec X_i$.
 \begin{definition}
     \label{dfn:seq-ign}
     Sequential Ignorability \citep{imai2010identification}.
@@ -151,8 +153,8 @@ This section focuses on problems that plague CM by selection-on-observables, reg
 % As such, I focus my work on non-parametric identification, and employ semi- and non-parametric estimation methods in my empirical analysis  whenever possible to avoid these problems.
 
 \subsection{Bias in Causal Mediation (CM) Estimates}
-Applied research may use a natural experiment to study settings where treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
-Rarely does research relying on a quasi-experimental research design employ an additional, overlapping identification design for $D_i$ to justify assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} as part of the analysis.
+Applied researchers often use a natural experiment to study settings where treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
+Rarely do they also have access to additional, overlapping natural experiment to isolate random variation $D_i$ to justify assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} as part of the same analysis.
 One might consider conventional CM methods in such a setting to learn about the mechanisms behind the causal effect $Z \to Y$ under study.
 This approach leads to biased estimates, and contaminates inference regarding direct and indirect effects.
 
@@ -168,7 +170,18 @@ This approach leads to biased estimates, and contaminates inference regarding di
 \end{proof}
 
 \noindent
-For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differences.
+For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differences.\footnote{
+    The bias terms here mirror those in \cite{heckman1998characterizing,angrist2009mostly} for a single $D\to Y$ treatment effect, when $D_i$ is not ignorable:
+    \vspace{-0.25cm}
+    \[ \Egiven{ Y_i}{D_i =1} - \Egiven{ Y_i}{D_i =0}
+        %& = \text{ATT}
+        %+ \Big( \Egiven{ Y_i(0)}{D_i =1} - \Egiven{ Y_i(0)}{D_i =0} \Big) \\
+        = \text{ATE}
+        + \underbrace{\Big( \Egiven{ Y_i(.,0)}{D_i =1} - \Egiven{ Y_i(.,0)}{D_i =0} \Big)}_{
+            \text{Selection Bias}}
+        + \underbrace{ \Prob{D_i=0} (\text{ATT} - \text{ATU}) }_{
+            \text{Group-differences Bias}}. \]
+}
 \begin{align*}
     & \mathbb E_{D_i} \Big[
         \Egiven{Y_i}{Z_i = 1, D_i} - \Egiven{Y_i}{Z_i = 0, D_i} \Big] \\
@@ -209,24 +222,13 @@ For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differ
     \end{aligned} \right]
 \end{align*}
 
-The selection bias terms come from systematic differences between the groups taking or refusing the mediator ($D_i = 1$ versus $D_i = 0$), differences not fully unexplained by $\vec X_i$.\footnote{
-    The bias terms here mirror those in \cite{heckman1998characterizing,angrist2009mostly} for a single $D\to Y$ treatment effect, when $D_i$ is not ignorable:
-    \vspace{-0.25cm}
-    \[ \Egiven{ Y_i}{D_i =1} - \Egiven{ Y_i}{D_i =0}
-        %& = \text{ATT}
-        %+ \Big( \Egiven{ Y_i(0)}{D_i =1} - \Egiven{ Y_i(0)}{D_i =0} \Big) \\
-        = \text{ATE}
-        + \underbrace{\Big( \Egiven{ Y_i(.,0)}{D_i =1} - \Egiven{ Y_i(.,0)}{D_i =0} \Big)}_{
-            \text{Selection Bias}}
-        + \underbrace{ \Prob{D_i=0} (\text{ATT} - \text{ATU}) }_{
-            \text{Group-differences Bias}}. \]
-}
-These selection bias terms would equal zero if the mediator had been ignorable \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, but do not necessarily average to zero if not.\footnote{
-    The selection-on-observables approach could, instead, focus on the average effect on treated populations --- as do \cite{keele2015identifying}.
-    This runs into a problem of comparisons: CM estimates would give average effects on different treated groups.
-    The CM estimand for the ADE on treated gives the ADE local to the $Z_i = 1$ treated group, and for the ADE local to compliers with $D_i = 1$.
-    In this way, these ADE and AIE on treated terms are not comparable to each other, so I focus on the true averages to avoid these misaligned comparisons.
-}
+The selection bias terms come from systematic differences between the groups taking or refusing the mediator ($D_i = 1$ versus $D_i = 0$), differences not fully unexplained by $\vec X_i$.
+These selection bias terms would equal zero if the mediator had been ignorable \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, but do not necessarily average to zero if not.%\footnote{
+%    The selection-on-observables approach could, instead, focus on the average effect on treated populations --- as do \cite{keele2015identifying}.
+%    This runs into a problem of comparisons: CM estimates would give average effects on different treated groups.
+%    The CM estimand for the ADE on treated gives the ADE local to the $Z_i = 1$ treated group, and for the ADE local to compliers with $D_i = 1$.
+%    In this way, these ADE and AIE on treated terms are not comparable to each other, so I focus on the true averages to avoid these misaligned comparisons.
+%}
 
 The group differences represent the fact that a matching approach gives an average effect on the treated group and, when selection-on-observables does not hold, this is systematically different from the average effect \citep{heckman1998characterizing}.
 These terms are a non-parametric framing of the bias from controlling for intermediate outcomes, previously studied only in a linear setting (i.e., bad controls in \citealt{cinelli2024crash}, or M-bias in \citealt{ding2015adjust}).
@@ -238,7 +240,9 @@ The AIE group differences term is longer, because the indirect effect is compris
         \underbrace{\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1)=1, D_i(0)=0}}_{
             \text{Average $D \to Y$ effect among $D(z)$ compliers}
         } \]
-This group differences term in the AIE arises because the selection-on-observables approach does not account for complier differences.\footnote{
-    If the mediator had been ignorable, the complier indirect effect would equal the AIE; this differences term represents the difference between the two when it is not.
-    %This distinction between average effects and complier average effects in the AIE is skipped over by the ``controlled direct effect'' definitions of \cite{pearl2003direct}.
-}
+This group differences term in the AIE arises because the selection-on-observables approach assumes that this complier average effect is equal to the population average effect, which does not hold true if the mediator is not ignorable.
+%\footnote{
+%    If the mediator had been ignorable, the complier indirect effect would equal the AIE; this differences term represents the difference between the two when it is not.
+%    %This distinction between average effects and complier average effects in the AIE is skipped over by the ``controlled direct effect'' definitions of \cite{pearl2003direct}.
+%}
+%
