@@ -61,7 +61,7 @@ direct_dist.plot <- sim.data %>%
     annotate("text", colour = colour.list[2],
         x = 0.5, y = 2.5,
         fontface = "bold",
-        label = ("Selection model"),
+        label = ("Control function"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[2],
         x = 0.5, y = 2.375,

@@ -3,8 +3,8 @@
 % \textbf{The introduction formula \url{https://blogs.ubc.ca/khead/research/research-advice/formula}.}
 %\textbf{Hook:}
 Economists use natural experiments to credibly answer social questions, when an experiment was infeasible.
-For example, does new access to health insurance causally benefit health outcomes \citep{finkelstein2008oregon}?
-A natural experiment gives methods to answer these questions, but no indication of how these effects came about.
+For example, does gaining access to health insurance causally benefit health outcomes \citep{finkelstein2008oregon}?
+Natural experiments are settings which give answers to these questions, but give no indication of how these effects came about.
 Causal Mediation (CM) aims to estimate the mechanisms behind causal effects, by estimating how much of the treatment effect operates through a proposed mediator.
 For example, how much of the health gain from new access to health insurance comes from individuals choosing to visit hospitals more frequently, when previously they would have avoided doing so?
 This study of mechanism is important in understanding the economic foundation of causal effects in the real world.
@@ -17,10 +17,10 @@ This paper starts by answering the following question: what does a selection-on-
 Estimates for the average direct and indirect effects are contaminated by bias terms --- selection bias plus group difference terms.
 I then show how this bias operates in an applied regression framework, with bias coming from a correlated error term.
 %, showing that the bias term grows larger with the degree of unexplained selection.
-For example, if individuals had been choosing to seek medical care more often after recieving new health insurance (i.e., following a rational maximisation process),
+For example, if individuals had been choosing to seek medical care more often after receiving new health insurance (i.e., following a rational maximisation process),
 mediator ignorability would require a researcher observe and control for everyone's underlying health conditions as part of the CM analysis --- even if they are not diagnosed.
 Should a researcher consider running a CM analysis without using another natural experiment to isolate random variation in the mediator (in addition to the one for the original treatment), then this assumption is unlikely to hold true.
-This means investigating mechanisms by CM methods will lead to biased inference in natural experiment settings.
+This means that investigating mechanisms by CM methods will lead to biased inference in natural experiment settings.
 
 I consider an alternative approach to estimating CM effects, adjusting for unobserved selection-into-mediator with a control function.
 This solves the identification problem with structural assumptions for selection-into-mediator --- mediator monotonicity and selection based on costs and benefits --- and requires a valid cost instrument for mediator take-up.
@@ -28,8 +28,8 @@ While these assumptions are strong, they are plausible in many applied settings.
 % In an accompanying applied paper, \cite{hogan2025direct}, etc....
 Mediator monotonicity aligns with conventional theories for selection-into-treatment, and is accepted widely in many applications using an instrumental variables research design.
 Selection based on costs and benefits is central to economic theory, and is the dominant concern for judging empirical designs that use quasi-experimental variation in treatment to estimate causal effects.
-Access to a valid instrument is a string assumption, though is important to avoid further modelling assumptions; the most compelling example is using variation in mediator take-up cost as a first-stage instrument.
-This approach is not perfect in every setting: the structural assumptions are string, and are tailored to selection-into-mediator concerns pertinent to economic applications.
+Access to a valid instrument is a strong assumption, though is important to avoid further modelling assumptions; the most compelling example is using variation in mediator take-up cost as a first-stage instrument.
+This approach is not perfect in every setting: the structural assumptions are strong, and are tailored to selection-into-mediator concerns pertinent to economic applications.
 This approach provides no harbour for estimating CM effects when a mediator is not ignorable, if these structural assumptions do not hold true.
 
 %\textbf{Antecedents:}
@@ -71,7 +71,7 @@ While these assumptions are strong, they are plausible in many applied settings.
 This approach to identifying CM effects (despite selection-into-mediator) imports insights from an instrumental variables setting \citep{kline2019heckits}, to account for selection and identifying mediator compliers for CM effects.
 Doing so is related to using instruments to identify CM effects among instrument complier groups --- as noted by \cite{frolich2017direct}.\footnote{
     Indeed, this paper does not improve on selection model/control function methods, instead noting their applicability in this setting.
-    See \cite{frolich2017direct} for the newest development of control function methods with instruments, and \cite{imbens2007nonadditive} for a general overview of the approach.
+    See \cite{frolich2017direct} for the newest development of control function methods with instruments, and \cite{wooldridge2015control} for a general overview of the approach.
 }
 Using a control function to estimate CM effects builds on the influential \cite{imai2010identification} approach, marrying the CM literature with labour economic theory on selection-into-treatment for the first time. 
 
@@ -80,7 +80,7 @@ This paper proceeds as follows.
 \autoref{sec:mediation} introduces the formal framework for CM, and develops expressions for bias in CM estimates in natural experiments.
 \autoref{sec:applied} describes this bias in applied settings with (1) a regression framework, (2) a setting with selection based on costs and benefits.
 %, (3) a short survey of empirical practice.
-\autoref{sec:selectionmodel} shows how a control function can effectively purge this bias from CM estimates.
-\autoref{sec:controlfun} demonstrates how to estimate CM effects with this approach, with either parametric and semi-parametric methods, giving supporting simulation evidence.
+\autoref{sec:selectionmodel} shows how a control function can effectively purge this bias from CM estimates, giving supporting simulation evidence.
+%\autoref{sec:controlfun} demonstrates how to estimate CM effects with this approach, with either parametric and semi-parametric methods, giving supporting simulation evidence.
 % and consistency results
 \autoref{sec:conclusion} concludes.
