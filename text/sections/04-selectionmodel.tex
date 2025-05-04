@@ -7,29 +7,29 @@ A Control Function (CF) approach takes this insight seriously, providing conditi
 
 The main problem is that second-stage regression equation \eqref{eqn:parametric-secondstage} is not identified, because $U_{0,i},U_{1,i}$ are unobserved.
 \begin{align}
-    \label{eqn:secondstage-reg}
     \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
         \alpha
         + \beta D_i
         + \gamma Z_i
         + \delta Z_i D_i
-        + \varphi(\vec X_i) \\
+        + \varphi(\vec X_i) \nonumber \\
+        \label{eqn:secondstage-reg}
         & \;\; +\left( 1 - D_i \right) \Egiven{ U_{0,i} }{D_i = 0, \vec X_i}
-            + D_i \Egiven{ U_{1,i} }{D_i = 1, \vec X_i} 
+            + D_i \Egiven{ U_{1,i} }{D_i = 1, \vec X_i}
         \nonumber
 \end{align}
 
 CF methods were first devised to correct for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem \citep{heckman1979sample}.
 The approach works in the following manner: (1) assume that the variable of interest follows a selection model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage; and (3) incorporate this information as control terms in the second-stage equation to adjust for selection-into-mediator.
-Identification in CF methods typically relies on either distributional assumptions on the unobserved error terms, or an exclusion restriction for instrumental variables in the first-stage, or both.
+Identification in CF methods typically relies on either distributional assumptions on the unobserved error terms, or an exclusion restriction for instrumental variables in the first-stage (or both).
 By explicitly accounting for the information contained in the first-stage selection model, CF methods enable consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors \citep{florens2008identification}.
 
-In the example of analysing health gains from health insurance \citep{finkelstein2008oregon}, a CF approach could be used to address the unobserved confounding from not observing underlying health conditions.
-It would do so by assuming that unobserved selection-into-more frequent health care usage is informative for underlying health conditions; this assumes people with more severe underlying conditions visit the doctor (weakly) more often than those without.
-Then it controls for this in the second-stage  estimation of how much the effect goes through increased usage of healthcare (i.e., the ADE and AIE).
+In the example of analysing health gains from health insurance \citep{finkelstein2008oregon}, a CF approach addresses the unobserved confounding from underlying health conditions.
+It does so by assuming that unobserved selection-into-frequent health care usage is informative for underlying health conditions, assuming people with more severe underlying conditions visit the doctor more often than those without.
+Then it uses this information in the second-stage estimation of how much the effect goes through increased healthcare usage, estimating the ADE and AIE.
 
 \subsection{Reidentifying Causal Mediation (CM) Effects}
-The following assumptions are sufficient to model the correlated error terms, identifying $\beta, \gamma, \delta$ in the second-stage regression \eqref{eqn:secondstage-reg}, and thus both the ADE and AIE.
+The following assumptions are sufficient to model the correlated error terms, identifying $\beta, \gamma, \delta$ in the second-stage regression \eqref{eqn:parametric-secondstage}, and thus both the ADE and AIE.
 
 \theoremstyle{definition}
 \newtheorem{assumptionCF}{Assumption}
@@ -45,16 +45,16 @@ Here, it is assuming that people respond to treatment, $Z_i$, by consistently ta
 There are no mediator defiers.
 
 The main implication of Assumption \ref{cf:monotonicity} is that selection-into-mediator can be written as a selection model \citep{vytlacil2002independence}.
-\[ D_i(z') = \indicator{ \psi(z'; \vec X_i) \geq V_i},
-    \;\;\; \text{for } z'=0,1 \]
-where $V_i$ is a latent variable with continuous distribution and cumulative density function (CDF) $F_V(.)$, and $\psi(.)$ collects observed sources of mediator selection.
-$V_i$ can be assumed to follow a known distribution; the canonical Heckman selection model (``Heckit'') assumes $V_i$ is normally distributed.
+\[ D_i(z') = \indicator{ \psi \big( z'; \vec X_i \big) \geq V_i},
+    \;\text{ for } z'=0,1 \]
+where $V_i$ is a latent variable with continuous distribution and cumulative density function $F_V(.)$, and $\psi(.;\vec X_i)$ collects observed sources of mediator selection.
+$V_i$ can be assumed to follow a known distribution; the canonical Heckman selection model assumes $V_i$ is normally distributed (a ``Heckit'' model).
 
 I focus on the equivalent transformed model of \cite{heckman2005structural},
 \[ D_i(z') = \indicator{ \pi(z'; \vec X_i) \geq U_i},
     \;\;\; \text{for } z'=0,1 \]
-where $U_i \coloneqq F_V(V_i)$ follows a uniform distribution, and $\pi(z'; \vec X_i) = F_V\big(\psi(z'; \vec X_i)\big) = \Egiven{D_i}{Z_i = z', \vec X_i}$ is the mediator propensity score.
-$U_i$ is the unobserved mediator take-up costs.
+where $U_i \coloneqq F_V(V_i)$ follows a uniform distribution, and $\pi(z'; \vec X_i) = F_V\big(\psi(z'; \vec X_i)\big) = \Probgiven{D_i = 1}{Z_i = z', \vec X_i}$ is the mediator propensity score.
+$U_i$ are the unobserved mediator take-up costs.
 
 Note the maintained assumption that treatment $Z_i$ is ignorable (conditional on $\vec X_i$) implies $Z_i \indep U_i$.
 This selection model setup is equivalent to the monotonicity condition, and is importing an equivalence result from the instrumental variables literature to the CM setting.
@@ -65,7 +65,7 @@ This selection model setup is equivalent to the monotonicity condition, and is i
     \[ \Cov{U_i, \, U_{0,i}}, \; \Cov{U_i, \, U_{1,i}} \neq 0. \]
 \end{assumptionCF}
 \noindent
-Assumption \ref{cf:identification} is stating that unobserved selection in mediator take-up ($U_i$) informs second-stage confounding, both when refusing or taking the mediator (i.e., $U_{0,i}$ or $U_{1,i}$).
+Assumption \ref{cf:identification} is stating that unobserved selection in mediator take-up ($U_i$) informs second-stage confounding, when refusing or taking the mediator ($U_{0,i}$ and $U_{1,i}$).
 
 This is a strong assumption, and will not hold in all examples.
 If people had been deciding to take $D_i$ by a Roy model, then this assumption holds because $V_i = U_{C,i} - \big( U_{1,i} - U_{0,i} \big)$.
@@ -76,23 +76,23 @@ denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as th
 \begin{assumptionCF}
     \label{cf:instrument}
     Mediator take-up cost instrument.
-    \[ \vec X_i^{\text{IV}} \textnormal{ satisfies }
-    \partialdiff{\vec X_i^{\text{IV}}}\left[
-        \mu_1(z', \vec X_i) - \mu_0(z', \vec X_i)\right] = 0
-        < \partialdiff{\vec X_i^{\text{IV}}}\Egiven{D_i(z')}{\vec X_i},
+    \[ \vec X_i^{\text{IV}} \textnormal{ satisfies } \;
+    \partialdiff{\vec X_i^{\text{IV}}}\Big\{
+        \mu_1(z', \vec X_i) - \mu_0(z', \vec X_i) \Big\} = 0
+        < \partialdiff{\vec X_i^{\text{IV}}}
+        \Big\{
+            \Egiven{D_i(z')}{\vec X_i}\Big\},
         \textnormal{ for } z' = 0, 1. \]
 \end{assumptionCF}
 \noindent
-Assumption \ref{cf:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an instrumental variable.
-It assumes an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu_1-\mu_0$), and has a non-zero influence on the mediator (i.e., strong first-stage).
-The exclusion restriction is untestable, and must be guided by domain-specific knowledge; first-stage strength is testable, and must be justified with data by methods common in the instrumental variables literature.
+Assumption \ref{cf:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an Instrumental Variable (IV).
+It assumes an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu_1-\mu_0$), and has a non-zero influence on the mediator (i.e., strong IV first-stage).
+The exclusion restriction is untestable, and must be guided by domain-specific knowledge; IV first-stage strength is testable, and must be justified with data by methods common in the IV literature.
 
-This assumption identifies the mediator propensity score, avoiding indeterminacy in the second-stage outcome equation.
+This assumption identifies the mediator propensity score separately for the direct and indirect effects, avoiding indeterminacy in the second-stage outcome equation.
 While not technically required for identification, it avoids relying entirely on an assumed distribution for unobserved error terms (and bias from inevitably breaking it).
-The most compelling example of a mediator instrument is using data on the cost of mediator take-up as a first-stage instrument, if it varies between
-individuals for unrelated reasons and is strong in explaining mediator take-up.
+The most compelling example of a mediator IV is using data on the cost of mediator take-up as a first-stage IV, if it varies between individuals for unrelated reasons and is strong in explaining mediator take-up.
 
-\newtheorem{proposition}{Proposition}
 \begin{proposition}
     \label{proposition:secondstage}
     If assumptions \ref{cf:monotonicity}, \ref{cf:identification}, \ref{cf:instrument} hold, then second-stage regression equation \eqref{eqn:parametric-secondstage} is identified with a CF adjustment.
@@ -105,48 +105,50 @@ individuals for unrelated reasons and is strong in explaining mediator take-up.
             + \varphi(\vec X_i) \\
             & \;\; +  \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
                 + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big),
+            \label{eqn:cf-secondstage}
     \end{align*}
-    where $\lambda_0, \lambda_1$ are the Control Functions (CFs), mediator propensity score $\pi(z';\vec X_i)$ is identified in the first-stage \eqref{eqn:parametric-firststage}, and $\rho_0, \rho_1$ are linear parameters.
+    where $\lambda_0, \lambda_1$ are the Control Functions (CFs), $\rho_0, \rho_1$ are linear parameters, and mediator propensity score $\pi(z';\vec X_i)$ is identified from the first-stage \eqref{eqn:parametric-firststage}.
+    Proof: see \aref{appendix:cf-secondstage}.
 \end{proposition}
-The CFs are functions which measure unobserved mediator gains.
-Following the notation of \cite{kline2019heckits} in an instrumental variables setting, put $\mu_V = \E{F^{-1}_V(U_i)}$, to give the following representation for the CFs for $p' \in (0,1)$:
+The CFs are functions which measure unobserved mediator gains, for those with unobserved mediator costs above or below a propensity score value.
+Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F^{-1}_V(U_i)}$, to give the following representation for the CFs:
 \begin{align*}
     \lambda_0\big(p'\big) &=
         \Egiven{ F^{-1}_V(U_i) - \mu_V}{p' < U_i}, \\
     \lambda_1\big(p'\big) &=
         \Egiven{ F^{-1}_V(U_i) - \mu_V}{U_i \leq p'} = 
-            -\lambda_0\big( p' \big) \left(\frac{1-p'}{p'}\right).
+            -\lambda_0\big( p' \big) \left(\frac{1-p'}{p'}\right), \text{ for } p' \in (0,1).
 \end{align*}
-% See \autoref{appendix:selectionmodel} for the proof.
 
 If we are using the canonical Heckman selection model, we assume the error term follows a normal distribution, so that $\lambda_0, \lambda_1$ are the inverse Mills ratio.
-Alternatively, $\lambda_0, \lambda_1$ could be linear functionals \citep{wooldridge2015control}, or have other definitions following on the assumed distribution of the error terms.
-If we do not know what distribution class the errors follow, then $\lambda_0, \lambda_1$ can be estimated with semi-parametric methods.
+Alternatively, $\lambda_0, \lambda_1$ could have other definitions following the assumed distribution of the error terms (see e.g, \citealt{wooldridge2015control}).
+If we do not know what distribution class the errors follow, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.
 %(as in \autoref{sec:semi-parametric}.
 
 \newtheorem{theoremCF}{Theorem}
 \renewcommand\thetheoremCF{CF}
 \begin{theoremCF}
     \label{thm:cf-identification}
-    If assumptions \ref{cf:monotonicity}, \ref{cf:identification}, \ref{cf:instrument} hold, the ADE and AIE are identified as a function of the parameters identified in Proposition \ref{proposition:secondstage}.
+    If assumptions \ref{cf:monotonicity}, \ref{cf:identification}, \ref{cf:instrument} hold, the ADE and AIE are identified as a function of the parameters in Proposition \ref{proposition:secondstage}.
     \begin{align*}
     \text{ADE}
     %= \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
         &= \E{\gamma + \delta D_i}, \\
     \text{AIE}
     %= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \mathbb E \Bigg[ \bar \pi
+        &= \mathbb E \Bigg[ \, \bar \pi \,
             \Big( \beta +  \delta Z_i +
                 \underbrace{ (\rho_1 - \rho_0) \,
-                \Gamma \big(\pi(0; \vec X_i), \pi(1; \vec X_i) \big)\Big)}_{
-                    \text{Complier adjustment}} \Bigg]
+                \Gamma \big(\pi(0; \vec X_i), \pi(1; \vec X_i) \big)}_{
+                    \text{Complier adjustment}} \Big) \Bigg]
     \end{align*}
     where $\Gamma\left(p,p'\right) 
     = \Egiven{ F^{-1}_V(U_i) - \mu_V}{p < U_i \leq p'}
-    = \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p}$, and $\bar\pi = \pi(1; \vec X_i) - \pi(0; \vec X_i)$ is the mediator complier score.
+    = \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p}$ is the average unobserved net gains for those with unobserved costs between $p$ and $p'$, and $\bar\pi = \pi(1; \vec X_i) - \pi(0; \vec X_i)$ is the mediator complier score.
+    Proof: see \aref{appendix:cf-ade-aie}.
 \end{theoremCF}
 
-This theorem provides a solution to the identification problem for CM effects when facing selection bias;
+This theorem provides a solution to the identification problem for CM effects when facing selection;
 rather than assuming away selection problems, it explicitly models them.
 The ADE is straightforward to calculate as an average of the direct effect parameters, while the AIE also includes an adjustment for unobserved complier gains to the mediator.
 Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
@@ -170,11 +172,11 @@ The CFs allow us to measure both selection bias and complier differences, purgin
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the empirical density of point estimates, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms (further described in \autoref{sec:controlfun}).
+    These figures show the empirical density of point estimates minus the true ADE or AIE, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms (further described in \autoref{sec:controlfun}).
     The black dashed line is the true value;
     orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
     and blue estimates with a two-stage Heckman selection adjustment.
 \end{figure}
 
-\autoref{fig:cm-heckit-dist} shows how a CF adjustment corrects unadjusted CM estimates.
-In a simulation with selection based on observed error terms, the CF adjustment pushes conventional CM estimates back to the true value. 
+\autoref{fig:cm-heckit-dist} shows how a CF adjustment corrects unadjusted CM effect estimates.
+In a simulation with selection-into-mediator based on unobserved error terms, the CF adjustment pushes conventional CM estimates back to the true value. 

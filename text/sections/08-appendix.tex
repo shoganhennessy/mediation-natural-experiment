@@ -296,10 +296,10 @@ This sequence gives us the resulting regression equation:
 \end{align*}
 Taking the conditional expectation, and collecting for the expressions of the direct and indirect effects:
 \begin{align*}
-    \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{\bar \pi \left( \beta +  Z_i \delta \right)} \\
     \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
-        &= \E{\gamma + \delta D_i + \tilde U_i}
+        &= \E{\gamma + \delta D_i} \\
+    \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
+        &= \E{\bar \pi \left( \beta +  Z_i \delta + \tilde U_i \right)}
 \end{align*}
 These equations have simpler expressions after assuming constant treatment effects in a linear framework;
 I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
@@ -332,8 +332,10 @@ Additionally, the AIE estimates refers to gains from the mediator among $D(z)$ c
 
 \subsection{Roy Model and Sequential Ignorability}
 \label{appendix:roy-seq-ig}
-Suppose $Z_i$ is ignorable, and selection into $D_i$ follows a Roy model, with the definitions in \autoref{sec:applied}.
-If selection into $D_i$ is degenerate on $U_{0,i}, U_{1,i}$:
+\textit{Proof of Proposition \ref{prop:roy-seq-ig}.}
+
+Suppose $Z_i$ is ignorable, and selection-into-$D_i$ follows a Roy model, with the definitions in \autoref{sec:applied}.
+If selection-into-$D_i$ is degenerate on $U_{0,i}, U_{1,i}$:
 \[ \Egiven{D_i}{Z_i, \vec X_i, U_{1,i}- U_{0,i} = u}
     = \Egiven{D_i}{Z_i, \vec X_i, U_{1,i}- U_{0,i} = u'},
     \text{ for all } u, u' \text{ in the range of $U_{1,i}- U_{0,i}$.} \]
@@ -342,8 +344,8 @@ If selection into $D_i$ is degenerate on $U_{0,i}, U_{1,i}$:
 %    \Egiven{D_i}{Z_i, \vec X_i, U_{1,i}- U_{0,i} = u}
 %    \neq \Egiven{D_i}{Z_i, \vec X_i, U_{1,i}- U_{0,i} = u'}. \]
     %, \;\;\; \text{for at least one } z'=0,1 \]
-In this case, the control set $\vec X_i$ and the costs $\mu_c, U_{c,i}$ are the only determinants of selection into $D_i$ --- and, $U_{0,i}, U_{1,i}$ play no role.
-This could be achieved by either assuming that unobserved gains are degenerate (the researcher had observed everything in $\vec X_i$), or selection into $D_i$ had been disrupted in some fashion (e.g., by a natural experiment design for $D_i$).
+In this case, the control set $\vec X_i$ and the costs $\mu_c, U_{c,i}$ are the only determinants of selection-into-$D_i$ --- and, $U_{0,i}, U_{1,i}$ play no role.
+This could be achieved by either assuming that unobserved gains are degenerate (the researcher had observed everything in $\vec X_i$), or selection-into-$D_i$ had been disrupted in some fashion (e.g., by a natural experiment design for $D_i$).
 
 To motivate a contraposition argument, suppose $D_i$ is ignorable conditional on $Z_i, \vec X_i$.
 For each $z', d' = 0, 1$
@@ -356,8 +358,8 @@ For each $z', d' = 0, 1$
     = \Egiven{D_i}{\vec X_i, Z_i = z'} \\
     & \;\;\; \;\;\; \;\;\; \text{for all } u' \text{ in the range of $U_{1,i}- U_{0,i}$.}
 \end{align*}
-This final implication is that selection into $D_i$ is degenerate on $U_{0,i}, U_{1,i}$.
-Thus, a contraposition argument has that if selection into $D_i$ is non-degenerate on $U_{0,i}, U_{1,i}$, then $D_i$ is not ignorable.
+This final implication is that selection-into-$D_i$ is degenerate on $U_{0,i}, U_{1,i}$.
+Thus, a contraposition argument has that if selection-into-$D_i$ is non-degenerate on $U_{0,i}, U_{1,i}$, then $D_i$ is not ignorable.
 
 % Consider the following case, for each individual $i$.
 % \[ \bar u_i = \mu_C(Z_i ; \vec X_i) + U_{C,i} - \mu(Z_i ; \vec X_i) \]
@@ -366,6 +368,101 @@ Thus, a contraposition argument has that if selection into $D_i$ is non-degenera
 % \[ 1 = \Egiven{D_i}{U_i = u_i, \vec X_i, Z_i} \neq 
 % \Egiven{D_i}{U_i = u_i', \vec X_i, Z_i} = 0 \]
 % Now we reach a contradiction, because $u, u'$ were defined in terms of the mean potential outcomes $\mu(z';.)$, and thus conditional mean depends on the potential outcomes.
+
+\subsection{Control Function (CF) Identification of the Second-stage}
+\label{appendix:cf-secondstage}
+\textit{Proof of Proposition \ref{proposition:secondstage}.}
+
+By Assumption \ref{cf:monotonicity} (mediator monotonicity), selection-into-the mediator can be represented as a threshold-crossing selection model.
+\[ D_i(z') = \indicator{ \pi(z'; \vec X_i) \geq U_i }, \text{ for } z' = 0, 1 \]
+where $U_i = F_V(V_i)$ follows a uniform distribution on $[0,1]$, and $\pi(z'; \vec X_i) = \Egiven{D_i}{Z_i = z', \vec X_i}$ is the mediator propensity score.
+
+The threshold crossing selection model represents individuals who refuse the mediator as follows:
+\[ D_i = 0 \implies U_i > \pi(Z_i; \vec X_i) \]
+Our objective is to determine $\Egiven{U_{0,i}}{D_i=0, Z_i, \vec X_i}$, which can then be written as
+\[ \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i), Z_i, \vec X_i}. \]
+Since $Z_i$ is ignorable, we have:
+\[ \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i), Z_i, \vec X_i}
+    = \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i)} \]
+
+Assumption \ref{cf:identification} has $\text{Cov}(U_i, U_{0,i}) \neq 0$.
+This non-zero covariance implies statistical dependence between the selection error and outcome error.
+This dependence allows us to represent $U_{0,i}$ using a linear projection.
+We use $F_V^{-1}(U_i)$ rather than $U_i$ directly in the projection to allow for flexibility in how the selection error affects outcomes.
+The linear projection can be written as follows
+\[ U_{0,i} = \rho_0 \big( F_V^{-1}(U_i) - \mu_V \big) + \varepsilon_{0,i}, \]
+where
+\begin{itemize}
+    \item $\mu_V = \E{F_V^{-1}(U_i)}$ is the mean of $F_V^{-1}(U_i)$
+    \item $\rho_0 = \frac{\Cov{U_{0,i}, F_V^{-1}( U_i )}}{\Var{F_V^{-1} ( U_i )}}$ is the projection coefficient
+    \item $\varepsilon_{0,i}$ is a residual with $\Egiven{\varepsilon_{0,i}}{F_V^{-1}(U_i)} = 0$.
+\end{itemize}
+
+The coefficient $\rho_0$ is the slope in the best linear predictor of $U_{0,i}$ given $F_V^{-1}(U_i)$, and is chosen to ensure that the residual $\varepsilon_{0,i}$ is uncorrelated with $F_V^{-1}(U_i)$.
+This property is critical for our identification strategy, as it allows us to isolate the part of $U_{0,i}$ that is related to selection-into-$D_i$.
+
+The non-zero covariance condition in \ref{thm:cf-identification} ensures $\rho_0 \neq 0$, so is relevant.
+Since $U_i$ and $F_V^{-1}(U_i)$ are related by a monotonic transformation (the inverse cumulative density function), the covariance $\text{Cov}(U_i, U_{0,i}) \neq 0$ implies $\text{Cov}(F_V^{-1}(U_i), U_{0,i}) \neq 0$.
+
+Given the linear projection of $U_{0,i}$ onto $F_V^{-1}(U_i)$, we can compute the conditional expectation:
+\[ \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i)} = \Egiven{\rho_0(F_V^{-1}(U_i) - \mu_V) + \varepsilon_{0,i}}{U_i > \pi(Z_i; \vec X_i)} \]
+
+Since $\Egiven{\varepsilon_{0,i}}{F_V^{-1}(U_i)} = 0$ by construction, and $U_i$ is a function of $F_V^{-1}(U_i)$, we have
+\[ \Egiven{\varepsilon_{0,i}}{U_i > \pi(Z_i; \vec X_i)} = 0. \]
+
+Therefore:
+\[ \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i)} = \rho_0 \Egiven{F_V^{-1}(U_i) - \mu_V}{U_i > \pi(Z_i; \vec X_i)}. \]
+
+This gives us the control function representation:
+\[ \Egiven{U_{0,i}}{D_i=0, Z_i, \vec X_i} = \rho_0 \lambda_0(\pi(Z_i; \vec X_i)) \]
+where $\lambda_0 \left(p'\right) = \Egiven{F_V^{-1}(U_i) - \mu_V}{p' < U_i}$.
+The control function $\lambda_0\left(p'\right)$ captures the expected value of the transformed selection term, conditional on being above the threshold $p' \in (0,1)$.
+
+The same sequence of steps for mediator takers, $D_i = 1$, gives the other CF:
+\[ \Egiven{U_{1,i}}{D_i=1, Z_i, \vec X_i} = \rho_1 \lambda_1(\pi(Z_i; \vec X_i)), \]
+where $\lambda_1 \left(p'\right) = \Egiven{F_V^{-1}(U_i) - \mu_V}{U_i \leq p'}$ for $p' \in (0,1)$.
+
+The relationship between $\lambda_0(p')$ and $\lambda_1(p')$ can be derived as:
+\[ \lambda_1 \left(p'\right) = -\lambda_0 \left(p'\right) \left( \frac{1-p'}{p'} \right) \]
+This relationship ensures consistency in the CF approach across both groups.
+
+Assumption \ref{cf:instrument} (mediator take-up cost instrument $\vec X_i^{\text{IV}}$) ensures identification of the propensity score function $\pi(z'; \vec X_i)$ in the first stage by providing valid instrumental variation.
+This variation allows us to identify the propensity score, and consequently the control functions $\lambda_0$ and $\lambda_1$.
+
+Combining all elements, the conditional expectation of $Y_i$ given $Z_i, D_i, \vec X_i$ is
+\begin{align*}
+    \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
+        \alpha
+        + \beta D_i
+        + \gamma Z_i
+        + \delta Z_i D_i
+        + \varphi(\vec X_i) \\
+        & \;\; + \left( 1 - D_i \right) \Egiven{U_{0,i}}{D_i = 0}
+            + D_i \Egiven{U_{1,i}}{D_i = 1}.
+\end{align*}
+Substitute the CFs, as follows:
+\[ (1-D_i) \Egiven{ U_{0,i} }{Z_i, D_i, \vec X_i}
+    + D_i \Egiven{ U_{1,i}}{Z_i, D_i, \vec X_i}
+    = (1-D_i)\rho_0 \lambda_0 \big(\pi(Z_i; \vec X_i) \big)
+    + D_i \rho_1 \lambda_1 \big(\pi(Z_i; \vec X_i) \big). \]
+This gives the final result,
+\begin{align*}
+    \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
+        \alpha
+        + \beta D_i
+        + \gamma Z_i
+        + \delta Z_i D_i
+        + \varphi(\vec X_i) \\
+        & \;\; +  \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
+            + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big).
+\end{align*}
+All parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$,with $\pi(z';\vec X_i)$ identified separately in the first-stage.
+
+\subsection{Control Function (CF) Identification of the ADE and AIE}
+\label{appendix:cf-ade-aie}
+\textit{Proof of Theorem \ref{thm:cf-identification}.}
+
+Writing in here for the final proof.
 
 % \subsection{Control Function Identification}
 % \label{appendix:controlfun-proof}

@@ -49,7 +49,7 @@ With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following o
 \end{align}
 First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \zeta(\vec X_i)$ the intercept, and $\bar \pi$ the first-stage compliance rate (which may depend on $\vec X_i$).
 Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to omitted variables bias.\footnote{
-    See \autoref{appendix:regression-model} for the derivation.
+    See \aref{appendix:regression-model} for the derivation.
 }
 \begin{enumerate}[label=\textbf{(\alph*)}]
     \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\varphi(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
@@ -72,7 +72,7 @@ The ADE and AIE are averages of these regression coefficients.
                 \vec X_i, D_i(1) = 1, D_i(0) = 0}}_{
                     \text{Unobserved complier gains.}}.
 \end{align*}
-The ADE is a simple sum of the coefficients, while the AIE includes a group differences term because it only refers to $D(z)$ compliers.
+The ADE is a simple sum of the coefficients, while the AIE includes a group differences term because it only refers to $D(Z)$ compliers.
 
 By construction, $\vec U_i \coloneqq \left(U_{0, i}, U_{1, i} \right)$ is an unobserved confounder.
 The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  \vec U_{i} $.
@@ -106,20 +106,21 @@ By using the Roy model as a benchmark, I explore the practical limits of the med
 Decompose the costs into its mean and an error term, $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, to give a representation of Roy selection in terms of observed and unobserved factors,
 \[ D_i(z') = \indicator{
     \mu_1(z'; \vec X_i) - \mu_0(z'; \vec X_i) - \mu_C(z'; \vec X_i)
-    \geq U_{C,i} - \Big(U_{1,i} - U_{0,i}\Big) }
+    \geq U_{C,i} - \big(U_{1,i} - U_{0,i}\big) }
         , \;\;\; \text{for } z'=0,1. \]
 
 If selection is Roy style, and the mediator is ignorable, then unobserved benefits play no part in selection.
 The only driver in differences in selection are differences in costs (and not benefits).
 If there are any unobserved benefits for selection-into-$D_i$ unobserved to the researcher, then sequential ignorability cannot hold.
-\begin{definition}
-    \label{def:roy-seq-ig}
+\newtheorem{proposition}{Proposition}
+\begin{proposition}
+    \label{prop:roy-seq-ig}
     Suppose mediator selection follows a Roy model \eqref{eqn:roy-model}, and selection is not fully explained by costs and observed gains.
     Then sequential ignorability does not hold.
-\end{definition}
+\end{proposition}
 If there are any unobserved sources of gains, then sequential ignorability does not hold.
 This is an equivalence statement: selection based on costs and benefits is only consistent with mediator ignorability if the researcher observed every single source of mediator benefits.
-See \autoref{appendix:roy-seq-ig} for the proof.
+See \aref{appendix:roy-seq-ig} for the proof.
 
 This means than the vector of control variables $\vec X_i$ must be incredibly rich.
 Together, $\vec X_i$ and unobserved cost differences $U_{C,i}$ must explain selection-into-$D_i$ one hundred percent.

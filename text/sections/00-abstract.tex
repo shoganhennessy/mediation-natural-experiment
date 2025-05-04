@@ -1,15 +1,15 @@
 \noindent
 Natural experiments are a cornerstone of applied economics, providing settings for estimating causal effects with a compelling argument for treatment ignorability.
 Applied researchers often investigate mechanisms behind treatment effects by controlling for a mediator of interest, alluding to Causal Mediation (CM) methods for estimating direct and indirect effects (CM effects).
-This approach to investigating mechanisms unintentionally assumes the mediator is ignorable --- in addition to the causal research design for the initial treatment.
-Individuals' choice to take (or refuse) a mediator based on expected gains (and costs) is inconsistent with mediator ignorability, suggesting in-practice estimates of CM effects are biased in natural experiment settings.
-I solve for explicit bias terms when the mediator is not ignorable, imitating classical selection bias for average causal estimates.
-I consider an alternative approach to credibly estimate CM effects, when mediator selection is driven by unobserved gains.
-The approach uses a control function adjustment for unobserved selection into mediator, relying on mediator take-up cost as an instrument.
-Simulations confirm that this method corrects for selection bias in conventional CM estimates.
+This approach to investigating mechanisms unintentionally assumes the mediator is quasi-randomly assigned --- in addition to the quasi-random assignment of the initial treatment.
+Individuals' choice to take (or refuse) a mediator based on costs and benefits is inconsistent with mediator ignorability, suggesting in-practice estimates of CM effects are biased in natural experiment settings.
+I solve for explicit bias terms when the mediator is not ignorable, imitating classical selection bias for average causal effects.
+I consider an alternative approach to credibly estimate CM effects, when selection-into=mediator is driven by unobserved costs and benefits.
+The approach uses a control function adjustment, relying on mediator take-up cost as an instrument.
+Simulations confirm that this method corrects for selection bias in conventional CM estimates, providing both parametric and semi-parametric methods.
 % I illustrate the approach by estimating the proportion of the causal effect of genes associated with education that operates via higher education decisions versus a direct genetic channel.
 % Finally, I provide an implementation of this method in the \textit{R} package \textit{mediate-selection}, offering an accessible tool to investigate mechanisms in natural experiment settings.
-This approach gives applied researchers an alternative method to estimate CM effects when they can only establish a credible argument for quasi-random assignment for the initial treatment, and not a mediator, as is common in natural experiments.
+This approach gives applied researchers an alternative method to estimate CM effects when they can only establish a credible argument for quasi-random assignment of the initial treatment, and not a mediator, as is common in natural experiments.
 
 \vspace{0.5cm}
 \noindent
