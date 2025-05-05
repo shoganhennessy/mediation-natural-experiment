@@ -380,7 +380,7 @@ Thus, a contraposition argument has that if selection-into-$D_i$ is non-degenera
     This proof is an applied example of the \cite{vytlacil2002independence} equivalence result, now including conditioning covariates $\vec X_i$, and is presented merely as a validation exercise.
 }
 
-Assume condition monotonicity (\ref{cf:monotonicity}) holds, for any treatment values $z < z'$ and covariate value $\vec X_i = \vec x$.
+Assume condition monotonicity \ref{cf:monotonicity} holds, for any treatment values $z < z'$ and any covariate value $\vec X_i = \vec x$.
 \[ \Probgiven{D_i(z') \geq D_i(z)}{\vec x} = 1. \]
 For each value of $\vec{X}_i = \vec{x}$ and any treatment values $z < z'$, we first define:
 \begin{itemize}
@@ -394,13 +394,14 @@ For any mediator complier $i \in \mathcal C$, partition the set as follows.
     \item $\mathcal{Z}_0(i) = \{z' : D_i(z') = 0\}$, treatment values where $i$ doesn't take the mediator.
 \end{itemize}
 Note that having binary $Z_i = 0,1$ reduces this to the simple case of $\mathcal{Z}_0(i) = \{0\}$, and $\mathcal{Z}_1(i) = \{1\}$.
-The result holds for continuous values of $Z_i$, so continue with the $\mathcal{Z}_0, \mathcal{Z}_1(i)$ notation.
+The equivalence result holds for continuous values of $Z_i$, so continue with the more general $\mathcal{Z}_0(i), \mathcal{Z}_1(i)$ notation.
 
 By monotonicity, we have
 \[ \sup_{z' \in \mathcal{Z}_0(i)} \pi(z';\vec{x})
     \leq \inf_{z' \in \mathcal{Z}_1(i)} \pi(z';\vec{x}), \;\;
     \text{ for any } i \in \mathcal{C} \]
 where $\pi(z';\vec{x}) = \Probgiven{D_i = 1}{Z_i = z', \vec{X}_i = \vec{x}}$ is the mediator propensity score.
+A simple proof by contradiction verifies this statement (\citealt[Lemma 1]{vytlacil2002independence}).
 
 Now we construct $V_i$ as follows:
 \[ V_i = 
@@ -428,12 +429,14 @@ Therefore, the construction $D_i(z') = \indicator{\psi(z';\vec{X}_i) \geq V_i}$ 
 
 This selection model can be transformed to one with a uniform distribution, to get the general selection model of \cite{heckman2005structural}.
 Let $F_V \big( .\, \big|\, \vec{X}_i \big)$ be the conditional cumulative density function of $V_i$ given $\vec{X}_i$.
-Define:
+Define
 \begin{align*}
-    U_i &= F_V(V_i|\vec{X}_i)\\
-    \pi(z'; \vec{X}_i) &= F_V(\psi(z'; \vec{X}_i)|\vec{X}_i) = \Probgiven{D_i = 1}{Z_i = z', \vec{X}_i}
+    U_i &= F_V \left( V_i \mid \vec{X}_i \right) \\
+    \pi(z'; \vec{X}_i) 
+        &= F_V\left( \psi(z'; \vec{X}_i) \mid \vec{X}_i \right)
+        = \Probgiven{D_i = 1}{Z_i = z', \vec{X}_i}
 \end{align*}
-We can then equivalently represent the mediator choice as
+We can then equivalently represent the mediator choice as the transformed selection model
 \[ D_i(z') = \indicator{\pi(z'; \vec{X}_i) \geq U_i}, \;\;\; \text{for } z'=0,1 \]
 where $U_i \,| \,\vec{X}_i \sim \text{Uniform}(0,1)$ by the probability integral transformation.
 
@@ -442,9 +445,9 @@ where $U_i \,| \,\vec{X}_i \sim \text{Uniform}(0,1)$ by the probability integral
 \textit{Proof of Proposition \ref{proposition:secondstage}.
     This proof relies heavily on the notation and reasoning of \cite{kline2019heckits} for an IV setting.}
 
-By Assumption \ref{cf:monotonicity} (mediator monotonicity), selection-into-the mediator can be represented as a threshold-crossing selection model.
+By Assumption \ref{cf:monotonicity} (mediator monotonicity), selection-into-mediator can be represented as a threshold-crossing selection model.
 \[ D_i(z') = \indicator{ \pi(z'; \vec X_i) \geq U_i }, \text{ for } z' = 0, 1 \]
-where $U_i = F_V(V_i)$ follows a uniform distribution on $[0,1]$, and $\pi(z'; \vec X_i) = \Egiven{D_i}{Z_i = z', \vec X_i}$ is the mediator propensity score.
+where $U_i = F_V\left( V_i \mid \vec{X}_i \right)$ follows a uniform distribution on $[0,1]$, and $\pi(z'; \vec X_i) = \Egiven{D_i}{Z_i = z', \vec X_i}$ is the mediator propensity score.
 
 The threshold crossing selection model represents individuals who refuse the mediator as follows:
 \[ D_i = 0 \implies \pi(Z_i; \vec X_i) < U_i \]
@@ -457,39 +460,39 @@ Since $Z_i$ is ignorable, we have:
 Assumption \ref{cf:identification} has $\text{Cov}(U_i, U_{0,i}) \neq 0$.
 This non-zero covariance implies statistical dependence between the selection error and outcome error.
 This dependence allows us to represent $U_{0,i}$ using a linear projection.
-We use $F_V^{-1}(U_i)$ rather than $U_i$ directly in the projection to allow for flexibility in how the selection error affects outcomes.
+We use $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$ rather than $U_i$ directly in the projection to allow for flexibility in how the selection error affects outcomes.
 The linear projection can be written as follows
-\[ U_{0,i} = \rho_0 \big( F_V^{-1}(U_i) - \mu_V \big) + \varepsilon_{0,i}, \]
+\[ U_{0,i} = \rho_0 \big( F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V \big) + \varepsilon_{0,i}, \]
 where
 \begin{itemize}
-    \item $\mu_V = \E{F_V^{-1}(U_i)}$ is the mean of $F_V^{-1}(U_i)$
-    \item $\rho_0 = \frac{\Cov{U_{0,i}, F_V^{-1}( U_i )}}{\Var{F_V^{-1} ( U_i )}}$ is the projection coefficient
-    \item $\varepsilon_{0,i}$ is a residual with $\Egiven{\varepsilon_{0,i}}{F_V^{-1}(U_i)} = 0$.
+    \item $\mu_V = \E{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}$ is the mean of $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$
+    \item $\rho_0 = \frac{\Cov{U_{0,i}, F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}{\Var{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}$ is the projection coefficient
+    \item $\varepsilon_{0,i}$ is a residual with $\Egiven{\varepsilon_{0,i}}{F_V^{-1}\left( U_i \mid \vec{X}_i \right)} = 0$.
 \end{itemize}
 
-The coefficient $\rho_0$ is the slope in the best linear predictor of $U_{0,i}$ given $F_V^{-1}(U_i)$, and is chosen to ensure that the residual $\varepsilon_{0,i}$ is uncorrelated with $F_V^{-1}(U_i)$.
+The coefficient $\rho_0$ is the slope in the best linear predictor of $U_{0,i}$ given $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, and is chosen to ensure that the residual $\varepsilon_{0,i}$ is uncorrelated with $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$.
 This property is critical for our identification strategy, as it allows us to isolate the part of $U_{0,i}$ that is related to selection-into-$D_i$.
 
 The non-zero covariance condition in \ref{thm:cf-identification} ensures $\rho_0 \neq 0$, so is relevant.
-Since $U_i$ and $F_V^{-1}(U_i)$ are related by a monotonic transformation (the inverse cumulative density function), the covariance $\text{Cov}(U_i, U_{0,i}) \neq 0$ implies $\text{Cov}(F_V^{-1}(U_i), U_{0,i}) \neq 0$.
+Since $U_i$ and $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$ are related by a monotonic transformation (the inverse cumulative density function), the covariance $\text{Cov}(U_i, U_{0,i}) \neq 0$ implies $\text{Cov}(F_V^{-1}\left( U_i \mid \vec{X}_i \right), U_{0,i}) \neq 0$.
 
-Given the linear projection of $U_{0,i}$ onto $F_V^{-1}(U_i)$, we can compute the conditional expectation:
-\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = \Egiven{\rho_0(F_V^{-1}(U_i) - \mu_V) + \varepsilon_{0,i}}{\pi(Z_i; \vec X_i) < U_i} \]
+Given the linear projection of $U_{0,i}$ onto $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, we can compute the conditional expectation:
+\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = \Egiven{\rho_0\big(F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V\big) + \varepsilon_{0,i}}{\pi(Z_i; \vec X_i) < U_i} \]
 
-Since $\Egiven{\varepsilon_{0,i}}{F_V^{-1}(U_i)} = 0$ by construction, and $U_i$ is a function of $F_V^{-1}(U_i)$, we have
+Since $\Egiven{\varepsilon_{0,i}}{F_V^{-1}\left( U_i \mid \vec{X}_i \right)} = 0$ by construction, and $U_i$ is a function of $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, we have
 \[ \Egiven{\varepsilon_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = 0. \]
 
 Therefore:
-\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = \rho_0 \Egiven{F_V^{-1}(U_i) - \mu_V}{\pi(Z_i; \vec X_i) < U_i}. \]
+\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = \rho_0 \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{\pi(Z_i; \vec X_i) < U_i}. \]
 
 This gives us the control function representation:
-\[ \Egiven{U_{0,i}}{D_i=0, Z_i, \vec X_i} = \rho_0 \lambda_0(\pi(Z_i; \vec X_i)) \]
-where $\lambda_0 \left(p'\right) = \Egiven{F_V^{-1}(U_i) - \mu_V}{p' < U_i}$.
+\[ \Egiven{U_{0,i}}{D_i=0, Z_i, \vec X_i} = \rho_0 \lambda_0\big(\pi(Z_i; \vec X_i)\big) \]
+where $\lambda_0 \left(p'\right) = \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p' < U_i}$.
 The control function $\lambda_0\left(p'\right)$ captures the expected value of the transformed selection term, conditional on being above the threshold $p' \in (0,1)$.
 
 The same sequence of steps for mediator takers, $D_i = 1$, gives the other CF:
-\[ \Egiven{U_{1,i}}{D_i=1, Z_i, \vec X_i} = \rho_1 \lambda_1(\pi(Z_i; \vec X_i)), \]
-where $\lambda_1 \left(p'\right) = \Egiven{F_V^{-1}(U_i) - \mu_V}{U_i \leq p'}$ for $p' \in (0,1)$.
+\[ \Egiven{U_{1,i}}{D_i=1, Z_i, \vec X_i} = \rho_1 \lambda_1\big(\pi(Z_i; \vec X_i)\big), \]
+where $\lambda_1 \left(p'\right) = \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p'}$ for $p' \in (0,1)$.
 
 The relationship between $\lambda_0(p')$ and $\lambda_1(p')$ can be derived as:
 \[ \lambda_1 \left(p'\right) = -\lambda_0 \left(p'\right) \left( \frac{1-p'}{p'} \right), \text{ for } p' \in (0,1). \]
@@ -532,12 +535,65 @@ $\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse 
 \label{appendix:cf-ade-aie}
 \textit{Proof of Theorem \ref{thm:cf-identification}.}
 
-Writing in here for the final proof.
+Assume \ref{cf:monotonicity}, \ref{cf:identification}, \ref{cf:instrument} hold.
+Then Proposition~\ref{proposition:secondstage} has $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ identified in a regression.
+The following composes the ADE and AIE from these parameters.
 
-% \subsection{Control Function Identification}
-% \label{appendix:controlfun-proof}
-% Write the proof in here, following \cite{vytlacil2002independence} construction in the forward direction.
-% Note that the notation needs updating for no exclusion restriction.
+For the ADE,
+\begin{align*}
+    \E{ \gamma + \delta D_i}
+        &= \E{ \Big( \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i) \Big)
+            + D_i \Big( \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) - \big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big) \Big) } \\
+    &= \E{ D_i \Big(\mu_1(1; \vec X_i) - \mu_1(0; \vec X_i) \Big)
+        + (1 - D_i) \Big( \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i) \Big) } \\
+    &= \E{ D_i \Big( Y_i(1,1) - U_{1,i} - \big( Y_i(0,1) - U_{1,i} \big) \Big)
+        + (1 - D_i) \Big( 
+            Y_i(1,0) - U_{0,i} - \big( Y_i(0,0) - U_{0,i} \big) \Big) } \\
+    &= \E{ D_i \Big( Y_i(1,1) - Y_i(0,1) \Big)
+        + (1 - D_i) \Big( Y_i(1,0) - Y_i(0,0) \Big) } \\
+    &= \E{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))} \\
+    &= \text{ADE}.
+\end{align*}
+
+Identification is similar for the AIE, but also involves the complier adjustment term.
+\begin{align*}
+    (\rho_1 - \rho_0) \, \Gamma \big(\pi(0; \vec{X}_i), \, \pi(1; \vec{X}_i) \big)
+    &= (\rho_1 - \rho_0) \, \frac{\pi(1; \vec{X}_i)\lambda_1(\pi(1; \vec{X}_i)) - \pi(0; \vec{X}_i)\lambda_1(\pi(0; \vec{X}_i))}{\pi(1; \vec{X}_i) - \pi(0; \vec{X}_i)} \\
+    &= (\rho_1 - \rho_0) \, \Egiven{ F_V^{-1}(U_i | \vec{X}_i) - \mu_V }{\pi(0; \vec{X}_i) < U_i \leq \pi(1; \vec{X}_i), \vec{X}_i} \\
+    &= (\rho_1 - \rho_0) \, \Egiven{ F_V^{-1}(U_i | \vec{X}_i) - \mu_V }{
+        D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \\
+    &= \Egiven{ \rho_1 \big( F_V^{-1}(U_i | \vec{X}_i) - \mu_V \big) }{
+        D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \\
+    &\;\;\; - \Egiven{ \rho_0 \big( F_V^{-1}(U_i | \vec{X}_i) - \mu_V \big) }{
+        D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \\
+    &= \Egiven{ U_{1,i} - U_{0,i} }{D_i(1) = 1, D_i(0) = 0, \vec{X}_i}.
+\end{align*}
+This complier adjustment was first presented for an IV setting by \cite{kline2019heckits}.
+
+Collecting for the AIE,
+\begin{align*}
+    &\E{ \bar \pi \, \Big( \beta +  \delta Z_i +
+        (\rho_1 - \rho_0) \Gamma \big(\pi(0; \vec X_i), \, \pi(1; \vec X_i) \big) \Big) } \\
+    &= \E{ \bar \pi \, \Bigg( \Big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \Big)
+        +  Z_i \Big( \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)
+            - \big(\mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big) \Big) \Bigg) } \\
+    &\;\;\;\; + \mathbb E \Big[ \bar \pi \; \Egiven{ U_{1,i} - U_{0,i} }{D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \Big] \\
+    &= \E{ \bar \pi \, \Bigg(
+        Z_i \Big( \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) \Big)
+        + (1 - Z_i) \Big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \Big) \Bigg) } \\
+    &\;\;\;\; + \mathbb E \Big[ \bar \pi \; \Egiven{ U_{1,i} - U_{0,i} }{D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \Big] \\
+    &= \E{ \bar \pi \, \Bigg(
+        \mu_1(Z_i, \vec X_i) - \mu_0(Z_i, \vec X_i)
+        + \Egiven{ U_{1,i} - U_{0,i} }{D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \Bigg) } \\
+    &= \E{ \bar \pi \; \Egiven{
+        \mu_1(Z_i, \vec X_i) - \mu_0(Z_i, \vec X_i) + U_{1,i} - U_{0,i} }{
+            D_i(1) = 1, D_i(0) = 0, \vec{X}_i} } \\
+    &= \E{ \Egiven{D_i(1) - D_i(0)}{\vec X_i} \; \Egiven{
+        Y_i(Z_i, 1) - Y_i(Z_i, 0) }{ D_i(1) = 1, D_i(0) = 0, \vec{X}_i} } \\
+    &= \E{ \Egiven{Y_i(Z_i,D_i(1)) - Y_i(Z_i,D_i(0))}{\vec X_i} } \\
+    &= \E{ Y_i(Z_i,D_i(1)) - Y_i(Z_i,D_i(0)) } \\
+    &= \text{AIE}.
+\end{align*}
 
 \subsection{Control Function Simulation}
 A number of statistical packages, for the R language \citep{R2023}, made the simulation analysis for this paper possible.

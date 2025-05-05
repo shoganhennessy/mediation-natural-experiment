@@ -16,11 +16,10 @@ The main problem is that second-stage regression equation \eqref{eqn:parametric-
         \label{eqn:secondstage-reg}
         & \;\; +\left( 1 - D_i \right) \Egiven{ U_{0,i} }{D_i = 0, \vec X_i}
             + D_i \Egiven{ U_{1,i} }{D_i = 1, \vec X_i}
-        \nonumber
 \end{align}
 
-The CF approach models the contaminating terms in \eqref{eqn:parametric-secondstage}, avoiding the bias from omitting them in regression estimates.
-CF methods were first devised to correct for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem of the same form as \eqref{eqn:parametric-secondstage} \citep{heckman1979sample}.
+The CF approach models the contaminating terms in \eqref{eqn:secondstage-reg}, avoiding the bias from omitting them in regression estimates.
+CF methods were first devised to correct for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem of the same form as \autoref{eqn:secondstage-reg} \citep{heckman1979sample}.
 The approach works in the following manner: (1) assume that the variable of interest follows a selection model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage; and (3) incorporate this information as control terms in the second-stage equation to adjust for selection-into-mediator.
 Identification in CF methods typically relies on either distributional assumptions on the unobserved error terms, or an exclusion restriction for instrumental variables in the first-stage (or both).
 By explicitly accounting for the information contained in the first-stage selection model, CF methods enable consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors \citep{florens2008identification}.
@@ -48,13 +47,14 @@ There are no mediator defiers.
 The main implication of Assumption \ref{cf:monotonicity} is that selection-into-mediator can be written as a selection model with ordered threshold crossing values that describe selection-into-$D_i$ \citep{vytlacil2002independence}.
 \[ D_i(z') = \indicator{ \psi \big( z'; \vec X_i \big) \geq V_i},
     \;\text{ for } z'=0,1 \]
-where $V_i$ is a latent variable with continuous distribution and conditional cumulative density function $F_V(.|\vec X_i)$, and $\psi(.;\vec X_i)$ collects observed sources of mediator selection.
+where $V_i$ is a latent variable with continuous distribution and conditional cumulative density function $F_V(. \,|\vec X_i)$, and $\psi(. \,;\vec X_i)$ collects observed sources of mediator selection.
 $V_i$ could be assumed to follow a known distribution; the canonical Heckman selection model assumes $V_i$ is normally distributed (a ``Heckit'' model).
+The identification strategy here applies to the general case that the distribution of $V_i$ is unknown, without parametric restrictions.
 
 I focus on the equivalent transformed model of \cite{heckman2005structural},
 \[ D_i(z') = \indicator{ \pi(z'; \vec X_i) \geq U_i},
     \;\;\; \text{for } z'=0,1 \]
-where $U_i \coloneqq F_V\left( V_i \mid \vec X_i \right)$ follows a uniform distribution, and $\pi(z'; \vec X_i) = F_V\big(\psi(z'; \vec X_i)\big) = \Probgiven{D_i = 1}{Z_i = z', \vec X_i}$ is the mediator propensity score.
+where $U_i \coloneqq F_V\left( V_i \mid \vec X_i \right)$ follows a uniform distribution conditional, and $\pi(z'; \vec X_i) = F_V\big(\psi(z'; \vec X_i)\big) = \Probgiven{D_i = 1}{Z_i = z', \vec X_i}$ is the mediator propensity score.
 $U_i$ are the unobserved mediator take-up costs.
 Note the maintained assumption that treatment $Z_i$ is ignorable (conditional on $\vec X_i$) implies $Z_i \indep U_i$ conditional on $\vec X_i$.
 
@@ -114,12 +114,12 @@ The most compelling example of a mediator IV is using data on the cost of mediat
     Proof: see \aref{appendix:cf-secondstage}.
 \end{proposition}
 The CFs are functions which measure unobserved mediator gains, for those with unobserved mediator costs above or below a propensity score value.
-Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F^{-1}_V(U_i)}$, to give the following representation for the CFs:
+Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}$, to give the following representation for the CFs:
 \begin{align*}
     \lambda_0\big(p'\big) &=
-        \Egiven{ F^{-1}_V(U_i) - \mu_V}{p' < U_i}, \\
+        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p' < U_i}, \\
     \lambda_1\big(p'\big) &=
-        \Egiven{ F^{-1}_V(U_i) - \mu_V}{U_i \leq p'} = 
+        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p'} = 
             -\lambda_0\big( p' \big) \left(\frac{1-p'}{p'}\right), \text{ for } p' \in (0,1).
 \end{align*}
 
@@ -142,12 +142,12 @@ If we do not know what distribution class the errors follow, then $\lambda_0, \l
         &= \mathbb E \Bigg[ \, \bar \pi \,
             \Big( \beta +  \delta Z_i +
                 \underbrace{ (\rho_1 - \rho_0) \,
-                \Gamma \big(\pi(0; \vec X_i), \pi(1; \vec X_i) \big)}_{
+                \Gamma \big(\pi(0; \vec X_i), \, \pi(1; \vec X_i) \big)}_{
                     \text{Complier adjustment}} \Big) \Bigg]
     \end{align*}
     where $\Gamma\left(p,p'\right) 
-    = \Egiven{ F^{-1}_V(U_i) - \mu_V}{p < U_i \leq p'}
-    = \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p}$ is the average unobserved net gains for those with unobserved costs between $p$ and $p'$, and $\bar\pi = \pi(1; \vec X_i) - \pi(0; \vec X_i)$ is the mediator complier score.
+    = \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i \leq p'}
+    = \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p}$ is the average unobserved net gains for those with unobserved costs between $p < p'$, and $\bar\pi = \pi(1; \vec X_i) - \pi(0; \vec X_i)$ is the mediator complier score.
     Proof: see \aref{appendix:cf-ade-aie}.
 \end{theoremCF}
 
@@ -175,7 +175,7 @@ The CFs allow us to measure both selection bias and complier differences, purgin
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the empirical density of point estimates minus the true ADE or AIE, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms (further described in \autoref{sec:controlfun}).
+    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms (further described in \autoref{sec:controlfun}).
     The black dashed line is the true value;
     orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
     and blue estimates with a two-stage Heckman selection adjustment.

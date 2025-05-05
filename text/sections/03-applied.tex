@@ -5,10 +5,10 @@ For example, in studying health gains from health insurance, we might expect tha
 Applying conventional CM methods to investigate this expectation would be dismissing unobserved confounders for how often individuals visit healthcare providers, leading to biased results.
 
 The wider population does not have one uniform bill of health; many people are born predisposed to ailments, due to genetic variation or other unrelated factors.
-Many of these conditions exist for years before being fully diagnosed, and recorded in health record databases.
+These conditions can exist for years before being diagnosed.
 People with severe underlying conditions may visit healthcare providers more often than the rest of the population, to investigate or begin treating the ill--effects.
 It stands to reason that people with more serve underlying conditions may gain more from more often attending healthcare providers once given health insurance.
-These underlying causes for responding more to new access to health insurance cannot be controlled for by researchers, as they are not even known to the individuals themselves before being fully diagnosed.
+These underlying causes for responding more to new access to health insurance cannot be controlled for by researchers, as researchers cannot hope to observe and control for health conditions that are yet to even be diagnosed.
 This means underlying health conditions are an unobserved confounder, and will bias estimates of the ADE and AIE in this setting.
 
 In this section, I further develop the issue of selection on unobserved factors in a general CM setting.
@@ -65,7 +65,7 @@ The ADE and AIE are averages of these regression coefficients.
     %= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
         &= \E{ \bar \pi \left( \beta +  \delta Z_i + \tilde U_i \right)},
         \;\;\;\; \text{ with } \tilde U_i
-            = \underbrace{\Egiven{ D_i U_{1,i} - \left(1 - D_i \right)U_{0,i}}{
+            = \underbrace{\Egiven{ U_{1,i} - U_{0,i}}{
                 \vec X_i, D_i(1) = 1, D_i(0) = 0}}_{
                     \text{Unobserved complier gains.}}.
 \end{align*}
@@ -126,7 +126,7 @@ These unobservables are unlikely to be fully captured by an observed control set
 %\footnote{
 %    In a similar sense, \cite{huber2024testing} give a method to  test the implications of sequential ignorability (requiring an instrument).
 %}
-In practice, the only way to believe in the ignorability assumption is to study a setting where the researcher has a causal research design for both treatment $Z_i$ and mediator $D_i$, at the same time.
+In practice, the only way to believe in the mediator ignorability assumption is to study a setting where the researcher has two causal research designs, one for treatment $Z_i$ and another for mediator $D_i$, at the same time.
 A simple addition of ``we assume the mediator satisfies selection-on-observables'' will not cut it here, and will lead to biased inference in practice.
 %Consequently, the assumption of mediator ignorability is implausible in most practical settings.
 
