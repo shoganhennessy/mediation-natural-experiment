@@ -10,12 +10,17 @@
 \renewcommand{\thefigure}{A\arabic{figure}}
 
 % Start appendix
-\section{Appendix}
+\section{Supplementary Appendix}
 \label{appendix}
+This section is for supplementary information, and validation of presented propositions and theorems.
+It is not meant for publication.
+
 % This project used computational tools which are fully open-source.
 %As such, all code and data involved in this project are available at this project's Github repository, available at \url{https://github.com/shoganhennessy/state-faculty-composition}.
 %They may be used for replication, or as the basis for further work, as needed.
-Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu}{\nolinkurl{seh325@cornell.edu}}, or raised as an issue on the Github project.
+Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu}{\nolinkurl{seh325@cornell.edu}},
+or raised as an issue on the Github project,
+\url{https://github.com/shoganhennessy/mediation-natural-experiment}.
 
 \subsection{Identification in Causal Mediation}
 \label{appendix:identification}
@@ -369,21 +374,85 @@ Thus, a contraposition argument has that if selection-into-$D_i$ is non-degenera
 % \Egiven{D_i}{U_i = u_i', \vec X_i, Z_i} = 0 \]
 % Now we reach a contradiction, because $u, u'$ were defined in terms of the mean potential outcomes $\mu(z';.)$, and thus conditional mean depends on the potential outcomes.
 
+\subsection{Monotonicity $\implies$ Selection Model, in a CM Setting.}
+\label{appendix:cf-monotonicity}
+\textit{Proof that (conditional) monotonicity implies a selection model representation in a CM setting.
+    This proof is an applied example of the \cite{vytlacil2002independence} equivalence result, now including conditioning covariates $\vec X_i$, and is presented merely as a validation exercise.
+}
+
+Assume condition monotonicity (\ref{cf:monotonicity}) holds, for any treatment values $z < z'$ and covariate value $\vec X_i = \vec x$.
+\[ \Probgiven{D_i(z') \geq D_i(z)}{\vec x} = 1. \]
+For each value of $\vec{X}_i = \vec{x}$ and any treatment values $z < z'$, we first define:
+\begin{itemize}
+    \item $\mathcal{A} = \{i : D_i(z) = D_i(z') = 1\}$, always-mediators
+    \item $\mathcal{N} = \{i : D_i(z) = D_i(z') = 0\}$, never-mediators
+    \item $\mathcal{C} = \{i : D_i(z) = 0, D_i(z') = 1\}$, mediator-compliers.
+\end{itemize}
+For any mediator complier $i \in \mathcal C$, partition the set as follows.
+\begin{itemize}
+    \item $\mathcal{Z}_1(i) = \{z' : D_i(z') = 1\}$, treatment values where $i$ takes the mediator
+    \item $\mathcal{Z}_0(i) = \{z' : D_i(z') = 0\}$, treatment values where $i$ doesn't take the mediator.
+\end{itemize}
+Note that having binary $Z_i = 0,1$ reduces this to the simple case of $\mathcal{Z}_0(i) = \{0\}$, and $\mathcal{Z}_1(i) = \{1\}$.
+The result holds for continuous values of $Z_i$, so continue with the $\mathcal{Z}_0, \mathcal{Z}_1(i)$ notation.
+
+By monotonicity, we have
+\[ \sup_{z' \in \mathcal{Z}_0(i)} \pi(z';\vec{x})
+    \leq \inf_{z' \in \mathcal{Z}_1(i)} \pi(z';\vec{x}), \;\;
+    \text{ for any } i \in \mathcal{C} \]
+where $\pi(z';\vec{x}) = \Probgiven{D_i = 1}{Z_i = z', \vec{X}_i = \vec{x}}$ is the mediator propensity score.
+
+Now we construct $V_i$ as follows:
+\[ V_i = 
+    \begin{cases}
+        1, & \text{if } i \in \mathcal{N} \\
+        0, & \text{if } i \in \mathcal{A} \\
+        \inf_{z' \in \mathcal{Z}_1(i)} \pi(z';\vec{x}), & \text{if } i \in \mathcal{C}.
+    \end{cases} \]
+Define $\psi(z';\vec{x}) = \pi(z';\vec{x})$.
+Then we can represent $D_i(z')$ as a selection model,
+\[ D_i(z') = \indicator{\psi(z';\vec{X}_i) \geq V_i}, \;\text{ for } z'=0,1. \]
+We can verify this works:
+\begin{itemize}
+    \item For $i \in \mathcal{A}$: $V_i = 0$ and $\psi(z';\vec{x}) \geq 0$ for all $z'$, so $D_i(z') = 1$
+    
+    \item For $i \in \mathcal{N}$: $V_i = 1$ and $\psi(z';\vec{x}) \leq 1$ for all $z'$, with $\psi(z';\vec{x}) < 1$ for $z' \in \mathcal{Z}_0(i)$, so $D_i(z') = 0$ for $z' \in \mathcal{Z}_0(i)$
+    
+    \item For $i \in \mathcal{C}$: $V_i = \inf_{z' \in \mathcal{Z}_1(i)} \pi(z';\vec{x})$
+    \begin{itemize}
+        \item When $z' \in \mathcal{Z}_1(i)$: $\psi(z';\vec{x}) \geq \inf_{z'' \in \mathcal{Z}_1(i)} \pi(z'';\vec{x}) = V_i$, so $D_i(z') = 1$
+        \item When $z' \in \mathcal{Z}_0(i)$: $\psi(z';\vec{x}) < \inf_{z'' \in \mathcal{Z}_1(i)} \pi(z'';\vec{x}) = V_i$, so $D_i(z') = 0$.
+    \end{itemize}
+\end{itemize}
+Therefore, the construction $D_i(z') = \indicator{\psi(z';\vec{X}_i) \geq V_i}$ is a valid representation of the selection process under monotonicity.
+
+This selection model can be transformed to one with a uniform distribution, to get the general selection model of \cite{heckman2005structural}.
+Let $F_V \big( .\, \big|\, \vec{X}_i \big)$ be the conditional cumulative density function of $V_i$ given $\vec{X}_i$.
+Define:
+\begin{align*}
+    U_i &= F_V(V_i|\vec{X}_i)\\
+    \pi(z'; \vec{X}_i) &= F_V(\psi(z'; \vec{X}_i)|\vec{X}_i) = \Probgiven{D_i = 1}{Z_i = z', \vec{X}_i}
+\end{align*}
+We can then equivalently represent the mediator choice as
+\[ D_i(z') = \indicator{\pi(z'; \vec{X}_i) \geq U_i}, \;\;\; \text{for } z'=0,1 \]
+where $U_i \,| \,\vec{X}_i \sim \text{Uniform}(0,1)$ by the probability integral transformation.
+
 \subsection{Control Function (CF) Identification of the Second-stage}
 \label{appendix:cf-secondstage}
-\textit{Proof of Proposition \ref{proposition:secondstage}.}
+\textit{Proof of Proposition \ref{proposition:secondstage}.
+    This proof relies heavily on the notation and reasoning of \cite{kline2019heckits} for an IV setting.}
 
 By Assumption \ref{cf:monotonicity} (mediator monotonicity), selection-into-the mediator can be represented as a threshold-crossing selection model.
 \[ D_i(z') = \indicator{ \pi(z'; \vec X_i) \geq U_i }, \text{ for } z' = 0, 1 \]
 where $U_i = F_V(V_i)$ follows a uniform distribution on $[0,1]$, and $\pi(z'; \vec X_i) = \Egiven{D_i}{Z_i = z', \vec X_i}$ is the mediator propensity score.
 
 The threshold crossing selection model represents individuals who refuse the mediator as follows:
-\[ D_i = 0 \implies U_i > \pi(Z_i; \vec X_i) \]
+\[ D_i = 0 \implies \pi(Z_i; \vec X_i) < U_i \]
 Our objective is to determine $\Egiven{U_{0,i}}{D_i=0, Z_i, \vec X_i}$, which can then be written as
-\[ \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i), Z_i, \vec X_i}. \]
+\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i, Z_i, \vec X_i}. \]
 Since $Z_i$ is ignorable, we have:
-\[ \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i), Z_i, \vec X_i}
-    = \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i)} \]
+\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i, Z_i, \vec X_i}
+    = \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} \]
 
 Assumption \ref{cf:identification} has $\text{Cov}(U_i, U_{0,i}) \neq 0$.
 This non-zero covariance implies statistical dependence between the selection error and outcome error.
@@ -405,13 +474,13 @@ The non-zero covariance condition in \ref{thm:cf-identification} ensures $\rho_0
 Since $U_i$ and $F_V^{-1}(U_i)$ are related by a monotonic transformation (the inverse cumulative density function), the covariance $\text{Cov}(U_i, U_{0,i}) \neq 0$ implies $\text{Cov}(F_V^{-1}(U_i), U_{0,i}) \neq 0$.
 
 Given the linear projection of $U_{0,i}$ onto $F_V^{-1}(U_i)$, we can compute the conditional expectation:
-\[ \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i)} = \Egiven{\rho_0(F_V^{-1}(U_i) - \mu_V) + \varepsilon_{0,i}}{U_i > \pi(Z_i; \vec X_i)} \]
+\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = \Egiven{\rho_0(F_V^{-1}(U_i) - \mu_V) + \varepsilon_{0,i}}{\pi(Z_i; \vec X_i) < U_i} \]
 
 Since $\Egiven{\varepsilon_{0,i}}{F_V^{-1}(U_i)} = 0$ by construction, and $U_i$ is a function of $F_V^{-1}(U_i)$, we have
-\[ \Egiven{\varepsilon_{0,i}}{U_i > \pi(Z_i; \vec X_i)} = 0. \]
+\[ \Egiven{\varepsilon_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = 0. \]
 
 Therefore:
-\[ \Egiven{U_{0,i}}{U_i > \pi(Z_i; \vec X_i)} = \rho_0 \Egiven{F_V^{-1}(U_i) - \mu_V}{U_i > \pi(Z_i; \vec X_i)}. \]
+\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = \rho_0 \Egiven{F_V^{-1}(U_i) - \mu_V}{\pi(Z_i; \vec X_i) < U_i}. \]
 
 This gives us the control function representation:
 \[ \Egiven{U_{0,i}}{D_i=0, Z_i, \vec X_i} = \rho_0 \lambda_0(\pi(Z_i; \vec X_i)) \]
@@ -423,8 +492,8 @@ The same sequence of steps for mediator takers, $D_i = 1$, gives the other CF:
 where $\lambda_1 \left(p'\right) = \Egiven{F_V^{-1}(U_i) - \mu_V}{U_i \leq p'}$ for $p' \in (0,1)$.
 
 The relationship between $\lambda_0(p')$ and $\lambda_1(p')$ can be derived as:
-\[ \lambda_1 \left(p'\right) = -\lambda_0 \left(p'\right) \left( \frac{1-p'}{p'} \right) \]
-This relationship ensures consistency in the CF approach across both groups.
+\[ \lambda_1 \left(p'\right) = -\lambda_0 \left(p'\right) \left( \frac{1-p'}{p'} \right), \text{ for } p' \in (0,1). \]
+This relationship ensures consistency in the CF approach across both groups \citep{kline2019heckits}.
 
 Assumption \ref{cf:instrument} (mediator take-up cost instrument $\vec X_i^{\text{IV}}$) ensures identification of the propensity score function $\pi(z'; \vec X_i)$ in the first stage by providing valid instrumental variation.
 This variation allows us to identify the propensity score, and consequently the control functions $\lambda_0$ and $\lambda_1$.
@@ -456,7 +525,8 @@ This gives the final result,
         & \;\; +  \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
             + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big).
 \end{align*}
-All parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$,with $\pi(z';\vec X_i)$ identified separately in the first-stage.
+All parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z';\vec X_i)$ identified separately in the first-stage.
+$\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse Mills ratio in \citealt{heckman1979sample}), or treated as non-parametric parameters to be estimated with the moment equality $\lambda_1 \left(p'\right) = -\lambda_0 \left(p'\right) \left( \frac{1-p'}{p'} \right)$ for $p \in (0,1)$.
 
 \subsection{Control Function (CF) Identification of the ADE and AIE}
 \label{appendix:cf-ade-aie}

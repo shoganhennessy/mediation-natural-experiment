@@ -6,7 +6,7 @@ Applying conventional CM methods to investigate this expectation would be dismis
 
 The wider population does not have one uniform bill of health; many people are born predisposed to ailments, due to genetic variation or other unrelated factors.
 Many of these conditions exist for years before being fully diagnosed, and recorded in health record databases.
-Suffers of severe underlying conditions may visit healthcare providers more often than the rest of the population, to investigate or begin treating the ill--effects.
+People with severe underlying conditions may visit healthcare providers more often than the rest of the population, to investigate or begin treating the ill--effects.
 It stands to reason that people with more serve underlying conditions may gain more from more often attending healthcare providers once given health insurance.
 These underlying causes for responding more to new access to health insurance cannot be controlled for by researchers, as they are not even known to the individuals themselves before being fully diagnosed.
 This means underlying health conditions are an unobserved confounder, and will bias estimates of the ADE and AIE in this setting.
@@ -20,11 +20,9 @@ Second, I show how selection bias operates in a basic model for selection-into-m
 Inference for CM effects can be written in a regression framework, showing how correlation between the error term and the mediator persistently biases estimates.
 
 Start by writing potential outcomes $Y_i(., .)$ as a sum of observed and unobserved factors, following the notation of \cite{heckman2005structural}.
-For each $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X) = \Egiven{Y_i(z', d')}{\vec X}$ and the corresponding error terms, $U_{d', i} = Y_i(z', d') - \mu_{d'}(z'; \vec X)$, so we have the following expressions:
-\[ Y_i(Z_i, 0)
-        = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
-    Y_i(Z_i, 1)
-        = \mu_{1}(Z_i; \vec X_i) + U_{1,i}. \]
+For each $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec X_i}$ and the corresponding error terms, $U_{d', i} = Y_i(z', d') - \mu_{d'}(z'; \vec X_i)$, so we have the following expressions:
+\[ Y_i(Z_i, 0)  = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
+    Y_i(Z_i, 1) = \mu_{1}(Z_i; \vec X_i) + U_{1,i}. \]
 In these terms, the ADE and AIE are represented as follows,
 \begin{align*}
     \text{ADE}
@@ -48,9 +46,8 @@ With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following o
         \text{Correlated error term.}}
 \end{align}
 First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \zeta(\vec X_i)$ the intercept, and $\bar \pi$ the first-stage compliance rate (which may depend on $\vec X_i$).
-Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to omitted variables bias.\footnote{
-    See \aref{appendix:regression-model} for the derivation.
-}
+Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to omitted variables bias.
+See \aref{appendix:regression-model} for the derivation.
 \begin{enumerate}[label=\textbf{(\alph*)}]
     \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\varphi(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
     \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the AIE local to $Z_i = 0$.
