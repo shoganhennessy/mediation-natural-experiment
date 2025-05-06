@@ -1,6 +1,6 @@
 #!/usr/bin/R
-## Senan Hogan-Hennessy, 18 April 2025
-## Identifying ADE + AIE with a parametric control function
+## Senan Hogan-Hennessy, 6 May 2025
+## Identifying ADE + AIE with a sem-parametric control function
 ## see Hogan-Hennessy (2025).
 
 # Show the date:
@@ -9,10 +9,8 @@ print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 ## Load libraries
 # Functions for data manipulation and visualisation
 library(tidyverse)
-# Causal medation package, Imai Keele Yamamoto (2010)
-library(mediation)
-# Package for classical selection estimators (i.e., MLE)
-library(sampleSelection)
+# Package for non-parametric forest estimation of E[ outcome | X ]
+library(grf)
 # Package for more distributions to sample from.
 library(MASS)
 # Package for semi-parametric regressor, splines by bs(.).
@@ -29,7 +27,7 @@ fig.height <- 10
 fig.width <- fig.height
 
 # Define the sample size to work with.
-sample.N <- 10^3
+sample.N <- 10^4
 
 
 ################################################################################
@@ -335,9 +333,9 @@ estimated.loop <- function(boot.reps, example.data,
 
 ## Simulate the data with given rho, sigma_0, sigma_1, sigma_C values.
 rho <- 0.5
-sigma_0 <- 1
-sigma_1 <- 3
-sigma_C <- 2
+sigma_0 <- 0.5
+sigma_1 <- 2 * sigma_0
+sigma_C <- 0.25
 simulated.data <- simulate.data(rho, sigma_0, sigma_1, sigma_C)
 # SHow the theoretical direct + indirect values
 print(theoretical.values(simulated.data, print.truth = TRUE))
@@ -366,27 +364,94 @@ ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
 print(theoretical.values(simulated.data))
 print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 
-# Show how a control function gets it correct, in 2 steps.
+
+################################################################################
+## Semi-parametric approach.
+
+# Matrix data types
+Z <- as.numeric(simulated.data$Z)
+D <- as.numeric(simulated.data$D)
+Y <- as.numeric(simulated.data$Y)
+X_IV <- as.numeric(simulated.data$X_IV)
+X_minus <- as.numeric(simulated.data$X_minus)
+# 1. Non-parametric first-stage.
+#cf_firststage.reg <- probability_forest(cbind(Z, X_IV, X_minus), factor(D))
+#P <- predict(cf_firststage.reg)$predictions[,1]
+#P_0 <- predict(cf_firststage.reg, newdata = cbind(0, X_IV, X_minus))$predictions[,1]
+#P_1 <- predict(cf_firststage.reg, newdata = cbind(1, X_IV, X_minus))$predictions[,1]
+# cf_firststage.reg <- lm(D ~ (1 + Z) * X_IV *
+#     bs(X_minus, df = 10, intercept = TRUE))
+# P <- predict(cf_firststage.reg, type = "response")
+# P_0 <- predict(cf_firststage.reg, newdata = cbind(0, X_IV, X_minus), type = "response")
+# P_1 <- predict(cf_firststage.reg, newdata = cbind(1, X_IV, X_minus), type = "response")
+# Probit first-stage
 cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
     family = binomial(link = "probit"),
     data = simulated.data)
-# Second-stage, with Heckman normal errors
-lambda_1.fun <- function(p){
-    return(dnorm(qnorm(p)) / pnorm(qnorm(p)))
-}
 P <- predict(cf_firststage.reg, type = "response")
-simulated.data$lambda_0 <- (1 - simulated.data$D) * lambda_1.fun(P) * (- P / (1 - P))
-simulated.data$lambda_1 <- simulated.data$D * lambda_1.fun(P)
+P_0 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+P_1 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response")
+# Second-stage, with semi-parametric CF.
+simulated.data$intercept <- 1
+simulated.data$P <- P
+# (1) Estimate \lambda_1 in D = 1 sample.
+cf_D1_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
+    bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
+    data = filter(simulated.data, D == 1))
+simulated.data$hat_lambda_1 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0))
+# and \tilde\rho = rho_0 / rho_1 in the D = 0 sample.
+rho_D1_semi.reg <- lm(Y ~ (1 + Z) + X_minus + I(hat_lambda_1 * (-P / (1 - P))),
+    data = filter(simulated.data, D == 0))
+hat_rho_1 <- coef(rho_D1_semi.reg)["I(hat_lambda_1 * (-P/(1 - P)))"]
+# (2) Estimate \lambda_0 in D = 0 sample.
+cf_D0_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
+    bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
+    data = filter(simulated.data, D == 0))
+simulated.data$hat_lambda_0 <- predict(cf_D0_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, D = 0, X_minus = 0))
+# and rho_1 / rho_0 =  1 / \tilde\rho in the D = 1 sample.
+rho_D0_semi.reg <- lm(Y ~ (1 + Z) + X_minus + I(hat_lambda_0 * (-(1 - P) / P)),
+    data = filter(simulated.data, D == 1))
+hat_rho_0 <- coef(rho_D0_semi.reg)["I(hat_lambda_0 * (-(1 - P)/P))"]
+# Compose the cross-estimates of \tilde\rho, from each D subsample.
+hat_rho <- mean(simulated.data$D * hat_rho_1 + (1 - simulated.data$D) * (1 / hat_rho_0))
+# Compose the cross-estimates of \tilde \lambda_1(pi)
+simulated.data$lambda_0 <- (1 - simulated.data$D) * simulated.data$hat_lambda_0
+simulated.data$lambda_1 <- simulated.data$D * simulated.data$hat_lambda_1
 # Second-stage, including the control functions lambda_0, lambda_1
-cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
+cf_secondstage.reg <- lm(I(Y - lambda_0 - lambda_1) ~ (1 + Z * D) + X_minus,
     data = simulated.data)
 print(summary(cf_secondstage.reg))
+
+# Lastly, the complier adjustment.
+hat_lambda_1_P_0 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
+hat_lambda_0_P_0 <- predict(cf_D0_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
+hat_lambda_1_P_1 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
+hat_lambda_0_P_1 <- predict(cf_D0_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
+lambda_1_P_0 <- (simulated.data$D * hat_lambda_1_P_0
+    ) + ((1 - simulated.data$D) * (- (1 - P_0) / P_0) * hat_rho_1 * hat_lambda_0_P_0)
+lambda_1_P_1 <- (simulated.data$D * hat_lambda_1_P_1
+    ) + ((1 - simulated.data$D) * (- (1 - P_1) / P_1) * hat_rho_1 * hat_lambda_0_P_1)
+complier.adjustment <- (1 - hat_rho_1) * (
+    P_1 * lambda_1_P_1 - P_0 * lambda_1_P_0) / (P_1 - P_0)
+
 # Show how it gets these correct (with complier adjustment).
 print(theoretical.values(simulated.data))
-print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
-    complier.adjustment = mediate.heckit(simulated.data)$"complier-adjustment"))
-#todo: Explore the complier comensation in semi-parametric spline approach.
+    complier.adjustment = complier.adjustment))
+
+
+
+
+
+
+
+
 
 
 ################################################################################
