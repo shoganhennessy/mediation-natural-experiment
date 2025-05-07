@@ -198,10 +198,12 @@ mediate.semiparametric <- function(example.data){
     cf_firststage.reg <- gam(D ~ 1 + Z + s(X_IV) + s(X_minus),
         family = binomial, data = example.data)
     P <- predict(cf_firststage.reg, type = "response")
-    # 2. Second-stage, with semi-parametric CF.
+    P_0 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
+    P_1 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
     example.data$intercept <- 1
     example.data$P <- P
-    # 2.1 Estimate \lambda_1 in D = 1 sample.
+    # 2. Second-stage, with semi-parametric CF in D = 1 sample.
+    # 2.1 Estimate \lambda_1
     cf_D1_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
         bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
         data = filter(example.data, D == 1))
@@ -210,25 +212,58 @@ mediate.semiparametric <- function(example.data){
     # 2.2  Use the CFs in the estimation
     example.data$lambda_0 <- (1 - example.data$D) * (-P / (1 - P)) * example.data$hat_lambda_1
     example.data$lambda_1 <- example.data$D * example.data$hat_lambda_1
-    cf_secondstage.reg <- lm(I(Y - lambda_1) ~ (1 + Z * D) + X_minus + lambda_0,
+    cf_secondstage_D1.reg <- lm(I(Y - lambda_1) ~ (1 + Z * D) + X_minus + lambda_0,
         data = example.data)
     # Take the \tilde\rho = rho_0 / rho_1 estimate.
-    hat_rho <- coef(cf_secondstage.reg)["lambda_0"]
+    hat_rho_D1 <- coef(cf_secondstage_D1.reg)["lambda_0"]
     # Lastly, the complier adjustment.
-    P_0 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
-    P_1 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
     hat_lambda_1_P_0 <- predict(cf_D1_semi.reg,
         newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
     hat_lambda_1_P_1 <- predict(cf_D1_semi.reg,
         newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
-    Gamma.big <- (P_1 * hat_lambda_1_P_1 - P_0 * hat_lambda_1_P_0) / (P_1 - P_0)
-    add.term <- (1 - hat_rho) * Gamma.big
-    # Return the first and second-stages, and the complier compensating term.
+    Gamma_D1.big <- (P_1 * hat_lambda_1_P_1 - P_0 * hat_lambda_1_P_0) / (P_1 - P_0)
+    add_D1.term <- (1 - hat_rho_D1) * Gamma_D1.big
+    # Get the D = 1 estimates.
+    D1.est <- estimated.values(cf_firststage.reg, cf_secondstage_D1.reg,
+        example.data, complier.adjustment = add_D1.term)
+    ## 3. Second-stage, with semi-parametric CF in D = 0 sample.
+    # 3.1 Estimate \lambda_1
+    #cf_D0_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
+    #    bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
+    #    data = filter(example.data, D == 0))
+    #example.data$hat_lambda_0 <- predict(cf_D0_semi.reg,
+    #    newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0))
+    ## 3.2  Use the CFs in the estimation
+    #example.data$lambda_0 <- (1 - example.data$D) * example.data$hat_lambda_0
+    #example.data$lambda_1 <- example.data$D * (-(1 - P) / P) * example.data$hat_lambda_0
+    #cf_secondstage_D0.reg <- lm(I(Y - lambda_0) ~ (1 + Z * D) + X_minus + lambda_1,
+    #    data = example.data)
+    ## Take the \tilde\rho^-1 = rho_1 / rho_0 estimate.
+    #hat_rho_D0 <- coef(cf_secondstage_D0.reg)["lambda_1"]
+    ## Lastly, the complier adjustment.
+    #hat_lambda_0_P_0 <- predict(cf_D0_semi.reg,
+    #    newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
+    #hat_lambda_0_P_1 <- predict(cf_D0_semi.reg,
+    #    newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
+    #Gamma_D0.big <- ((1 - P_0) * hat_lambda_0_P_0 - (1 - P_1) * hat_lambda_0_P_1) / (P_1 - P_0)
+    #add_D0.term <- (1 - hat_rho_D0) * Gamma_D0.big
+    ## Get the D = 0 estimates.
+    #D0.est <- estimated.values(cf_firststage.reg, cf_secondstage_D0.reg,
+    #    example.data, complier.adjustment = add_D0.term)
+    ## COmpose the off-setting estimates.
+    #mean.D1 <- mean(example.data$D)
+    #mean.D0 <- 1 - mean.D1
+    #firststage.est <- mean.D0 * D1.est$"first-stage"     + mean.D1 * D0.est$"first-stage" 
+    #direct.est <-     mean.D0 * D1.est$"direct-effect"   + mean.D1 * D0.est$"direct-effect"
+    #indirect.est <-   mean.D0 * D1.est$"indirect-effect" + mean.D1 * D0.est$"indirect-effect"
+    firststage.est <- D1.est$"first-stage" 
+    direct.est <-     D1.est$"direct-effect"
+    indirect.est <-   D1.est$"indirect-effect"
+    # Return the off-setting estimates.
     output.list <- list(
-        "first-stage"         = cf_firststage.reg,
-        "second-stage"        = cf_secondstage.reg,
-        "complier-adjustment" = add.term,
-        "semiparametric-data" = example.data)
+        "first-stage"     = firststage.est,
+        "direct-effect"   = direct.est,
+        "indirect-effect" = indirect.est)
     return(output.list)
 }
 
@@ -277,19 +312,14 @@ estimated.loop <- function(boot.reps, example.data,
         ols.est <- estimated.values(ols_firststage.reg, ols_secondstage.reg,
             boot.data)
         # 3. Heckman-style selection-into-mediator model estimates.
-        semiparametric.reg <- mediate.semiparametric(boot.data)
-        cf.est <- estimated.values(
-            semiparametric.reg$"first-stage",
-            semiparametric.reg$"second-stage",
-            semiparametric.reg$"semiparametric-data",
-            complier.adjustment = semiparametric.reg$"complier-adjustment")
+        cf.est <- mediate.semiparametric(boot.data)
         # Save the outputs.
         truth_direct_effect[i]   <- truth.est$average_direct_effect
         truth_indirect_effect[i] <- truth.est$average_indirect_effect
-        ols_direct_effect[i]     <- ols.est$`direct-effect`
-        ols_indirect_effect[i]   <- ols.est$`indirect-effect`
-        cf_direct_effect[i]      <- cf.est$`direct-effect`
-        cf_indirect_effect[i]    <- cf.est$`indirect-effect`
+        ols_direct_effect[i]     <- ols.est$"direct-effect"
+        ols_indirect_effect[i]   <- ols.est$"indirect-effect"
+        cf_direct_effect[i]      <- cf.est$"direct-effect"
+        cf_indirect_effect[i]    <- cf.est$"indirect-effect"
     }
     # Return the bootstrap data.
     output.list <- list()
@@ -348,13 +378,12 @@ simulated.data <- simulate.data(rho, sigma_0, sigma_1, sigma_C)
 print(theoretical.values(simulated.data, print.truth = TRUE))
 
 # Show that the regression specification holds exactly, if specified correctly.
-true_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus +
-        U_C + U_0 + U_1,
+true_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus + U_C + U_0 + U_1,
     family = binomial(link = "probit"),
     data = simulated.data)
-true_secondstage.reg <- lm(Y ~ (-1 + Z * D) + X_minus +
+true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
     # including the unobserved errors:
-    I((1 - D) * U_0) + I(D * U_1),
+    D * U_0 + D * U_1,
     data = simulated.data)
 print(theoretical.values(simulated.data))
 print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
@@ -362,7 +391,7 @@ print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data
 print(summary(true_firststage.reg))
 print(summary(true_secondstage.reg))
 #! Note: this automatically includes the complier term in the indirect effect
-#!       without full access to U_0, U_1 this is not automatic.
+#!       without observing U_0, U_1 this is not automatic.
 
 # Show how the OLS result gives a bias result (if rho != 0),
 # using the same second-stage for both direct + indirect estimates.
@@ -423,10 +452,16 @@ print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
 simulated.data <- simulate.data(rho, sigma_0, sigma_1, sigma_C)
 
 # Get bootstrapped point est for the CF approach
-sim.reps <- 10^4
+sim.reps <- 10^3
 sim.est <- estimated.loop(sim.reps, simulated.data,
     bootstrap = FALSE, print.progress = TRUE)
 sim.data <- sim.est$data
+
+#! Validate correct estimation
+print(mean(sim.data$cf_indirect_effect - sim.data$truth_indirect_effect))
+#! Show the SDs, OLS vs CF
+print(sd(sim.data$ols_indirect_effect))
+print(sd(sim.data$cf_indirect_effect))
 
 ## Save the repeated DGPs' point estimates as separate data.
 sim.data %>% write_csv(file.path(output.folder, "dist-semiparametric-data.csv"))

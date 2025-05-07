@@ -595,6 +595,17 @@ Collecting for the AIE,
     &= \text{AIE}.
 \end{align*}
 
+\subsection{Semi-parametric Estimation of the ADE and AIE}
+\label{appendix:semi-parametric}
+Note the following, to express $\Gamma(p,p')$ in terms of either $\lambda_0$ or $\lambda_1$
+for $p < p' \in (0,1)$.
+\begin{align*}
+    \Gamma\left(p,p'\right) 
+        &= \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i \leq p'} \\
+        &= \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p} \\
+        &= \frac{(1-p)\lambda_0\left(p\right) - (1-p')\lambda_0\left(p'\right)}{p' - p} \\
+\end{align*}
+
 \subsection{Control Function Simulation}
 A number of statistical packages, for the R language \citep{R2023}, made the simulation analysis for this paper possible.
 \begin{itemize}
@@ -602,7 +613,6 @@ A number of statistical packages, for the R language \citep{R2023}, made the sim
     \item \textit{Splines} \citep{wang2021shape} allows semi-parametric estimation, using splines, in the R language.
     \item \textit{Mediate} \citep{tingley2014mediation} automates the sequential-ignorability estimates of CM effects \citep{imai2010identification} in the R language.
 \end{itemize}
-
 
 \begin{figure}[h!]
     \caption{Point Estimates of CM Effects, OLS and Control Function versus True Value.}
