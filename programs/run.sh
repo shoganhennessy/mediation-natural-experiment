@@ -17,11 +17,7 @@ R CMD BATCH --no-save heckit-sim.R
 R CMD BATCH --no-save heckit-plot.R
 # Run the semi-parametric simulation, and plot its results
 R CMD BATCH --no-save semiparametric-sim.R
-
-# Run the Roy selection simulation
-R CMD BATCH --no-save roy-sim.R
-# Present the results
-R CMD BATCH --no-save plot-sim.R
+R CMD BATCH --no-save semiparametric-plot.R
 # Go back to base folder.
 cd ..
 

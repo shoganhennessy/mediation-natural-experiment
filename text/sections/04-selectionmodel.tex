@@ -54,9 +54,9 @@ The identification strategy here applies to the general case that the distributi
 I focus on the equivalent transformed model of \cite{heckman2005structural},
 \[ D_i(z') = \indicator{ \pi(z'; \vec X_i) \geq U_i},
     \;\;\; \text{for } z'=0,1 \]
-where $U_i \coloneqq F_V\left( V_i \mid \vec X_i \right)$ follows a uniform distribution conditional, and $\pi(z'; \vec X_i) = F_V\big(\psi(z'; \vec X_i)\big) = \Probgiven{D_i = 1}{Z_i = z', \vec X_i}$ is the mediator propensity score.
+where $U_i \coloneqq F_V\left( V_i \mid \vec X_i \right)$ follows a uniform distribution, and $\pi(z'; \vec X_i) = F_V\big(\psi(z'; \vec X_i)\big) = \Probgiven{D_i = 1}{Z_i = z', \vec X_i}$ is the mediator propensity score.
 $U_i$ are the unobserved mediator take-up costs.
-Note the maintained assumption that treatment $Z_i$ is ignorable (conditional on $\vec X_i$) implies $Z_i \indep U_i$ conditional on $\vec X_i$.
+Note the maintained assumption that treatment $Z_i$ is ignorable conditional on $\vec X_i$ implies $Z_i \indep U_i$ conditional on $\vec X_i$.
 
 This selection model setup is equivalent to the monotonicity condition, and is importing a well-known equivalence result from the instrumental variables literature to the CM setting.
 The main conceptual difference is not assuming $Z_i$ is a valid instrument for identifying $D \to Y$ effects among compliers; it is using the selection model representation to correct for selection bias.

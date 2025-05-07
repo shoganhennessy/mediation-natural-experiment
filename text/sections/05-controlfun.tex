@@ -1,16 +1,70 @@
 \section{Control Function (CF) Estimation of CM Effects}
 \label{sec:controlfun}
-This paper only considers a modern two-stage approach to selection models --- also known as a control function approach.
-Indeed, the conventional approach to estimating CM effects already uses a two-stage estimation procedure to estimate the first and second-stages.
-It is a simple, and intuition addition to include a two-stage control function adjustment to CM estimation.
+A conventional approach to estimating CM effects involves a two-stage approach to estimating the ADE and the AIE: the first-stage $Z \to D$ and the second-stage $Z, D \to Y$.
+A CF approach is a simple and intuitive addition to this approach: including a CF adjustment in the second-stage regression to address selection-into-mediator. 
 
-Go through the steps of a Heckman selection model,  and the corresponding SEs + reference $\sqrt{n}$-consistency.
+This section presents two practical estimation strategies.
+First, I demonstrate how to estimate CM effects with an assumed distribution of error terms, focusing on the Heckman selection model as the leading case.
+Second, I consider a more flexible semi-parametric approach that avoids distributional assumptions --- at the cost of having to estimate the corresponding CFs.
+While both methods effectively address the selection bias issues detailed in previous sections, they differ in their implementation complexity, efficiency, and underlying assumptions.
+
+\subsection{Parametric CF}
+The Heckman selection model offers a straightforward approach to estimating CM effects when mediator selection follows the Roy model framework. This two-stage procedure first models selection explicitly and then corrects for it in the outcome equation.
+
+Consider our structural causal model with treatment $Z_i$, mediator $D_i$, and outcome $Y_i$. The first stage estimates mediator take-up using a probit model:
+
+\begin{equation}
+D_i = \mathbf{1}\{\pi_0 + \pi_1 Z_i + \pi_2' X_i + U_i > 0\}
+\end{equation}
+
+From this probit estimation, we construct inverse Mills ratio terms to serve as control functions. These terms capture the correlation between unobserved factors influencing both mediator selection and outcomes:
+
+\begin{align}
+\lambda_1(Z_i,X_i) &= \frac{\phi(\hat{\pi}_0 + \hat{\pi}_1 Z_i + \hat{\pi}_2' X_i)}{\Phi(\hat{\pi}_0 + \hat{\pi}_1 Z_i + \hat{\pi}_2' X_i)} \quad \text{for } D_i = 1 \\
+\lambda_0(Z_i,X_i) &= -\frac{\phi(\hat{\pi}_0 + \hat{\pi}_1 Z_i + \hat{\pi}_2' X_i)}{1-\Phi(\hat{\pi}_0 + \hat{\pi}_1 Z_i + \hat{\pi}_2' X_i)} \quad \text{for } D_i = 0
+\end{align}
+
+where $\phi$ and $\Phi$ are the standard normal density and cumulative distribution functions, respectively.
+
+The second stage augments our outcome equation with these control functions:
+
+\begin{equation}
+Y_i = \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i + \zeta' X_i + (1-D_i)\rho_0 \lambda_0(Z_i,X_i) + D_i \rho_1 \lambda_1(Z_i,X_i) + \varepsilon_i
+\end{equation}
+
+This specification allows us to consistently estimate the coefficients needed for the ADE and AIE:
+
+\begin{align}
+\widehat{ADE} &= \hat{\gamma} + \hat{\delta}E[D_i] \\
+\widehat{AIE} &= \hat{\pi}_1(\hat{\beta} + \hat{\delta}E[Z_i] + E[\lambda_1(\cdot) - \lambda_0(\cdot)])
+\end{align}
+
+The standard errors for these mediation effects can be computed using the delta method (Heckman, 1979). Specifically, we account for both the sampling variability in the coefficient estimates and the fact that the control functions themselves are estimated. This approach yields $\sqrt{n}$-consistent estimates when the underlying error terms follow a bivariate normal distribution.
+
+In practice, the Heckman selection approach is simple to implement using standard statistical packages. The key advantage is computational simplicity and efficiency, particularly in moderate-sized samples. However, this comes at the cost of potentially strong distributional assumptions. If the error terms deviate substantially from joint normality, the estimates may be biased.
+
+\subsection{Semi-parametric CF}
 Note Nancy Heckamn (1986) gives $\sqrt{n}$-consistency of splines.
 The two-stage semi-parametric procedure of Robinson (1988) is not appropriate, as we want the $\lambda_1(.)$ function, too.
 
+
+For settings where researchers are concerned about distributional assumptions, a semi-parametric control function approach offers greater flexibility. Following Newey and Imbens (2009), this method maintains the same identification strategy but avoids assuming a specific parametric error distribution.
+
+It's worth noting that this approach is essentially an MTE approach (Marginal Treatment Effect, developed by Heckman and Vytlacil, 1999, 2005) applied to a causal mediation setting. Just as the semi-parametric local IV approach uses variation in instruments to identify marginal treatment effects across different resistance-to-treatment margins, our semi-parametric CF approach identifies mediation effects across the distribution of unobserved mediator gains. This connection to the MTE literature provides a conceptual bridge between the instrumental variables literature and causal mediation analysis.
+
+The first stage estimates the mediator equation using flexible methods:
+\[ \Egiven{D_i}{Z_i, \vec X_i^-, \vec X_i^{\text{IV}}}
+    = \pi\left(Z_i, \vec X_i^-, \vec X_i^{\text{IV}} \right) \]
+
+Where $g(\cdot)$ is a flexible function that can be estimated using series approximation, kernel methods, or machine learning approaches. Here, $X_i^{IV}$ represents instrumental variables that affect mediator costs but not benefits, and $X_i^{-}$ represents other control variables. The
+
+
+
+
 \subsection{Simulation Evidence}
 The following simulation gives an example to show how this method works in practice.
-Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from the following data generating processes, for $i = 1, \hdots, N$.
+Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from the following data generating processes, for $i = 1, \hdots, N$, with 
+$N = 1,000$ for this simulation.
 \begin{align*}
     Z_i \sim \text{Binom}\left(0.5 \right),
     \;\; \vec X_i^- \sim N(4, 1),
@@ -19,9 +73,8 @@ Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from
     \text{BivariateNormal}\left( 0, 0, \sigma_0, \sigma_1, \rho \right),
     \;\; U_{C,i} \sim N(0, 0.5).
 \end{align*}
-$N = 10,000$ allows the large sample properties of the approach to operate; indeed, smaller sample sizes may not.
 
-Suppose each $i$ chooses to take mediator $D_i$ by a Roy model, with following mean definitions for each $z', d' = 0, 1$.
+Each $i$ chooses to take mediator $D_i$ by a Roy model, with following mean definitions for each $z', d' = 0, 1$.
 \begin{align*}
     D_i(z') = \indicator{Y_i(z', 1) - Y_i(z', 0) \geq C_i},  \\
     \mu_{d'}\left(z' ; \vec X_i \right) = \vec X_i^- + \left( z' + d' + z' d' \right),
@@ -48,8 +101,32 @@ Thus, a standard OLS (selection-on-observables) approach to CM does not give an 
 Instead, the OLS approach gives biased inference.
 The bias in OLS estimates comes from the unobserved error terms being related.
 
-The CF estimator here uses the inverse Mills ratio as the CFs (i.e., a Heckman selection model); in-progress work develops a constrained semi-parametric approach to model $\lambda_0$ (and thus $\lambda_1$) to avoid distributional assumptions.
-\autoref{fig:cm-heckit-dist} shows the distribution of simulated point estimates in this simulation, showing OLS against the CF approach.
+\begin{figure}[h!]
+    \caption{Simulated Distribution of CM Effect Estimates, Semi-parametric versus OLS, Relative to True Value.}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{$\hat{\text{ADE}} - \text{ADE}$.}
+        \includegraphics[width=\textwidth]{
+            ../programs/simulations/sim-output/semiparametric-direct-dist.png}
+    \end{subfigure}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{$\hat{\text{AIE}} - \text{AIE}$.}
+        \includegraphics[width=\textwidth]{
+            ../programs/simulations/sim-output/semiparametric-indirect-dist.png}
+    \end{subfigure}
+    \label{fig:cm-semiparametric-dist}
+    \justify
+    \footnotesize    
+    \textbf{Note:}
+    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms (further described in \autoref{sec:controlfun}).
+    The black dashed line is the true value;
+    orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
+    and green estimates with a two-stage semi-parametric CF.
+\end{figure}
+
+The CF estimator here uses the inverse Mills ratio as the CFs (i.e., a Heckman selection model); the constrained semi-parametric approach models $\lambda_0$ (and thus $\lambda_1$) to avoid distributional assumptions.
+\autoref{fig:cm-semiparametric-dist} shows the distribution of simulated point estimates in this simulation, showing OLS against the CF approach.
 The OLS approach implicitly assumes that the mediator is ignorable (when it is not), so its point estimates under and over-estimate the true ADE and AIE, respectively.
 The distance between the OLS estimates and the true values are the underlying bias terms derived in \autoref{thm:selection-bias}.
 In this data generating process, the OLS confidence interval do not overlap the true values for any standard level of significance.
@@ -84,7 +161,7 @@ The error terms determine the bias in OLS estimates of the ADE and AIE, so the b
     The CF approach avoids this assumption, and bias from breaking it, by relying on an instrument.
 }
 \autoref{fig:rho-bias} shows CF estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstraps.
-The point estimates of the CF do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations, as in \autoref{fig:cm-heckit-dist}).
+The point estimates of the CF do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations, as in \autoref{fig:cm-semiparametric-dist}).
 The CF approach improves on OLS estimates by correcting for bias, with confidence regions overlapping the true values.\footnote{
     The code behind this simulation estimates the first-stage with an interacted OLS specification.
     The second-stage is an OLS specification, including the CFs.

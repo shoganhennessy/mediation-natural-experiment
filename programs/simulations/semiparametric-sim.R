@@ -200,70 +200,39 @@ mediate.semiparametric <- function(example.data){
     P <- predict(cf_firststage.reg, type = "response")
     P_0 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
     P_1 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
+    # 2. Second-stage, with semi-parametric CF.
     example.data$intercept <- 1
     example.data$P <- P
-    # 2. Second-stage, with semi-parametric CF in D = 1 sample.
-    # 2.1 Estimate \lambda_1
+    # (1) Estimate \lambda_1 in D = 1 sample.
     cf_D1_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
         bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
         data = filter(example.data, D == 1))
     example.data$hat_lambda_1 <- predict(cf_D1_semi.reg,
         newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0))
-    # 2.2  Use the CFs in the estimation
+    # (2) Use the CFs in the estimation
+    # Compose the cross-estimates of \tilde \lambda_1(pi)
     example.data$lambda_0 <- (1 - example.data$D) * (-P / (1 - P)) * example.data$hat_lambda_1
     example.data$lambda_1 <- example.data$D * example.data$hat_lambda_1
-    cf_secondstage_D1.reg <- lm(I(Y - lambda_1) ~ (1 + Z * D) + X_minus + lambda_0,
+    # Second-stage, including the control functions lambda_0, lambda_1
+    cf_secondstage.reg <- lm(I(Y - lambda_1) ~ (1 + Z * D) + X_minus + lambda_0,
         data = example.data)
     # Take the \tilde\rho = rho_0 / rho_1 estimate.
-    hat_rho_D1 <- coef(cf_secondstage_D1.reg)["lambda_0"]
+    tilde_rho <- coef(cf_secondstage.reg)["lambda_0"]
     # Lastly, the complier adjustment.
     hat_lambda_1_P_0 <- predict(cf_D1_semi.reg,
         newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
     hat_lambda_1_P_1 <- predict(cf_D1_semi.reg,
         newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
-    Gamma_D1.big <- (P_1 * hat_lambda_1_P_1 - P_0 * hat_lambda_1_P_0) / (P_1 - P_0)
-    add_D1.term <- (1 - hat_rho_D1) * Gamma_D1.big
-    # Get the D = 1 estimates.
-    D1.est <- estimated.values(cf_firststage.reg, cf_secondstage_D1.reg,
-        example.data, complier.adjustment = add_D1.term)
-    ## 3. Second-stage, with semi-parametric CF in D = 0 sample.
-    # 3.1 Estimate \lambda_1
-    #cf_D0_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
-    #    bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
-    #    data = filter(example.data, D == 0))
-    #example.data$hat_lambda_0 <- predict(cf_D0_semi.reg,
-    #    newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0))
-    ## 3.2  Use the CFs in the estimation
-    #example.data$lambda_0 <- (1 - example.data$D) * example.data$hat_lambda_0
-    #example.data$lambda_1 <- example.data$D * (-(1 - P) / P) * example.data$hat_lambda_0
-    #cf_secondstage_D0.reg <- lm(I(Y - lambda_0) ~ (1 + Z * D) + X_minus + lambda_1,
-    #    data = example.data)
-    ## Take the \tilde\rho^-1 = rho_1 / rho_0 estimate.
-    #hat_rho_D0 <- coef(cf_secondstage_D0.reg)["lambda_1"]
-    ## Lastly, the complier adjustment.
-    #hat_lambda_0_P_0 <- predict(cf_D0_semi.reg,
-    #    newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
-    #hat_lambda_0_P_1 <- predict(cf_D0_semi.reg,
-    #    newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
-    #Gamma_D0.big <- ((1 - P_0) * hat_lambda_0_P_0 - (1 - P_1) * hat_lambda_0_P_1) / (P_1 - P_0)
-    #add_D0.term <- (1 - hat_rho_D0) * Gamma_D0.big
-    ## Get the D = 0 estimates.
-    #D0.est <- estimated.values(cf_firststage.reg, cf_secondstage_D0.reg,
-    #    example.data, complier.adjustment = add_D0.term)
-    ## COmpose the off-setting estimates.
-    #mean.D1 <- mean(example.data$D)
-    #mean.D0 <- 1 - mean.D1
-    #firststage.est <- mean.D0 * D1.est$"first-stage"     + mean.D1 * D0.est$"first-stage" 
-    #direct.est <-     mean.D0 * D1.est$"direct-effect"   + mean.D1 * D0.est$"direct-effect"
-    #indirect.est <-   mean.D0 * D1.est$"indirect-effect" + mean.D1 * D0.est$"indirect-effect"
-    firststage.est <- D1.est$"first-stage" 
-    direct.est <-     D1.est$"direct-effect"
-    indirect.est <-   D1.est$"indirect-effect"
+    complier.adjustment <- (1 - tilde_rho) * (
+        P_1 * hat_lambda_1_P_1 - P_0 * hat_lambda_1_P_0) / (P_1 - P_0)
+    # Show how it gets these correct (with complier adjustment).
+    cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg,
+        example.data, complier.adjustment = complier.adjustment)
     # Return the off-setting estimates.
     output.list <- list(
-        "first-stage"     = firststage.est,
-        "direct-effect"   = direct.est,
-        "indirect-effect" = indirect.est)
+        "first-stage"     = cf.est$"first-stage",
+        "direct-effect"   = cf.est$"direct-effect",
+        "indirect-effect" = cf.est$"indirect-effect")
     return(output.list)
 }
 
@@ -414,6 +383,7 @@ P_1 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type 
 # Second-stage, with semi-parametric CF.
 simulated.data$intercept <- 1
 simulated.data$P <- P
+
 # (1) Estimate \lambda_1 in D = 1 sample.
 cf_D1_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
     bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
@@ -430,19 +400,107 @@ cf_secondstage.reg <- lm(I(Y - lambda_1) ~ (1 + Z * D) + X_minus + lambda_0,
     data = simulated.data)
 print(summary(cf_secondstage.reg))
 # Take the \tilde\rho = rho_0 / rho_1 estimate.
-hat_rho <- coef(cf_secondstage.reg)["lambda_0"]
+tilde_rho <- coef(cf_secondstage.reg)["lambda_0"]
 # Lastly, the complier adjustment.
 hat_lambda_1_P_0 <- predict(cf_D1_semi.reg,
     newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
 hat_lambda_1_P_1 <- predict(cf_D1_semi.reg,
     newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
-complier.adjustment <- (1 - hat_rho) * (
+complier.adjustment <- (1 - tilde_rho) * (
     P_1 * hat_lambda_1_P_1 - P_0 * hat_lambda_1_P_0) / (P_1 - P_0)
 
 # Show how it gets these correct (with complier adjustment).
 print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
     complier.adjustment = complier.adjustment))
+
+#! Unsure why the D = 0 and D = 1 crossing does not work -> but it's still very close.
+
+# 2. Same exact thing, swapping for the lambda_0 estimation.
+cf_D0_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
+    bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
+    data = filter(simulated.data, D == 0))
+print(summary(cf_D0_semi.reg))
+simulated.data$hat_lambda_0 <- predict(cf_D0_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0))
+# (2) Use the CFs in the estimation
+# Compose the cross-estimates of \tilde \lambda_1(pi)
+simulated.data$lambda_0 <- (1 - simulated.data$D) * simulated.data$hat_lambda_0
+simulated.data$lambda_1 <- simulated.data$D * (-(1 - P) / P) * simulated.data$hat_lambda_0
+# Second-stage, including the control functions lambda_0, lambda_1
+cf_secondstage.reg <- lm(I(Y - lambda_0) ~ (1 + Z * D) + X_minus + lambda_1,
+    data = simulated.data)
+print(summary(cf_secondstage.reg))
+# Take the \tilde\rho = rho_1 / rho_0 estimate.
+tilde_rho <- coef(cf_secondstage.reg)["lambda_1"]
+# Lastly, the complier adjustment.
+hat_lambda_0_P_0 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
+hat_lambda_0_P_1 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
+complier.adjustment <- (tilde_rho - 1) * (
+    (1 - P_0) * hat_lambda_0_P_0 - (1 - P_1) * hat_lambda_0_P_1) / (P_1 - P_0)
+
+# Show how it gets these correct (with complier adjustment).
+print(theoretical.values(simulated.data))
+print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
+    complier.adjustment = complier.adjustment))
+
+
+#! Test: avoiding the lambda extrapolation by substituting lambda_1 = ...
+cf_firststage.reg <- gam(D ~ 1 + Z + s(X_IV) + s(X_minus),
+    family = binomial, data = simulated.data)
+print(summary(cf_firststage.reg))
+P <- predict(cf_firststage.reg, type = "response")
+P_0 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+P_1 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response")
+# Second-stage, with semi-parametric CF.
+simulated.data$intercept <- 1
+simulated.data$P <- P
+# Estimate \lambda_0
+cf_D0_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
+    bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
+    data = filter(simulated.data, D == 0))
+simulated.data$hat_lambda_0 <- predict(cf_D0_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0))
+# Estimate \tilde \rho = rho_1 / rho_0 - 1.
+simulated.data$rho_interaction <- simulated.data$D * (
+    (-(1 - simulated.data$P) / simulated.data$P) - 1) * simulated.data$hat_lambda_0
+cf_D1.reg <- lm(I(Y - hat_lambda_0) ~ (1 + Z * D) + X_minus +
+    rho_interaction,
+    data = simulated.data)
+tilde_rho_D1 <- coef(cf_D1.reg)["rho_interaction"]
+# Get the complier adjustment, from the lambda_0 values.
+hat_lambda_0_P_0 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
+hat_lambda_0_P_1 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
+complier.adjustment <- tilde_rho_D1 * (
+    (1 - P_0) * hat_lambda_0_P_0 - (1 - P_1) * hat_lambda_0_P_1) / (P_1 - P_0)
+
+# Estimate \lambda_1
+cf_D1_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
+    bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
+    data = filter(simulated.data, D == 1))
+simulated.data$hat_lambda_1 <- predict(cf_D0_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0))
+# Estimate \tilde \rho = rho_1 / rho_0 - 1.
+simulated.data$rho_interaction <- simulated.data$D * (
+    1 + (simulated.data$P / (1 - simulated.data$P))) * simulated.data$hat_lambda_1
+cf_D1.reg <- lm(I(Y - (hat_lambda_1 * (-P / (1 - P)))) ~ (1 + Z * D) + X_minus +
+    rho_interaction,
+    data = simulated.data)
+tilde_rho_D1 <- coef(cf_D1.reg)["rho_interaction"]
+
+# Show how it gets these correct (with complier adjustment).
+print(theoretical.values(simulated.data))
+print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
+    complier.adjustment = complier.adjustment))
+
+
+
+
+
 
 
 ################################################################################
@@ -459,6 +517,8 @@ sim.data <- sim.est$data
 
 #! Validate correct estimation
 print(mean(sim.data$cf_indirect_effect - sim.data$truth_indirect_effect))
+print(mean(sim.data$cf_direct_effect - sim.data$truth_direct_effect))
+
 #! Show the SDs, OLS vs CF
 print(sd(sim.data$ols_indirect_effect))
 print(sd(sim.data$cf_indirect_effect))

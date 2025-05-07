@@ -16,11 +16,11 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > #!/usr/bin/R
-> ## Senan Hogan-Hennessy, 20 Jan 2025
-> ## Plot the estimates for indirect + direct effects, with Heckman correction.
+> ## Senan Hogan-Hennessy, 7 May 2025
+> ## Plot the estimates for indirect + direct effects, with semi-parametric CF.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "16:41 EDT Wednesday, 07 May 2025"
+[1] "16:46 EDT Wednesday, 07 May 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -50,14 +50,14 @@ Type 'q()' to quit R.
 > fig.height <- 10
 > fig.width <- fig.height
 > # Define colours to use.
-> colour.list <- c("orange", "blue")
+> colour.list <- c("orange", "#2ca02c") # Green
 > 
 > 
 > ################################################################################
 > ## Load the simulated data.  (saved as separate file in advance.)
 > 
 > # Load data from DGP-strapping 10,000 times.
-> sim.data <- read_csv(file.path(output.folder, "dist-heckit-data.csv"))
+> sim.data <- read_csv(file.path(output.folder, "dist-semiparametric-data.csv"))
 Rows: 10000 Columns: 6
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
@@ -65,18 +65,23 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-> print(head(sim.data))
-# A tibble: 6 × 6
-  truth_direct_effect ols_direct_effect cf_direct_effect truth_indirect_effect
-                <dbl>             <dbl>            <dbl>                 <dbl>
-1                1.38             0.977             1.17                 0.794
-2                1.38             0.840             1.32                 0.827
-3                1.40             0.861             1.33                 0.818
-4                1.38             0.973             1.28                 0.769
-5                1.38             0.899             1.42                 0.750
-6                1.42             1.17              1.40                 0.732
+> print(sim.data)
+# A tibble: 10,000 × 6
+   truth_direct_effect ols_direct_effect cf_direct_effect truth_indirect_effect
+                 <dbl>             <dbl>            <dbl>                 <dbl>
+ 1                1.42             1.04              1.42                 0.853
+ 2                1.40             0.959             1.44                 0.918
+ 3                1.39             1.07              1.49                 0.820
+ 4                1.38             0.981             1.17                 0.826
+ 5                1.39             0.956             1.44                 0.848
+ 6                1.37             1.14              1.29                 0.834
+ 7                1.40             1.05              1.23                 0.847
+ 8                1.39             1.15              1.20                 0.795
+ 9                1.39             1.19              1.44                 0.739
+10                1.41             1.06              1.42                 0.801
+# ℹ 9,990 more rows
 # ℹ 2 more variables: ols_indirect_effect <dbl>, cf_indirect_effect <dbl>
-> #View(sim.data)
+> #View(head(sim.data)
 > 
 > 
 > ################################################################################
@@ -106,7 +111,7 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 +     annotate("text", colour = colour.list[2],
 +         x = 0.5, y = 2.5,
 +         fontface = "bold",
-+         label = ("Parametric CF"),
++         label = ("Semi-parametric CF"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[2],
 +         x = 0.5, y = 2.375,
@@ -129,7 +134,7 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 +         plot.title.position = "plot",
 +         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
 > # Save this plot
-> ggsave(file.path(output.folder, "heckit-direct-dist.png"),
+> ggsave(file.path(output.folder, "semiparametric-direct-dist.png"),
 +     plot = direct_dist.plot,
 +     units = "cm", width = fig.width, height = fig.height)
 > 
@@ -160,13 +165,13 @@ dbl (6): truth_direct_effect, ols_direct_effect, cf_direct_effect, truth_ind...
 +         plot.title.position = "plot",
 +         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
 > # Save this plot
-> ggsave(file.path(output.folder, "heckit-indirect-dist.png"),
+> ggsave(file.path(output.folder, "semiparametric-indirect-dist.png"),
 +     plot = indirect_dist.plot,
 +     units = "cm", width = fig.width, height = fig.height)
+Warning message:
+Removed 8 rows containing non-finite outside the scale range
+(`stat_density()`). 
 > 
-> 
-> #! Below is unfinished.
-> quit("no")
 > proc.time()
    user  system elapsed 
-  2.595   0.183   2.875 
+  2.545   0.189   2.720 
