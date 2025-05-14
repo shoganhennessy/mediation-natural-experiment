@@ -370,6 +370,9 @@ print(theoretical.values(simulated.data))
 print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 
 
+#TODO: do it with log normal, instead of normal
+#TODO: compare the Heckman selection model results too (the equivalence result should not hold?)
+
 ################################################################################
 ## Semi-parametric approach.
 

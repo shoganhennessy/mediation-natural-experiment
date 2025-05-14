@@ -52,7 +52,7 @@ See \aref{appendix:regression-model} for the derivation.
     \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\varphi(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
     \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the AIE local to $Z_i = 0$.
     \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the ADE local to $D_i = 0$.
-    \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)- \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)$ is the average interaction effect.
+    \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) - \big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big)$ is the average interaction effect.
     \item $\left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}$ is the disruptive error term.
 \end{enumerate}
 
@@ -63,7 +63,7 @@ The ADE and AIE are averages of these regression coefficients.
         &= \E{\gamma + \delta D_i}, \\
     \text{AIE}
     %= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{ \bar \pi \left( \beta +  \delta Z_i + \tilde U_i \right)},
+        &= \E{ \bar \pi \big( \beta +  \delta Z_i + \tilde U_i \big)},
         \;\;\;\; \text{ with } \tilde U_i
             = \underbrace{\Egiven{ U_{1,i} - U_{0,i}}{
                 \vec X_i, D_i(1) = 1, D_i(0) = 0}}_{
