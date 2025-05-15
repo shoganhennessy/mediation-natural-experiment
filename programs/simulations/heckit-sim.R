@@ -194,7 +194,7 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data,
     return(output.list)
 }
 
-# Define a function to Heckman selection correct mediation est, two-stages.
+# Define a function to Heckman selection correct mediation est, in two-stages.
 mediate.heckit <- function(example.data){
     # 1. Probit first-stage (well identified).
     cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
@@ -231,7 +231,7 @@ mediate.heckit <- function(example.data){
 estimated.loop <- function(boot.reps, example.data,
         bootstrap = TRUE, print.progress = FALSE,
         # Default data parameters
-        rho = 0.5, sigma_0 = 1, sigma_1 = 3, sigma_C = 2) {
+        rho = 0.5, sigma_0 = 1, sigma_1 = 2, sigma_C = 2) {
     # Define lists the will be returned:
     # 2. Naive OLS.
     ols_direct_effect <- c()
@@ -254,7 +254,7 @@ estimated.loop <- function(boot.reps, example.data,
         }
         # If a regular re-simulation, get new data.
         else if (bootstrap == FALSE){
-            boot.data <- simulate.data(0.5, 1, 2, 2)
+            boot.data <- simulate.data(0.5, 1, 3, 2)
             # Update the truth values to the newest simulated data, if so.
             truth.est <- theoretical.values(boot.data)
         }
@@ -366,6 +366,10 @@ ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
 print(theoretical.values(simulated.data))
 print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
 
+
+################################################################################
+## Testing out a Heckman selection model.
+
 # Show how a control function gets it correct, in 2 steps.
 cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
     family = binomial(link = "probit"),
@@ -386,7 +390,49 @@ print(theoretical.values(simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data))
 print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
     complier.adjustment = mediate.heckit(simulated.data)$"complier-adjustment"))
-#todo: Explore the complier comensation in semi-parametric spline approach.
+
+
+################################################################################
+## Testing out the Semi-parametric approach.
+
+# 1. Non-parametric first-stage.
+cf_firststage.reg <- gam(D ~ 1 + Z + s(X_IV) + s(X_minus),
+    family = binomial, data = simulated.data)
+print(summary(cf_firststage.reg))
+P <- predict(cf_firststage.reg, type = "response")
+P_0 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 0), type = "response")
+P_1 <- predict(cf_firststage.reg, newdata = mutate(simulated.data, Z = 1), type = "response")
+# Second-stage, with semi-parametric CF.
+simulated.data$intercept <- 1
+simulated.data$P <- P
+
+# (1) Estimate \lambda_1 in D = 1 sample.
+cf_D1_semi.reg <- lm(Y ~ (0 + intercept + Z) + X_minus +
+    bs(P, knots = seq(0, 1, by = 0.1), intercept = TRUE),
+    data = filter(simulated.data, D == 1))
+print(summary(cf_D1_semi.reg))
+simulated.data$hat_lambda_1 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0))
+# (2) Use the CFs in the estimation
+# Compose the cross-estimates of \tilde \lambda_1(pi)
+simulated.data$lambda_0 <- (1 - simulated.data$D) * (-P / (1 - P)) * simulated.data$hat_lambda_1
+simulated.data$lambda_1 <- simulated.data$D * simulated.data$hat_lambda_1
+# Second-stage, including the control functions lambda_0, lambda_1
+cf_secondstage.reg <- lm(I(Y - lambda_1) ~ (1 + Z * D) + X_minus + lambda_0,
+    data = simulated.data)
+print(summary(cf_secondstage.reg))
+# Take the \tilde\rho = rho_0 / rho_1 estimate.
+tilde_rho <- coef(cf_secondstage.reg)["lambda_0"]
+# Lastly, the complier adjustment.
+hat_lambda_1_P_0 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
+hat_lambda_1_P_1 <- predict(cf_D1_semi.reg,
+    newdata = mutate(simulated.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
+complier.adjustment <- (1 - tilde_rho) * (
+    P_1 * hat_lambda_1_P_1 - P_0 * hat_lambda_1_P_0) / (P_1 - P_0)
+
+print(estimated.values(cf_firststage.reg, cf_secondstage.reg, simulated.data,
+    complier.adjustment = complier.adjustment))
 
 
 ################################################################################

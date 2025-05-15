@@ -6,18 +6,17 @@
 # Note:
 # "R CMD BATCH" runs an Rscript, and logs output in a corresponding *.Rout file.
 
-
-
 ## Enact simulation evidence, and figures.
-# May need to run on the COrnell BioHPC/econ cluster node.
+# May need to run on the Cornell BioHPC/econ cluster node.
 # ssh ecco01@XXX.biohpc.cornell.edu
 cd simulations
+#! OLD: Heckman script superseded.
 # Run the Heckman correction simulation, and plot its results
-R CMD BATCH --no-save heckit-sim.R
-R CMD BATCH --no-save heckit-plot.R
+#R CMD BATCH --no-save heckit-sim.R
+#R CMD BATCH --no-save heckit-plot.R
 # Run the semi-parametric simulation, and plot its results
-R CMD BATCH --no-save semiparametric-sim.R
-R CMD BATCH --no-save semiparametric-plot.R
+R CMD BATCH --no-save cf-sim.R
+R CMD BATCH --no-save cf-plot.R
 # Go back to base folder.
 cd ..
 
