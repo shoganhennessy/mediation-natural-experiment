@@ -49,15 +49,15 @@ I focus on the averages, which are identified by consequence of the above.
 My estimand for the ADE is a simple rearrangement of the above.
 The estimand for the AIE relies on a different sequence, relying on (1) sequential ignorability, (2) conditional monotonicity.
 These give (1) identification equivalence of AIE local to cpmpliers conditional on $\vec X_i$ and AIE conditional on $\vec X_i$, LAIE $=$ AIE, (2) identification of the complier score.
-%, $\Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}$ $= \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i}
+%, $\Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}$ $= \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i}
 %- \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i}$.
 \begin{align*}
     & \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{\vec X_i} \\
-    & = \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}
-        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i} \\
-    & = \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}
+    & = \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}
+        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i} \\
+    & = \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}
         \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{\vec X_i} \\
-    & = \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}
+    & = \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}
         \; \Big( \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i}
             - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big) \\
     & = \Big( \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}
@@ -66,7 +66,7 @@ These give (1) identification equivalence of AIE local to cpmpliers conditional 
             - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)
 \end{align*}
 Monotonicity is not technically required for the above.
-Breaking monotonicity would not change the identification in any of the above; it would be the same except replacing the complier score with a complier/defier score, $\Probgiven{D_i(1) \neq D_i(0)}{\vec X_i} = \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$.
+Breaking monotonicity would not change the identification in any of the above; it would be the same except replacing the complier score with a complier/defier score, $\Probgiven{D_i(0) \neq D_i(1)}{\vec X_i} = \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$.
 
 %\subsection{Continuous Average Causal Responses}
 %\label{appendix:continuous}
@@ -82,14 +82,13 @@ Breaking monotonicity would not change the identification in any of the above; i
 %    Paper name 1.    
 %\end{tabular}
 
-\subsection{Bias in Mediation Estimates}
+\subsection{Bias in Causal Mediation (CM) Estimands}
 \label{appendix:mediation-bias}
 Suppose that $Z_i$ is ignorable conditional on $\vec X_i$, but $D_i$ is not.
 
-\subsubsection{Bias in Direct Effect Estimates}
+\subsubsection{Bias in the Average Direct Effect (ADE)}
 To show that the conventional approach to mediation gives an estimate for the ADE with selection and group difference-bias, start with the components of the conventional estimands.
-This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$.
-For each $d' =0, 1$.
+This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$ and $d' \in \{0, 1 \}$.
 \begin{align*}
     \Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i}
     =& \Egiven{Y_i(1, D_i(Z_i))}{D_i(1) = d', \vec X_i}, \\
@@ -100,10 +99,10 @@ And so,
 \begin{align*}
     &  \Egiven{Y_i}{Z_i = 1, D_i = d', \vec X_i}
     - \Egiven{Y_i}{Z_i = 0, D_i = d', \vec X_i} \\
-    =& \Egiven{Y_i(1, D_i(Z_i))}{D_i(1) = d', \vec X_i}
+    &= \Egiven{Y_i(1, D_i(Z_i))}{D_i(1) = d', \vec X_i}
     - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d', \vec X_i} \\
-    =& \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\
-    &+ \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i}
+    &= \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\
+    &\;\;\;\;+ \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i}
         - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d', \vec X_i}.
 \end{align*}
 The final term is a sum of the ADE, conditional on $D_i(1) = d'$, and a selection bias term --- difference in baseline outcomes between the (partially overlapping) groups for whom $D_i(1) = d'$ and $D_i(0) = d'$.
@@ -111,8 +110,8 @@ The final term is a sum of the ADE, conditional on $D_i(1) = d'$, and a selectio
 To reach the final term, note the following.
 \begin{align*}
     &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{\vec X_i} \\    
-    =& \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\
-    &+ \Big(1 - \Probgiven{D_i(1) = d'}{\vec X_i}\Big)
+    &= \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\
+    &\;\;\;\;+ \Big(1 - \Probgiven{D_i(1) = d'}{\vec X_i}\Big)
     \left( \begin{aligned}
         &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d', \vec X_i} \\ 
         & - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1 - d', \vec X_i}
@@ -140,25 +139,27 @@ Collect everything together, as follows.
 \end{align*}
 The proof is achieved by applying the expectation across $D_i = d'$, and $\vec X_i$.
 
-\subsubsection{Bias in Indirect Effect Estimates}
+\subsubsection{Bias in the Average Indirect Effect (AIE)}
 To show that the conventional approach to mediation gives an estimate for the AIE with selection and group difference-bias, start with the definition of the ADE --- the direct effect among compliers times the size of the complier group.
 
 This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$.
 \begin{align*}
     &\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{\vec X_i} \\
-    =& \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}
-        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i}
+    =& \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}
+        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i}
 \end{align*}
-When $D_i$ is not ignorable, the bias comes from estimating the second term,\\ $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i}$.
+When $D_i$ is not ignorable, the bias comes from estimating the second term,
+\\ $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i}$, the direct effect among mediator compliers.
 
-For each $z' =0, 1$.
+Let $z' \in \{ 0, 1 \}$.
+Again, note the mean outcomes in terms of average potential outcomes,
 \begin{align*}
     \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i}
     =& \Egiven{Y_i(z', 1)}{D_i = 1, \vec X_i}, \\
     \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i}
-    =& \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i}
+    =& \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i}.
 \end{align*}
-So compose the CM estimand, as follows.
+So compose the selection bias term, as follows.
 \begin{align*}
     & \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i}
     - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i} \\
@@ -167,9 +168,9 @@ So compose the CM estimand, as follows.
     =& \Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 1, \vec X_i}
     + \Egiven{Y_i(z', 0)}{D_i = 1, \vec X_i} - \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i}
 \end{align*}
-The final term is a sum of the AIE, among the treated group $D_i = 1$, and a selection bias term --- difference in baseline terms between the groups $D_i = 1$ and $D_i = 0$.
+The final term is a sum of the AIE, among the treated group $D_i = 1$, and a selection bias term --- difference in baseline potential outcomes between the groups for whom $D_i = 1$ and $D_i = 0$.
 
-The AIE is the direct effect among compliers times the size of the complier group, so we need to compensate for the difference between the treated group $D_i = 1$ and complier group $D_i(1)= 1, D_i(0) = 0$.
+The AIE is the direct effect among compliers times the size of the complier group, so we need to compensate for the difference between the treated group $D_i = 1$ and complier group $D_i(0) = 0, D_i(1) = 1$.
 
 Start with the difference between treated group's average and overall average.
 \begin{align*}
@@ -183,10 +184,10 @@ Start with the difference between treated group's average and overall average.
 \end{align*}
 Then the difference between the compliers' average and the overall average.
 \begin{align*}
-    & \Egiven{ Y_i(z', 1) - Y_i(z', 0)}{D_i(1) = 1, D_i(0) = 0, \vec X_i} \\
+    & \Egiven{ Y_i(z', 1) - Y_i(z', 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i} \\
     =& \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i} \\
-    & + \frac{1 - \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i} }{
-        \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}}
+    & + \frac{1 - \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i} }{
+        \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}}
     \left( \begin{aligned}
         &\Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i(1) = 0 \text{ or } D_i(0)=1, \vec X_i} \\ 
         &  - \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i}
@@ -210,8 +211,8 @@ Collect everything together, as follows.
             &\Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 1, \vec X_i} \\ 
             &  - \Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 0, \vec X_i}
         \end{aligned} \right) \\
-        &- \frac{1 - \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i} }{
-            \Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}} 
+        &- \frac{1 - \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i} }{
+            \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}} 
         \left( \begin{aligned}
             &\Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i(1) = 0 \text{ or } D_i(0)=1, \vec X_i} \\ 
             &  - \Egiven{Y_i(z', 1) - Y_i(z', 0)}{\vec X_i}
@@ -220,7 +221,7 @@ Collect everything together, as follows.
         \text{group difference-bias}}
 \end{align*}
 The proof is finally achieved by multiplying by the complier score, 
-$\Probgiven{D_i(1) = 1, D_i(0) = 0}{\vec X_i}$
+$\Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}$
 $= \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$,
 then applying the expectation across $Z_i = z'$, and $\vec X_i$.
 
@@ -471,9 +472,9 @@ where
 \end{itemize}
 
 The coefficient $\rho_0$ is the slope in the best linear predictor of $U_{0,i}$ given $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, and is chosen to ensure that the residual $\varepsilon_{0,i}$ is uncorrelated with $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$.
-This property is critical for our identification strategy, as it allows us to isolate the part of $U_{0,i}$ that is related to selection-into-$D_i$.
+This property is crucial for the identification strategy, as it isolates the component of $U_{i}$ that is related to selection-into-$D_i$.
 
-The non-zero covariance condition in \ref{thm:cf-identification} ensures $\rho_0 \neq 0$, so is relevant.
+The non-zero covariance condition in \ref{cf:identification} ensures $\rho_0 \neq 0$, so is relevant.
 Since $U_i$ and $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$ are related by a monotonic transformation (the inverse cumulative density function), the covariance $\text{Cov}(U_i, U_{0,i}) \neq 0$ implies $\text{Cov}(F_V^{-1}\left( U_i \mid \vec{X}_i \right), U_{0,i}) \neq 0$.
 
 Given the linear projection of $U_{0,i}$ onto $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, we can compute the conditional expectation:
@@ -492,11 +493,11 @@ The control function $\lambda_0\left(p'\right)$ captures the expected value of t
 
 The same sequence of steps for mediator takers, $D_i = 1$, gives the other CF:
 \[ \Egiven{U_{1,i}}{D_i=1, Z_i, \vec X_i} = \rho_1 \lambda_1\big(\pi(Z_i; \vec X_i)\big), \]
-where $\lambda_1 \left(p'\right) = \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p'}$ for $p' \in (0,1)$.
+where $\lambda_1 \left(p'\right) = \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p'}$ for $p' \in (0,1)$, and $\rho_1 = \frac{\Cov{U_{1,i}, F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}{\Var{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}$ is the corresponding projection coefficient.
 
 The relationship between $\lambda_0(p')$ and $\lambda_1(p')$ can be derived as:
 \[ \lambda_1 \left(p'\right) = -\lambda_0 \left(p'\right) \left( \frac{1-p'}{p'} \right), \text{ for } p' \in (0,1). \]
-This relationship ensures consistency in the CF approach across both groups \citep{kline2019heckits}.
+This relationship ensures consistency in the CF approach across the $D_i=0$ and $D_i= 1$ groups \citep{kline2019heckits}.
 
 Assumption \ref{cf:instrument} (mediator take-up cost instrument $\vec X_i^{\text{IV}}$) ensures identification of the propensity score function $\pi(z'; \vec X_i)$ in the first stage by providing valid instrumental variation.
 This variation allows us to identify the propensity score, and consequently the control functions $\lambda_0$ and $\lambda_1$.
@@ -512,11 +513,13 @@ Combining all elements, the conditional expectation of $Y_i$ given $Z_i, D_i, \v
         & \;\; + \left( 1 - D_i \right) \Egiven{U_{0,i}}{D_i = 0}
             + D_i \Egiven{U_{1,i}}{D_i = 1}.
 \end{align*}
-Substitute the CFs, as follows:
-\[ (1-D_i) \Egiven{ U_{0,i} }{Z_i, D_i, \vec X_i}
-    + D_i \Egiven{ U_{1,i}}{Z_i, D_i, \vec X_i}
-    = (1-D_i)\rho_0 \lambda_0 \big(\pi(Z_i; \vec X_i) \big)
-    + D_i \rho_1 \lambda_1 \big(\pi(Z_i; \vec X_i) \big). \]
+Substitute the CFs,
+\begin{align*}
+    &\;(1-D_i) \Egiven{ U_{0,i} }{Z_i, D_i=0, \vec X_i}
+        + D_i \Egiven{ U_{1,i}}{Z_i, D_i=1, \vec X_i} \\
+    =&\; (1-D_i)\rho_0 \lambda_0 \big(\pi(Z_i; \vec X_i) \big)
+    + D_i \rho_1 \lambda_1 \big(\pi(Z_i; \vec X_i) \big).
+\end{align*}
 This gives the final result,
 \begin{align*}
     \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
@@ -561,12 +564,12 @@ Identification is similar for the AIE, but also involves the complier adjustment
     &= (\rho_1 - \rho_0) \, \frac{\pi(1; \vec{X}_i)\lambda_1(\pi(1; \vec{X}_i)) - \pi(0; \vec{X}_i)\lambda_1(\pi(0; \vec{X}_i))}{\pi(1; \vec{X}_i) - \pi(0; \vec{X}_i)} \\
     &= (\rho_1 - \rho_0) \, \Egiven{ F_V^{-1}(U_i | \vec{X}_i) - \mu_V }{\pi(0; \vec{X}_i) < U_i \leq \pi(1; \vec{X}_i), \vec{X}_i} \\
     &= (\rho_1 - \rho_0) \, \Egiven{ F_V^{-1}(U_i | \vec{X}_i) - \mu_V }{
-        D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \\
+        D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \\
     &= \Egiven{ \rho_1 \big( F_V^{-1}(U_i | \vec{X}_i) - \mu_V \big) }{
-        D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \\
+        D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \\
     &\;\;\; - \Egiven{ \rho_0 \big( F_V^{-1}(U_i | \vec{X}_i) - \mu_V \big) }{
-        D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \\
-    &= \Egiven{ U_{1,i} - U_{0,i} }{D_i(1) = 1, D_i(0) = 0, \vec{X}_i}.
+        D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \\
+    &= \Egiven{ U_{1,i} - U_{0,i} }{D_i(0) = 0, D_i(1) = 1, \vec{X}_i}.
 \end{align*}
 This complier adjustment was first presented for an IV setting by \cite{kline2019heckits}.
 
@@ -577,19 +580,19 @@ Collecting for the AIE,
     &= \E{ \bar \pi \, \Bigg( \Big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \Big)
         +  Z_i \Big( \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)
             - \big(\mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big) \Big) \Bigg) } \\
-    &\;\;\;\; + \mathbb E \Big[ \bar \pi \; \Egiven{ U_{1,i} - U_{0,i} }{D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \Big] \\
+    &\;\;\;\; + \mathbb E \Big[ \bar \pi \; \Egiven{ U_{1,i} - U_{0,i} }{D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \Big] \\
     &= \E{ \bar \pi \, \Bigg(
         Z_i \Big( \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) \Big)
         + (1 - Z_i) \Big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \Big) \Bigg) } \\
-    &\;\;\;\; + \mathbb E \Big[ \bar \pi \; \Egiven{ U_{1,i} - U_{0,i} }{D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \Big] \\
+    &\;\;\;\; + \mathbb E \Big[ \bar \pi \; \Egiven{ U_{1,i} - U_{0,i} }{D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \Big] \\
     &= \E{ \bar \pi \, \Bigg(
         \mu_1(Z_i, \vec X_i) - \mu_0(Z_i, \vec X_i)
-        + \Egiven{ U_{1,i} - U_{0,i} }{D_i(1) = 1, D_i(0) = 0, \vec{X}_i} \Bigg) } \\
+        + \Egiven{ U_{1,i} - U_{0,i} }{D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \Bigg) } \\
     &= \E{ \bar \pi \; \Egiven{
         \mu_1(Z_i, \vec X_i) - \mu_0(Z_i, \vec X_i) + U_{1,i} - U_{0,i} }{
-            D_i(1) = 1, D_i(0) = 0, \vec{X}_i} } \\
+            D_i(0) = 0, D_i(1) = 1, \vec{X}_i} } \\
     &= \E{ \Egiven{D_i(1) - D_i(0)}{\vec X_i} \; \Egiven{
-        Y_i(Z_i, 1) - Y_i(Z_i, 0) }{ D_i(1) = 1, D_i(0) = 0, \vec{X}_i} } \\
+        Y_i(Z_i, 1) - Y_i(Z_i, 0) }{ D_i(0) = 0, D_i(1) = 1, \vec{X}_i} } \\
     &= \E{ \Egiven{Y_i(Z_i,D_i(1)) - Y_i(Z_i,D_i(0))}{\vec X_i} } \\
     &= \E{ Y_i(Z_i,D_i(1)) - Y_i(Z_i,D_i(0)) } \\
     &= \text{AIE}.

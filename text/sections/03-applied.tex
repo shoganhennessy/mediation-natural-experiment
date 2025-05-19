@@ -50,8 +50,8 @@ Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, a
 See \aref{appendix:regression-model} for the derivation.
 \begin{enumerate}[label=\textbf{(\alph*)}]
     \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\varphi(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
-    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the AIE local to $Z_i = 0$.
-    \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the ADE local to $D_i = 0$.
+    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the AIE conditional on $Z_i = 0$.
+    \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the ADE conditional on $D_i = 0$.
     \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) - \big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big)$ is the average interaction effect.
     \item $\left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}$ is the disruptive error term.
 \end{enumerate}
@@ -66,7 +66,7 @@ The ADE and AIE are averages of these regression coefficients.
         &= \E{ \bar \pi \big( \beta +  \delta Z_i + \tilde U_i \big)},
         \;\;\;\; \text{ with } \tilde U_i
             = \underbrace{\Egiven{ U_{1,i} - U_{0,i}}{
-                \vec X_i, D_i(1) = 1, D_i(0) = 0}}_{
+                \vec X_i, D_i(0) = 0, D_i(1) = 1}}_{
                     \text{Unobserved complier gains.}}.
 \end{align*}
 The ADE is a simple sum of the coefficients, while the AIE includes a group differences term because it only refers to $D(Z)$ compliers.
@@ -86,9 +86,11 @@ Write $C_i$ for individual $i$'s costs of taking mediator $D_i$, and $\indicator
 The Roy model has $i$ taking the mediator if the benefits exceed the costs,
 \begin{equation}
     \label{eqn:roy-model}
-    D_i \left( z' \right) = \indicator{
-    \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
-    \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1.
+    D_i \left( z' \right) = \indicator{ \;
+    \underbrace{C_i}_{\text{Costs}} \;\; \leq \;\;
+        \underbrace{
+            Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
+    \;}, \;\;\; \text{for } z'=0,1.
 \end{equation}
 
 The Roy model provides an intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome under study \citep{roy1951some,heckman1990empirical}.
@@ -100,11 +102,11 @@ This makes it particularly useful as a base case for CM, where selection-into-th
 % Additionally, the Roy model aligns well with many real-world settings, such as education or labour market participation, where decisions are based on a comparison of expected outcomes across alternatives. 
 By using the Roy model as a benchmark, I explore the practical limits of the mediator ignorability assumption.
 
-Decompose the costs into its mean and an error term, $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, to give a representation of Roy selection in terms of observed and unobserved factors,
+Decompose the costs into its mean and an error term, $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, to give a representation of Roy selection in terms of unobserved and observed factors,
 \[ D_i(z') = \indicator{
-    \mu_1(z'; \vec X_i) - \mu_0(z'; \vec X_i) - \mu_C(z'; \vec X_i)
-    \geq U_{C,i} - \big(U_{1,i} - U_{0,i}\big) }
-        , \;\;\; \text{for } z'=0,1. \]
+    U_{C,i} - \big(U_{1,i} - U_{0,i}\big) \leq
+        \mu_1(z'; \vec X_i) - \mu_0(z'; \vec X_i) - \mu_C(z'; \vec X_i)
+    }, \;\;\; \text{for } z'=0,1. \]
 
 If selection is Roy style, and the mediator is ignorable, then unobserved benefits play no part in selection.
 The only driver in differences in selection are differences in costs (and not benefits).

@@ -33,7 +33,7 @@ The resulting ADE and AIE estimates are composed from sample estimates of the te
     = \hat{\bar\pi}\; \Big(
         \hat{\beta} + \hat{\delta}\,\bar Z_i 
         + \hat \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i) \Big) \]
-where $\bar D_i = \frac1N \sum_{i=1}^N D_i$, $\bar Z_i = \frac1N \sum_{i=1}^N Z_i$, and $\hat\pi \big(z';\vec X_i \big) = \Phi \big( \hat\phi + \hat{\bar\pi} z' + \hat{\vec\zeta}' \vec X_i \big)$ are the predictions for the probit first-stage, and $\hat\Gamma(.,.)$ is the estimate of the complier adjustment term using the estimated CF $\hat\lambda_1$.
+where $\bar D_i = \frac1N \sum_{i=1}^N D_i$, $\bar Z_i = \frac1N \sum_{i=1}^N Z_i$, and $\hat\pi \big(z';\vec X_i \big) = \Phi \big( \hat\phi + \hat{\bar\pi} z' + \hat{\vec\zeta}' \vec X_i \big)$ are the predictions for the probit first-stage, and $\hat\Gamma(.,.)$ is the estimate of the complier adjustment term using the estimated CF, $\hat\lambda_1$.
 
 The standard errors for estimates can be computed using the delta method \citep{heckman1979sample}.
 Specifically, we account for both the sampling variability in the coefficient estimates and the fact that the CFs themselves are estimated in the first-stage.
@@ -76,6 +76,7 @@ If you have large uncertainty in your treatment effect, then expect large uncert
 There is no avoiding the fact that a noisy ATE estimate (especially if close to zero) will mean noisy estimates of AIE / ATE.  
 
 \subsection{Simulation Evidence}
+\label{sec:simulations}
 The following simulation gives an example to show how this method works in practice.
 Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from the following data generating processes, for $i = 1, \hdots, N$, with 
 $N = 500$ for this simulation.

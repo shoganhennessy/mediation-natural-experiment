@@ -23,14 +23,14 @@ Assume $Z_i$ is ignorable.\footnote{
     This assumption can hold conditional on covariates.
     To simplify notation in this section, leave the conditional part unsaid, as it changes no part of the identification framework.
 }
-\[ Z_i \indep  D_i(z), Y_i(z', d), \text{ for } z, z', d = 0, 1 \]
+\[ Z_i \indep  D_i(z'), Y_i(z, d'), \text{ for } z', z, d' = 0, 1 \]
 
 There are only two average effects which are identified (without additional assumptions).
 \begin{enumerate}
     \item The average first-stage refers to the effect of the treatment on mediator, $Z \to D$:
     \[ \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0}
         = \E{D_i(1) - D_i(0)}. \]
-    It is common in the economics literature to assume that $Z$ influences $D$ in at most one direction, $\Prob{D_i(1) \geq D_i(0)} = 1$ --- monotonicity \citep{imbens1994identification}.
+    It is common in the economics literature to assume that $Z$ influences $D$ in at most one direction, $\Prob{D_i(0) \leq D_i(1)} = 1$ --- monotonicity \citep{imbens1994identification}.
     I assume mediator monotonicity (and its conditional variant) holds throughout to simplify notation.
     %\footnote{
     %    Assuming monotonicity also brings closer to the IV notation, and has other beneficial implications in this setting (see \autoref{sec:controlfun}).
@@ -101,7 +101,7 @@ CM is a similar, yet distinct, framework attempting to explicitly model the dire
 
 The ADE and AIE are not separately identified without further assumptions.
 
-\subsection{Identifying Causal Mediation (CM) Effects}
+\subsection{Identification of Causal Mediation (CM) Effects}
 The conventional approach to estimating direct and indirect effects assumes both $Z_i$ and $D_i$ are ignorable, conditional on a vector of control variables $\vec X_i$.
 \begin{definition}
     \label{dfn:seq-ign}
@@ -152,7 +152,7 @@ Linearity assumptions are unnecessary to my analysis; it suffices to note that h
 This section focuses on problems that plague CM by selection-on-observables, regardless of estimation method.
 % As such, I focus my work on non-parametric identification, and employ semi- and non-parametric estimation methods in my empirical analysis  whenever possible to avoid these problems.
 
-\subsection{Bias in Causal Mediation (CM) Estimates}
+\subsection{Non-identification of Causal Mediation (CM) Effects}
 Applied researchers often use a natural experiment to study settings where treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
 Rarely do they also have access to additional, overlapping natural experiment to isolate random variation $D_i$ to justify assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} as part of the same analysis.
 One might consider conventional CM methods in such a setting to learn about the mechanisms behind the causal effect $Z \to Y$ under study.
