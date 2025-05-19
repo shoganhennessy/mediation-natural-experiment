@@ -43,7 +43,7 @@ The following assumptions are sufficient to model the correlated error terms, id
 \end{assumptionCF}
 \noindent
 Assumption \ref{cf:monotonicity} is the monotonicity condition first used in an instrumental variables context \citep{imbens1994identification}.
-Here, it is assuming that people respond to treatment, $Z_i$, by consistently taking or refusing the mediator $D_i$ (always or never-takers), or taking the mediator $D_i$ if and only if assigned to the treatment $Z_i=1$ (mediator compliers).
+Here, it is assuming that people respond to treatment, $Z_i$, by consistently taking or refusing the mediator $D_i$ (always or never-mediators), or taking the mediator $D_i$ if and only if assigned to the treatment $Z_i=1$ (mediator compliers).
 There are no mediator defiers.
 
 The main implication of Assumption \ref{cf:monotonicity} is that selection-into-mediator can be written as a selection model with ordered threshold crossing values that describe selection-into-$D_i$ \citep{vytlacil2002independence}.
@@ -107,7 +107,7 @@ The most compelling example of a mediator IV is using data on the cost of mediat
             + \beta D_i
             + \gamma Z_i
             + \delta Z_i D_i
-            + \varphi(\vec X_i) \\
+            + \varphi\big(\vec X_i^-\big) \\
             & \;\; +  \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
                 + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big),
             \label{eqn:cf-secondstage}
@@ -162,7 +162,7 @@ Again, this is because the AIE only refers to individuals who were induced by tr
 The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
 
 \begin{figure}[h!]
-    \caption{CF Adjustment Pushes CM Estimates Back to True Value.}
+    \caption{The CF Adjustment Pushes CM Estimates Back to True Value.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{$\hat{\text{ADE}} - \text{ADE}$.}
@@ -187,3 +187,6 @@ The CFs allow us to measure both selection bias and complier differences, and th
 
 \autoref{fig:cm-heckit-dist} shows how a CF adjustment corrects unadjusted CM effect estimates.
 In a simulation with selection-into-mediator based on unobserved error terms, the CF adjustment pushes conventional CM estimates back to the true value. 
+
+% \subsubsection{Connection to Marginal Treatment Effects}
+% It is worth noting that this approach is essentially an MTE approach (Marginal Treatment Effect, developed by Heckman and Vytlacil, 1999, 2005) applied to a causal mediation setting. Just as the semi-parametric local IV approach uses variation in instruments to identify marginal treatment effects across different resistance-to-treatment margins, our semi-parametric CF approach identifies mediation effects across the distribution of unobserved mediator gains. This connection to the MTE literature provides a conceptual bridge between the instrumental variables literature and causal mediation analysis.

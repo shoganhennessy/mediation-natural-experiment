@@ -48,25 +48,29 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
     # Second covariate (instrument for the control function).
     X_IV <- 1 * runif(sample.size, -1, 1)
     # Simulate the unobserved error terms.
+    mu.vector <- c(0, 0, 0)
+    sigma.matrix <- matrix(c(
+        sigma_0^2,               rho * sigma_0 * sigma_1, 0,
+        rho * sigma_0 * sigma_1, sigma_1^2,               0,
+        0,                       0,                       sigma_C^2),
+        ncol = 3)
+    # Simulate a joint normal, from which a prob integral transform can get
+    # any other (potentially correlated) distribution. 
+    U_all <- mvrnorm(n = sample.size, mu = mu.vector, sigma.matrix,
+        empirical = FALSE)
+    # Get the desired distribution.
     if (error.dist == "normal"){
         #print("Simulating normally distributed errors.")
-        U_all <- mvrnorm(n = sample.size, mu = c(0, 0, 0),
-            Sigma = matrix(c(
-                sigma_0^2,               rho * sigma_0 * sigma_1, 0,
-                rho * sigma_0 * sigma_1, sigma_1^2,               0,
-                0,                       0,                       sigma_C^2),
-                    ncol = 3),
-            empirical = FALSE)
         U_0 <- U_all[, 1]
         U_1 <- U_all[, 2]
         U_C <- U_all[, 3]
     } 
     else if (error.dist == "uniform"){
         #print("Simulating uniform distributed errors.")
-        # Log errors, with SD = sigma_0,1,C as needed.
-        U_0 <- sigma_0 * sqrt(3) * runif(sample.size, - 1, 1)
-        U_1 <- sigma_1 * sqrt(3) * runif(sample.size, - 1, 1)
-        U_C <- sigma_C * sqrt(3) * runif(sample.size, - 1, 1)
+        # uniform errors (centred on zero), with SD = sigma_0,1,C.
+        U_0 <- (2 * pnorm(U_all[, 1], mean = 0, sd = sigma_0) - 1) * sigma_0 * sqrt(3)
+        U_1 <- (2 * pnorm(U_all[, 2], mean = 0, sd = sigma_1) - 1) * sigma_1 * sqrt(3)
+        U_C <- (2 * pnorm(U_all[, 3], mean = 0, sd = sigma_C) - 1) * sigma_C * sqrt(3)
     }
     else { stop("Choose an error.dist from `normal`, `uniform`.")
     }
@@ -178,13 +182,24 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
 
 # Estimate the values, given a first and second-stages
 estimated.values <- function(firststage.reg, secondstage.reg, example.data,
-    complier.adjustment = NULL){
+    complier.adjustment = NULL, first.stage = "parametric"){
     ### Inputs:
     ## example.data, a data frame simulated from above.
     # calculate the first-stage by prediction
-    firststage.est <- predict(
-        firststage.reg, newdata = mutate(example.data, Z = 1), type = "response") - predict(
-            firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
+    if (first.stage == "semi-parametric"){
+        firststage.est <- predict(
+            firststage.reg, newdata = mutate(example.data, Z = 1),
+                type = "response")$prob - predict(
+                    firststage.reg, newdata = mutate(example.data, Z = 0),
+                        type = "response")$prob
+    }
+    else {
+        firststage.est <- predict(
+            firststage.reg, newdata = mutate(example.data, Z = 1),
+                type = "response") - predict(
+                    firststage.reg, newdata = mutate(example.data, Z = 0),
+                        type = "response")
+    }
     # calculate the second-stage direct effect
     direct.est <- predict(
         secondstage.reg, newdata = mutate(example.data, Z = 1)) -
@@ -253,13 +268,17 @@ mediate.semiparametric <- function(example.data){
     # TODO -> make this fully semi-parametric like Klein Spady (1993)
     # TODO    https://github.com/henrykye/semiBRM
     # Or non-parametric with NP -> https://www.bauer.uh.edu/rsusmel/phd/np-rvignette.pdf
-    cf_firststage.reg <- gam(D ~ 1 + Z +
-        s(X_IV) + s(X_minus),
-        family = binomial(link = "probit"),
-        data = example.data)
-    P <- predict(cf_firststage.reg, type = "response")
-    P_0 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
-    P_1 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
+    #cf_firststage.reg <- gam(D ~ 1 + Z +
+    #    s(X_IV) + s(X_minus),
+    #    family = binomial(link = "probit"),
+    #    data = example.data)
+    # Klein Spady (1993)
+    library(semiBRM)
+    cf_firststage.reg <- semiBRM(D ~ 1 + Z + X_IV + X_minus,
+        data = example.data, control = list(iterlim = 50))
+    P <- predict(cf_firststage.reg, type = "response")$prob
+    P_0 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")$prob
+    P_1 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")$prob
     # 2. Second-stage, with semi-parametric CF.
     example.data$intercept <- 1
     example.data$P <- P
@@ -288,7 +307,9 @@ mediate.semiparametric <- function(example.data){
         P_1 * hat_lambda_1_P_1 - P_0 * hat_lambda_1_P_0) / (P_1 - P_0)
     # Compile the estimates.
     cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg,
-        example.data, complier.adjustment = complier.adjustment)
+        example.data,
+        complier.adjustment = complier.adjustment,
+        first.stage = "semi-parametric")
     # Return the off-setting estimates.
     output.list <- list(
         "first-stage"     = cf.est$"first-stage",

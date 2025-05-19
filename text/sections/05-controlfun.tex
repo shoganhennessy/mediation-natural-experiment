@@ -29,10 +29,11 @@ Lastly, the second-stage is estimated with OLS, including the estimated CFs,
 The resulting ADE and AIE estimates are composed from sample estimates of the terms in Theorem \ref{thm:cf-identification},
 \[ \hat{\text{ADE}}
     = \hat{\gamma} + \hat{\delta}\,\bar D_i, \;\;\;\;
-    \hat{\text{ADE}}
+    \hat{\text{AIE}}
     = \hat{\bar\pi}\; \Big(
         \hat{\beta} + \hat{\delta}\,\bar Z_i 
-        + \hat \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i) \Big) \]
+        + \big(\hat \rho_1 - \hat \rho_0 \big)
+        \hat \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i)\big) \Big) \]
 where $\bar D_i = \frac1N \sum_{i=1}^N D_i$, $\bar Z_i = \frac1N \sum_{i=1}^N Z_i$, and $\hat\pi \big(z';\vec X_i \big) = \Phi \big( \hat\phi + \hat{\bar\pi} z' + \hat{\vec\zeta}' \vec X_i \big)$ are the predictions for the probit first-stage, and $\hat\Gamma(.,.)$ is the estimate of the complier adjustment term using the estimated CF, $\hat\lambda_1$.
 
 The standard errors for estimates can be computed using the delta method \citep{heckman1979sample}.
@@ -45,49 +46,71 @@ The key advantage is computational simplicity and efficiency, particularly in mo
 However, this comes at the cost of strong distributional assumptions.
 For example, if the error terms deviate substantially from joint normality, the estimates may be biased.
 
-\subsection{Semi-parametric CF}
-Note Nancy Heckamn (1986) gives $\sqrt{n}$-consistency of splines.
-For settings where researchers are concerned about distributional assumptions, a semi-parametric control function approach offers greater flexibility.
+\subsection{Semiparametric CF}
+For settings where researchers are not comfortable specifying a specific distribution for the error terms, a semiparametric CF will nonetheless consistently estimate CM effects.
 This method maintains the same identification strategy but avoids assuming a specific parametric error distribution.
 
-It's worth noting that this approach is essentially an MTE approach (Marginal Treatment Effect, developed by Heckman and Vytlacil, 1999, 2005) applied to a causal mediation setting. Just as the semi-parametric local IV approach uses variation in instruments to identify marginal treatment effects across different resistance-to-treatment margins, our semi-parametric CF approach identifies mediation effects across the distribution of unobserved mediator gains. This connection to the MTE literature provides a conceptual bridge between the instrumental variables literature and causal mediation analysis.
+The semiparametric approach begins with flexible estimation of the first-stage, non-parametrically estimating the mediator propensity score,
+%\begin{equation}
+%    \label{eqn:nonparametric-firststage}
+\[ \pi\left(Z_i; \vec X_i \right) = \Egiven{D_i}{Z_i, \vec X_i}, \]
+%\end{equation}
+where $\vec X_i$ must include the instrument(s) $\vec X_i^{\text{IV}}$.
+This can be estimated using flexible methods such as series approximation or kernel-based approaches, as long as the first-stage is estimated $\sqrt{n}$-consistently.\footnote{
+    If an estimate of the first-stage that is not $\sqrt{n}$-consistent is used (e.g., a modern machine learning estimator), then the resulting second-stage estimate will not be $\sqrt{n}$-consistent.
+    This could be ameliorated by augmenting the approach with cross-fitting, and the appropriate Neyman orthogonal moments; \cite{bia2024double} use this approach for one-sided selection problems, but (as fas as I am aware) there is no general double machine learning approach for CF methods for two-sided selection problems.  
+}
 
-The first stage estimates the mediator equation using flexible methods:
-\[ \Egiven{D_i}{Z_i, \vec X_i^-, \vec X_i^{\text{IV}}}
-    = \pi\left(Z_i, \vec X_i^-, \vec X_i^{\text{IV}} \right) \]
+Next the CFs, themselves, are estimated with semi-parametric methods.
+Considering the $D_i = 0$ subsample first.
+\[ \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} =
+    \alpha + \gamma Z_i + \varphi\big( \vec X_i^- \big)
+    +  \left( 1 - D_i \right) \rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big), \]
+which gives a regression equation to estimate semi-parametrically, with the first-estimate estimate $\hat\pi\left(Z_i; \vec X_i \right)$ plugged in.
+The linear parameters ($\alpha, \gamma$ and a linear approximation of control parameter $\varphi$) can be estimated with OLS, with appropriate interactions to flexibly control for $\vec X_i$, and $\lambda_0$ with a flexible semiparametric specification.
+An attractive option is a flexible series estimation, such as a spline specification, as this flexibly estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
+Note that $\lambda_0$ can no longer be separated from $\rho_0$ in this semi-parametric approach; the complier adjustment term requires $\rho_0, \rho_1$ only be identified up to a constant.
+Next, the $\rho_0 \lambda_0$ function is extrapolated to the $D_i = 1$ side, identifying the remaining terms $\beta, \delta$, and thus the ADE and AIE.\footnote{
+    \aref{appendix:semiparametric} explains these points in further detail.
+}
 
-Where $g(\cdot)$ is a flexible function that can be estimated using series approximation, kernel methods, or machine learning approaches. Here, $X_i^{IV}$ represents instrumental variables that affect mediator costs but not benefits, and $X_i^{-}$ represents other control variables. 
+Return to the $D_i = 1$ subsample,
+\[ \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} =
+    (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i^- \big)
+    +  D_i \rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big). \]
+The same process extrapolates the series estimate of $\rho_1 \lambda_1$ to the $D_i = 0$ subsample, for another set of estimates for the ADE and AIE.
+An efficient estimate can compose these two estimates of the CM effects, with weights proportional to the efficiency of each side.
 
-\subsection{Validation of the CF assumptions via 2SLS}
+This approach achieves valid estimation of the CM effects, without specifying the distribution behind unobserved error terms, and achieves desirable properties as long as the first-stage correctly estimates the mediator propensity score, and the structural assumptions hold true.
+The standard errors for estimates can again be computed using the delta method, or estimated by the bootstrap --- again, across both first and second-stages within each bootstrap iteration.
+Note that relying on propensity score estimation requires assumptions that can be found wanting in real-world settings; a common support condition for the mediator is required, and the semiparametric first-stage may become cumbersome if there are many control variables.
 
-If the structural assumptions hold, then a 2SLS for $D \to Y$, using $\vec X^{\text{IV}}$ should give the same as a CF estimate.
-If not, then a violation of the structural assumptions somewhere.
-Could be put into an informal hypothesis test, where the null $\beta^\text{IV} = \beta^\text{CF}$ could be rejected.
+%\subsection{Validation of the CF assumptions via 2SLS}
+%If the structural assumptions hold, then a 2SLS for $D \to Y$, using $\vec X^{\text{IV}}$ should give the same as a CF estimate.
+%If not, then a violation of the structural assumptions somewhere.
+%Could be put into an informal hypothesis test, where the null $\beta^\text{IV} = \beta^\text{CF}$ could be rejected.
 
-\subsection{Percent of ATE Mediated Through $D$}
-It is common to focus on AIE / ATE, which is necessarily a noisy estimate.
-Indeed, the Kwon Roth gives a test to validate (though not confirm) that everything goes through AIE.
-If reject, then move forward with this.
-
-An inverse variance weighted version of AIE / ATE, which efficiently uses (1) AIE estimate (2) a function of the ADE estimate.
-This addresses some of the inefficiency in estimating this term.
-
-If you have large uncertainty in your treatment effect, then expect large uncertainty in the mechanisms behind it.
-There is no avoiding the fact that a noisy ATE estimate (especially if close to zero) will mean noisy estimates of AIE / ATE.  
+%\subsection{Percent of ATE Mediated Through $D$}
+%It is common to focus on AIE / ATE, which is necessarily a noisy estimate.
+%Indeed, the Kwon Roth gives a test to validate (though not confirm) that everything goes through AIE.
+%If reject, then move forward with this.
+%
+%An inverse variance weighted version of AIE / ATE, which efficiently uses (1) AIE estimate (2) a function of the ADE estimate.
+%This addresses some of the inefficiency in estimating this term.
+%
+%If you have large uncertainty in your treatment effect, then expect large uncertainty in the mechanisms behind it.
+%There is no avoiding the fact that a noisy ATE estimate (especially if close to zero) will mean noisy estimates of AIE / ATE.  
 
 \subsection{Simulation Evidence}
 \label{sec:simulations}
-The following simulation gives an example to show how this method works in practice.
+The following simulation gives an example to show how these methods work in practice.
 Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from the following data generating processes, for $i = 1, \hdots, N$, with 
-$N = 500$ for this simulation.
-\begin{align*}
-    Z_i \sim \text{Binom}\left(0.5 \right),
+$N = 1,000$ for this simulation.
+\[ Z_i \sim \text{Binom}\left(0.5 \right),
     \;\; \vec X_i^- \sim N(4, 1),
-    \;\; \vec X_i^{\text{IV}} \sim \text{Binom}\left( 0.5 \right), \\
-    \left( U_{0,i}, U_{1,i} \right) \sim
-    \text{BivariateNormal}\left( 0, 0, \sigma_0, \sigma_1, \rho \right),
-    \;\; U_{C,i} \sim N(0, 0.5).
-\end{align*}
+    \;\; \vec X_i^{\text{IV}} \sim \text{Binom}\left( 0.5 \right),
+    \;\; \left( U_{0,i}, U_{1,i}, U_{C,i} \right) \sim
+    N\left( \vec 0, \mat \Sigma \right) \]
 
 Each $i$ chooses to take mediator $D_i$ by a Roy model, with following mean definitions for each $z', d' = 0, 1$.
 \begin{align*}

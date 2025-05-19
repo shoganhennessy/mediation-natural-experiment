@@ -517,7 +517,7 @@ Substitute the CFs,
 \begin{align*}
     &\;(1-D_i) \Egiven{ U_{0,i} }{Z_i, D_i=0, \vec X_i}
         + D_i \Egiven{ U_{1,i}}{Z_i, D_i=1, \vec X_i} \\
-    =&\; (1-D_i)\rho_0 \lambda_0 \big(\pi(Z_i; \vec X_i) \big)
+    &=\; (1-D_i)\rho_0 \lambda_0 \big(\pi(Z_i; \vec X_i) \big)
     + D_i \rho_1 \lambda_1 \big(\pi(Z_i; \vec X_i) \big).
 \end{align*}
 This gives the final result,
@@ -598,8 +598,8 @@ Collecting for the AIE,
     &= \text{AIE}.
 \end{align*}
 
-\subsection{Semi-parametric Estimation of the ADE and AIE}
-\label{appendix:semi-parametric}
+\subsection{Semiparametric Estimation of the ADE and AIE}
+\label{appendix:semiparametric}
 Note the following, to express $\Gamma(p,p')$ in terms of either $\lambda_0$ or $\lambda_1$
 for $p < p' \in (0,1)$.
 \begin{align*}
@@ -608,6 +608,30 @@ for $p < p' \in (0,1)$.
         &= \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p} \\
         &= \frac{(1-p)\lambda_0\left(p\right) - (1-p')\lambda_0\left(p'\right)}{p' - p} \\
 \end{align*}
+
+The semiparametric approach cannot separate $\rho_0$ from $\lambda_0$, only estimating their composition $\rho_0 \lambda_0(p')$ for $p' \in (0,1)$.
+Ultimately this does not matter, as it sufficient to identify $\rho_0, \rho_1$ up to a constant for the complier adjustment term, using either $\rho_0 \lambda_0$ or $\rho_1 \lambda_1$.
+For $\pi_0 < \pi_1 \in (0,1)$,
+\begin{align*}
+    (\rho_1 - \rho_0) \, \Gamma \big(\pi_0, \pi_1 \big)
+    &= (\rho_1 - \rho_0) \frac{\pi_1\lambda_1\left(\pi_1\right) - \pi_0\lambda_1\left(\pi_0\right)}{\pi_1 - \pi_0} \\
+    &= \left(1 - \frac{\rho_0}{\rho_1}\right) \frac{
+        \pi_1 \rho_1 \lambda_1\left(\pi_1\right) - \pi_0 \rho_1 \lambda_1\left(p\right)}{\pi_1 - p} \\
+    &= \left(\frac{\rho_1}{\rho_0} - 1 \right) \frac{
+        (1 - \pi_0) \rho_0 \lambda_0\left(\pi_0\right) - (1 - \pi_1) \rho_0 \lambda_0\left(\pi_1\right)}{\pi_1 - \pi_0}.
+\end{align*}
+
+The fraction $\rho_1 / \rho_0$ can be estimated with only the composition $\rho_0 \lambda_0$ or $\rho_1 \lambda_1$, thanks to the relation between $\lambda_0, \lambda_1$.
+For $p' \in (0,1)$,
+\[ \lambda_1 \left(p'\right) = 
+    \implies 
+        \frac{\rho_0}{\rho_1} = 
+        \frac{\rho_0 \lambda_0 \left(p'\right)}{ \rho_1 \lambda_1 \left(p'\right)}
+        \left( \frac{1-p'}{p'} \right). \]
+This can be estimated by estimating $\rho_1 \lambda_1$ in the $D_i = 1$ subsample with splines, extrapolating the transformed $\rho_1 \lambda_0(p') = -\rho_1\lambda_1 \left(p'\right) \left( \frac{p'}{1 - p'} \right)$ to the $D_i = 0$ subsample, and calculating the regression coefficient for $\rho_0 / \rho_1$ on $\rho_1 \lambda_0(p')$.
+
+Similarly, an approach starting with estimating $\rho_0 \lambda_0$ in the $D_i = 0$ subsample gives a coefficient for $\rho_1 / \rho_0$.
+An efficient estimate can compose these two, with weights proportional to the efficiency of each side.
 
 \subsection{Control Function Simulation}
 A number of statistical packages, for the R language \citep{R2023}, made the simulation analysis for this paper possible.
