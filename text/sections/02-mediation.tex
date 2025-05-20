@@ -235,7 +235,7 @@ The AIE group differences term is longer, because the indirect effect is compris
 \[ \text{AIE}
     = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
     = \E{D_i(1) - D_i(0)} \; 
-        \underbrace{\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1)=1, D_i(0)=0}}_{
+        \underbrace{\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0)=0, D_i(1)=1}}_{
             \text{Average $D \to Y$ effect among $D(Z)$ compliers}
         } \]
 It is important to acknowledge the mediator compliers here, because the AIE is the $Z \to Y$ effect going through the $D(Z)$ channel, thus only refers to individuals pushed into mediator $D_i$ by initial treatment $Z_i$.
