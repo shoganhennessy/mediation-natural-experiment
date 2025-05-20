@@ -51,10 +51,7 @@ For settings where researchers are not comfortable specifying a specific distrib
 This method maintains the same identification strategy but avoids assuming a specific parametric error distribution.
 
 The semiparametric approach begins with flexible estimation of the first-stage, non-parametrically estimating the mediator propensity score,
-%\begin{equation}
-%    \label{eqn:nonparametric-firststage}
 \[ \pi\left(Z_i; \vec X_i \right) = \Egiven{D_i}{Z_i, \vec X_i}, \]
-%\end{equation}
 where $\vec X_i$ must include the instrument(s) $\vec X_i^{\text{IV}}$.
 This can be estimated using flexible methods such as series approximation or kernel-based approaches, as long as the first-stage is estimated $\sqrt{n}$-consistently.\footnote{
     If an estimate of the first-stage that is not $\sqrt{n}$-consistent is used (e.g., a modern machine learning estimator), then the resulting second-stage estimate will not be $\sqrt{n}$-consistent.
@@ -68,22 +65,22 @@ Considering the $D_i = 0$ subsample first.
     +  \left( 1 - D_i \right) \rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big), \]
 which gives a regression equation to estimate semi-parametrically, with the first-estimate estimate $\hat\pi\left(Z_i; \vec X_i \right)$ plugged in.
 The linear parameters ($\alpha, \gamma$ and a linear approximation of control parameter $\varphi$) can be estimated with OLS, with appropriate interactions to flexibly control for $\vec X_i$, and $\lambda_0$ with a flexible semiparametric specification.
-An attractive option is a flexible series estimation, such as a spline specification, as this flexibly estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
-Note that $\lambda_0$ can no longer be separated from $\rho_0$ in this semi-parametric approach; the complier adjustment term requires $\rho_0, \rho_1$ only be identified up to a constant.
-Next, the $\rho_0 \lambda_0$ function is extrapolated to the $D_i = 1$ side, identifying the remaining terms $\beta, \delta$, and thus the ADE and AIE.\footnote{
+An attractive option is a series estimator, such as a spline specification, as this estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
+Note that $\lambda_0$ can no longer be separated from $\rho_0$ in this semi-parametric approach; the complier adjustment term requires $\rho_0, \rho_1$ only be identified up to a constant.\footnote{
     \aref{appendix:semiparametric} explains these points in further detail.
 }
+Next, the $\rho_0 \lambda_0$ function is extrapolated to the $D_i = 1$ side, identifying the remaining terms $\beta, \delta$, and thus the ADE and AIE.
 
 Return to the $D_i = 1$ subsample,
 \[ \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} =
     (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i^- \big)
     +  D_i \rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big). \]
-The same process extrapolates the series estimate of $\rho_1 \lambda_1$ to the $D_i = 0$ subsample, for another set of estimates for the ADE and AIE.
-An efficient estimate can compose these two estimates of the CM effects, with weights proportional to the efficiency of each side.
+The same process extrapolates the series estimate of $\rho_1 \lambda_1$ from the $D_i =1$ sample to the $D_i = 0$ subsample, for another set of estimates for the ADE and AIE.
+An efficient estimate fpr CM effects then composes these two, with weights proportional to the efficiency of each side.
 
 This approach achieves valid estimation of the CM effects, without specifying the distribution behind unobserved error terms, and achieves desirable properties as long as the first-stage correctly estimates the mediator propensity score, and the structural assumptions hold true.
 The standard errors for estimates can again be computed using the delta method, or estimated by the bootstrap --- again, across both first and second-stages within each bootstrap iteration.
-Note that relying on propensity score estimation requires assumptions that can be found wanting in real-world settings; a common support condition for the mediator is required, and the semiparametric first-stage may become cumbersome if there are many control variables.
+Note that relying on propensity score estimation requires assumptions that can be found wanting in real-world settings; a common support condition for the mediator is required, and the nonparametric first-stage may become cumbersome if there are many control variables.
 
 %\subsection{Validation of the CF assumptions via 2SLS}
 %If the structural assumptions hold, then a 2SLS for $D \to Y$, using $\vec X^{\text{IV}}$ should give the same as a CF estimate.
@@ -111,33 +108,43 @@ $N = 1,000$ for this simulation.
     \;\; \vec X_i^{\text{IV}} \sim \text{Binom}\left( 0.5 \right),
     \;\; \left( U_{0,i}, U_{1,i}, U_{C,i} \right) \sim
     N\left( \vec 0, \mat \Sigma \right) \]
+$\mat \Sigma$ is the matrix of parameters which controls the level of confounding from unobserved costs and benefits.\footnote{
+    The correlation and relative standard deviations for $U_{0,i}, U_{1,i}$ affect how large selection bias in conventional CM estimates; correlation for these with unobserved costs $U_{C,i}$ does not particularly matter, though increased variance in unobserved costs makes estimates less precise for both OLS and CF methods.
+}
 
 Each $i$ chooses to take mediator $D_i$ by a Roy model, with following mean definitions for each $z', d' = 0, 1$.
 \begin{align*}
-    D_i(z') = \indicator{Y_i(z', 1) - Y_i(z', 0) \geq C_i},  \\
-    \mu_{d'}\left(z' ; \vec X_i \right) = \vec X_i^- + \left( z' + d' + z' d' \right),
+    D_i(z') = \indicator{C_i \leq Y_i(z', 1) - Y_i(z', 0)},  \\
+    \mu_{d'}\left(z' ; \vec X_i \right) = \left( z' + d' + z' d' \right) + \vec X_i^-,
     \;\; \mu_{C}\left(z' ; \vec X_i \right) = 3z' + \vec X_i^- - \vec X_i^{\text{IV}}.
 \end{align*}
-Following \autoref{sec:applied}, these data have the following first and second-stage equations:
+Following \autoref{sec:regression}, these data have the following first and second-stage equations:
 \begin{align*}
-    D_i &= \indicator{-3Z_i - \vec X_i^{\text{IV}} + \vec X_i^-
-        \geq U_{C,i} - \big( U_{1,i} - U_{0,i} \big)},  \\
+    D_i &= \indicator{U_{C,i} - \big( U_{1,i} - U_{0,i} \big)
+    \leq -3Z_i + \vec X_i^- - \vec X_i^{\text{IV}}},  \\
     Y_i &= Z_i + D_i + Z_i D_i + \vec X_i^-
         + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
 \end{align*}
-$Z_i$ has an effect on outcome $Y_i$, and it operates partially through mediator $D_i$.
+Treatment $Z$ has a causal effect on outcome $Y$, and it operates partially through mediator $D$.
 Outcome mean $\mu_{D_i}(Z_i;.)$ contains an interaction term, $Z_i D_i$, so while both $Z_i$ and $D_i$ have constant partial effects, the ATE depends on how many $i$ choose to take the mediator.
-In this simulation $\Prob{D_i = 1} = 0.437$, and $65.29\%$ of the sample are mediator compliers (where $D_i(1)=1$ and $D_i(0) = 0$).
-This gives an ATE ($Z\to Y$) value of 2.58, ADE 1.44, and AIE 1.13, respectively.\footnote{
-    Note that ATE $=$ ADE $+$ AIE in this setting.
-    $\Prob{Z_i=1} = 0.5$ ensures this equality, but it is not guaranteed in general.
-}
 
 After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-degenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
 As a result, sequential ignorability does not hold; the mediator is not conditionally ignorable.
-Thus, a standard OLS (selection-on-observables) approach to CM does not give an estimate for how much of the $Z \to Y$ ATE goes through mediator $D$.
+Thus, a standard OLS (selection-on-observables) approach to CM does not give an estimate for how much of the ATE goes through mediator $D$.
 Instead, the OLS approach gives biased inference.
 The bias in OLS estimates comes from the unobserved error terms being related.
+
+I simulate this data generating process 10,000 times, using $\mat\Sigma =
+\left(\begin{smallmatrix} 1 & 0.75 & 0 \\ 0.75 & 2.25 & 0 \\ 0 & 0 & 0.25 \end{smallmatrix}\right)$,\footnote{
+    This choice of parameters has $\Var{U_{0,i}} = 1, \Var{U_{1,i}} = 2.25, \text{Corr}\big(U_{0,i}, U_{1,i}\big) = 0.5$ so that unobserved errors meaningfully confound conventional CM methods in a realistic way, with notable heteroscedasticity.
+    Unobserved costs are uncorrelated with $U_{0,i}, U_{1,i}$ (although non-zero correlation would not meaningfully change the results), and $\Var{U_{C,i}} = 0.25$ maintains realistic uncertainty in unobserved costs.
+}
+and estimate CM effects with conventional CM methods (two-stage OLS) and the introduced CF methods.
+In this simulation $\Prob{D_i = 1} = 0.379$, and $65.77\%$ of the sample are mediator compliers (for whom $D_i(0)=0$ and $D_i(1)=1$).
+This gives an ATE value of 2.60, ADE 1.38, and AIE 1.22, respectively.\footnote{
+    Note that ATE $=$ ADE $+$ AIE in this setting.
+    $\Prob{Z_i=1} = 0.5$ ensures this equality, but it is not guaranteed in general.
+}
 
 \begin{figure}[h!]
     \caption{Simulated Distribution of CM Effect Estimates, Semi-parametric versus OLS, Relative to True Value.}
@@ -157,21 +164,19 @@ The bias in OLS estimates comes from the unobserved error terms being related.
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms (further described in \autoref{sec:controlfun}).
+    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms.
     The black dashed line is the true value;
     orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
     and green estimates with a two-stage semi-parametric CF.
 \end{figure}
 
-The CF estimator here uses the inverse Mills ratio as the CFs (i.e., a Heckman selection model); the constrained semi-parametric approach explcitily models $\lambda_1$ , and thus $\lambda_0$, with data to avoid distributional assumptions.
-\autoref{fig:cm-semiparametric-dist} shows the distribution of simulated point estimates in this simulation, showing OLS against the CF approach.
-The OLS approach implicitly assumes that the mediator is ignorable (when it is not), so its point estimates under and over-estimate the true ADE and AIE, respectively.
-The distance between the OLS estimates and the true values are the underlying bias terms derived in \autoref{thm:selection-bias}.
-In this data generating process, the OLS confidence interval do not overlap the true values for any standard level of significance.
-The CF approach exhibits bias, though the 95\% confidence intervals cover the truth.
+\autoref{fig:cm-heckit-dist} shows how these estimates perform, with a parametric CF approach, relative to the true value; \autoref{fig:cm-semiparametric-dist} does the same for a semiparametric approach.
+The OLS estimates' distribution do not overlap the true values for any standard level of significance; the distance between the OLS estimates and the true values are the underlying bias terms derived in \autoref{thm:selection-bias}.
+The parametric CF approach perfectly reproduces the true values, as the probit first-stage correctly models the normally distributed error terms.
+The semiparametric CF estimates correct conventional CM estimates, too, though exhibits some small-sample bias, which it to be expected with the involved non-parametric steps in realistic sample sizes.
 
 \begin{figure}[h!]
-    \caption{Point Estimates of CM Effects, OLS versus CF, varying $\rho$ values with $\sigma_0 = 1, \sigma_1 = 2$ fixed.}
+    \caption{CF Adjusted Estimates of CF Effects Work with Different Error Term Parameters.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{ADE.}
@@ -188,20 +193,18 @@ The CF approach exhibits bias, though the 95\% confidence intervals cover the tr
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the OLS and CF point estimates of the ADE and AIE, for $N = 10,000$ sample size.
-    The black dashed line is the true value, points are points estimates from data simulated with a given $\rho$ value and $\sigma_0 = 1, \sigma_1 = 2$, and shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
+    These figures show the OLS and CF point estimates of the ADE and AIE, for $N = 10,000$ sample size, varying $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values with $\Var{U_{0,i}} = = 1, \Var{U_{1,i}} = 1.5$ fixed.
+    The black dashed line is the true value, coloured points are points estimates for the respective data generated, and shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
     Orange represents OLS estimates, blue the CF approach.
-    The true AIE values vary with $\rho$, because $D_i(Z_i)$ compliers have higher average values of $U_{1,i} - U_{0,i}$ with greater $\rho$ values.
 \end{figure}
 
-The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\rho \in [-1, 1]$ and $\sigma_0, \sigma_1 \geq 0$.
+The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\text{Corr}\big(U_{0,i}, U_{1,i}\big) \in [-1, 1]$ and $\Var{U_{0,i}} = 1, \Var{U_{1,i}} \geq 0$.
+The true AIE values vary, because $D(Z)$ compliers have higher average values of $U_{1,i} - U_{0,i}$ with greater $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values.
 \autoref{fig:rho-bias} shows CF estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstraps.
 The point estimates of the CF do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations, as in \autoref{fig:cm-semiparametric-dist}).
 The CF approach improves on OLS estimates by correcting for bias, with confidence regions overlapping the true values.\footnote{
-    In the appendix, \autoref{fig:sigma-bias} shows the same simulation while varying $\sigma_1$, with fixed $\sigma_0 = 1, \rho = 0.5$.
+    In the appendix, \autoref{fig:sigma-bias} shows the same simulation while varying $\Var{U_{1,i}}$, with fixed $\Var{U_{0,i}} = 1, \text{Corr}\big(U_{0,i}, U_{1,i}\big) = 0.5$.
     The conclusion is the same as for varying the correlation coefficient, $\rho$, in \autoref{fig:rho-bias}.
 }
 This correction did not come for free: the standard errors are significantly greater in a CF approach than OLS.
-Standard errors on the AIE are larger than those for the ADE, because the AIE estimates are first-stage times second-stage estimates, so standard errors account for uncertainty in both estimates multiplied.
-%(i.e., the same reasons instrumental variables estimates are less efficient than ideal OLS estimates). 
 In this manner, this simulation shows the pros and cons of using the CF approach to estimating CM effects in practice.

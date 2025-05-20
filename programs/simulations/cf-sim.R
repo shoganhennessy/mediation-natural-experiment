@@ -474,6 +474,10 @@ print(mediate.heckit(uniform.data))
 #TODO: and throw the Heckman selection model at both (should pass 1, fail 2).
 #TODO: and throw the semi-parametric CF at both (should pass both).
 
+# First, show us what huge sample gives for the true values.
+roy.data(rho, sigma_0, sigma_1, sigma_C, sample.size = 10^7) %>%
+    theoretical.values(print.truth = TRUE)
+
 # Base data to input
 simulated.data <- roy.data(rho, sigma_0, sigma_1, sigma_C)
 
