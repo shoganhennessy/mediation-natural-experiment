@@ -10,7 +10,7 @@ While both methods effectively address the selection bias issues detailed in pre
 
 \subsection{Parametric CF}
 A parametric CF solves the identification problem by assuming a distribution for the unobserved error terms in the first-stage selection model, and modelling selection based on this distribution.
-The Heckman selection model is the most pertinent example, assuming the normal distribution for unobserved errors \cite{heckman1979sample}.
+The Heckman selection model is the most pertinent example, assuming the normal distribution for unobserved errors \citep{heckman1979sample}.
 A parametric CF using other distributions works in exactly the same manner, replacing the relevant density functions for an alternative distribution as needed.
 As such, this section focuses exclusively on the Heckman selection model.
 
@@ -34,9 +34,9 @@ The resulting ADE and AIE estimates are composed from sample estimates of the te
         \hat{\beta} + \hat{\delta}\,\bar Z_i 
         + \big(\hat \rho_1 - \hat \rho_0 \big)
         \hat \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i)\big) \Big) \]
-where $\bar D_i = \frac1N \sum_{i=1}^N D_i$, $\bar Z_i = \frac1N \sum_{i=1}^N Z_i$, and $\hat\pi \big(z';\vec X_i \big) = \Phi \big( \hat\phi + \hat{\bar\pi} z' + \hat{\vec\zeta}' \vec X_i \big)$ are the predictions for the probit first-stage, and $\hat\Gamma(.,.)$ is the estimate of the complier adjustment term using the estimated CF, $\hat\lambda_1$.
+where $\bar D_i = \frac1N \sum_{i=1}^N D_i$, $\bar Z_i = \frac1N \sum_{i=1}^N Z_i$, and $\hat\pi \big(z';\vec X_i \big) = \Phi \big( \hat\phi + \hat{\bar\pi} z' + \hat{\vec\zeta}' \vec X_i \big)$ are the predictions for the probit first-stage, and $\hat\Gamma(.,.)$ is the mean estimate of the complier adjustment term using the estimated CF, $\hat\lambda_1$.
 
-The standard errors for estimates can be computed using the delta method \citep{heckman1979sample}.
+The standard errors for estimates can be computed using the delta method.
 Specifically, we account for both the sampling variability in the coefficient estimates and the fact that the CFs themselves are estimated in the first-stage.
 This approach yields $\sqrt{n}$-consistent estimates when the underlying error terms follow a bivariate normal distribution --- i.e., when $\lambda_0, \lambda_1$ and $\hat\pi$ are correctly modelled by the probit first-stage.
 Errors can also be estimated by the bootstrap, including estimation of both the first and second-stage within each bootstrap iteration.
@@ -44,7 +44,9 @@ Errors can also be estimated by the bootstrap, including estimation of both the 
 In practice, a parametric CF approach is simple to implement using standard statistical packages.
 The key advantage is computational simplicity and efficiency, particularly in moderate-sized samples.
 However, this comes at the cost of strong distributional assumptions.
-For example, if the error terms deviate substantially from joint normality, the estimates may be biased.
+For example, if the error terms deviate substantially from joint normality, the estimates may be biased.\footnote{
+    While this concern is immaterial in an IV setting estimating the LATE \citep{kline2019heckits}, it is pertinent in this setting as the CF extrapolates to a different group of compliers.
+}
 
 \subsection{Semiparametric CF}
 For settings where researchers are not comfortable specifying a specific distribution for the error terms, a semiparametric CF will nonetheless consistently estimate CM effects.
