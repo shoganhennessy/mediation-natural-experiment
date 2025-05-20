@@ -59,14 +59,14 @@ This can be estimated using flexible methods such as series approximation or ker
 }
 
 Next the CFs, themselves, are estimated with semi-parametric methods.
-Considering the $D_i = 0$ subsample first.
+Consider the $D_i = 0$ subsample first.
 \[ \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} =
     \alpha + \gamma Z_i + \varphi\big( \vec X_i^- \big)
     +  \left( 1 - D_i \right) \rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big), \]
 which gives a regression equation to estimate semi-parametrically, with the first-estimate estimate $\hat\pi\left(Z_i; \vec X_i \right)$ plugged in.
 The linear parameters ($\alpha, \gamma$ and a linear approximation of control parameter $\varphi$) can be estimated with OLS, with appropriate interactions to flexibly control for $\vec X_i$, and $\lambda_0$ with a flexible semiparametric specification.
 An attractive option is a series estimator, such as a spline specification, as this estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
-Note that $\lambda_0$ can no longer be separated from $\rho_0$ in this semi-parametric approach; the complier adjustment term requires $\rho_0, \rho_1$ only be identified up to a constant.\footnote{
+Note that $\lambda_0$ can no longer be separated from $\rho_0$ in this semi-parametric approach; this is inconsequential because the complier adjustment term requires $\rho_0, \rho_1$ only be identified up to a constant.\footnote{
     \aref{appendix:semiparametric} explains these points in further detail.
 }
 Next, the $\rho_0 \lambda_0$ function is extrapolated to the $D_i = 1$ side, identifying the remaining terms $\beta, \delta$, and thus the ADE and AIE.
@@ -76,7 +76,7 @@ Return to the $D_i = 1$ subsample,
     (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i^- \big)
     +  D_i \rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big). \]
 The same process extrapolates the series estimate of $\rho_1 \lambda_1$ from the $D_i =1$ sample to the $D_i = 0$ subsample, for another set of estimates for the ADE and AIE.
-An efficient estimate fpr CM effects then composes these two, with weights proportional to the efficiency of each side.
+Efficient estimates of CM effects then composes these two, with weights proportional to the efficiency of each side.
 
 This approach achieves valid estimation of the CM effects, without specifying the distribution behind unobserved error terms, and achieves desirable properties as long as the first-stage correctly estimates the mediator propensity score, and the structural assumptions hold true.
 The standard errors for estimates can again be computed using the delta method, or estimated by the bootstrap --- again, across both first and second-stages within each bootstrap iteration.
