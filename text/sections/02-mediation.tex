@@ -1,7 +1,7 @@
 \section{Direct and Indirect Effects}
 \label{sec:mediation}
-Causal mediation decomposes causal effects into two channels, through a mediator (indirect effect) and through all other paths (direct effect).
-To develop notation for direct and indirect effects, write $Z_i$ for an exogenous binary treatment, $D_i$ a binary mediator, and $Y_i$ an outcome for individuals $i = 1, \hdots, N$.
+CM decomposes causal effects into two channels, through a mediator (indirect effect) and through all other paths (direct effect).
+To develop notation, write $Z_i =0,1$ for a binary treatment, $D_i=0,1$ a binary mediator, and $Y_i$ a continuous outcome for individuals $i = 1, \hdots, N$.
 %\footnote{
 %    Other literatures use different notation.
 %    For example, \cite{imai2010identification} write $T_i, M_i, Y_i$ for the randomised treatment, mediator, and outcome, respectively.
@@ -12,8 +12,8 @@ The outcomes are a sum of their potential outcomes.\footnote{
     See \cite{huber2020direct} for a discussion of CM with continuous treatment and/or mediator, and the assumptions required.
 }
 \begin{align*}
-    D_i &= Z_i       D_i(1)
-        + (1 - Z_i) D_i(0),  \\
+    D_i &= (1 - Z_i) D_i(0)
+        +   Z_i      D_i(1),  \\
     Y_i &= Z_i       Y_i(1, D_i(1))
         + (1 - Z_i) Y_i(0, D_i(0)).
 \end{align*}
@@ -154,8 +154,8 @@ This section focuses on problems that plague CM by selection-on-observables, reg
 
 \subsection{Non-identification of Causal Mediation (CM) Effects}
 Applied researchers often use a natural experiment to study settings where treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
-Rarely do they also have access to additional, overlapping natural experiment to isolate random variation $D_i$ to justify assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} as part of the same analysis.
-One might consider conventional CM methods in such a setting to learn about the mechanisms behind the causal effect $Z \to Y$ under study.
+Rarely do they also have access to an additional, overlapping natural experiment to isolate random variation in $D_i$ --- to justify assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}.
+One might consider conventional CM methods in such a setting to learn about the mechanisms behind the causal effect $Z \to Y$.
 This approach leads to biased estimates, and contaminates inference regarding direct and indirect effects.
 
 \begin{theorem}
@@ -238,7 +238,7 @@ The AIE group differences term is longer, because the indirect effect is compris
         \underbrace{\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0)=0, D_i(1)=1}}_{
             \text{Average $D \to Y$ effect among $D(Z)$ compliers}
         } \]
-It is important to acknowledge the mediator compliers here, because the AIE is the $Z \to Y$ effect going through the $D(Z)$ channel, thus only refers to individuals pushed into mediator $D_i$ by initial treatment $Z_i$.
+It is important to acknowledge the mediator compliers here, because the AIE is the $Z \to Y$ effect going through the $D(Z)$ channel, thus only refers to individuals pushed into mediator $D$ by initial treatment $Z$.
 If we had been using a population average effect for $D \to Y$, then this is losing focus on the definition of the AIE; it is not about the causal effect $D \to Y$, it is about the causal effect $D(Z) \to Y$.
 
 The group difference bias term in \ref{thm:selection-bias} arises because the selection-on-observables approach assumes that this complier average effect is equal to the population average effect, which does not hold true if the mediator is not ignorable.

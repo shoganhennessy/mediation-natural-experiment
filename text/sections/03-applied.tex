@@ -94,43 +94,45 @@ The Roy model has $i$ taking the mediator if the benefits exceed the costs,
 \end{equation}
 
 The Roy model provides an intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome under study \citep{roy1951some,heckman1990empirical}.
-If the outcome $Y_i$ is a measure of income, and the mediator a choice of taking education, then it models an individual choice to attend more education in terms of gaining a higher income compared to the costs.\footnote{
-    If the choice is made for a sum of outcomes, then a simple extension to a utility maximisation model maintains this same framework.
+If the treatment $Z_i$ is health insurance, outcome $Y_i$ a measure of health outcomes, and the mediator using healthcare institutions, then this models the choice to visit the doctor more often in terms of health benefits relative to costs.\footnote{
+    If the choice is considers over a sum of outcomes, then a simple extension to a utility maximisation model maintains this same framework with expected costs and benefits.
     See \cite{heckman1990empirical,eisenhauer2015generalized}.
 }
-This makes it particularly useful as a base case for CM, where selection-into-the mediator may be driven by private information (unobserved by the researcher).
-% Additionally, the Roy model aligns well with many real-world settings, such as education or labour market participation, where decisions are based on a comparison of expected outcomes across alternatives. 
+This makes the Roy model useful as a base case for CM, where selection-into-the mediator may be driven by private information (unobserved by the researcher).
 By using the Roy model as a benchmark, I explore the practical limits of the mediator ignorability assumption.
 
-Decompose the costs into its mean and an error term, $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, to give a representation of Roy selection in terms of unobserved and observed factors,
+Decompose the costs into its mean and an error term, $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, to show Roy-selection in terms of unobserved and observed factors,
 \[ D_i(z') = \indicator{
     U_{C,i} - \big(U_{1,i} - U_{0,i}\big) \leq
         \mu_1(z'; \vec X_i) - \mu_0(z'; \vec X_i) - \mu_C(z'; \vec X_i)
     }, \;\;\; \text{for } z'=0,1. \]
 
-If selection is Roy style, and the mediator is ignorable, then unobserved benefits play no part in selection.
-The only driver in differences in selection are differences in costs (and not benefits).
-If there are any unobserved benefits for selection-into-$D_i$ unobserved to the researcher, then sequential ignorability cannot hold.
+If selection follows a Roy model, and the mediator is ignorable, then unobserved benefits can play no part in selection.
+The only driver of selection are individuals' differences in costs (and not benefits).
+If there are any selection-into-$D_i$ benefits unobserved to the researcher, then sequential ignorability cannot hold.
 \newtheorem{proposition}{Proposition}
 \begin{proposition}
     \label{prop:roy-seq-ig}
     Suppose mediator selection follows a Roy model \eqref{eqn:roy-model}, and selection is not fully explained by costs and observed gains.
     Then sequential ignorability does not hold.
 \end{proposition}
-If there are any unobserved sources of gains, then sequential ignorability does not hold.
+
 This is an equivalence statement: selection based on costs and benefits is only consistent with mediator ignorability if the researcher observed every single source of mediator benefits.
 See \aref{appendix:roy-seq-ig} for the proof.
-
 This means than the vector of control variables $\vec X_i$ must be incredibly rich.
 Together, $\vec X_i$ and unobserved cost differences $U_{C,i}$ must explain selection-into-$D_i$ one hundred percent.
-In the Roy model framework, however, individuals make decisions about mediator take-up based on gains, which the researcher may not observe fully. 
-These unobservables are unlikely to be fully captured by an observed control set $\vec X_i$, except in very special cases (see e.g., the discussion in \citealt{angrist2009mostly,angrist2022empirical}).
+In the Roy model framework, however, individuals make decisions about mediator take-up based on gains --- whether the researcher observes them or not.
+The unobserved gains are unlikely to be fully captured by an observed control set $\vec X_i$, except in very special cases.
 %\footnote{
 %    In a similar sense, \cite{huber2024testing} give a method to  test the implications of sequential ignorability (requiring an instrument).
 %}
+
 In practice, the only way to believe in the mediator ignorability assumption is to study a setting where the researcher has two causal research designs, one for treatment $Z_i$ and another for mediator $D_i$, at the same time.
-A simple addition of ``we assume the mediator satisfies selection-on-observables'' will not cut it here, and will lead to biased inference in practice.
-%Consequently, the assumption of mediator ignorability is implausible in most practical settings.
+An unmotivated note saying 
+``we conduct an informal mechanism analysis by controlling for this variable''
+or
+``we assume the mediator satisfies selection-on-observables''
+does not cut it here, and will lead to biased inference in practice.
 
 % \subsection{Applied Settings}
 % 
