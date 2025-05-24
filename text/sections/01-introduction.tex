@@ -63,14 +63,14 @@ I use the \cite{roy1951some} model as a benchmark for judging the \cite{imai2010
 This motivates a solution to the identification problem inspired by classic labour economic work, which also uses the Roy model as a benchmark \citep{heckman1979sample,heckman1990empirical}.
 I follow the lead of these papers by using a control function to correct for the selection bias in conventional CM analyses.
 
-The control function approach requires mediator take-up respond only positively to the initial treatment, which implies mediatior selection can be written as a selection model.
+The control function approach requires mediator take-up respond only positively to the initial treatment, which implies mediatior selection follows a selection model.
 Second, it assumes that mediator take-up is motivated by mediator costs and benefits.
 Last, it requires a valid instrument for mediator take-up, to avoid relying on parametric assumptions on unobserved selection.
-This approach to identifying CM effects (despite selection-into-mediator) imports insights from a setting for instrumental variables with control functions, to account for selection and identifying mediator compliers for CM effects \citep{vytlacil2002independence,heckman2004using,heckman2005structural,florens2008identification,kline2019heckits}.\footnote{
+This approach to identifying CM effects (despite selection-into-mediator) imports insights the instrumental variables literature, to account for selection in CM effects \citep{vytlacil2002independence,heckman2004using,heckman2005structural,florens2008identification,kline2019heckits}.\footnote{
     Indeed, this paper does not invent control function methods, instead noting their applicability in this setting.
     See \cite{wooldridge2015control,imbens2007nonadditive} for general overviews of the approach.
 }
-Using a control function to estimate CM effects builds on the influential \cite{imai2010identification} approach, marrying the CM literature with labour economic theory for selection-into-treatment for the first time. 
+Using a control function to estimate CM effects builds on the influential \cite{imai2010identification} approach, marrying the CM literature with labour economic theory on selection-into-treatment for the first time. 
 
 %\textbf{Road-map:}
 This paper proceeds as follows.
@@ -78,6 +78,6 @@ This paper proceeds as follows.
 \autoref{sec:applied} describes this bias in applied settings with (1) a regression framework, (2) a setting with selection based on costs and benefits.
 %, (3) a short survey of empirical practice.
 \autoref{sec:selectionmodel} shows how a control function can effectively purge this bias from CM estimates.
-\autoref{sec:controlfun} demonstrates how to estimate CM effects with this approach, with either parametric and semi-parametric methods, giving supporting simulation evidence.
+\autoref{sec:controlfun} demonstrates how to estimate CM effects with this approach, with either parametric or semi-parametric methods, giving supporting simulation evidence.
 % and consistency results
 \autoref{sec:conclusion} concludes.

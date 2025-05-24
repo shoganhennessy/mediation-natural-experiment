@@ -64,7 +64,7 @@ Next the CFs, themselves, are estimated with semi-parametric methods.
 Consider the $D_i = 0$ subsample first.
 \[ \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} =
     \alpha + \gamma Z_i + \varphi\big( \vec X_i^- \big)
-    +  \left( 1 - D_i \right) \rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big), \]
+    +  \rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big), \]
 which gives a regression equation to estimate semi-parametrically, with the first-estimate estimate $\hat\pi\left(Z_i; \vec X_i \right)$ plugged in.
 The linear parameters ($\alpha, \gamma$ and a linear approximation of control parameter $\varphi$) can be estimated with OLS, with appropriate interactions to flexibly control for $\vec X_i$, and $\lambda_0$ with a flexible semiparametric specification.
 An attractive option is a series estimator, such as a spline specification, as this estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
@@ -76,7 +76,7 @@ Next, the $\rho_0 \lambda_0$ function is extrapolated to the $D_i = 1$ side, ide
 Return to the $D_i = 1$ subsample,
 \[ \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} =
     (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i^- \big)
-    +  D_i \rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big). \]
+    +  \rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big). \]
 The same process extrapolates the series estimate of $\rho_1 \lambda_1$ from the $D_i =1$ sample to the $D_i = 0$ subsample, for another set of estimates for the ADE and AIE.
 Efficient estimates of CM effects then composes these two, with weights proportional to the efficiency of each side.
 
@@ -128,7 +128,7 @@ Following \autoref{sec:regression}, these data have the following first and seco
         + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
 \end{align*}
 Treatment $Z$ has a causal effect on outcome $Y$, and it operates partially through mediator $D$.
-Outcome mean $\mu_{D_i}(Z_i;.)$ contains an interaction term, $Z_i D_i$, so while both $Z_i$ and $D_i$ have constant partial effects, the ATE depends on how many $i$ choose to take the mediator.
+Outcome mean $\mu_{D_i}(Z_i;.)$ contains an interaction term, $Z_i D_i$, so while both $Z_i$ and $D_i$ have constant partial effects, the ATE depends on how many $i$ choose to take the mediator and there is treatment effect heterogeneity.
 
 After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-degenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
 As a result, sequential ignorability does not hold; the mediator is not conditionally ignorable.

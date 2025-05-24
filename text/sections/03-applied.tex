@@ -28,8 +28,8 @@ In these terms, the ADE and AIE are represented as follows,
     \text{ADE}
     %= \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
     % &= \E{ \mu_{D_i}(1; \vec X_i) - \mu_{D_i}(0; \vec X_i)}, \\
-    &= \E{ D_i \Big( \mu_{1}(1; \vec X_i) - \mu_{1}(0; \vec X_i)\Big)
-        + (1 - D_i) \Big( \mu_{0}(1; \vec X_i) - \mu_{0}(0; \vec X_i)\Big)}, \\
+    &= \E{ (1 - D_i) \Big( \mu_{0}(1; \vec X_i) - \mu_{0}(0; \vec X_i) \Big)
+        + D_i \Big( \mu_{1}(1; \vec X_i) - \mu_{1}(0; \vec X_i) \Big)}, \\
     \text{AIE}
     %= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
         &= \E{\Big( D_i(1) - D_i(0) \Big)
@@ -42,7 +42,7 @@ With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following o
     \label{eqn:parametric-secondstage}
     Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
     + \varphi(\vec X_i)
-    + \underbrace{\left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}_{
+    + \underbrace{ \left(1 - D_i \right) U_{0,i} + D_i U_{1,i}}_{
         \text{Correlated error term.}}
 \end{align}
 First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \zeta(\vec X_i)$ the intercept, and $\bar \pi$ the first-stage compliance rate (which may depend on $\vec X_i$).
@@ -105,7 +105,7 @@ Decompose the costs into its mean and an error term, $C_i(Z_i) = \mu_{C}(Z_i; \v
 \[ D_i(z') = \indicator{
     U_{C,i} - \big(U_{1,i} - U_{0,i}\big) \leq
         \mu_1(z'; \vec X_i) - \mu_0(z'; \vec X_i) - \mu_C(z'; \vec X_i)
-    }, \;\;\; \text{for } z'=0,1. \]
+    }, \;\;\; \text{for } z' = 0, 1. \]
 
 If selection follows a Roy model, and the mediator is ignorable, then unobserved benefits can play no part in selection.
 The only driver of selection are individuals' differences in costs (and not benefits).

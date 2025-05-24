@@ -14,8 +14,8 @@ The outcomes are a sum of their potential outcomes.\footnote{
 \begin{align*}
     D_i &= (1 - Z_i) D_i(0)
         +   Z_i      D_i(1),  \\
-    Y_i &= Z_i       Y_i(1, D_i(1))
-        + (1 - Z_i) Y_i(0, D_i(0)).
+    Y_i &= (1 - Z_i) Y_i(0, D_i(0))
+        +   Z_i      Y_i(1, D_i(1)).
 \end{align*}
 
 %Write $\vec X_i$ for a set of control variables, and assume $Z_i$ is ignorable --- possibly conditional on $\vec X_i$.
@@ -161,8 +161,7 @@ This approach leads to biased estimates, and contaminates inference regarding di
 \begin{theorem}
     \label{thm:selection-bias}
     Absent an identification strategy for the mediator, causal mediation estimates are at risk of selection bias.
-    Suppose \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} holds, but \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} does not.
-    Then CM estimands are contaminated by selection bias and group differences.
+    If \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} holds, and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} does not, then CM estimands are contaminated by selection bias and group differences.
     Proof: see \aref{appendix:mediation-bias}.
 \end{theorem}
 Below I present the relevant selection bias and group difference terms, omitting the conditional on $\vec X_i$ notation for brevity.
