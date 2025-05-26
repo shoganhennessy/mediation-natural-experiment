@@ -1,6 +1,6 @@
 \section{Control Function (CF) Estimation of CM Effects}
 \label{sec:controlfun}
-A conventional approach to estimating CM effects involves a two-stage approach to estimating the ADE and the AIE: the first-stage $Z \to D$ and the second-stage $Z, D \to Y$.
+A conventional approach to estimating CM effects involves a two-stage approach to estimating the ADE and the AIE: the first-stage ($Z_i$ on $D_i$), and the second-stage ($Z_i, D_i$ on $Y_i$).
 A CF approach is a simple and intuitive addition to this approach: including the CF terms $\lambda_0, \lambda_1$ in the second-stage regression to address selection-into-mediator.
 
 This section presents two practical estimation strategies.
@@ -17,7 +17,7 @@ As such, this section focuses exclusively on the Heckman selection model.
 The Heckman selection model assumes unobserved errors $V_i$ follow a normal distribution, so estimates the first-stage using a probit model.
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
     = \Phi \big( \phi + \bar\pi Z_i + \vec\zeta' \vec X_i \big), \]
-where $\Phi(.)$ is the cumulative density function for the normal distribution, and $\phi, \bar\pi, \vec\zeta$ are parameters estimated with maximum likelihood.
+where $\Phi(.)$ is the cumulative density function for the standard normal distribution, and $\phi, \bar\pi, \vec\zeta$ are parameters estimated with maximum likelihood.
 
 From this probit first-stage, we construct an estimate of the inverse Mills ratio terms to serve as the CFs.
 These terms capture the correlation between unobserved factors influencing both mediator selection and outcomes, when the errors are normally distributed.
@@ -66,7 +66,9 @@ Consider the $D_i = 0$ subsample first.
     \alpha + \gamma Z_i + \varphi\big( \vec X_i^- \big)
     +  \rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big), \]
 which gives a regression equation to estimate semi-parametrically, with the first-estimate estimate $\hat\pi\left(Z_i; \vec X_i \right)$ plugged in.
-The linear parameters ($\alpha, \gamma$ and a linear approximation of control parameter $\varphi$) can be estimated with OLS, with appropriate interactions to flexibly control for $\vec X_i$, and $\lambda_0$ with a flexible semiparametric specification.
+The linear parameters ($\alpha, \gamma$ and a linear approximation of nuisance function $\varphi(.)$, $\vec \varphi$)\footnote{
+    Appropriate interactions between $Z_i, D_i$ and $\vec X_i$ can also flexibly control for $\vec X_i$, again avoiding linearity assumptions.
+} can be estimated with OLS, with $\lambda_0$ taking a flexible semiparametric specification.
 An attractive option is a series estimator, such as a spline specification, as this estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
 Note that $\lambda_0$ can no longer be separated from $\rho_0$ in this semi-parametric approach; this is inconsequential because the complier adjustment term requires $\rho_0, \rho_1$ only be identified up to a constant.\footnote{
     \aref{appendix:semiparametric} explains these points in further detail.

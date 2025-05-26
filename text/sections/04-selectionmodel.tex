@@ -23,7 +23,7 @@ The main problem is that second-stage regression equation \eqref{eqn:parametric-
 The CF approach models the contaminating terms in \eqref{eqn:secondstage-reg}, avoiding the bias from omitting them in regression estimates.
 CF methods were first devised to correct for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem of the same form as \autoref{eqn:secondstage-reg} \citep{heckman1979sample}.
 The approach works in the following manner: (1) assume that the variable of interest follows a selection model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage; and (3) incorporate this information as control terms in the second-stage equation to adjust for selection-into-mediator.
-Identification in CF methods typically relies on either distributional assumptions on the unobserved error terms, or an exclusion restriction for instrumental variables in the first-stage (or both).
+Identification in CF methods typically relies on either distributional assumptions on the unobserved error terms, or an exclusion restriction for Instrumental Variables (IVs) in the first-stage (or both).
 By explicitly accounting for the information contained in the first-stage selection model, CF methods enable consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors \citep{florens2008identification}.
 
 In the example of analysing health gains from health insurance \citep{finkelstein2008oregon}, a CF approach addresses the unobserved confounding from underlying health conditions.
@@ -42,7 +42,7 @@ The following assumptions are sufficient to model the correlated error terms, id
     \[ \Probgiven{ D_i(0) \leq D_i(1) }{\vec X_i} = 1. \]
 \end{assumptionCF}
 \noindent
-Assumption \ref{cf:monotonicity} is the monotonicity condition first used in an instrumental variables context \citep{imbens1994identification}.
+Assumption \ref{cf:monotonicity} is the monotonicity condition first used in an IV context \citep{imbens1994identification}.
 Here, it is assuming that people respond to treatment, $Z_i$, by consistently taking or refusing the mediator $D_i$ (always or never-mediators), or taking the mediator $D_i$ if and only if assigned to the treatment $Z_i=1$ (mediator compliers).
 There are no mediator defiers.
 
@@ -60,8 +60,8 @@ where $U_i \coloneqq F_V\left( V_i \mid \vec X_i \right)$ follows a uniform dist
 $U_i$ are the unobserved mediator take-up costs.
 Note the maintained assumption that treatment $Z_i$ is ignorable conditional on $\vec X_i$ implies $Z_i \indep U_i$ conditional on $\vec X_i$.
 
-This selection model setup is equivalent to the monotonicity condition, and is importing a well-known equivalence result from the instrumental variables literature to the CM setting.
-The main conceptual difference is not assuming $Z_i$ is a valid instrument for identifying $D \to Y$ effects among compliers; it is using the selection model representation to correct for selection bias.
+This selection model setup is equivalent to the monotonicity condition, and is importing a well-known equivalence result from the IV literature to the CM setting.
+The main conceptual difference is not assuming $Z_i$ is a valid instrument for identifying the $D_i$ on $Y_i$ effect among compliers; it is using the selection model representation to correct for selection bias.
 See \aref{appendix:cf-monotonicity} for a validation of the general \cite{vytlacil2002independence} equivalence result in a CM setting, with conditioning covariates $\vec X_i$.
 
 \begin{assumptionCF}
@@ -90,7 +90,7 @@ denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as th
         \textnormal{ for } z' = 0, 1. \]
 \end{assumptionCF}
 \noindent
-Assumption \ref{cf:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an Instrumental Variable (IV).
+Assumption \ref{cf:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an IV.
 It assumes an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu_1-\mu_0$), and has a non-zero influence on the mediator (i.e., strong IV first-stage).
 The exclusion restriction is untestable, and must be guided by domain-specific knowledge; IV first-stage strength is testable, and must be justified with data by methods common in the IV literature.
 
@@ -189,5 +189,7 @@ The CFs allow us to measure both selection bias and complier differences, and th
 \autoref{fig:cm-heckit-dist} shows how a CF adjustment corrects unadjusted CM effect estimates.
 In a simulation with selection-into-mediator based on unobserved error terms, the CF adjustment pushes conventional CM estimates back to the true value. 
 
-% \subsubsection{Connection to Marginal Treatment Effects}
-% It is worth noting that this approach is essentially an MTE approach (Marginal Treatment Effect, developed by Heckman and Vytlacil, 1999, 2005) applied to a causal mediation setting. Just as the semi-parametric local IV approach uses variation in instruments to identify marginal treatment effects across different resistance-to-treatment margins, our semi-parametric CF approach identifies mediation effects across the distribution of unobserved mediator gains. This connection to the MTE literature provides a conceptual bridge between the instrumental variables literature and causal mediation analysis.
+\subsubsection{Connection to Marginal Treatment Effects}
+It is worth noting that this approach is essentially a Marginal Treatment Effect approach (MTE, \citealt{heckman2005structural}) applied to a causal mediation setting.
+Just as the semi-parametric local IV approach uses variation in instruments to identify marginal treatment effects across different resistance-to-treatment margins, this semi-parametric CF approach identifies mediation effects across the distribution of unobserved mediator gains.
+This connection to the MTE literature provides a conceptual bridge between the IV literature and CM.

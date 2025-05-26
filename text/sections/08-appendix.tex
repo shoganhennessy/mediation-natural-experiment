@@ -243,15 +243,14 @@ Put $\pi(z'; \vec X) = \Egiven{D_i(z')}{\vec X}$, and $\eta_{z', i} = D_i(z') - 
             Z_i \left[ D_i(1) - D_i(0) \right] \\
         &= \underbrace{\pi(0; \vec X_i) 
         }_{\text{Intercept, } \coloneqq \phi + \zeta(\vec X_i)} +
-            \underbrace{Z_i \E{ \pi(1; \vec X_i) - \pi(0; \vec X_i)}}_{
+            \underbrace{Z_i \big( \pi(1; \vec X_i) - \pi(0; \vec X_i) \big)}_{
                 \text{Regressor, } \coloneqq \bar\pi Z_i }
         + \underbrace{(1- Z_i) \eta_{0,i} + Z_i \eta_{1,i}}_{
             \text{Errors, } \coloneqq \eta_i} \\
     \implies \Egiven{D_i}{Z_i, \vec X_i}
         &= \phi + \bar \pi Z_i + \zeta(\vec X_i).
 \end{align*}
-Since the ignorability assumption gives $\E{Z_i \eta_{z',i}} = \E{Z_i} \E{\eta_{z',i}} = 0$, for each $z' =0,1$.
-
+Since the ignorability assumption gives $\Egiven{Z_i \eta_{z',i}}{\vec X_i} = \Egiven{Z_i}{\vec X_i} \Egiven{\eta_{z',i}}{\vec X_i} = 0$, for each $z' =0,1$.
 By the same argument $Z_i$ is also assumed independent of potential outcomes $Y_i(.,.)$, so that $U_{0,i}, U_{1,i} \indep Z_i$.
 Thus, the reduced form regression $Z \to Y$ also leads to unbiased estimates for the ATE.
 
@@ -616,7 +615,7 @@ For $\pi_0 < \pi_1 \in (0,1)$,
     (\rho_1 - \rho_0) \, \Gamma \big(\pi_0, \pi_1 \big)
     &= (\rho_1 - \rho_0) \frac{\pi_1\lambda_1\left(\pi_1\right) - \pi_0\lambda_1\left(\pi_0\right)}{\pi_1 - \pi_0} \\
     &= \left(1 - \frac{\rho_0}{\rho_1}\right) \frac{
-        \pi_1 \rho_1 \lambda_1\left(\pi_1\right) - \pi_0 \rho_1 \lambda_1\left(p\right)}{\pi_1 - p} \\
+        \pi_1 \rho_1 \lambda_1\left(\pi_1\right) - \pi_0 \rho_1 \lambda_1\left(p\right)}{\pi_1 - \pi_0} \\
     &= \left(\frac{\rho_1}{\rho_0} - 1 \right) \frac{
         (1 - \pi_0) \rho_0 \lambda_0\left(\pi_0\right) - (1 - \pi_1) \rho_0 \lambda_0\left(\pi_1\right)}{\pi_1 - \pi_0}.
 \end{align*}

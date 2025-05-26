@@ -86,7 +86,7 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
     This figure shows the structural causal model behind causal mediation.
     LAIE refers to the AIE (i.e., effect of the mediator $D_i$ on $Y_i$) local to $D_i(Z_i)$ compliers, so that AIE $=$ average first-stage $\times$ LAIE.
     Unobserved confounder $\vec U_i$ represents this paper's focus on the case that $D_i$ is not ignorable, by showing an unobserved confounder.
-    \autoref{sec:regression} formally defines $\vec U$ in an applied setting.
+    \autoref{sec:regression} formally defines $\vec U_i$ in an applied setting.
 \end{figure}
 
 Estimating the AIE answers the following question: how much of the causal effect $Z_i$ on $Y_i$ goes through the $D_i$ channel?
@@ -107,7 +107,7 @@ The conventional approach to estimating direct and indirect effects assumes both
     \label{dfn:seq-ign}
     Sequential Ignorability \citep{imai2010identification}.
     \begin{align}
-        \label{eqn:seq-ign-Z_i}
+        \label{eqn:seq-ign-Z}
         Z_i \indep  D_i(z), Y_i(z', d) \;\; &| \;\; \vec X_i,
             &\textnormal{ for } z, z', d = 0, 1 \\
         \label{eqn:seq-ign-D}
@@ -115,12 +115,11 @@ The conventional approach to estimating direct and indirect effects assumes both
             &\textnormal{ for } z', d = 0, 1
     \end{align}
 \end{definition}
-Sequential ignorability assumes that the initial treatment $Z_i$ is ignorable conditional on $\vec X_i$.
-It then also assumes that, after $Z_i$ is assigned, that $D_i$ is ignorable conditional on $\vec X, Z_i$.
-In addition, a common support condition for both $Z_i, D_i$ (across $\vec X_i$) is necessary.
-If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z_i} and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, holds then the ADE and AIE are identified by two-stage mean differences, after conditioning on $\vec X_i$.\footnote{
+Sequential ignorability assumes that the initial treatment $Z_i$ is ignorable conditional on $\vec X_i$ (as has already been assumed above).
+It then also assumes that, after $Z_i$ is assigned, that $D_i$ is ignorable conditional on $\vec X, Z_i$ (hereafter, mediator ignorability).
+If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, holds then the ADE and AIE are identified by two-stage mean differences, after conditioning on $\vec X_i$.\footnote{
+    In addition, a common support condition for both $Z_i, D_i$ (across $\vec X_i$) is necessary.
     \cite{imai2010identification} show a general identification statement; I show identification in terms of two-stage regression, notation for which is more familiar in economics.
-    This reasoning is in line with G-computation reasoning \citep{robins1986g};
     \aref{appendix:identification} states the \cite{imai2010identification} identification result, and then develops the two-stage regression notation which holds as a consequence of sequential ignorability.
 }
 \vspace{0.1cm}
@@ -137,31 +136,20 @@ If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z_i} and \ref{df
 }}
 I refer to the estimands on the left-hand side as Causal Mediation (CM) estimands.
 These estimands are typically estimated with linear models, with resulting estimates composed from two-stage Ordinary Least Squares (OLS) estimates \citep{imai2010identification}.
-%\begin{align*}
-%    D_i &= \phi + \pi Z_i
-%        + \vec \psi_1' \vec X_i+ \eta_i \\
-%    Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
-%        + \vec \psi_2' \vec X_i + \varepsilon_i
-%\end{align*}
-%And so the CM estimands are composed from OLS estimates,
-%$\hat \gamma + \hat\delta \E{D_i}$ for the Average Direct Effect (ADE) and
-%$\hat\pi \left(\hat \beta + \E{Z_i} \hat \delta \right)$ for the average indirect effect (AIE).
 While this is the most common approach in the applied literature, I do not assume the linear model.
-% of this problem as it assumes homogenous treatment effects and linear confounding.
 Linearity assumptions are unnecessary to my analysis; it suffices to note that heterogeneous treatment effects and non-linear confounding would bias OLS estimates of CM estimands in the same manner that is well documented elsewhere (see e.g., \citealt{angrist1998estimating,sloczynski2022interpreting}).
 This section focuses on problems that plague CM by selection-on-observables, regardless of estimation method.
-% As such, I focus my work on non-parametric identification, and employ semi- and non-parametric estimation methods in my empirical analysis  whenever possible to avoid these problems.
 
 \subsection{Non-identification of Causal Mediation (CM) Effects}
-Applied researchers often use a natural experiment to study settings where treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z_i}.
-Rarely do they also have access to an additional, overlapping natural experiment to isolate random variation in $D_i$ --- to justify assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}.
+Applied researchers often use a natural experiment to study settings where treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
+Rarely do they also have access to an additional, overlapping natural experiment to isolate random variation in $D_i$ --- to justify mediator ignorability \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}.
 One might consider conventional CM methods in such a setting to learn about the mechanisms behind the causal effect $Z_i$ on $Y_i$.
 This approach leads to biased estimates, and contaminates inference regarding direct and indirect effects.
 
 \begin{theorem}
     \label{thm:selection-bias}
     Absent an identification strategy for the mediator, causal mediation estimates are at risk of selection bias.
-    If \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z_i} holds, and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} does not, then CM estimands are contaminated by selection bias and group differences.
+    If \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} holds, and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} does not, then CM estimands are contaminated by selection bias and group differences.
     Proof: see \aref{appendix:mediation-bias}.
 \end{theorem}
 Below I present the relevant selection bias and group difference terms, omitting the conditional on $\vec X_i$ notation for brevity.
@@ -230,7 +218,7 @@ These selection bias terms would equal zero if the mediator had been ignorable \
 The group differences represent the fact that a matching approach gives an average effect on the treated group and, when selection-on-observables does not hold, this is systematically different from the average effect \citep{heckman1998characterizing}.
 These terms are a non-parametric framing of the bias from controlling for intermediate outcomes, previously studied only in a linear setting (i.e., bad controls in \citealt{cinelli2024crash}, or M-bias in \citealt{ding2015adjust}).
 
-The AIE group differences term is longer, because the indirect effect is comprised of the effect of $D_i$ local to $Z_i$ compliers.
+The AIE group differences term is longer, because the indirect effect is comprised of the effect of $D_i$ local to $D_i(Z_i)$ compliers.
 \begin{align*}
     \text{AIE}
     &= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
@@ -242,9 +230,5 @@ The AIE group differences term is longer, because the indirect effect is compris
 It is important to acknowledge the mediator compliers here, because the AIE is the treatment effect going through the $D_i(Z_i)$ channel, thus only refers to individuals pushed into mediator $D_i$ by initial treatment $Z_i$.
 If we had been using a population average effect for $D_i$ on $Y_i$, then this is losing focus on the definition of the AIE; it is not about the causal effect $D_i$ on $Y_i$, it is about the causal effect $D_i(Z_i)$ on $Y_i$.
 
-The group difference bias term in \ref{thm:selection-bias} arises because the selection-on-observables approach assumes that this complier average effect is equal to the population average effect, which does not hold true if the mediator is not ignorable.
-%\footnote{
-%    If the mediator had been ignorable, the complier indirect effect would equal the AIE; this differences term represents the difference between the two when it is not.
-%    %This distinction between average effects and complier average effects in the AIE is skipped over by the ``controlled direct effect'' definitions of \cite{pearl2003direct}.
-%}
-%
+The group difference bias term arises because the selection-on-observables approach assumes that this complier average effect is equal to the population average effect, which does not hold true if the mediator is not ignorable.
+This distinction between average effects and complier average effects in the AIE is skipped over by the ``controlled effect'' definitions of \cite{pearl2003direct}.
