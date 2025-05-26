@@ -6,9 +6,8 @@ Economists use natural experiments to credibly answer social questions, when an 
 For example, does health insurance causally improve health outcomes \citep{finkelstein2008oregon}?
 Natural experiments are settings which answer these questions, but give no indication of how these effects came about.
 Causal Mediation (CM) aims to estimate the mechanisms behind causal effects, by estimating how much of the treatment effect operates through a proposed mediator.
-For example, do health insurance improvements come mostly from no longer avoiding healthcare for cost reasons, or are there other direct effects?
-This study of mechanisms behind causal effects broadens the economic understanding
-of social setting studied with natural experiments.
+For example, do causal gains from health insurance come mostly from starting to utilise healthcare more often, or are there other direct effects?
+This study of mechanisms behind causal effects broadens the economic understanding of social settings studied with natural experiments.
 This paper shows that the conventional approach to estimating CM effects is inappropriate in a natural experiment setting, provides a theoretical framework for how bias operates, and develops an approach to correctly estimate CM effects under alternative assumptions.
 
 % Paragraph here: how do applied economists currently do it?
@@ -19,7 +18,7 @@ This paper starts by answering the following question: what does a selection-on-
 Estimates for the average direct and indirect effects are contaminated by bias terms --- selection bias plus group difference terms.
 I then show how this bias operates in an applied regression framework, with bias coming from a correlated error term.
 %, showing that the bias term grows larger with the degree of unexplained selection.
-For example, if individuals had been choosing to seek medical care more frequently after when they have health insurance, then mediator ignorability would require a researcher observe and control for everyone's underlying health conditions as part of the CM analysis --- even health conditions that are not yet diagnosed.
+For example, if individuals had been choosing to seek medical care more frequently with new health insurance, then mediator ignorability would require a researcher observe and control for everyone's underlying health conditions as part of the CM analysis --- even health conditions that are not even diagnosed.
 Should a researcher consider running a CM analysis without using another natural experiment to isolate random variation in the mediator (in addition to the one for the original treatment), then this assumption is unlikely to hold true.
 This means that investigating mechanisms by CM methods will lead to biased inference in natural experiment settings.
 
@@ -66,9 +65,9 @@ I follow the lead of these papers by using a control function to correct for the
 The control function approach requires mediator take-up respond only positively to the initial treatment, which implies mediatior selection follows a selection model.
 Second, it assumes that mediator take-up is motivated by mediator costs and benefits.
 Last, it requires a valid instrument for mediator take-up, to avoid relying on parametric assumptions on unobserved selection.
-This approach to identifying CM effects (despite selection-into-mediator) imports insights the instrumental variables literature, to account for selection in CM effects \citep{vytlacil2002independence,heckman2004using,heckman2005structural,florens2008identification,kline2019heckits}.\footnote{
+This approach to identifying CM effects (despite selection-into-mediator) imports insights the instrumental variables literature, connecting CM to the marginal treatment effects literature \citep{vytlacil2002independence,heckman2004using,heckman2005structural,florens2008identification,kline2019heckits}.\footnote{
     Indeed, this paper does not invent control function methods, instead noting their applicability in this setting.
-    See \cite{wooldridge2015control,imbens2007nonadditive} for general overviews of the approach.
+    See \cite{wooldridge2015control,imbens2007nonadditive} for general overviews of the approach, and \cite{frolich2017direct} for a CM setting with two instruments that notes the connection to control function methods.
 }
 Using a control function to estimate CM effects builds on the influential \cite{imai2010identification} approach, marrying the CM literature with labour economic theory on selection-into-treatment for the first time. 
 

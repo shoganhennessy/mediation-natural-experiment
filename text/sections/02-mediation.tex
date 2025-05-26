@@ -2,10 +2,10 @@
 \label{sec:mediation}
 CM decomposes causal effects into two channels, through a mediator (indirect effect) and through all other paths (direct effect).
 To develop notation, write $Z_i = 0, 1$ for a binary treatment, $D_i = 0, 1$ a binary mediator, and $Y_i$ a continuous outcome.\footnote{
-    These are random variables for each.
     This paper exclusively focuses on the binary case.
     See \cite{huber2020direct} for a discussion of CM with continuous treatment and/or mediator, and the assumptions required.
 }
+$D_i, Y_i$ are a sum of their potential outcomes,
 %\footnote{
 %    Other literatures use different notation.
 %    For example, \cite{imai2010identification} write $T_i, M_i, Y_i$ for the randomised treatment, mediator, and outcome, respectively.
@@ -25,7 +25,7 @@ Assume treatment $Z_i$ is ignorable.\footnote{
 }
 \[ Z_i \indep  D_i(z'), Y_i(z, d'), \text{ for } z', z, d' = 0, 1 \]
 
-There are only two average effects which are identified (without additional assumptions).
+There are only two average effects which are identified without additional assumptions.
 \begin{enumerate}
     \item The average first-stage refers to the effect of the treatment on mediator, $Z_i$ on $D_i$:
     \[ \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0}
@@ -83,9 +83,9 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
     \justify
     \footnotesize
     \textbf{Note}:
-    This figure shows the structural causal model behind causal mediation.
-    LAIE refers to the AIE (i.e., effect of the mediator $D_i$ on $Y_i$) local to $D_i(Z_i)$ compliers, so that AIE $=$ average first-stage $\times$ LAIE.
-    Unobserved confounder $\vec U_i$ represents this paper's focus on the case that $D_i$ is not ignorable, by showing an unobserved confounder.
+    This figure shows the structural causal model behind causal mediation, where arrows represent causal effects --- e.g., $Z_i \to D_i$ means $Z_i$ affects $D_i$ with no reverse causality.
+    LAIE refers to the AIE local to $D_i(Z_i)$ compliers, so that AIE $=$ average first-stage $\times$ LAIE.
+    $\vec U_i$ represents this paper's focus on the case that $D_i$ is not ignorable by showing an unobserved confounder.
     \autoref{sec:regression} formally defines $\vec U_i$ in an applied setting.
 \end{figure}
 
@@ -117,7 +117,7 @@ The conventional approach to estimating direct and indirect effects assumes both
 \end{definition}
 Sequential ignorability assumes that the initial treatment $Z_i$ is ignorable conditional on $\vec X_i$ (as has already been assumed above).
 It then also assumes that, after $Z_i$ is assigned, that $D_i$ is ignorable conditional on $\vec X, Z_i$ (hereafter, mediator ignorability).
-If sequential ignorability, \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, holds then the ADE and AIE are identified by two-stage mean differences, after conditioning on $\vec X_i$.\footnote{
+If \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} hold, then the ADE and AIE are identified by two-stage mean differences conditioning on $\vec X_i$.\footnote{
     In addition, a common support condition for both $Z_i, D_i$ (across $\vec X_i$) is necessary.
     \cite{imai2010identification} show a general identification statement; I show identification in terms of two-stage regression, notation for which is more familiar in economics.
     \aref{appendix:identification} states the \cite{imai2010identification} identification result, and then develops the two-stage regression notation which holds as a consequence of sequential ignorability.

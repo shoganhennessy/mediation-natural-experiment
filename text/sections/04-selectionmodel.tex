@@ -115,7 +115,7 @@ The most compelling example of a mediator IV is using data on the cost of mediat
     where $\lambda_0, \lambda_1$ are the Control Functions (CFs), $\rho_0, \rho_1$ are linear parameters, and mediator propensity score $\pi(z';\vec X_i)$ is separately identified in the first-stage \eqref{eqn:parametric-firststage}.
     Proof: see \aref{appendix:cf-secondstage}.
 \end{proposition}
-Again, this set-up required no linearity assumptions, treatment effects vary because $Z_i, D_i$ are categorical and  $\beta, \gamma, \delta , \varphi(\vec X_i)$ vary with $\vec X_i$.
+Again, this set-up required no linearity assumptions, and treatment effects vary, because $Z_i, D_i$ are categorical and  $\beta, \gamma, \delta , \varphi(\vec X_i)$ vary with $\vec X_i$.
 The CFs are functions which measure unobserved mediator gains, for those with unobserved mediator costs above or below a propensity score value.
 Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}$, to give the following representation for the CFs:
 \begin{align*}
@@ -159,10 +159,10 @@ If we do not know what distribution class the errors follow, then $\lambda_0, \l
 This theorem provides a solution to the identification problem for CM effects when facing selection;
 rather than assuming away selection problems, it explicitly models them.
 The ADE is straightforward to calculate as an average of the direct effect parameters, while the AIE also includes an adjustment for unobserved complier gains to the mediator.
-Again, this is because the AIE only refers to individuals who were induced by treatment $Z$ into taking mediator $D$ (mediator compliers).
+Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
 The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
 
-This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{heckman2005structural}) applied to a causal mediation setting.
+This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{heckman2005structural}) applied to a CM setting.
 Just as the semi-parametric local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
 This connection to MTEs provides a conceptual bridge between the literature on IV structural causal effects and CM.
 
@@ -192,5 +192,3 @@ This connection to MTEs provides a conceptual bridge between the literature on I
 
 In a simulation with Roy selection-into-mediator based on unobserved error terms, the CF adjustment pushes conventional CM estimates back to the true value. 
 \autoref{fig:cm-heckit-dist} shows how a CF adjustment corrects unadjusted CM effect estimates.
-
-

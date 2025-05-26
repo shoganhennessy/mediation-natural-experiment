@@ -46,7 +46,7 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
     # First covariate (\vec X_i^-)
     X_minus <- 4 + rnorm(sample.size, mean = 0, sd = 1)
     # Second covariate (instrument for the control function).
-    X_IV <- 1 * runif(sample.size, -1, 1)
+    X_IV <- runif(sample.size, -1, 1)
     # Simulate the unobserved error terms.
     mu.vector <- c(0, 0, 0)
     sigma.matrix <- matrix(c(
