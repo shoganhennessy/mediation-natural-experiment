@@ -115,7 +115,7 @@ The most compelling example of a mediator IV is using data on the cost of mediat
     where $\lambda_0, \lambda_1$ are the Control Functions (CFs), $\rho_0, \rho_1$ are linear parameters, and mediator propensity score $\pi(z';\vec X_i)$ is separately identified in the first-stage \eqref{eqn:parametric-firststage}.
     Proof: see \aref{appendix:cf-secondstage}.
 \end{proposition}
-Again, this set-up required no linearity assumptions, treatment effects vary because$Z_i, D_i$ are categorical and  $\beta, \gamma, \delta , \varphi(\vec X_i)$ vary with $\vec X_i$.
+Again, this set-up required no linearity assumptions, treatment effects vary because $Z_i, D_i$ are categorical and  $\beta, \gamma, \delta , \varphi(\vec X_i)$ vary with $\vec X_i$.
 The CFs are functions which measure unobserved mediator gains, for those with unobserved mediator costs above or below a propensity score value.
 Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}$, to give the following representation for the CFs:
 \begin{align*}
@@ -162,8 +162,12 @@ The ADE is straightforward to calculate as an average of the direct effect param
 Again, this is because the AIE only refers to individuals who were induced by treatment $Z$ into taking mediator $D$ (mediator compliers).
 The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
 
+This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{heckman2005structural}) applied to a causal mediation setting.
+Just as the semi-parametric local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
+This connection to MTEs provides a conceptual bridge between the literature on IV structural causal effects and CM.
+
 \begin{figure}[h!]
-    \caption{The CF Adjustment Addresses Persistent Bias in CM Estimates.}
+    \caption{The CF Adjustment Addresses Persistent Bias in Conventional CM Estimates.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{$\hat{\text{ADE}} - \text{ADE}$.}
@@ -180,16 +184,13 @@ The CFs allow us to measure both selection bias and complier differences, and th
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with correlated normally distributed error terms (further described in \autoref{sec:simulations}).
+    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with normally distributed error terms (with both correlation and heteroscedasticity, further described in \autoref{sec:simulations}).
     The black dashed line is the true value;
     orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
     and blue estimates with a two-stage Heckman selection adjustment.
 \end{figure}
 
+In a simulation with Roy selection-into-mediator based on unobserved error terms, the CF adjustment pushes conventional CM estimates back to the true value. 
 \autoref{fig:cm-heckit-dist} shows how a CF adjustment corrects unadjusted CM effect estimates.
-In a simulation with selection-into-mediator based on unobserved error terms, the CF adjustment pushes conventional CM estimates back to the true value. 
 
-\subsubsection{Connection to Marginal Treatment Effects}
-It is worth noting that this approach is essentially a Marginal Treatment Effect approach (MTE, \citealt{heckman2005structural}) applied to a causal mediation setting.
-Just as the semi-parametric local IV approach uses variation in instruments to identify marginal treatment effects across different resistance-to-treatment margins, this semi-parametric CF approach identifies mediation effects across the distribution of unobserved mediator gains.
-This connection to the MTE literature provides a conceptual bridge between the IV literature and CM.
+
