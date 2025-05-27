@@ -36,7 +36,7 @@ For each $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec 
 With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following outcome formulae --- which characterise direct effects, indirect effects, and selection bias.
 \begin{align}
     \label{eqn:parametric-firststage}
-    D_i &= \phi + \bar \pi Z_i + \zeta(\vec X_i) + \eta_i  \\
+    D_i &= \theta + \bar \pi Z_i + \zeta(\vec X_i) + \eta_i  \\
     \label{eqn:parametric-secondstage}
     Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
     + \varphi(\vec X_i)
@@ -45,7 +45,7 @@ With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following o
 \end{align}
 This is not consequence  of linearity assumptions; the regression functions allow for unconstrained heterogenous treatment effects.
 This is because $Z_i, D_i$ are categorical, and if either were instead continuously distributed then this representative would not necessarily hold true.
-First-stage \eqref{eqn:parametric-firststage} is identified, with $\phi + \zeta(\vec X_i)$ the intercept, and $\bar \pi$ the first-stage average compliance rate (conditional on $\vec X_i$).
+First-stage \eqref{eqn:parametric-firststage} is identified, with $\theta + \zeta(\vec X_i)$ the intercept, and $\bar \pi$ the first-stage average compliance rate (conditional on $\vec X_i$).
 Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to omitted variables bias.
 See \aref{appendix:regression-model} for the derivation.
 \begin{enumerate}[label=\textbf{(\alph*)}]

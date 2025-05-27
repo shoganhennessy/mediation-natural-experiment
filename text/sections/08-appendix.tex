@@ -242,13 +242,13 @@ Put $\pi(z'; \vec X) = \Egiven{D_i(z')}{\vec X}$, and $\eta_{z', i} = D_i(z') - 
         &= D_i(0) +
             Z_i \left[ D_i(1) - D_i(0) \right] \\
         &= \underbrace{\pi(0; \vec X_i) 
-        }_{\text{Intercept, } \coloneqq \phi + \zeta(\vec X_i)} +
+        }_{\text{Intercept, } \coloneqq \theta + \zeta(\vec X_i)} +
             \underbrace{Z_i \big( \pi(1; \vec X_i) - \pi(0; \vec X_i) \big)}_{
                 \text{Regressor, } \coloneqq \bar\pi Z_i }
         + \underbrace{(1- Z_i) \eta_{0,i} + Z_i \eta_{1,i}}_{
             \text{Errors, } \coloneqq \eta_i} \\
     \implies \Egiven{D_i}{Z_i, \vec X_i}
-        &= \phi + \bar \pi Z_i + \zeta(\vec X_i).
+        &= \theta + \bar \pi Z_i + \zeta(\vec X_i).
 \end{align*}
 Since the ignorability assumption gives $\Egiven{Z_i \eta_{z',i}}{\vec X_i} = \Egiven{Z_i}{\vec X_i} \Egiven{\eta_{z',i}}{\vec X_i} = 0$, for each $z' =0,1$.
 By the same argument $Z_i$ is also assumed independent of potential outcomes $Y_i(.,.)$, so that $U_{0,i}, U_{1,i} \indep Z_i$.

@@ -16,16 +16,29 @@ As such, this section focuses exclusively on the Heckman selection model.
 
 The Heckman selection model assumes unobserved errors $V_i$ follow a normal distribution, so estimates the first-stage using a probit model.
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
-    = \Phi \big( \phi + \bar\pi Z_i + \vec\zeta' \vec X_i \big), \]
-where $\Phi(.)$ is the cumulative density function for the standard normal distribution, and $\phi, \bar\pi, \vec\zeta$ are parameters estimated with maximum likelihood.
+    = \Phi \big( \theta + \bar\pi Z_i + \vec\zeta' \vec X_i \big), \]
+where $\Phi(.)$ is the cumulative density function for the standard normal distribution, and $\theta, \bar\pi, \vec\zeta$ are parameters estimated with maximum likelihood.
 
 From this probit first-stage, we construct an estimate of the inverse Mills ratio terms to serve as the CFs.
 These terms capture the correlation between unobserved factors influencing both mediator selection and outcomes, when the errors are normally distributed.
-\[ \hat \lambda_0 = 1 - \Phi^{-1} \left( \hat\phi + \hat{\bar\pi} Z_i + \hat{\vec\zeta}' \vec X_i \right), \;\;\;\;
-\hat \lambda_1 = \Phi^{-1} \left( \hat\phi + \hat{\bar\pi} Z_i + \hat{\vec\zeta}' \vec X_i \right). \]
-Lastly, the second-stage is estimated with OLS, including the estimated CFs,
-\[ Y_i = \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i + \vec\varphi' \vec X_i^- 
-    + \rho_0(1-D_i) \hat \lambda_0 + \rho_1 D_i \hat \lambda_1 + \varepsilon_i. \]
+\[ \lambda_0(p') = - \frac{\phi(p')}{\Phi(p')}, \;\;\;\;
+\lambda_1(p') = \frac{\phi(p')}{\Phi(p')}, \;\;\;\; \text{ for } p' \in (0,1) \]
+where $\phi(.)$ is the probability density function for the standard normal distribution.
+
+Lastly, the second-stage is estimated with OLS, including the estimated CFs.
+\begin{align*}
+    \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
+        \alpha
+        + \beta D_i
+        + \gamma Z_i
+        + \delta Z_i D_i
+        + \varphi\big(\vec X_i^-\big) \\
+        & \;\; + \rho_0 (1 - D_i) \lambda_0 \big( -\Phi^{-1}(\hat \pi(Z_i; \vec X_i)) \big)
+    + \rho_1 D_i \lambda_1\big( \Phi^{-1}(\hat \pi(Z_i; \vec X_i)) \big)
+    + \varepsilon_i,
+\end{align*}
+where $\hat\pi \big(z';\vec X_i \big) = \Phi \Big( \hat\theta + \hat{\bar\pi} z' + \hat{\vec\zeta}' \vec X_i \Big)$ are the predictions from the probit first-stage.
+
 The resulting ADE and AIE estimates are composed from sample estimates of the terms in Theorem \ref{thm:cf-identification},
 \[ \hat{\text{ADE}}
     = \hat{\gamma} + \hat{\delta}\,\bar D_i, \;\;\;\;
@@ -34,7 +47,7 @@ The resulting ADE and AIE estimates are composed from sample estimates of the te
         \hat{\beta} + \hat{\delta}\,\bar Z_i 
         + \big(\hat \rho_1 - \hat \rho_0 \big)
         \hat \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i)\big) \Big) \]
-where $\bar D_i = \frac1N \sum_{i=1}^N D_i$, $\bar Z_i = \frac1N \sum_{i=1}^N Z_i$, and $\hat\pi \big(z';\vec X_i \big) = \Phi \big( \hat\phi + \hat{\bar\pi} z' + \hat{\vec\zeta}' \vec X_i \big)$ are the predictions for the probit first-stage, and $\hat\Gamma(.,.)$ is the mean estimate of the complier adjustment term using the estimated CF, $\hat\lambda_1$.
+where $\bar D_i = \frac1N \sum_{i=1}^N D_i$, $\bar Z_i = \frac1N \sum_{i=1}^N Z_i$, and $\hat\Gamma(.,.)$ is the mean estimate of the complier adjustment term as a function of $\lambda_1$.
 
 The standard errors for estimates can be computed using the delta method.
 Specifically, we account for both the sampling variability in the coefficient estimates and the fact that the CFs themselves are estimated in the first-stage.
