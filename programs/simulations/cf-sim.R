@@ -9,15 +9,17 @@ print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 ## Load libraries
 # Functions for data manipulation and visualisation
 library(tidyverse)
-# Package for semi-parametric estimation of E[ outcome | X ]
-library(mgcv)
 # Package for more distributions to sample from.
 library(MASS)
-# Package for semi-parametric regressor, splines by bs(.).
-library(splines)
+# Package for semiparametric CF, motivated by MTEs.
+library(ivmte)
+# Semi-parametric binary choice model (for mediator first-stage).
+# (Klein Spady 1993, https://github.com/henrykye/semiBRM)
+library(semiBRM)
+
 
 ## Set up the R environment
-#set.seed(47)
+# set.seed(47)
 # Define number of digits in tables and graphs
 digits.no <- 3
 # Define where output files go.
@@ -60,13 +62,11 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
         empirical = FALSE)
     # Get the desired distribution.
     if (error.dist == "normal"){
-        #print("Simulating normally distributed errors.")
         U_0 <- U_all[, 1]
         U_1 <- U_all[, 2]
         U_C <- U_all[, 3]
     } 
     else if (error.dist == "uniform"){
-        #print("Simulating uniform distributed errors.")
         # uniform errors (centred on zero), with SD = sigma_0,1,C.
         U_0 <- (2 * pnorm(U_all[, 1], mean = 0, sd = sigma_0) - 1) * sigma_0 * sqrt(3)
         U_1 <- (2 * pnorm(U_all[, 2], mean = 0, sd = sigma_1) - 1) * sigma_1 * sqrt(3)
@@ -186,20 +186,21 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data,
     ### Inputs:
     ## example.data, a data frame simulated from above.
     # calculate the first-stage by prediction
-    if (first.stage == "semi-parametric"){
-        firststage.est <- predict(
-            firststage.reg, newdata = mutate(example.data, Z = 1),
-                type = "response")$prob - predict(
-                    firststage.reg, newdata = mutate(example.data, Z = 0),
-                        type = "response")$prob
-    }
-    else {
+    if (first.stage == "parametric"){
         firststage.est <- predict(
             firststage.reg, newdata = mutate(example.data, Z = 1),
                 type = "response") - predict(
                     firststage.reg, newdata = mutate(example.data, Z = 0),
                         type = "response")
     }
+    else if (first.stage == "semiparametric"){
+        firststage.est <- predict(
+            firststage.reg, newdata = mutate(example.data, Z = 1),
+                type = "response")$prob - predict(
+                    firststage.reg, newdata = mutate(example.data, Z = 0),
+                        type = "response")$prob
+    }
+    else {stop("Choose from `parametric' and `semiparametric' for first.stage.")}
     # calculate the second-stage direct effect
     direct.est <- predict(
         secondstage.reg, newdata = mutate(example.data, Z = 1)) -
@@ -223,37 +224,38 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data,
 
 
 ################################################################################
-## Two mediation estimation functions (1) Parametric CF (2) Semi-parametric CF.
+## Two mediation estimation functions (1) Parametric CF (2) semiparametric CF.
 
 # Define a function to Heckman selection correct mediation est, in two-stages.
 mediate.heckit <- function(example.data){
     # 1. Probit first-stage (well identified).
-    cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
+    heckit_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
         family = binomial(link = "probit"),
         data = example.data)
     # 2. Define the CFs --- for assumed N(0,1) dist.
-    lambda_1.fun <- function(p){
+    lambda_1.fun <- function(pi.est){
         # Inv Mills ratio, taking as input the estimated mediator propensity.
-        return(dnorm(qnorm(p)) / pnorm(qnorm(p)))
+        return(dnorm(qnorm(pi.est)) / pnorm(qnorm(pi.est)))
     }
-    P <- predict(cf_firststage.reg, type = "response")
-    example.data$lambda_0 <- (1 - example.data$D) * lambda_1.fun(P) * (
-        - P / (1 - P))
-    example.data$lambda_1 <- example.data$D * lambda_1.fun(P)
+    pi.est <- predict(heckit_firststage.reg, type = "response")
+    example.data$lambda_0 <- (1 - example.data$D) * lambda_1.fun(pi.est) * (
+        - pi.est / (1 - pi.est))
+    example.data$lambda_1 <- example.data$D * lambda_1.fun(pi.est)
     # 3. Estimate second-stage, including the CFs.
-    cf_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
+    heckit_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
         data = example.data)
+    # print(summary(heckit_secondstage.reg))
     # Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
-    P_0 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
-    P_1 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
-    Gamma.big <-  (P_1 * lambda_1.fun(P_1) - P_0 * lambda_1.fun(P_0)) / (
-        P_1 - P_0)
-    rho_0 <- coef(cf_secondstage.reg)["lambda_0"]
-    rho_1 <- coef(cf_secondstage.reg)["lambda_1"]
-    add.term <- (rho_1 - rho_0) * Gamma.big
+    p_0.est <- predict(heckit_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
+    p_1.est <- predict(heckit_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
+    Gamma.big <-  (p_1.est * lambda_1.fun(p_1.est) - p_0.est * lambda_1.fun(p_0.est)) / (
+        p_1.est - p_0.est)
+    rho_0 <- coef(summary(heckit_secondstage.reg))["lambda_0", "Estimate"]
+    rho_1 <- coef(summary(heckit_secondstage.reg))["lambda_1", "Estimate"]
+    complier.adjustment <- (rho_1 - rho_0) * Gamma.big
     # Compile the estimates.
-    heckit.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg,
-        example.data, complier.adjustment = add.term)
+    heckit.est <- estimated.values(heckit_firststage.reg, heckit_secondstage.reg,
+        example.data, complier.adjustment = complier.adjustment)
     # Return the off-setting estimates.
     output.list <- list(
         "first-stage"     = heckit.est$"first-stage",
@@ -262,76 +264,54 @@ mediate.heckit <- function(example.data){
     return(output.list)
 }
 
-# Define a function to two-stage semi-parametric CF for CM effects.
+# Define a function to two-stage semiparametric CF for CM effects.
 mediate.semiparametric <- function(example.data){
-    # 1. Non-parametric first-stage.
-    # TODO -> make this fully semi-parametric like Klein Spady (1993)
-    # TODO    https://github.com/henrykye/semiBRM
-    # Or non-parametric with NP -> https://www.bauer.uh.edu/rsusmel/phd/np-rvignette.pdf
-    #cf_firststage.reg <- gam(D ~ 1 + Z +
-    #    s(X_IV) + s(X_minus),
-    #    family = binomial(link = "probit"),
-    #    data = example.data)
-    # Klein Spady (1993)
-    library(semiBRM)
-    cf_firststage.reg <- semiBRM(D ~ 1 + Z + X_IV + X_minus,
-        data = example.data, control = list(iterlim = 50))
-    P <- predict(cf_firststage.reg, type = "response")$prob
-    P_0 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")$prob
-    P_1 <- predict(cf_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")$prob
-    # 2. Second-stage, with semi-parametric CF.
-    example.data$intercept <- 1
-    example.data$P <- P
-    # (1) Estimate \lambda_1 in D = 1 sample.
-    cf_D1_semi.reg <- gam(Y ~ (0 + intercept + Z) + X_minus +
-        s(P, bs = "bs", k = 10),
-        data = filter(example.data, D == 1))
-    print(summary(cf_D1_semi.reg))
-    example.data$hat_lambda_1 <- predict(cf_D1_semi.reg,
-        newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0))
-    # (2) Use the CFs in the estimation
-    # Compose the cross-estimates of \tilde \lambda_1(pi)
-    example.data$lambda_0 <- (1 - example.data$D) * (-P / (1 - P)) * example.data$hat_lambda_1
-    example.data$lambda_1 <- example.data$D * example.data$hat_lambda_1
-    # Second-stage, including the control functions lambda_0, lambda_1
-    cf_secondstage.reg <- lm(I(Y - lambda_1) ~ (1 + Z * D) + X_minus + lambda_0,
+    # Use the ivmte software to do the semi-parametric, with a polynomial.
+    cf_secondstage.reg <- ivmte(
+        propensity = D ~ (1 + Z) + X_IV + X_minus,
+        outcome =  "Y",
+        m0 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
+        m1 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
+        target = "late",
+        late.from = c(Z = 0),
+        late.to = c(Z = 1),
+        solver = "gurobi",
         data = example.data)
-    # Take the \tilde\rho = rho_0 / rho_1 estimate.
-    tilde_rho <- coef(cf_secondstage.reg)["lambda_0"]
-    # Lastly, the complier adjustment.
-    hat_lambda_1_P_0 <- predict(cf_D1_semi.reg,
-        newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_0))
-    hat_lambda_1_P_1 <- predict(cf_D1_semi.reg,
-        newdata = mutate(example.data, intercept = 0, Z = 0, X_minus = 0, P = P_1))
-    complier.adjustment <- (1 - tilde_rho) * (
-        P_1 * hat_lambda_1_P_1 - P_0 * hat_lambda_1_P_0) / (P_1 - P_0)
-    # Compile the estimates.
-    cf.est <- estimated.values(cf_firststage.reg, cf_secondstage.reg,
-        example.data,
-        complier.adjustment = complier.adjustment,
-        first.stage = "semi-parametric")
-    # Return the off-setting estimates.
+    # Compose the CF effects from this object.
+    D_0 <- 1 - mean(example.data$D)
+    D_1 <- 1 - D_0
+    pi.bar <- (mean(cf_secondstage.reg$propensity$phat[example.data$Z == 1])
+        - mean(cf_secondstage.reg$propensity$phat[example.data$Z == 0]))
+    # ADE estimate.
+    ade.est <- as.numeric(D_0 * cf_secondstage.reg$mtr.coef["[m0]Z"]
+        + D_1 * cf_secondstage.reg$mtr.coef["[m1]Z"])
+    # AIE estimate.
+    aie.est <- pi.bar * cf_secondstage.reg$point.estimate
+    # Return the estimates.
     output.list <- list(
-        "first-stage"     = cf.est$"first-stage",
-        "direct-effect"   = cf.est$"direct-effect",
-        "indirect-effect" = cf.est$"indirect-effect")
+        "first-stage"     = pi.bar,
+        "direct-effect"   = ade.est,
+        "indirect-effect" = aie.est)
     return(output.list)
 }
 
 
 ################################################################################
-## Define a function to automate the DGP generation (or bootstrapping models).
+## Define a function to automate the DGP generation, or bootstrapping models.
 
 # Define a loop.
 estimated.loop <- function(boot.reps, example.data,
-        bootstrap = TRUE, print.progress = FALSE,
-        # Default data parameters
-        rho = 0.5, sigma_0 = 1, sigma_1 = 2, sigma_C = 1) {
+        bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
+        # DGP parameters
+        rho, sigma_0, sigma_1, sigma_C) {
     # Define lists the will be returned:
     # 2. Naive OLS.
     ols_direct_effect <- c()
     ols_indirect_effect <- c()
-    # 3. Control function.
+    # 3. Heckman selection model adjustment
+    heckit_direct_effect <- c()
+    heckit_indirect_effect <- c()
+    # 4. Control function.
     cf_direct_effect <- c()
     cf_indirect_effect <- c()
     # More in the future ....
@@ -347,9 +327,10 @@ estimated.loop <- function(boot.reps, example.data,
                 seq(1, NROW(example.data)), NROW(example.data), replace = TRUE)
             boot.data <- example.data[boot.indicies, ]
         }
-        # If a regular re-simulation, get new data.
+        # If a regular DGP re-simulation, get new data.
         else if (bootstrap == FALSE){
-            boot.data <- roy.data(rho, sigma_0, sigma_1, sigma_C)
+            boot.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
+                error.dist = error.dist)
             # Update the truth values to the newest simulated data, if so.
             truth.est <- theoretical.values(boot.data)
         }
@@ -367,24 +348,30 @@ estimated.loop <- function(boot.reps, example.data,
         ols.est <- estimated.values(ols_firststage.reg, ols_secondstage.reg,
             boot.data)
         # 3. Heckman-style selection-into-mediator model estimates.
+        heckit.est <- mediate.heckit(boot.data)
+        # 4. CF / MTE semiparametric selection-into-mediator model estimates.
         cf.est <- mediate.semiparametric(boot.data)
         # Save the outputs.
-        truth_direct_effect[i]   <- truth.est$average_direct_effect
-        truth_indirect_effect[i] <- truth.est$average_indirect_effect
-        ols_direct_effect[i]     <- ols.est$"direct-effect"
-        ols_indirect_effect[i]   <- ols.est$"indirect-effect"
-        cf_direct_effect[i]      <- cf.est$"direct-effect"
-        cf_indirect_effect[i]    <- cf.est$"indirect-effect"
+        truth_direct_effect[i]    <- truth.est$average_direct_effect
+        truth_indirect_effect[i]  <- truth.est$average_indirect_effect
+        ols_direct_effect[i]      <- ols.est$"direct-effect"
+        ols_indirect_effect[i]    <- ols.est$"indirect-effect"
+        heckit_direct_effect[i]   <- heckit.est$"direct-effect"
+        heckit_indirect_effect[i] <- heckit.est$"indirect-effect"
+        cf_direct_effect[i]       <- cf.est$"direct-effect"
+        cf_indirect_effect[i]     <- cf.est$"indirect-effect"
     }
     # Return the bootstrap data.
     output.list <- list()
     output.list$data <- data.frame(
-        truth_direct_effect   = truth_direct_effect,
-        ols_direct_effect     = ols_direct_effect,
-        cf_direct_effect      = cf_direct_effect,
-        truth_indirect_effect = truth_indirect_effect,
-        ols_indirect_effect   = ols_indirect_effect,
-        cf_indirect_effect    = cf_indirect_effect)
+        truth_direct_effect    = truth_direct_effect,
+        ols_direct_effect      = ols_direct_effect,
+        heckit_direct_effect   = heckit_direct_effect,
+        cf_direct_effect       = cf_direct_effect,
+        truth_indirect_effect  = truth_indirect_effect,
+        ols_indirect_effect    = ols_indirect_effect,
+        heckit_indirect_effect = heckit_indirect_effect,
+        cf_indirect_effect     = cf_indirect_effect)
     # Calculate the needed statistics, to return
     output.list$estimates <- data.frame(
         # Truth
@@ -402,6 +389,19 @@ estimated.loop <- function(boot.reps, example.data,
         ols_indirect_effect_up  = as.numeric(quantile(ols_indirect_effect,
             probs = 0.975, na.rm = TRUE)),
         ols_indirect_effect_low = as.numeric(quantile(ols_indirect_effect,
+            probs = 0.025, na.rm = TRUE)),
+        # Control Fun mean, and the 95% confidence intervals
+        heckit_direct_effect        = as.numeric(mean(heckit_direct_effect)),
+        heckit_direct_effect_se     = as.numeric(sd(heckit_direct_effect)),
+        heckit_direct_effect_up     = as.numeric(quantile(heckit_direct_effect,
+            probs = 0.975, na.rm = TRUE)),
+        heckit_direct_effect_low    = as.numeric(quantile(heckit_direct_effect,
+            probs = 0.025, na.rm = TRUE)),
+        heckit_indirect_effect      = as.numeric(mean(heckit_indirect_effect)),
+        heckit_indirect_effect_se   = as.numeric(sd(heckit_indirect_effect)),
+        heckit_indirect_effect_up   = as.numeric(quantile(heckit_indirect_effect,
+            probs = 0.975, na.rm = TRUE)),
+        heckit_indirect_effect_low  = as.numeric(quantile(heckit_indirect_effect,
             probs = 0.025, na.rm = TRUE)),
         # Control Fun mean, and the 95% confidence intervals
         cf_direct_effect        = as.numeric(mean(cf_direct_effect)),
@@ -446,7 +446,7 @@ print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data
 print(summary(true_firststage.reg))
 print(summary(true_secondstage.reg))
 #! Note: this automatically includes the complier term in the indirect effect
-#!       without observing U_0, U_1 this is not automatic.
+#!       if U_0, U_1 unobserved, this is not automatic.
 
 # Show how the OLS result gives a bias result (if rho != 0),
 # using the same second-stage for both direct + indirect estimates.
@@ -463,38 +463,196 @@ print(mediate.semiparametric(simulated.data))
 # One-shot showing how the uniform errors screw up the heckman selection model.
 uniform.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "uniform")
 print(theoretical.values(uniform.data))
-print(mediate.semiparametric(uniform.data))
 print(mediate.heckit(uniform.data))
+print(mediate.semiparametric(uniform.data))
 
 
 ################################################################################
-## Plot bootstrap results for one DGP, repeatedly drawn
+## Plot DGP-strap results for normally distributed errors, repeatedly drawn
+# Note, using the same input parameters as before, to keep comparable.
 
-#TODO: COnfugre the distibution code to do (1) normal (2) uniform errors
-#TODO: and throw the Heckman selection model at both (should pass 1, fail 2).
-#TODO: and throw the semi-parametric CF at both (should pass both).
+# First, show us what huge sample gives for the truth values.
+roy.data(rho, sigma_0, sigma_1, sigma_C, sample.size = 10^6,
+    error.dist = "normal") %>%
+    theoretical.values(print.truth = TRUE) %>%
+    print()
 
-# First, show us what huge sample gives for the true values.
-roy.data(rho, sigma_0, sigma_1, sigma_C, sample.size = 10^7) %>%
-    theoretical.values(print.truth = TRUE)
-
-# Base data to input
-simulated.data <- roy.data(rho, sigma_0, sigma_1, sigma_C)
+# Base data to input.
+normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "normal")
 
 # Get bootstrapped point est for the CF approach
 sim.reps <- 10^4
-sim.est <- estimated.loop(sim.reps, simulated.data,
-    bootstrap = FALSE, print.progress = TRUE,
-    rho = rho, sigma_0 = sigma_0, sigma_1 = sigma_1, sigma_C = sigma_C)
-sim.data <- sim.est$data
+normal.est <- estimated.loop(sim.reps, normal.data,
+    bootstrap = FALSE, print.progress = TRUE,  error.dist = "normal",
+    rho, sigma_0, sigma_1, sigma_C)
 
-#! Validate correct estimation
-print(mean(sim.data$cf_indirect_effect - sim.data$truth_indirect_effect))
-print(mean(sim.data$cf_direct_effect - sim.data$truth_direct_effect))
+# Save the repeated DGPs' point estimates as separate data.
+normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
 
-#! Show the SDs, OLS vs CF
-print(sd(sim.data$ols_indirect_effect))
-print(sd(sim.data$cf_indirect_effect))
 
-## Save the repeated DGPs' point estimates as separate data.
-sim.data %>% write_csv(file.path(output.folder, "dist-semiparametric-data.csv"))
+################################################################################
+## Plot DGP-strap results for uniform distributed errors, repeatedly drawn
+# Note, using the same input parameters as before, to keep comparable.
+
+# Base data to input.
+uniform.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "uniform")
+
+# Get bootstrapped point est for the CF approach
+uniform.est <- estimated.loop(sim.reps, uniform.data,
+    bootstrap = FALSE, print.progress = TRUE, error.dist = "uniform",
+    rho, sigma_0, sigma_1, sigma_C)
+
+# Save the repeated DGPs' point estimates as separate data.
+uniform.est$data %>% write_csv(file.path(output.folder, "uniform-cf-data.csv"))
+
+
+quit("no")
+################################################################################
+## Compare estimation methods, across different rho values.
+
+# Define an empty dataframe, to start adding to.
+rho_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
+    error.dist = "normal")
+rho.data <- estimated.loop(1, rho_normal.data,
+    bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
+    rho, sigma_0, sigma_1, sigma_C)$estimates
+rho.values$rho <- NA
+rho.data <- rho.values$data[0, ]
+# Define values in rho \in [-1, 1] to go across
+rho.values <- seq(-1, 1, by = 0.25)
+# Define the number of boot reps for each
+boot.reps <- 1000
+i <- 0
+
+# Start the rho loop
+for (rho.value in rho.values){
+    i <- i + 1
+    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
+    rho_sim.data <- roy.data(rho.value, sigma_0, sigma_1, sigma_C,
+        error.dist = "normal")
+    # Get the truth + estimates + bootstrapped SEs, and save rho value
+    rho.boot <- estimated.loop(boot.reps, rho_sim.data,
+        bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
+        rho.value, sigma_0, sigma_1, sigma_C)$estimates
+    # Add to the dataframe.
+    rho.boot$rho <- rho.value
+    rho.data[i, ] <- rho.boot
+    # SHow far we are.
+    print(paste0(rho.value, " in [-1, 1], ",
+        100 * i / length(rho.values), "% done."))
+    gc()
+}
+
+## Save the output data.
+rho.data %>% write_csv(file.path(output.folder, "rho-cf-data.csv"))
+
+
+################################################################################
+## Plot the Direct effect estimates, by OLS + CF, different $\rho$ values.
+
+# Plot the bias in direct effect est vs rho
+rho_directeffect_bias.plot <- rho.data %>%
+    ggplot(aes(x = rho)) +
+    # OLS est + 95 % CI
+    geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
+    geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
+        fill = colour.list[1], alpha = 0.2) +
+    annotate("text", colour = colour.list[1],
+        x = 0.15, y = 0.2,
+        fontface = "bold",
+        label = ("OLS"),
+        size = 4.25, hjust = 0.5, vjust = 0) +
+    annotate("curve", colour = colour.list[1],
+        x = 0.3, y = 0.25,
+        xend = 0.5, yend = 0.5,
+        linewidth = 0.75,
+        curvature = 0.25,
+        arrow = arrow(length = unit(0.25, 'cm'))) +
+    # CF est + 95 % CI
+    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
+    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+        fill = colour.list[2], alpha = 0.2) +
+    annotate("text", colour = colour.list[2],
+        x = -0.5, y = 2.00,
+        fontface = "bold",
+        label = ("Parametric CF"),
+        size = 4.25, hjust = 0.5, vjust = 0) +
+    annotate("curve", colour = colour.list[2],
+        x = -0.375, y = 1.95,
+        xend = -0.25, yend = 1.55,
+        linewidth = 0.75,
+        curvature = -0.125,
+        arrow = arrow(length = unit(0.25, 'cm'))) +
+    # Truth:
+    geom_line(aes(y = (truth_direct_effect)),
+        colour = "black", linetype = "dashed", linewidth = 1) +
+    annotate("text", colour = "black",
+        x = 0.65, y = 1.8,
+        fontface = "bold",
+        label = ("Truth"),
+        size = 4.25, hjust = 0.5, vjust = 0) +
+    annotate("curve", colour = "black",
+        x = 0.6, y = 1.75,
+        xend = 0.475, yend = 1.4875,
+        linewidth = 0.75, curvature = 0.125,
+        arrow = arrow(length = unit(0.25, 'cm'))) +
+    # Presentation options
+    theme_bw() +
+    scale_x_continuous(
+        name = TeX("$\\rho$"),
+        expand = c(0, 0),
+        breaks = seq(-1, 1, by = 0.25),
+        limits = c(-1.025, 1.025)) +
+    scale_y_continuous(name = "",
+        breaks = seq(0, 2.5, by = 0.25),
+        limits = c(0, 2.5),
+        expand = c(0.01, 0.01)) +
+    ggtitle("Estimate") +
+    theme(plot.title = element_text(hjust = 0, size = rel(1)),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
+        axis.title.x = element_text(vjust = -0.25))
+# Save this plot
+ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
+    plot = rho_directeffect_bias.plot, dpi = 300,
+    units = "cm", width = fig.width, height = fig.height)
+
+
+################################################################################
+## Compare estimation methods, across different sigma_1 values.
+
+# Define an empty dataframe, to start adding to.
+sigma_1_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
+    error.dist = "normal")
+sigma_1.values <- estimated.loop(1, sigma_1_normal.data,
+    bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
+    rho, sigma_0, sigma_1, sigma_C)
+sigma_1.values$sigma_1 <- NA
+sigma_1.data <- sigma_1.values$data[0, ]
+# Define values in sigma_1 in [0, 2] to go across
+sigma_1.values <- seq(0, 2, by = 0.25)
+# Define the number of boot reps for each
+boot.reps <- 10
+i <- 0
+
+# Start the sigma_1 loop
+for (sigma_1.value in sigma_1.values){
+    i <- i + 1
+    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
+    sigma_1_sim.data <- roy.data(rho, sigma_0, sigma_1.value, sigma_C,
+        error.dist = "normal")
+    # Get the truth + estimates + bootstrapped SEs, and save rho value
+    sigma_1.boot <- estimated.loop(boot.reps, sigma_1_sim.data,
+        bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
+        rho, sigma_0, sigma_1.value, sigma_C)$estimates
+    # Add to the dataframe.
+    sigma_1.boot$sigma_1 <- sigma_1.value
+    sigma_1.data[i, ] <- sigma_1.boot
+    # Show how far we are.
+    print(paste0(sigma_1.value, " in [0, 2], ",
+        100 * i / length(sigma_1.values), "% done."))
+    gc()
+}
+
+## Save the output data.
+sigma_1.data %>% write_csv(file.path(output.folder, "sigma1-cf-data.csv"))

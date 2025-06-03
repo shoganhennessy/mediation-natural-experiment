@@ -142,14 +142,12 @@ Following \autoref{sec:regression}, these data have the following first and seco
     Y_i &= Z_i + D_i + Z_i D_i + \vec X_i^-
         + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}.
 \end{align*}
-Treatment $Z$ has a causal effect on outcome $Y$, and it operates partially through mediator $D$.
-Outcome mean $\mu_{D_i}(Z_i;.)$ contains an interaction term, $Z_i D_i$, so while both $Z_i$ and $D_i$ have constant partial effects, the ATE depends on how many $i$ choose to take the mediator and there is treatment effect heterogeneity.
+Treatment $Z_i$ has a causal effect on outcome $Y_i$, and it operates partially through mediator $D_i$.
+Outcome mean $\mu_{D_i}(Z_i;.)$ contains an interaction term, $Z_i D_i$, so while $Z_i,D_i$ have constant partial effects, the ATE depends on how many $i$ choose to take the mediator and there is treatment effect heterogeneity.
 
 After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-degenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
 As a result, sequential ignorability does not hold; the mediator is not conditionally ignorable.
-Thus, a standard OLS (selection-on-observables) approach to CM does not give an estimate for how much of the ATE goes through mediator $D$.
-Instead, the OLS approach gives biased inference.
-The bias in OLS estimates comes from the unobserved error terms being related.
+Thus, a conventional approach to CM does not give an estimate for how much of the ATE goes through mediator $D$, but is contaminated by selection bias thanks to the unobserved error terms.
 
 I simulate this data generating process 10,000 times, using $\mat\Sigma =
 \left(\begin{smallmatrix} 1 & 0.75 & 0 \\ 0.75 & 2.25 & 0 \\ 0 & 0 & 0.25 \end{smallmatrix}\right)$,\footnote{
@@ -210,13 +208,13 @@ The semiparametric CF estimates correct conventional CM estimates, too, though e
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the OLS and CF point estimates of the ADE and AIE, for $N = 10,000$ sample size, varying $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values with $\Var{U_{0,i}} = = 1, \Var{U_{1,i}} = 1.5$ fixed.
+    These figures show the OLS and CF point estimates of the ADE and AIE, for $N = 10,000$ sample size, varying $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values with $\Var{U_{0,i}} = 1, \Var{U_{1,i}} = 1.5$ fixed.
     The black dashed line is the true value, coloured points are points estimates for the respective data generated, and shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
     Orange represents OLS estimates, blue the CF approach.
 \end{figure}
 
 The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\text{Corr}\big(U_{0,i}, U_{1,i}\big) \in [-1, 1]$ and $\Var{U_{0,i}} = 1, \Var{U_{1,i}} \geq 0$.
-The true AIE values vary, because $D(Z)$ compliers have higher average values of $U_{1,i} - U_{0,i}$ with greater $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values.
+The true AIE values vary, because $D_i(Z_i)$ compliers have higher average values of $\big(U_{1,i} - U_{0,i}\big)$ as $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ increases.
 \autoref{fig:rho-bias} shows CF estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstraps.
 The point estimates of the CF do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations, as in \autoref{fig:cm-semiparametric-dist}).
 The CF approach improves on OLS estimates by correcting for bias, with confidence regions overlapping the true values.\footnote{

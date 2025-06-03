@@ -1,19 +1,13 @@
 #!/bin/bash
-## Senan Hogan-Hennessy, 11 February 2025
+## Senan Hogan-Hennessy, 02 June 2025.
 ## Master bash script, for all simulation and data evidence for the paper:
-## Causal Mediation in Natural Experiments.
+## "Causal Mediation in Natural Experiments."
 
 # Note:
 # "R CMD BATCH" runs an Rscript, and logs output in a corresponding *.Rout file.
 
 ## Enact simulation evidence, and figures.
-# May need to run on the Cornell BioHPC/econ cluster node.
-# ssh ecco01@XXX.biohpc.cornell.edu
 cd simulations
-#! OLD: Heckman script superseded.
-# Run the Heckman correction simulation, and plot its results
-#R CMD BATCH --no-save heckit-sim.R
-#R CMD BATCH --no-save heckit-plot.R
 # Run the semi-parametric simulation, and plot its results
 R CMD BATCH --no-save cf-sim.R
 R CMD BATCH --no-save cf-plot.R

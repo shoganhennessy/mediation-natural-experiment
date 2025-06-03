@@ -66,11 +66,11 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
         % Draw the causal arrows
         \path[->, thick] (treatment) edge (mediator);
         \path[->, thick] (mediator) edge (outcome);
-        \path[->, thick] (treatment) edge[bend right=45] (outcome);
+        \path[->, thick] (treatment) edge[bend right=37.5] (outcome);
         % Label direct and indirect effect
-        \node[color=orange] [below left=-0.3cm and 0.2cm of mediator] {First-stage};
+        \node[color=orange] [below left=-0.3cm and 0.15cm of mediator] {First-stage};
         \node[color=orange] [below right=-0.3cm and 0.75cm of mediator] {LAIE};
-        \node[color=orange] [below=1.2cm of mediator] {ADE};
+        \node[color=orange] [below=1cm of mediator] {ADE};
         % Add in the confounders
         %\node[state,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
         %\path[->,RoyalPurple] (confounderX) edge (mediator);
@@ -86,7 +86,7 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
     This figure shows the structural causal model behind causal mediation, where arrows represent causal effects --- e.g., $Z_i \to D_i$ means $Z_i$ affects $D_i$ with no reverse causality.
     LAIE refers to the AIE local to $D_i(Z_i)$ compliers, so that AIE $=$ average first-stage $\times$ LAIE.
     $\vec U_i$ represents this paper's focus on the case that $D_i$ is not ignorable by showing an unobserved confounder.
-    \autoref{sec:regression} formally defines $\vec U_i$ in an applied setting.
+    \autoref{sec:regression} defines $\vec U_i$ in an applied setting.
 \end{figure}
 
 Estimating the AIE answers the following question: how much of the causal effect $Z_i$ on $Y_i$ goes through the $D_i$ channel?
@@ -105,14 +105,14 @@ The ADE and AIE are not separately identified without further assumptions.
 The conventional approach to estimating direct and indirect effects assumes both $Z_i$ and $D_i$ are ignorable, conditional on a vector of control variables $\vec X_i$.
 \begin{definition}
     \label{dfn:seq-ign}
-    Sequential Ignorability \citep{imai2010identification}.
+    Sequential Ignorability \citep{imai2010identification}
     \begin{align}
         \label{eqn:seq-ign-Z}
-        Z_i \indep  D_i(z), Y_i(z', d) \;\; &| \;\; \vec X_i,
-            &\textnormal{ for } z, z', d = 0, 1 \\
+        Z_i \indep  D_i(z'), Y_i(z, d') \;\; &| \;\; \vec X_i,
+            &\textnormal{ for } z', z, d' = 0, 1 \\
         \label{eqn:seq-ign-D}
-        D_i \indep Y_i(z', d) \;\; &| \;\; \vec X_i, Z_i = z', 
-            &\textnormal{ for } z', d = 0, 1
+        D_i \indep Y_i(z', d') \;\; &| \;\; \vec X_i, Z_i = z', 
+            &\textnormal{ for } z', d' = 0, 1.
     \end{align}
 \end{definition}
 Sequential ignorability assumes that the initial treatment $Z_i$ is ignorable conditional on $\vec X_i$ (as has already been assumed above).
