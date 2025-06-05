@@ -11,7 +11,7 @@ print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 library(tidyverse)
 # Package for more distributions to sample from.
 library(MASS)
-# Package for semiparametric CF, motivated by MTEs.
+# Package forsemi-parametric CF, motivated by MTEs.
 library(ivmte)
 # Semi-parametric binary choice model (for mediator first-stage).
 # (Klein Spady 1993, https://github.com/henrykye/semiBRM)
@@ -19,7 +19,7 @@ library(semiBRM)
 
 
 ## Set up the R environment
-# set.seed(47)
+set.seed(47)
 # Define number of digits in tables and graphs
 digits.no <- 3
 # Define where output files go.
@@ -45,7 +45,7 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
     ## sigma_1 >= 0 measuring standard deviation of U_1.
     ## sigma_C >= 0 measuring standard deviation of U_C.
     ## sample.size: integer, representing output sample size (i.e., N).
-    # First covariate (\vec X_i^-)
+    # First covariate, \vec X_i^-
     X_minus <- 4 + rnorm(sample.size, mean = 0, sd = 1)
     # Second covariate (instrument for the control function).
     X_IV <- runif(sample.size, -1, 1)
@@ -181,34 +181,28 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
 ## Define a function to estimate mediation, given the first + second-stages.
 
 # Estimate the values, given a first and second-stages
-estimated.values <- function(firststage.reg, secondstage.reg, example.data,
-    complier.adjustment = NULL, first.stage = "parametric"){
+estimated.values <- function(firststage.reg, secondstage.reg, totaleffect.reg,
+    example.data, complier.adjustment = NULL){
     ### Inputs:
     ## example.data, a data frame simulated from above.
     # calculate the first-stage by prediction
-    if (first.stage == "parametric"){
-        firststage.est <- predict(
-            firststage.reg, newdata = mutate(example.data, Z = 1),
-                type = "response") - predict(
-                    firststage.reg, newdata = mutate(example.data, Z = 0),
-                        type = "response")
-    }
-    else if (first.stage == "semiparametric"){
-        firststage.est <- predict(
-            firststage.reg, newdata = mutate(example.data, Z = 1),
-                type = "response")$prob - predict(
-                    firststage.reg, newdata = mutate(example.data, Z = 0),
-                        type = "response")$prob
-    }
-    else {stop("Choose from `parametric' and `semiparametric' for first.stage.")}
+    firststage.est <- predict(
+        firststage.reg, newdata = mutate(example.data, Z = 1),
+            type = "response") - predict(
+                firststage.reg, newdata = mutate(example.data, Z = 0),
+                    type = "response")
+    # Calculate the total effect estimate by prediction.
+    totaleffect.est <- predict(
+        totaleffect.reg, newdata = mutate(example.data, Z = 1)) - predict(
+            totaleffect.reg, newdata = mutate(example.data, Z = 0))
     # calculate the second-stage direct effect
     direct.est <- predict(
-        secondstage.reg, newdata = mutate(example.data, Z = 1)) -
-        predict(secondstage.reg, newdata = mutate(example.data, Z = 0))
+        secondstage.reg, newdata = mutate(example.data, Z = 1)) - predict(
+            secondstage.reg, newdata = mutate(example.data, Z = 0))
     # calculate the second-stage (controlled) indirect effect
     indirect.est <- predict(
-        secondstage.reg, newdata = mutate(example.data, D = 1)) -
-        predict(secondstage.reg, newdata = mutate(example.data, D = 0))
+        secondstage.reg, newdata = mutate(example.data, D = 1)) - predict(
+            secondstage.reg, newdata = mutate(example.data, D = 0))
     # Add the Kline Walters (2019) IV-type complier adjustment (provided externally).
     if (!is.null(complier.adjustment)) {
         indirect.est <- indirect.est + complier.adjustment
@@ -216,6 +210,7 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data,
     # Return the mean estimates.
     output.list <- list(
         "first-stage"     = mean(firststage.est, na.rm = TRUE),
+        "total-effect"    = mean(totaleffect.est, na.rm = TRUE),
         "direct-effect"   = mean(direct.est, na.rm = TRUE),
         "indirect-effect" = mean(firststage.est * indirect.est, na.rm = TRUE))
     # Return the output.list
@@ -224,10 +219,13 @@ estimated.values <- function(firststage.reg, secondstage.reg, example.data,
 
 
 ################################################################################
-## Two mediation estimation functions (1) Parametric CF (2) semiparametric CF.
+## Two mediation estimation functions (1) Parametric CF (2) Semi-parametric CF.
 
 # Define a function to Heckman selection correct mediation est, in two-stages.
 mediate.heckit <- function(example.data){
+    # 0. Total effect regression.
+    totaleffect.reg <- lm(Y ~ 1 + Z + X_minus,
+        data = example.data)
     # 1. Probit first-stage (well identified).
     heckit_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
         family = binomial(link = "probit"),
@@ -244,38 +242,47 @@ mediate.heckit <- function(example.data){
     # 3. Estimate second-stage, including the CFs.
     heckit_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
         data = example.data)
-    # print(summary(heckit_secondstage.reg))
     # Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
-    p_0.est <- predict(heckit_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
-    p_1.est <- predict(heckit_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
-    Gamma.big <-  (p_1.est * lambda_1.fun(p_1.est) - p_0.est * lambda_1.fun(p_0.est)) / (
-        p_1.est - p_0.est)
+    pi_0.est <- predict(heckit_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
+    pi_1.est <- predict(heckit_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
+    Gamma.big <-  (pi_1.est * lambda_1.fun(pi_1.est) - pi_0.est * lambda_1.fun(pi_0.est)) / (
+        pi_1.est - pi_0.est)
     rho_0 <- coef(summary(heckit_secondstage.reg))["lambda_0", "Estimate"]
     rho_1 <- coef(summary(heckit_secondstage.reg))["lambda_1", "Estimate"]
     complier.adjustment <- (rho_1 - rho_0) * Gamma.big
     # Compile the estimates.
     heckit.est <- estimated.values(heckit_firststage.reg, heckit_secondstage.reg,
-        example.data, complier.adjustment = complier.adjustment)
+        totaleffect.reg, example.data,
+        complier.adjustment = complier.adjustment)
     # Return the off-setting estimates.
     output.list <- list(
         "first-stage"     = heckit.est$"first-stage",
+        "total-effect"    = heckit.est$"total-effect",
         "direct-effect"   = heckit.est$"direct-effect",
         "indirect-effect" = heckit.est$"indirect-effect")
     return(output.list)
 }
 
-# Define a function to two-stage semiparametric CF for CM effects.
+# Define a function to two-stage semi-parametric CF for CM effects.
 mediate.semiparametric <- function(example.data){
-    # Use the ivmte software to do the semi-parametric, with a polynomial.
+    # 0. Total effect regression.
+    totaleffect.reg <- lm(Y ~ 1 + Z + X_minus,
+        data = example.data)
+    totaleffect.est <- mean(predict(
+        totaleffect.reg, newdata = mutate(example.data, Z = 1)) - predict(
+            totaleffect.reg, newdata = mutate(example.data, Z = 0)))
+    # Use ivmte for semi-parametric second-stage, with a polynomial.
     cf_secondstage.reg <- ivmte(
         propensity = D ~ (1 + Z) + X_IV + X_minus,
         outcome =  "Y",
         m0 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
         m1 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
-        target = "late",
-        late.from = c(Z = 0),
-        late.to = c(Z = 1),
-        solver = "gurobi",
+        #target = "late", late.from = c(Z = 0), late.to = c(Z = 1),
+        target = "genlate",
+        genlate.lb = mean(simulated.data$D[simulated.data$Z == 0]),
+        genlate.ub = mean(simulated.data$D[simulated.data$Z == 1]),
+        solver = "rmosek",
+        point = TRUE,
         data = example.data)
     # Compose the CF effects from this object.
     D_0 <- 1 - mean(example.data$D)
@@ -285,11 +292,16 @@ mediate.semiparametric <- function(example.data){
     # ADE estimate.
     ade.est <- as.numeric(D_0 * cf_secondstage.reg$mtr.coef["[m0]Z"]
         + D_1 * cf_secondstage.reg$mtr.coef["[m1]Z"])
+    # Avoid the CF extrapolation by using the cond ADE estimates for the AIE.
+    aie.est <- totaleffect.est - ade.est
+    #TODO: use the mtr.coef to reconstruct the second-stage regression,
+    #TODO: and piece together the complier adjustment term.
     # AIE estimate.
-    aie.est <- pi.bar * cf_secondstage.reg$point.estimate
+    #aie.est <- pi.bar * cf_secondstage.reg$point.estimate
     # Return the estimates.
     output.list <- list(
         "first-stage"     = pi.bar,
+        "total-effect"    = totaleffect.est,
         "direct-effect"   = ade.est,
         "indirect-effect" = aie.est)
     return(output.list)
@@ -305,17 +317,18 @@ estimated.loop <- function(boot.reps, example.data,
         # DGP parameters
         rho, sigma_0, sigma_1, sigma_C) {
     # Define lists the will be returned:
-    # 2. Naive OLS.
+    # 1. Naive OLS (fine for total effect, but not CM effects).
+    ols_total_effect <- c()
     ols_direct_effect <- c()
     ols_indirect_effect <- c()
-    # 3. Heckman selection model adjustment
+    # 2. Heckman selection model adjustment
     heckit_direct_effect <- c()
     heckit_indirect_effect <- c()
-    # 4. Control function.
+    # 3. Semi-parametric Control function.
     cf_direct_effect <- c()
     cf_indirect_effect <- c()
-    # More in the future ....
     # Calculate the truth values, given the input data
+    truth_total_effect <- c()
     truth_direct_effect <- c()
     truth_indirect_effect <- c()
     truth.est <- theoretical.values(example.data)
@@ -341,19 +354,23 @@ estimated.loop <- function(boot.reps, example.data,
                 print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
             }
         }
+        # First, get the total effect, by a standard regression.
+        totaleffect.reg <- lm(Y ~ 1 + Z + X_minus, data = boot.data)
         # Now get the mediation effects, by different approaches.
         # 2. OLS estimate of second-stage
         ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = boot.data)
         ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = boot.data)
         ols.est <- estimated.values(ols_firststage.reg, ols_secondstage.reg,
-            boot.data)
+            totaleffect.reg, boot.data)
         # 3. Heckman-style selection-into-mediator model estimates.
         heckit.est <- mediate.heckit(boot.data)
-        # 4. CF / MTE semiparametric selection-into-mediator model estimates.
+        # 4. CF / MTE semi-parametric selection-into-mediator model estimates.
         cf.est <- mediate.semiparametric(boot.data)
         # Save the outputs.
+        truth_total_effect[i]     <- truth.est$average_total_effect
         truth_direct_effect[i]    <- truth.est$average_direct_effect
         truth_indirect_effect[i]  <- truth.est$average_indirect_effect
+        ols_total_effect[i]       <- ols.est$"total-effect"
         ols_direct_effect[i]      <- ols.est$"direct-effect"
         ols_indirect_effect[i]    <- ols.est$"indirect-effect"
         heckit_direct_effect[i]   <- heckit.est$"direct-effect"
@@ -364,10 +381,15 @@ estimated.loop <- function(boot.reps, example.data,
     # Return the bootstrap data.
     output.list <- list()
     output.list$data <- data.frame(
+        # Total effect
+        truth_total_effect     = truth_total_effect,
+        ols_total_effect       = ols_total_effect,
+        # Direct effect
         truth_direct_effect    = truth_direct_effect,
         ols_direct_effect      = ols_direct_effect,
         heckit_direct_effect   = heckit_direct_effect,
         cf_direct_effect       = cf_direct_effect,
+        # Indirect effect
         truth_indirect_effect  = truth_indirect_effect,
         ols_indirect_effect    = ols_indirect_effect,
         heckit_indirect_effect = heckit_indirect_effect,
@@ -440,8 +462,10 @@ true_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus +
     # including the unobserved errors:
     D * U_0 + D * U_1,
     data = simulated.data)
+true_total.reg <- lm(Y ~ (1 + Z) + X_minus, data = simulated.data)
 print(theoretical.values(simulated.data))
-print(estimated.values(true_firststage.reg, true_secondstage.reg, simulated.data))
+print(estimated.values(true_firststage.reg, true_secondstage.reg,
+    true_total.reg, simulated.data))
 # See how the first and second-stages are perfect:
 print(summary(true_firststage.reg))
 print(summary(true_secondstage.reg))
@@ -453,7 +477,8 @@ print(summary(true_secondstage.reg))
 ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = simulated.data)
 ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
 print(theoretical.values(simulated.data))
-print(estimated.values(ols_firststage.reg, ols_secondstage.reg, simulated.data))
+print(estimated.values(ols_firststage.reg, ols_secondstage.reg,
+    true_total.reg, simulated.data))
 
 # Show how the CF approaches get it correct (with complier adjustment).
 print(theoretical.values(simulated.data))
@@ -490,6 +515,7 @@ normal.est <- estimated.loop(sim.reps, normal.data,
 normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
 
 
+quit("no")
 ################################################################################
 ## Plot DGP-strap results for uniform distributed errors, repeatedly drawn
 # Note, using the same input parameters as before, to keep comparable.

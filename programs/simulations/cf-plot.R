@@ -127,7 +127,7 @@ ggsave(file.path(output.folder, "normal-indirect-dist.png"),
 ## Uniform dist errors: Plot dist of ADE and AIE estimates, around truth.
 
 # ADE estimates, by type.
-direct_dist.plot <- uniform.data %>%
+direct_dist.plot <- normal.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
@@ -154,7 +154,7 @@ direct_dist.plot <- uniform.data %>%
     annotate("text", colour = colour.list[3],
         x = 0.5, y = 2.5,
         fontface = "bold",
-        label = ("semiparametric CF"),
+        label = ("Semi-parametric CF"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[3],
         x = 0.675, y = 2.375,
@@ -182,7 +182,7 @@ ggsave(file.path(output.folder, "uniform-direct-dist.png"),
     units = "cm", width = fig.width, height = fig.height)
 
 # AIE estimates, by type.
-indirect_dist.plot <- uniform.data %>%
+indirect_dist.plot <- normal.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
