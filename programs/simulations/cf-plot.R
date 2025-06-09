@@ -36,6 +36,15 @@ print(normal.data)
 uniform.data <- read_csv(file.path(output.folder, "uniform-cf-data.csv"))
 print(uniform.data)
 
+# Load data from different Corr(U_0, U_1) parameter values
+rho.data <- read_csv(file.path(output.folder, "rho-cf-data.csv"))
+print(rho.data)
+
+# Load data from different sd(U_1) parameter values, realtive to sd(U_0) = 1
+sigma_1.data <- read_csv(file.path(output.folder, "sigma1-cf-data.csv"))
+print(sigma_1.data)
+
+
 
 ################################################################################
 ## Normally dist errors: Plot dist of ADE and AIE estimates, around truth.
@@ -127,7 +136,7 @@ ggsave(file.path(output.folder, "normal-indirect-dist.png"),
 ## Uniform dist errors: Plot dist of ADE and AIE estimates, around truth.
 
 # ADE estimates, by type.
-direct_dist.plot <- normal.data %>%
+direct_dist.plot <- uniform.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
@@ -182,7 +191,7 @@ ggsave(file.path(output.folder, "uniform-direct-dist.png"),
     units = "cm", width = fig.width, height = fig.height)
 
 # AIE estimates, by type.
-indirect_dist.plot <- normal.data %>%
+indirect_dist.plot <- uniform.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
@@ -219,6 +228,73 @@ ggsave(file.path(output.folder, "uniform-indirect-dist.png"),
 
 ################################################################################
 ## Plot the estimates, by OLS + CF, different rho = Corr(U_0, U_1) values.
+
+# Plot the bias in direct effect est vs rho
+rho_directeffect_bias.plot <- rho.data %>%
+    ggplot(aes(x = rho)) +
+    # OLS est + 95 % CI
+    geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
+    geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
+        fill = colour.list[1], alpha = 0.2) +
+    annotate("text", colour = colour.list[1],
+        x = 0.15, y = 0.2,
+        fontface = "bold",
+        label = ("OLS"),
+        size = 4.25, hjust = 0.5, vjust = 0) +
+    annotate("curve", colour = colour.list[1],
+        x = 0.3, y = 0.25,
+        xend = 0.5, yend = 0.5,
+        linewidth = 0.75,
+        curvature = 0.25,
+        arrow = arrow(length = unit(0.25, 'cm'))) +
+    # CF est + 95 % CI
+    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
+    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+        fill = colour.list[2], alpha = 0.2) +
+    annotate("text", colour = colour.list[2],
+        x = -0.5, y = 2.00,
+        fontface = "bold",
+        label = ("Parametric CF"),
+        size = 4.25, hjust = 0.5, vjust = 0) +
+    annotate("curve", colour = colour.list[2],
+        x = -0.375, y = 1.95,
+        xend = -0.25, yend = 1.55,
+        linewidth = 0.75,
+        curvature = -0.125,
+        arrow = arrow(length = unit(0.25, 'cm'))) +
+    # Truth:
+    geom_line(aes(y = (truth_direct_effect)),
+        colour = "black", linetype = "dashed", linewidth = 1) +
+    annotate("text", colour = "black",
+        x = 0.65, y = 1.8,
+        fontface = "bold",
+        label = ("Truth"),
+        size = 4.25, hjust = 0.5, vjust = 0) +
+    annotate("curve", colour = "black",
+        x = 0.6, y = 1.75,
+        xend = 0.475, yend = 1.4875,
+        linewidth = 0.75, curvature = 0.125,
+        arrow = arrow(length = unit(0.25, 'cm'))) +
+    # Presentation options
+    theme_bw() +
+    scale_x_continuous(
+        name = TeX("$\\rho$"),
+        expand = c(0, 0),
+        breaks = seq(-1, 1, by = 0.25),
+        limits = c(-1.025, 1.025)) +
+    scale_y_continuous(name = "",
+        breaks = seq(0, 2.5, by = 0.25),
+        limits = c(0, 2.5),
+        expand = c(0.01, 0.01)) +
+    ggtitle("Estimate") +
+    theme(plot.title = element_text(hjust = 0, size = rel(1)),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
+        axis.title.x = element_text(vjust = -0.25))
+# Save this plot
+ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
+    plot = rho_directeffect_bias.plot, dpi = 300,
+    units = "cm", width = fig.width, height = fig.height)
 
 # Plot the bias in indirect effect est vs rho
 rho_indirecteffect_bias.plot <- rho.data %>%

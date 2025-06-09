@@ -265,39 +265,46 @@ mediate.heckit <- function(example.data){
 
 # Define a function to two-stage semi-parametric CF for CM effects.
 mediate.semiparametric <- function(example.data){
+    #example.data <- simulated.data
     # 0. Total effect regression.
     totaleffect.reg <- lm(Y ~ 1 + Z + X_minus,
         data = example.data)
     totaleffect.est <- mean(predict(
         totaleffect.reg, newdata = mutate(example.data, Z = 1)) - predict(
             totaleffect.reg, newdata = mutate(example.data, Z = 0)))
-    # Use ivmte for semi-parametric second-stage, with a polynomial.
+    # 2. Use ivmte for semi-parametric second-stage, with a polynomial.
+    example.data$pi_0 <- mean(example.data$D[example.data$Z == 0])
+    example.data$pi_1 <- mean(example.data$D[example.data$Z == 1])
     cf_secondstage.reg <- ivmte(
         propensity = D ~ (1 + Z) + X_IV + X_minus,
         outcome =  "Y",
         m0 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
         m1 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
-        #target = "late", late.from = c(Z = 0), late.to = c(Z = 1),
-        target = "genlate",
-        genlate.lb = mean(simulated.data$D[simulated.data$Z == 0]),
-        genlate.ub = mean(simulated.data$D[simulated.data$Z == 1]),
+        target = "late", late.from = c(Z = 0), late.to = c(Z = 1),
+        # target = "genlate", genlate.lb = pi_0, genlate.ub = pi_0,
         solver = "rmosek",
         point = TRUE,
         data = example.data)
-    # Compose the CF effects from this object.
+    # 3. Compose the CM effects from this object.
     D_0 <- 1 - mean(example.data$D)
     D_1 <- 1 - D_0
     pi.bar <- (mean(cf_secondstage.reg$propensity$phat[example.data$Z == 1])
         - mean(cf_secondstage.reg$propensity$phat[example.data$Z == 0]))
-    # ADE estimate.
+    # 3.1 ADE point estimate, from the CF model.
     ade.est <- as.numeric(D_0 * cf_secondstage.reg$mtr.coef["[m0]Z"]
         + D_1 * cf_secondstage.reg$mtr.coef["[m1]Z"])
-    # Avoid the CF extrapolation by using the cond ADE estimates for the AIE.
-    aie.est <- totaleffect.est - ade.est
-    #TODO: use the mtr.coef to reconstruct the second-stage regression,
-    #TODO: and piece together the complier adjustment term.
-    # AIE estimate.
-    #aie.est <- pi.bar * cf_secondstage.reg$point.estimate
+    # 3.2 AIE estimate by the IVMTE extrapolation across semi-parametric CFs.
+    # aie.est <- pi.bar * cf_secondstage.reg$point.estimate
+    # 3.2.1 AIE by using ADE estimate, relative to ATE.
+    # (Avoiding semi-parametric extrapolation, see notes on ATE comparison)
+    gammma.est <- cf_secondstage.reg$mtr.coef["[m0]Z"]
+    delta.est <- cf_secondstage.reg$mtr.coef["[m1]Z"] - gammma.est
+    ade_Z0.est <- gammma.est + delta.est * mean(
+        example.data$D[example.data$Z == 0])
+    ade_Z1.est <- gammma.est + delta.est * mean(
+        example.data$D[example.data$Z == 1])
+    aie.est <- totaleffect.est - mean(
+        (1 - example.data$Z) * ade_Z1.est + example.data$Z * ade_Z0.est)
     # Return the estimates.
     output.list <- list(
         "first-stage"     = pi.bar,
@@ -515,7 +522,6 @@ normal.est <- estimated.loop(sim.reps, normal.data,
 normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
 
 
-quit("no")
 ################################################################################
 ## Plot DGP-strap results for uniform distributed errors, repeatedly drawn
 # Note, using the same input parameters as before, to keep comparable.
@@ -532,7 +538,6 @@ uniform.est <- estimated.loop(sim.reps, uniform.data,
 uniform.est$data %>% write_csv(file.path(output.folder, "uniform-cf-data.csv"))
 
 
-quit("no")
 ################################################################################
 ## Compare estimation methods, across different rho values.
 
@@ -574,78 +579,7 @@ rho.data %>% write_csv(file.path(output.folder, "rho-cf-data.csv"))
 
 
 ################################################################################
-## Plot the Direct effect estimates, by OLS + CF, different $\rho$ values.
-
-# Plot the bias in direct effect est vs rho
-rho_directeffect_bias.plot <- rho.data %>%
-    ggplot(aes(x = rho)) +
-    # OLS est + 95 % CI
-    geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
-    geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
-        fill = colour.list[1], alpha = 0.2) +
-    annotate("text", colour = colour.list[1],
-        x = 0.15, y = 0.2,
-        fontface = "bold",
-        label = ("OLS"),
-        size = 4.25, hjust = 0.5, vjust = 0) +
-    annotate("curve", colour = colour.list[1],
-        x = 0.3, y = 0.25,
-        xend = 0.5, yend = 0.5,
-        linewidth = 0.75,
-        curvature = 0.25,
-        arrow = arrow(length = unit(0.25, 'cm'))) +
-    # CF est + 95 % CI
-    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
-        fill = colour.list[2], alpha = 0.2) +
-    annotate("text", colour = colour.list[2],
-        x = -0.5, y = 2.00,
-        fontface = "bold",
-        label = ("Parametric CF"),
-        size = 4.25, hjust = 0.5, vjust = 0) +
-    annotate("curve", colour = colour.list[2],
-        x = -0.375, y = 1.95,
-        xend = -0.25, yend = 1.55,
-        linewidth = 0.75,
-        curvature = -0.125,
-        arrow = arrow(length = unit(0.25, 'cm'))) +
-    # Truth:
-    geom_line(aes(y = (truth_direct_effect)),
-        colour = "black", linetype = "dashed", linewidth = 1) +
-    annotate("text", colour = "black",
-        x = 0.65, y = 1.8,
-        fontface = "bold",
-        label = ("Truth"),
-        size = 4.25, hjust = 0.5, vjust = 0) +
-    annotate("curve", colour = "black",
-        x = 0.6, y = 1.75,
-        xend = 0.475, yend = 1.4875,
-        linewidth = 0.75, curvature = 0.125,
-        arrow = arrow(length = unit(0.25, 'cm'))) +
-    # Presentation options
-    theme_bw() +
-    scale_x_continuous(
-        name = TeX("$\\rho$"),
-        expand = c(0, 0),
-        breaks = seq(-1, 1, by = 0.25),
-        limits = c(-1.025, 1.025)) +
-    scale_y_continuous(name = "",
-        breaks = seq(0, 2.5, by = 0.25),
-        limits = c(0, 2.5),
-        expand = c(0.01, 0.01)) +
-    ggtitle("Estimate") +
-    theme(plot.title = element_text(hjust = 0, size = rel(1)),
-        plot.title.position = "plot",
-        plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
-        axis.title.x = element_text(vjust = -0.25))
-# Save this plot
-ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
-    plot = rho_directeffect_bias.plot, dpi = 300,
-    units = "cm", width = fig.width, height = fig.height)
-
-
-################################################################################
-## Compare estimation methods, across different sigma_1 values.
+## Compare estimation methods, across different sd(U_1) values.
 
 # Define an empty dataframe, to start adding to.
 sigma_1_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
@@ -658,7 +592,7 @@ sigma_1.data <- sigma_1.values$data[0, ]
 # Define values in sigma_1 in [0, 2] to go across
 sigma_1.values <- seq(0, 2, by = 0.25)
 # Define the number of boot reps for each
-boot.reps <- 10
+boot.reps <- 10^3
 i <- 0
 
 # Start the sigma_1 loop
