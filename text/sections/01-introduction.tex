@@ -16,18 +16,19 @@ This paper shows that the conventional approach to estimating CM effects is inap
 %\textbf{Question:}
 This paper starts by answering the following question: what does a selection-on-observables approach to CM actually estimate when a mediator is not quasi-randomly assigned?
 Estimates for the average direct and indirect effects are contaminated by bias terms --- selection bias plus group difference terms.
-I then show how this bias operates in an applied regression framework, with bias coming from a correlated error term.
 %, showing that the bias term grows larger with the degree of unexplained selection.
-For example, if individuals had been choosing to seek medical care more frequently with new health insurance, then mediator ignorability would require a researcher observe and control for everyone's underlying health conditions as part of the CM analysis --- even health conditions that are not even diagnosed.
-Should a researcher consider running a CM analysis without using another natural experiment to isolate random variation in the mediator (in addition to the one for the original treatment), then this assumption is unlikely to hold true.
+For example, if individuals had been choosing to seek medical care more frequently with new health insurance, then underlying health conditions 
+would confound estimates of the direct and indirect effects of health insurance through using more healthcare.
+This approach only leads to credible causal estimates if the mediator is also quasi-randomly assigned.
+Should a researcher consider running a CM analysis without using another natural experiment to isolate random variation in the mediator (in addition to the one for the original treatment), then this condition is unlikely to hold true.
 This means that investigating mechanisms by CM methods will lead to biased inference in natural experiment settings.
 
 I consider an alternative approach to estimating CM effects, adjusting for unobserved selection-into-mediator with a control function adjustment.
-This solves the identification problem with structural assumptions for selection-into-mediator --- mediator monotonicity and selection based on costs and benefits --- and requires a valid cost instrument for mediator take-up.
+This solves the identification problem with structural assumptions for selection-into-mediator --- mediator monotonicity and selection based on benefits --- and requires a valid cost instrument for mediator take-up.
 While these assumptions are strong, they are plausible in many applied settings.
 Mediator monotonicity aligns with conventional theories for selection-into-treatment, and is accepted widely in many applications using an instrumental variables research design.
 Selection based on costs and benefits is central to economic theory, and is the dominant concern for judging empirical designs that use quasi-experimental variation to estimate causal effects.
-Access to a valid instrument is a strong assumption, though is important to avoid further modelling assumptions; the most compelling example is using variation in mediator take-up cost as an instrument.
+Access to a valid instrument is a strong assumption, though is important to avoid further modelling assumptions; the most compelling example is using variation in mediator take-up costs as an instrument.
 This approach is not perfect in every setting: the structural assumptions are strong, and are tailored to selection-into-mediator concerns pertinent to economic applications.
 Indeed, this approach provides no safe harbour for estimating CM effects if these structural assumptions do not hold true.
 

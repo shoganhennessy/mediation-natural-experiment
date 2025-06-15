@@ -40,10 +40,9 @@ print(uniform.data)
 rho.data <- read_csv(file.path(output.folder, "rho-cf-data.csv"))
 print(rho.data)
 
-# Load data from different sd(U_1) parameter values, realtive to sd(U_0) = 1
+# Load data from different sd(U_1) parameter values, relaltive to sd(U_0) = 1
 sigma_1.data <- read_csv(file.path(output.folder, "sigma1-cf-data.csv"))
 print(sigma_1.data)
-
 
 
 ################################################################################
@@ -197,11 +196,11 @@ indirect_dist.plot <- uniform.data %>%
     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
         y = after_stat(density)),
         colour = "black", fill = colour.list[1], alpha = 0.75) +
-    # Dist of CF estimates.
+    # Dist of Heckit CF estimates.
     geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
         y = after_stat(density)),
         colour = "black", fill = colour.list[2], alpha = 0.75) +
-    # Dist of CF estimates.
+    # Dist of semi-parametric CF estimates.
     geom_density(aes(x = cf_indirect_effect - truth_indirect_effect,
         y = after_stat(density)),
         colour = "black", fill = colour.list[3], alpha = 0.75) +
@@ -343,10 +342,14 @@ sigma_1_directeffect_bias.plot <- sigma_1.data %>%
     geom_ribbon(aes(ymin = ols_direct_effect_low,
         ymax = ols_direct_effect_up),
         fill = colour.list[1], alpha = 0.2) +
-    # CF est + 95 % CI
-    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+    # Heckit est + 95 % CI
+    geom_point(aes(y = heckit_direct_effect), colour = colour.list[2]) +
+    geom_ribbon(aes(ymin = heckit_direct_effect_low, ymax = heckit_direct_effect_up),
         fill = colour.list[2], alpha = 0.2) +
+    # CF est + 95 % CI
+    #geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
+    #geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+    #    fill = colour.list[2], alpha = 0.2) +
     # Truth:
     geom_line(aes(y = truth_direct_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +

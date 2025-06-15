@@ -69,7 +69,7 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
         \path[->, thick] (treatment) edge[bend right=37.5] (outcome);
         % Label direct and indirect effect
         \node[color=orange] [below left=-0.3cm and 0.15cm of mediator] {First-stage};
-        \node[color=orange] [below right=-0.3cm and 0.75cm of mediator] {LAIE};
+        \node[color=orange] [below right=-0.3cm and 0.75cm of mediator] {Compliers' AIE};
         \node[color=orange] [below=1cm of mediator] {ADE};
         % Add in the confounders
         %\node[state,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
@@ -84,7 +84,7 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
     \footnotesize
     \textbf{Note}:
     This figure shows the structural causal model behind causal mediation, where arrows represent causal effects --- e.g., $Z_i \to D_i$ means $Z_i$ affects $D_i$ with no reverse causality.
-    LAIE refers to the AIE local to $D_i(Z_i)$ compliers, so that AIE $=$ average first-stage $\times$ LAIE.
+    Compliers' AIE refers to the AIE local to $D_i(Z_i)$ compliers, so that AIE $=$ average first-stage $\times$ compliers' AIE.
     $\vec U_i$ represents this paper's focus on the case that $D_i$ is not ignorable by showing an unobserved confounder.
     \autoref{sec:regression} defines $\vec U_i$ in an applied setting.
 \end{figure}

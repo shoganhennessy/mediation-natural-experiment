@@ -11,7 +11,8 @@ print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 library(tidyverse)
 # Package for more distributions to sample from.
 library(MASS)
-# Package forsemi-parametric CF, motivated by MTEs.
+# Package forsemi-parametric CF by splines, and one for semi-p MTEs.
+library(mgcv)
 library(ivmte)
 # Semi-parametric binary choice model (for mediator first-stage).
 # (Klein Spady 1993, https://github.com/henrykye/semiBRM)
@@ -265,40 +266,38 @@ mediate.heckit <- function(example.data){
 
 # Define a function to two-stage semi-parametric CF for CM effects.
 mediate.semiparametric <- function(example.data){
-    #example.data <- simulated.data
-    # 0. Total effect regression.
+    # 1. Total effect regression.
     totaleffect.reg <- lm(Y ~ 1 + Z + X_minus,
         data = example.data)
     totaleffect.est <- mean(predict(
         totaleffect.reg, newdata = mutate(example.data, Z = 1)) - predict(
             totaleffect.reg, newdata = mutate(example.data, Z = 0)))
-    # 2. Use ivmte for semi-parametric second-stage, with a polynomial.
-    example.data$pi_0 <- mean(example.data$D[example.data$Z == 0])
-    example.data$pi_1 <- mean(example.data$D[example.data$Z == 1])
-    cf_secondstage.reg <- ivmte(
-        propensity = D ~ (1 + Z) + X_IV + X_minus,
-        outcome =  "Y",
-        m0 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
-        m1 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
-        target = "late", late.from = c(Z = 0), late.to = c(Z = 1),
-        # target = "genlate", genlate.lb = pi_0, genlate.ub = pi_0,
-        solver = "rmosek",
-        point = TRUE,
-        data = example.data)
-    # 3. Compose the CM effects from this object.
+    # 2. Semi-parametric first-stage
+    cf_firststage.reg <- semiBRM(D ~ 1 + Z + X_IV + X_minus,
+        data = example.data, control = list(iterlim = 100))
+    example.data$pi.est <- predict(cf_firststage.reg, type = "response")$prob
+    pi_0.est <- predict(cf_firststage.reg,
+        newdata = mutate(example.data, Z = 0), type = "response")$prob
+    pi_1.est <- predict(cf_firststage.reg,
+        newdata = mutate(example.data, Z = 1), type = "response")$prob
+    pi.bar <- mean(pi_1.est - pi_0.est)
+    # 3. Semi-parametric series estimation of the second-stage.
+    cf_secondstage_D0.reg <- gam(Y ~ 1 + Z + X_minus + s(pi.est, bs = "cr"),
+        method = "REML",
+        data = example.data, subset = (D == 0))
+    cf_secondstage_D1.reg <- gam(Y ~ 1 + Z + X_minus + s(pi.est, bs = "cr"),
+        method = "REML",
+        data = example.data, subset = (D == 1))
+    # 4. Compose the CM effects from this object.
     D_0 <- 1 - mean(example.data$D)
     D_1 <- 1 - D_0
-    pi.bar <- (mean(cf_secondstage.reg$propensity$phat[example.data$Z == 1])
-        - mean(cf_secondstage.reg$propensity$phat[example.data$Z == 0]))
-    # 3.1 ADE point estimate, from the CF model.
-    ade.est <- as.numeric(D_0 * cf_secondstage.reg$mtr.coef["[m0]Z"]
-        + D_1 * cf_secondstage.reg$mtr.coef["[m1]Z"])
-    # 3.2 AIE estimate by the IVMTE extrapolation across semi-parametric CFs.
-    # aie.est <- pi.bar * cf_secondstage.reg$point.estimate
-    # 3.2.1 AIE by using ADE estimate, relative to ATE.
+    # 4.1 ADE point estimate, from the CF model.
+    gammma.est <- coef(cf_secondstage_D0.reg)["Z"]
+    delta_plus.est <- coef(cf_secondstage_D1.reg)["Z"]
+    ade.est <- as.numeric(D_0 * gammma.est + D_1 * delta_plus.est)
+    # 4.2 AIE by using ADE estimate, relative to ATE.
     # (Avoiding semi-parametric extrapolation, see notes on ATE comparison)
-    gammma.est <- cf_secondstage.reg$mtr.coef["[m0]Z"]
-    delta.est <- cf_secondstage.reg$mtr.coef["[m1]Z"] - gammma.est
+    delta.est <- delta_plus.est - gammma.est
     ade_Z0.est <- gammma.est + delta.est * mean(
         example.data$D[example.data$Z == 0])
     ade_Z1.est <- gammma.est + delta.est * mean(
@@ -450,7 +449,7 @@ estimated.loop <- function(boot.reps, example.data,
 
 
 ################################################################################
-## Compare estimation methods, in one simulation.
+## Compare estimation methods, in one-shot simulation.
 
 ## Simulate the data with given rho, sigma_0, sigma_1, sigma_C values.
 rho <- 0.5
@@ -476,10 +475,10 @@ print(estimated.values(true_firststage.reg, true_secondstage.reg,
 # See how the first and second-stages are perfect:
 print(summary(true_firststage.reg))
 print(summary(true_secondstage.reg))
-#! Note: this automatically includes the complier term in the indirect effect
-#!       if U_0, U_1 unobserved, this is not automatic.
+#! Note: this automatically includes the complier term in the indirect effect.
+#!       If U_0, U_1 are unobserved, this inclusion is not automatic.
 
-# Show how the OLS result gives a bias result (if rho != 0),
+# Show how the OLS result gives a biased result (if rho != 0),
 # using the same second-stage for both direct + indirect estimates.
 ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = simulated.data)
 ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
@@ -492,7 +491,7 @@ print(theoretical.values(simulated.data))
 print(mediate.heckit(simulated.data))
 print(mediate.semiparametric(simulated.data))
 
-# One-shot showing how the uniform errors screw up the heckman selection model.
+# One-shot showing how the uniform errors screw up the Heckman selection model.
 uniform.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "uniform")
 print(theoretical.values(uniform.data))
 print(mediate.heckit(uniform.data))
@@ -512,7 +511,7 @@ roy.data(rho, sigma_0, sigma_1, sigma_C, sample.size = 10^6,
 # Base data to input.
 normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "normal")
 
-# Get bootstrapped point est for the CF approach
+# Get dist-strapped point est for the CF approach
 sim.reps <- 10^4
 normal.est <- estimated.loop(sim.reps, normal.data,
     bootstrap = FALSE, print.progress = TRUE,  error.dist = "normal",
@@ -529,7 +528,7 @@ normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
 # Base data to input.
 uniform.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "uniform")
 
-# Get bootstrapped point est for the CF approach
+# Get dist-strapped point est for the CF approach
 uniform.est <- estimated.loop(sim.reps, uniform.data,
     bootstrap = FALSE, print.progress = TRUE, error.dist = "uniform",
     rho, sigma_0, sigma_1, sigma_C)
@@ -547,13 +546,15 @@ rho_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
 rho.data <- estimated.loop(1, rho_normal.data,
     bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
     rho, sigma_0, sigma_1, sigma_C)$estimates
-rho.values$rho <- NA
-rho.data <- rho.values$data[0, ]
+rho.data$rho <- NA
+rho.data <- rho.data[0, ]
 # Define values in rho \in [-1, 1] to go across
 rho.values <- seq(-1, 1, by = 0.25)
 # Define the number of boot reps for each
-boot.reps <- 1000
+boot.reps <- 10^3
 i <- 0
+
+rho.value <- 1
 
 # Start the rho loop
 for (rho.value in rho.values){
@@ -568,13 +569,13 @@ for (rho.value in rho.values){
     # Add to the dataframe.
     rho.boot$rho <- rho.value
     rho.data[i, ] <- rho.boot
-    # SHow far we are.
+    # Show far we are.
     print(paste0(rho.value, " in [-1, 1], ",
         100 * i / length(rho.values), "% done."))
     gc()
 }
 
-## Save the output data.
+# Save the output data.
 rho.data %>% write_csv(file.path(output.folder, "rho-cf-data.csv"))
 
 
@@ -586,9 +587,9 @@ sigma_1_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
     error.dist = "normal")
 sigma_1.values <- estimated.loop(1, sigma_1_normal.data,
     bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
-    rho, sigma_0, sigma_1, sigma_C)
+    rho, sigma_0, sigma_1, sigma_C)$estimates
 sigma_1.values$sigma_1 <- NA
-sigma_1.data <- sigma_1.values$data[0, ]
+sigma_1.data <- sigma_1.values[0, ]
 # Define values in sigma_1 in [0, 2] to go across
 sigma_1.values <- seq(0, 2, by = 0.25)
 # Define the number of boot reps for each
@@ -614,5 +615,5 @@ for (sigma_1.value in sigma_1.values){
     gc()
 }
 
-## Save the output data.
+# Save the output data.
 sigma_1.data %>% write_csv(file.path(output.folder, "sigma1-cf-data.csv"))

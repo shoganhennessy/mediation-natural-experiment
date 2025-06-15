@@ -22,7 +22,7 @@ Type 'q()' to quit R.
 > 
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "21:56 EDT Sunday, 08 June 2025"
+[1] "13:46 EDT Monday, 09 June 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -54,7 +54,7 @@ The following object is masked from ‘package:dplyr’:
 > 
 > 
 > ## Set up the R environment
-> set.seed(47)
+> #set.seed(47)
 > # Define number of digits in tables and graphs
 > digits.no <- 3
 > # Define where output files go.
@@ -308,15 +308,15 @@ The following object is masked from ‘package:dplyr’:
 +         totaleffect.reg, newdata = mutate(example.data, Z = 1)) - predict(
 +             totaleffect.reg, newdata = mutate(example.data, Z = 0)))
 +     # 2. Use ivmte for semi-parametric second-stage, with a polynomial.
-+     example.data$pi_0 <- mean(example.data$D[example.data$Z == 0])
-+     example.data$pi_1 <- mean(example.data$D[example.data$Z == 1])
++     pi_0 <- mean(example.data$D[example.data$Z == 0])
++     pi_1 <- mean(example.data$D[example.data$Z == 1])
 +     cf_secondstage.reg <- ivmte(
 +         propensity = D ~ (1 + Z) + X_IV + X_minus,
 +         outcome =  "Y",
 +         m0 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
 +         m1 = ~ 1 + Z + X_minus + u + I(u^2) + I(u^3) + I(u^4) + I(u^5),
 +         target = "late", late.from = c(Z = 0), late.to = c(Z = 1),
-+         # target = "genlate", genlate.lb = pi_0, genlate.ub = pi_0,
++         #target = "genlate", genlate.lb = pi_0, genlate.ub = pi_1,
 +         solver = "rmosek",
 +         point = TRUE,
 +         data = example.data)
@@ -329,15 +329,15 @@ The following object is masked from ‘package:dplyr’:
 +     ade.est <- as.numeric(D_0 * cf_secondstage.reg$mtr.coef["[m0]Z"]
 +         + D_1 * cf_secondstage.reg$mtr.coef["[m1]Z"])
 +     # 3.2 AIE estimate by the IVMTE extrapolation across semi-parametric CFs.
-+     # aie.est <- pi.bar * cf_secondstage.reg$point.estimate
++     aie.est <- pi.bar * cf_secondstage.reg$point.estimate
 +     # 3.2.1 AIE by using ADE estimate, relative to ATE.
 +     # (Avoiding semi-parametric extrapolation, see notes on ATE comparison)
 +     gammma.est <- cf_secondstage.reg$mtr.coef["[m0]Z"]
 +     delta.est <- cf_secondstage.reg$mtr.coef["[m1]Z"] - gammma.est
-+     ade_Z0.est <- gammma.est + mean(
-+         delta.est * example.data$D[example.data$Z == 0])
-+     ade_Z1.est <- gammma.est + mean(
-+         delta.est * example.data$D[example.data$Z == 1])
++     ade_Z0.est <- gammma.est + delta.est * mean(
++         example.data$D[example.data$Z == 0])
++     ade_Z1.est <- gammma.est + delta.est * mean(
++         example.data$D[example.data$Z == 1])
 +     aie.est <- totaleffect.est - mean(
 +         (1 - example.data$Z) * ade_Z1.est + example.data$Z * ade_Z0.est)
 +     # Return the estimates.
@@ -485,7 +485,7 @@ The following object is masked from ‘package:dplyr’:
 > 
 > 
 > ################################################################################
-> ## Compare estimation methods, in one simulation.
+> ## Compare estimation methods, in one-shot simulation.
 > 
 > ## Simulate the data with given rho, sigma_0, sigma_1, sigma_C values.
 > rho <- 0.5
@@ -499,27 +499,27 @@ The following object is masked from ‘package:dplyr’:
 [1] "How many mediator compliers in the system?"
    D_0
 D_1     0     1
-  0 0.310 0.000
-  1 0.635 0.055
+  0 0.271 0.000
+  1 0.679 0.050
 [1] "How many actually took the mediator, i.e. Pr(D = 1)?"
-[1] 0.369
-[1] "The average total effect:" "2.58564546338904"         
-[1] "The average first-stage:" "0.635"                   
-[1] "The average direct effect:" "1.369"                     
-[1] "The average indirect effect:" "1.20964546338904"            
-[1] "Cov(V, U_1):"      "0.330107214762375"
-[1] "Cov(V, U_0):"      "-1.44271308429246"
+[1] 0.399
+[1] "The average total effect:" "2.63370331227904"         
+[1] "The average first-stage:" "0.679"                   
+[1] "The average direct effect:" "1.399"                     
+[1] "The average indirect effect:" "1.25370331227904"            
+[1] "Cov(V, U_1):"      "0.252988101096042"
+[1] "Cov(V, U_0):"      "-1.45079854071171"
 $average_first_stage
-[1] 0.635
+[1] 0.679
 
 $average_total_effect
-[1] 2.585645
+[1] 2.633703
 
 $average_direct_effect
-[1] 1.369
+[1] 1.399
 
 $average_indirect_effect
-[1] 1.209645
+[1] 1.253703
 
 > 
 > # Show that the regression specification holds exactly, if specified correctly.
@@ -536,30 +536,30 @@ Warning messages:
 > true_total.reg <- lm(Y ~ (1 + Z) + X_minus, data = simulated.data)
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.635
+[1] 0.679
 
 $average_total_effect
-[1] 2.585645
+[1] 2.633703
 
 $average_direct_effect
-[1] 1.369
+[1] 1.399
 
 $average_indirect_effect
-[1] 1.209645
+[1] 1.253703
 
 > print(estimated.values(true_firststage.reg, true_secondstage.reg,
 +     true_total.reg, simulated.data))
 $`first-stage`
-[1] 0.6419995
+[1] 0.6779999
 
 $`total-effect`
-[1] 2.557287
+[1] 2.663068
 
 $`direct-effect`
-[1] 1.369
+[1] 1.399
 
 $`indirect-effect`
-[1] 1.225511
+[1] 1.250316
 
 > # See how the first and second-stages are perfect:
 > print(summary(true_firststage.reg))
@@ -570,18 +570,18 @@ glm(formula = D ~ (1 + Z) + X_IV + X_minus + U_C + U_0 + U_1,
 
 Coefficients:
             Estimate Std. Error z value Pr(>|z|)
-(Intercept)    265.6     2273.5   0.117    0.907
-Z             1341.1     9427.7   0.142    0.887
-X_IV           338.9     2058.3   0.165    0.869
-X_minus       -317.3     2340.5  -0.136    0.892
-U_C           -315.1     2713.5  -0.116    0.908
-U_0           -343.1     2450.2  -0.140    0.889
-U_1            333.4     2248.2   0.148    0.882
+(Intercept)    656.9     3732.3   0.176    0.860
+Z             2458.8    10468.5   0.235    0.814
+X_IV           624.8     2586.4   0.242    0.809
+X_minus       -624.8     2585.8  -0.242    0.809
+U_C           -610.4     2532.6  -0.241    0.810
+U_0           -617.7     2558.1  -0.241    0.809
+U_1            619.0     2561.6   0.242    0.809
 
 (Dispersion parameter for binomial family taken to be 1)
 
-    Null deviance: 1.3168e+03  on 999  degrees of freedom
-Residual deviance: 6.0642e-05  on 993  degrees of freedom
+    Null deviance: 1.3452e+03  on 999  degrees of freedom
+Residual deviance: 1.3535e-04  on 993  degrees of freedom
 AIC: 14
 
 Number of Fisher Scoring iterations: 25
@@ -593,144 +593,147 @@ lm(formula = Y ~ (1 + Z * D) + X_minus + D * U_0 + D * U_1, data = simulated.dat
 
 Residuals:
        Min         1Q     Median         3Q        Max 
--1.977e-14 -1.970e-15 -7.600e-16  3.100e-16  4.359e-13 
+-1.204e-13 -2.150e-16  7.600e-17  4.390e-16  3.903e-14 
 
 Coefficients:
               Estimate Std. Error    t value Pr(>|t|)    
-(Intercept)  1.972e-14  2.419e-15  8.152e+00 1.07e-15 ***
-Z            1.000e+00  1.752e-15  5.709e+14  < 2e-16 ***
-D            1.000e+00  4.074e-15  2.454e+14  < 2e-16 ***
-X_minus      1.000e+00  5.642e-16  1.773e+15  < 2e-16 ***
-U_0          1.000e+00  8.359e-16  1.196e+15  < 2e-16 ***
-U_1         -4.661e-16  5.983e-16 -7.790e-01    0.436    
-Z:D          1.000e+00  4.200e-15  2.381e+14  < 2e-16 ***
-D:U_0       -1.000e+00  1.385e-15 -7.222e+14  < 2e-16 ***
-D:U_1        1.000e+00  1.036e-15  9.653e+14  < 2e-16 ***
+(Intercept) -1.348e-15  6.615e-16 -2.038e+00   0.0418 *  
+Z            1.000e+00  4.525e-16  2.210e+15   <2e-16 ***
+D            1.000e+00  1.063e-15  9.405e+14   <2e-16 ***
+X_minus      1.000e+00  1.553e-16  6.438e+15   <2e-16 ***
+U_0          1.000e+00  2.170e-16  4.608e+15   <2e-16 ***
+U_1          2.500e-16  1.649e-16  1.516e+00   0.1298    
+Z:D          1.000e+00  1.100e-15  9.095e+14   <2e-16 ***
+D:U_0       -1.000e+00  3.404e-16 -2.938e+15   <2e-16 ***
+D:U_1        1.000e+00  2.473e-16  4.044e+15   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.724e-14 on 991 degrees of freedom
+Residual standard error: 4.371e-15 on 991 degrees of freedom
 Multiple R-squared:      1,	Adjusted R-squared:      1 
-F-statistic: 1.758e+30 on 8 and 991 DF,  p-value: < 2.2e-16
+F-statistic: 2.999e+31 on 8 and 991 DF,  p-value: < 2.2e-16
 
-> #! Note: this automatically includes the complier term in the indirect effect
-> #!       if U_0, U_1 unobserved, this is not automatic.
+Warning message:
+In summary.lm(true_secondstage.reg) :
+  essentially perfect fit: summary may be unreliable
+> #! Note: this automatically includes the complier term in the indirect effect.
+> #!       If U_0, U_1 are unobserved, this inclusion is not automatic.
 > 
-> # Show how the OLS result gives a bias result (if rho != 0),
+> # Show how the OLS result gives a biased result (if rho != 0),
 > # using the same second-stage for both direct + indirect estimates.
 > ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = simulated.data)
 > ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.635
+[1] 0.679
 
 $average_total_effect
-[1] 2.585645
+[1] 2.633703
 
 $average_direct_effect
-[1] 1.369
+[1] 1.399
 
 $average_indirect_effect
-[1] 1.209645
+[1] 1.253703
 
 > print(estimated.values(ols_firststage.reg, ols_secondstage.reg,
 +     true_total.reg, simulated.data))
 $`first-stage`
-[1] 0.638796
+[1] 0.658971
 
 $`total-effect`
-[1] 2.557287
+[1] 2.663068
 
 $`direct-effect`
-[1] 1.012934
+[1] 0.8097876
 
 $`indirect-effect`
-[1] 1.532095
+[1] 1.818768
 
 > 
 > # Show how the CF approaches get it correct (with complier adjustment).
 > print(theoretical.values(simulated.data))
 $average_first_stage
-[1] 0.635
+[1] 0.679
 
 $average_total_effect
-[1] 2.585645
+[1] 2.633703
 
 $average_direct_effect
-[1] 1.369
+[1] 1.399
 
 $average_indirect_effect
-[1] 1.209645
+[1] 1.253703
 
 > print(mediate.heckit(simulated.data))
 $`first-stage`
-[1] 0.6387428
+[1] 0.6596128
 
 $`total-effect`
-[1] 2.557287
+[1] 2.663068
 
 $`direct-effect`
-[1] 1.701252
+[1] 1.347134
 
 $`indirect-effect`
-[1] 0.8554799
+[1] 1.336105
 
 > print(mediate.semiparametric(simulated.data))
 $`first-stage`
-[1] 0.637595
+[1] 0.6559444
 
 $`total-effect`
-[1] 2.557287
+[1] 2.663068
 
 $`direct-effect`
-[1] 1.844193
+[1] 1.259254
 
 $`indirect-effect`
-[1] 0.7170206
+[1] 1.410603
 
 Warning message:
 MTR is point identified via linear regression. Shape constraints are ignored. 
 > 
-> # One-shot showing how the uniform errors screw up the heckman selection model.
+> # One-shot showing how the uniform errors screw up the Heckman selection model.
 > uniform.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "uniform")
 > print(theoretical.values(uniform.data))
 $average_first_stage
-[1] 0.64
+[1] 0.653
 
 $average_total_effect
-[1] 2.571352
+[1] 2.604241
 
 $average_direct_effect
-[1] 1.37
+[1] 1.374
 
 $average_indirect_effect
-[1] 1.197352
+[1] 1.215241
 
 > print(mediate.heckit(uniform.data))
 $`first-stage`
-[1] 0.6395343
+[1] 0.656299
 
 $`total-effect`
-[1] 2.533776
+[1] 2.543982
 
 $`direct-effect`
-[1] 1.321192
+[1] 1.332014
 
 $`indirect-effect`
-[1] 1.216899
+[1] 1.209358
 
 > print(mediate.semiparametric(uniform.data))
 $`first-stage`
-[1] 0.6352115
+[1] 0.6841431
 
 $`total-effect`
-[1] 2.533776
+[1] 2.543982
 
 $`direct-effect`
-[1] 1.644495
+[1] 1.602326
 
 $`indirect-effect`
-[1] 0.9004015
+[1] 0.9281665
 
 Warning message:
 MTR is point identified via linear regression. Shape constraints are ignored. 
@@ -741,144 +744,133 @@ MTR is point identified via linear regression. Shape constraints are ignored.
 > # Note, using the same input parameters as before, to keep comparable.
 > 
 > # First, show us what huge sample gives for the truth values.
-> roy.data(rho, sigma_0, sigma_1, sigma_C, sample.size = 10^6,
-+     error.dist = "normal") %>%
-+     theoretical.values(print.truth = TRUE) %>%
-+     print()
-[1] "Here is a summary of the (unobserved) true effects:"
-[1] "How many mediator compliers in the system?"
-   D_0
-D_1        0        1
-  0 0.292696 0.000000
-  1 0.657430 0.049874
-[1] "How many actually took the mediator, i.e. Pr(D = 1)?"
-[1] 0.378719
-[1] "The average total effect:" "2.5931970940726"          
-[1] "The average first-stage:" "0.65743"                 
-[1] "The average direct effect:" "1.378719"                  
-[1] "The average indirect effect:" "1.2147380940726"             
-[1] "Cov(V, U_1):"      "0.247774991786382"
-[1] "Cov(V, U_0):"      "-1.49784956507516"
-$average_first_stage
-[1] 0.65743
-
-$average_total_effect
-[1] 2.593197
-
-$average_direct_effect
-[1] 1.378719
-
-$average_indirect_effect
-[1] 1.214738
-
+> #roy.data(rho, sigma_0, sigma_1, sigma_C, sample.size = 10^6,
+> #    error.dist = "normal") %>%
+> #    theoretical.values(print.truth = TRUE) %>%
+> #    print()
+> #
+> ## Base data to input.
+> #normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "normal")
+> #
+> ## Get dist-strapped point est for the CF approach
+> #sim.reps <- 10^4
+> #normal.est <- estimated.loop(sim.reps, normal.data,
+> #    bootstrap = FALSE, print.progress = TRUE,  error.dist = "normal",
+> #    rho, sigma_0, sigma_1, sigma_C)
+> #
+> ## Save the repeated DGPs' point estimates as separate data.
+> #normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
+> #
+> #
+> #################################################################################
+> ### Plot DGP-strap results for uniform distributed errors, repeatedly drawn
+> ## Note, using the same input parameters as before, to keep comparable.
+> #
+> ## Base data to input.
+> #uniform.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "uniform")
+> #
+> ## Get dist-strapped point est for the CF approach
+> #uniform.est <- estimated.loop(sim.reps, uniform.data,
+> #    bootstrap = FALSE, print.progress = TRUE, error.dist = "uniform",
+> #    rho, sigma_0, sigma_1, sigma_C)
+> #
+> ## Save the repeated DGPs' point estimates as separate data.
+> #uniform.est$data %>% write_csv(file.path(output.folder, "uniform-cf-data.csv"))
 > 
-> # Base data to input.
-> normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "normal")
 > 
-> # Get bootstrapped point est for the CF approach
-> sim.reps <- 10^4
-> normal.est <- estimated.loop(sim.reps, normal.data,
-+     bootstrap = FALSE, print.progress = TRUE,  error.dist = "normal",
-+     rho, sigma_0, sigma_1, sigma_C)
-[1] "100 out of 10000, 1% done."
-[1] "200 out of 10000, 2% done."
-[1] "300 out of 10000, 3% done."
-[1] "400 out of 10000, 4% done."
-[1] "500 out of 10000, 5% done."
-[1] "600 out of 10000, 6% done."
-[1] "800 out of 10000, 8% done."
-[1] "900 out of 10000, 9% done."
-[1] "1000 out of 10000, 10% done."
-[1] "1100 out of 10000, 11% done."
-[1] "1200 out of 10000, 12% done."
-[1] "1300 out of 10000, 13% done."
-[1] "1500 out of 10000, 15% done."
-[1] "1600 out of 10000, 16% done."
-[1] "1700 out of 10000, 17% done."
-[1] "1800 out of 10000, 18% done."
-[1] "1900 out of 10000, 19% done."
-[1] "2000 out of 10000, 20% done."
-[1] "2100 out of 10000, 21% done."
-[1] "2200 out of 10000, 22% done."
-[1] "2300 out of 10000, 23% done."
-[1] "2400 out of 10000, 24% done."
-[1] "2500 out of 10000, 25% done."
-[1] "2600 out of 10000, 26% done."
-[1] "2700 out of 10000, 27% done."
-[1] "3000 out of 10000, 30% done."
-[1] "3100 out of 10000, 31% done."
-[1] "3200 out of 10000, 32% done."
-[1] "3300 out of 10000, 33% done."
-[1] "3400 out of 10000, 34% done."
-[1] "3500 out of 10000, 35% done."
-[1] "3600 out of 10000, 36% done."
-[1] "3700 out of 10000, 37% done."
-[1] "3800 out of 10000, 38% done."
-[1] "3900 out of 10000, 39% done."
-[1] "4000 out of 10000, 40% done."
-[1] "4100 out of 10000, 41% done."
-[1] "4200 out of 10000, 42% done."
-[1] "4300 out of 10000, 43% done."
-[1] "4400 out of 10000, 44% done."
-[1] "4500 out of 10000, 45% done."
-[1] "4600 out of 10000, 46% done."
-[1] "4700 out of 10000, 47% done."
-[1] "4800 out of 10000, 48% done."
-[1] "4900 out of 10000, 49% done."
-[1] "5000 out of 10000, 50% done."
-[1] "5100 out of 10000, 51% done."
-[1] "5200 out of 10000, 52% done."
-[1] "5300 out of 10000, 53% done."
-[1] "5400 out of 10000, 54% done."
-[1] "5900 out of 10000, 59% done."
-[1] "6000 out of 10000, 60% done."
-[1] "6100 out of 10000, 61% done."
-[1] "6200 out of 10000, 62% done."
-[1] "6300 out of 10000, 63% done."
-[1] "6400 out of 10000, 64% done."
-[1] "6500 out of 10000, 65% done."
-[1] "6600 out of 10000, 66% done."
-[1] "6700 out of 10000, 67% done."
-[1] "6800 out of 10000, 68% done."
-[1] "6900 out of 10000, 69% done."
-[1] "7000 out of 10000, 70% done."
-[1] "7100 out of 10000, 71% done."
-[1] "7200 out of 10000, 72% done."
-[1] "7300 out of 10000, 73% done."
-[1] "7400 out of 10000, 74% done."
-[1] "7500 out of 10000, 75% done."
-[1] "7600 out of 10000, 76% done."
-[1] "7700 out of 10000, 77% done."
-[1] "7800 out of 10000, 78% done."
-[1] "7900 out of 10000, 79% done."
-[1] "8000 out of 10000, 80% done."
-[1] "8100 out of 10000, 81% done."
-[1] "8200 out of 10000, 82% done."
-[1] "8300 out of 10000, 83% done."
-[1] "8400 out of 10000, 84% done."
-[1] "8500 out of 10000, 85% done."
-[1] "8600 out of 10000, 86% done."
-[1] "8700 out of 10000, 87% done."
-[1] "8800 out of 10000, 88% done."
-[1] "8900 out of 10000, 89% done."
-[1] "9000 out of 10000, 90% done."
-[1] "9100 out of 10000, 91% done."
-[1] "9200 out of 10000, 92% done."
-[1] "9300 out of 10000, 93% done."
-[1] "9400 out of 10000, 94% done."
-[1] "9500 out of 10000, 95% done."
-[1] "9600 out of 10000, 96% done."
-[1] "9700 out of 10000, 97% done."
-[1] "9800 out of 10000, 98% done."
-[1] "9900 out of 10000, 99% done."
-[1] "10000 out of 10000, 100% done."
+> ################################################################################
+> ## Compare estimation methods, across different rho values.
+> 
+> # Define an empty dataframe, to start adding to.
+> #rho_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
+> #    error.dist = "normal")
+> #rho.data <- estimated.loop(1, rho_normal.data,
+> #    bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
+> #    rho, sigma_0, sigma_1, sigma_C)$estimates
+> #rho.data$rho <- NA
+> #rho.data <- rho.data[0, ]
+> ## Define values in rho \in [-1, 1] to go across
+> #rho.values <- seq(-1, 1, by = 0.25)
+> ## Define the number of boot reps for each
+> #boot.reps <- 10^3
+> #i <- 0
+> #
+> #rho.value <- 1
+> #
+> ## Start the rho loop
+> #for (rho.value in rho.values){
+> #    i <- i + 1
+> #    # Simulate the data: rho, sigma_0, sigma_1, sigma_C
+> #    rho_sim.data <- roy.data(rho.value, sigma_0, sigma_1, sigma_C,
+> #        error.dist = "normal")
+> #    # Get the truth + estimates + bootstrapped SEs, and save rho value
+> #    rho.boot <- estimated.loop(boot.reps, rho_sim.data,
+> #        bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
+> #        rho.value, sigma_0, sigma_1, sigma_C)$estimates
+> #    # Add to the dataframe.
+> #    rho.boot$rho <- rho.value
+> #    rho.data[i, ] <- rho.boot
+> #    # Show far we are.
+> #    print(paste0(rho.value, " in [-1, 1], ",
+> #        100 * i / length(rho.values), "% done."))
+> #    gc()
+> #}
+> #
+> ## Save the output data.
+> #rho.data %>% write_csv(file.path(output.folder, "rho-cf-data.csv"))
+> 
+> 
+> ################################################################################
+> ## Compare estimation methods, across different sd(U_1) values.
+> 
+> # Define an empty dataframe, to start adding to.
+> sigma_1_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
++     error.dist = "normal")
+> sigma_1.values <- estimated.loop(1, sigma_1_normal.data,
++     bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
++     rho, sigma_0, sigma_1, sigma_C)$estimates
+Warning message:
+MTR is point identified via linear regression. Shape constraints are ignored. 
+> sigma_1.values$sigma_1 <- NA
+> sigma_1.data <- sigma_1.values[0, ]
+> # Define values in sigma_1 in [0, 2] to go across
+> sigma_1.values <- seq(0, 2, by = 0.25)
+> # Define the number of boot reps for each
+> boot.reps <- 10^3
+> i <- 0
+> 
+> # Start the sigma_1 loop
+> for (sigma_1.value in sigma_1.values){
++     i <- i + 1
++     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
++     sigma_1_sim.data <- roy.data(rho, sigma_0, sigma_1.value, sigma_C,
++         error.dist = "normal")
++     # Get the truth + estimates + bootstrapped SEs, and save rho value
++     sigma_1.boot <- estimated.loop(boot.reps, sigma_1_sim.data,
++         bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
++         rho, sigma_0, sigma_1.value, sigma_C)$estimates
++     # Add to the dataframe.
++     sigma_1.boot$sigma_1 <- sigma_1.value
++     sigma_1.data[i, ] <- sigma_1.boot
++     # Show how far we are.
++     print(paste0(sigma_1.value, " in [0, 2], ",
++         100 * i / length(sigma_1.values), "% done."))
++     gc()
++ }
+[1] "0 in [0, 2], 11.1111111111111% done."
+[1] "0.25 in [0, 2], 22.2222222222222% done."
+[1] "0.5 in [0, 2], 33.3333333333333% done."
+[1] "0.75 in [0, 2], 44.4444444444444% done."
+[1] "1 in [0, 2], 55.5555555555556% done."
+[1] "1.25 in [0, 2], 66.6666666666667% done."
+[1] "1.5 in [0, 2], 77.7777777777778% done."
+[1] "1.75 in [0, 2], 88.8888888888889% done."
+[1] "2 in [0, 2], 100% done."
 There were 50 or more warnings (use warnings() to see the first 50)
 > 
-> # Save the repeated DGPs' point estimates as separate data.
-> normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
+> # Save the output data.
+> sigma_1.data %>% write_csv(file.path(output.folder, "sigma1-cf-data.csv"))
 > 
-> 
-> quit("no")
 > proc.time()
    user  system elapsed 
-962.747   4.894 972.765 
+795.166   3.509 799.397 

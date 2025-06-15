@@ -6,6 +6,17 @@
 # Note:
 # "R CMD BATCH" runs an Rscript, and logs output in a corresponding *.Rout file.
 
+## Deal with on Oregon Health Insurance Experiment (Keinkelstein+ 2014) data. 
+# Extract data
+cd data-build
+R CMD BATCH --no-save data-extract.R
+cd ..
+# Statistical analysis
+cd data-analyse
+R CMD BATCH --no-save informal-mechanism.R
+R CMD BATCH --no-save actual-mediation.R
+cd ..
+
 ## Enact simulation evidence, and figures.
 cd simulations
 # Run the semi-parametric simulation, and plot its results
@@ -19,7 +30,7 @@ cd text
 # Adjust DOIs in each bib entry (by my own custom tool)
 # point to the cleaned bib file in my working paper.
 cd sections
-# ~/venv/bin/python3 ~/Dropbox/latex-templates/bib-edit.py 07-bibliography.bib
+# ~/venv/bin/python3 ../../latex-templates/bib-edit.py 07-bibliography.bib
 bibOld="bibliography.bib"
 bibNew="bibliography-doi.bib"
 sed -i -e "s/$bibOld/$bibNew/g" ../paper.tex
