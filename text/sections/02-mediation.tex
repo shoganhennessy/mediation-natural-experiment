@@ -57,8 +57,8 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
     \label{fig:scm-model}
     \begin{tikzpicture}
         \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
-        \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
-        \node[state,thick,red] (outcome) [right=2.5cm of mediator] {$Y_i$};
+        \node[state,thick,blue] (treatment) [left=3cm of mediator] {$Z_i$};
+        \node[state,thick,red] (outcome) [right=3cm of mediator] {$Y_i$};
         % Label Z_i, D, Y_i
         \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
         \node[color=blue] [left=0.1cm of treatment] {Treatment};
@@ -68,9 +68,9 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
         \path[->, thick] (mediator) edge (outcome);
         \path[->, thick] (treatment) edge[bend right=37.5] (outcome);
         % Label direct and indirect effect
-        \node[color=orange] [below left=-0.3cm and 0.15cm of mediator] {First-stage};
-        \node[color=orange] [below right=-0.3cm and 0.75cm of mediator] {Compliers' AIE};
-        \node[color=orange] [below=1cm of mediator] {ADE};
+        \node[color=orange] [below left=-0.3cm and 0.5cm of mediator] {First-stage};
+        \node[color=orange] [below right=-0.3cm and -0.05cm of mediator] {Compliers' AIE};
+        \node[color=orange] [below=1.125cm of mediator] {ADE};
         % Add in the confounders
         %\node[state,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
         %\path[->,RoyalPurple] (confounderX) edge (mediator);

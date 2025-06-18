@@ -605,8 +605,8 @@ Collecting for the AIE,
     &= \text{AIE}.
 \end{align*}
 
-\subsection{Semiparametric Estimation of the ADE and AIE}
-\label{appendix:semiparametric}
+\subsection{Semi-parametric Estimation of the ADE and AIE}
+\label{appendix:semi-parametric}
 Note the following, to express $\Gamma(p,p')$ in terms of either $\lambda_0$ or $\lambda_1$
 for $p < p' \in (0,1)$.
 \begin{align*}
@@ -616,7 +616,7 @@ for $p < p' \in (0,1)$.
         &= \frac{(1-p)\lambda_0\left(p\right) - (1-p')\lambda_0\left(p'\right)}{p' - p} \\
 \end{align*}
 
-The semiparametric approach cannot separate $\rho_0$ from $\lambda_0$, only estimating their composition $\rho_0 \lambda_0(p')$ for $p' \in (0,1)$.
+The semi-parametric approach cannot separate $\rho_0$ from $\lambda_0$, only estimating their composition $\rho_0 \lambda_0(p')$ for $p' \in (0,1)$.
 Ultimately this does not matter, as it sufficient to identify $\rho_0, \rho_1$ up to a constant for the complier adjustment term, using either $\rho_0 \lambda_0$ or $\rho_1 \lambda_1$.
 For $\pi_0 < \pi_1 \in (0,1)$,
 \begin{align*}
@@ -640,7 +640,7 @@ This can be estimated by estimating $\rho_1 \lambda_1$ in the $D_i = 1$ subsampl
 Similarly, an approach starting with estimating $\rho_0 \lambda_0$ in the $D_i = 0$ subsample gives a coefficient for $\rho_1 / \rho_0$.
 An efficient estimate can compose these two, with weights proportional to the efficiency of each side.
 
-\subsection{Control Function Simulation}
+\subsection{Simulation Evidence}
 A number of statistical packages, for the R language \citep{R2023}, made the simulation analysis for this paper possible.
 \begin{itemize}
     \item \textit{Tidyverse} \citep{tidyverse} collected tools for data analysis in the R language.
@@ -649,43 +649,18 @@ A number of statistical packages, for the R language \citep{R2023}, made the sim
 \end{itemize}
 
 \begin{figure}[h!]
-    \caption{Point Estimates of CM Effects, OLS and Control Function versus True Value.}
-    \begin{subfigure}[c]{0.475\textwidth}
-        \centering
-        \caption{$\hat{\text{ADE}} \;-$ ADE.}
-        \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/sigma-directeffect-bias.png}
-    \end{subfigure}
-    \begin{subfigure}[c]{0.475\textwidth}
-        \centering
-        \caption{$\hat{\text{AIE}} \;-$ AIE.}
-        \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/sigma-indirecteffect-bias.png}
-    \end{subfigure}
-    \label{fig:sigma-bias}
-    \justify
-    \footnotesize    
-    \textbf{Note:}
-    These figures show the OLS and control function point estimates of the ADE and AIE, for $N = 10,000$ sample size, minus the true value of the ADE and AIE, respectively.
-    $y$-axis value of zero means the point estimate had estimated the ADE, or AIE, exactly.
-    Points are points estimates from data simulated with a given $\rho = 0.5$ value, varying the $\sigma_0 = \sigma, \sigma_1 = 2\sigma$ values.
-    Orange represents OLS estimates, blue the control function approach.
-    Shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
-\end{figure}
-
-\begin{figure}[h!]
     \caption{OLS versus Control Function Estimates of CM Effects, varying $\sigma_1$ relative to $\sigma_0 = 1$.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{ADE.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/sigma-1-directeffect-bias.png}
+            ../programs/simulations/sim-output/sigma1-directeffect-bias.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{AIE.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/sigma-1-indirecteffect-bias.png}
+            ../programs/simulations/sim-output/sigma1-indirecteffect-bias.png}
     \end{subfigure}
     \label{fig:sigma-1-bias}
     \justify

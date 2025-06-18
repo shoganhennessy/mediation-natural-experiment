@@ -167,15 +167,15 @@ This gives an ATE value of 2.60, ADE 1.38, and AIE 1.22, respectively.\footnote{
         \centering
         \caption{$\hat{\text{ADE}} - \text{ADE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/semi-parametric-direct-dist.png}
+            ../programs/simulations/sim-output/uniform-direct-dist.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{$\hat{\text{AIE}} - \text{AIE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/semi-parametric-indirect-dist.png}
+            ../programs/simulations/sim-output/uniform-indirect-dist.png}
     \end{subfigure}
-    \label{fig:cm-semi-parametric-dist}
+    \label{fig:cm-uniform-dist}
     \justify
     \footnotesize    
     \textbf{Note:}
@@ -185,7 +185,7 @@ This gives an ATE value of 2.60, ADE 1.38, and AIE 1.22, respectively.\footnote{
     and green estimates with a two-stage semi-parametric CF.
 \end{figure}
 
-\autoref{fig:cm-heckit-dist} shows how these estimates perform, with a parametric CF approach, relative to the true value; \autoref{fig:cm-semi-parametric-dist} does the same for a semi-parametric approach.
+\autoref{fig:cm-normal-dist} shows how these estimates perform, with a parametric CF approach, relative to the true value; \autoref{fig:cm-uniform-dist} does the same for a semi-parametric approach.
 The OLS estimates' distribution do not overlap the true values for any standard level of significance; the distance between the OLS estimates and the true values are the underlying bias terms derived in \autoref{thm:selection-bias}.
 The parametric CF approach perfectly reproduces the true values, as the probit first-stage correctly models the normally distributed error terms.
 The semi-parametric CF estimates correct conventional CM estimates, too, though exhibits some small-sample bias, which it to be expected with the involved non-parametric steps in realistic sample sizes.
@@ -208,7 +208,7 @@ The semi-parametric CF estimates correct conventional CM estimates, too, though 
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the OLS and CF point estimates of the ADE and AIE, for $N = 10,000$ sample size, varying $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values with $\Var{U_{0,i}} = 1, \Var{U_{1,i}} = 1.5$ fixed.
+    These figures show the OLS and CF point estimates of the ADE and AIE, for $N = 1,000$ sample size, varying $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values with $\Var{U_{0,i}} = 1, \Var{U_{1,i}} = 1.5$ fixed.
     The black dashed line is the true value, coloured points are points estimates for the respective data generated, and shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
     Orange represents OLS estimates, blue the CF approach.
 \end{figure}
@@ -216,9 +216,9 @@ The semi-parametric CF estimates correct conventional CM estimates, too, though 
 The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\text{Corr}\big(U_{0,i}, U_{1,i}\big) \in [-1, 1]$ and $\Var{U_{0,i}} = 1, \Var{U_{1,i}} \geq 0$.
 The true AIE values vary, because $D_i(Z_i)$ compliers have higher average values of $\big(U_{1,i} - U_{0,i}\big)$ as $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ increases.
 \autoref{fig:rho-bias} shows CF estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstraps.
-The point estimates of the CF do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations, as in \autoref{fig:cm-semi-parametric-dist}).
+The point estimates of the CF do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations, as in \autoref{fig:cm-uniform-dist}).
 The CF approach improves on OLS estimates by correcting for bias, with confidence regions overlapping the true values.\footnote{
-    In the appendix, \autoref{fig:sigma-bias} shows the same simulation while varying $\Var{U_{1,i}}$, with fixed $\Var{U_{0,i}} = 1, \text{Corr}\big(U_{0,i}, U_{1,i}\big) = 0.5$.
+    In the appendix, \autoref{fig:sigma-1-bias} shows the same simulation while varying $\Var{U_{1,i}}$, with fixed $\Var{U_{0,i}} = 1, \text{Corr}\big(U_{0,i}, U_{1,i}\big) = 0.5$.
     The conclusion is the same as for varying the correlation coefficient, $\rho$, in \autoref{fig:rho-bias}.
 }
 This correction did not come for free: the standard errors are significantly greater in a CF approach than OLS.
