@@ -370,7 +370,7 @@ sigma_1_directeffect_bias.plot <- sigma_1.data %>%
         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
         axis.title.x = element_text(vjust = -0.25))
 # Save this plot
-ggsave(file.path(output.folder, "sigma1-directeffect-boot.png"),
+ggsave(file.path(output.folder, "sigma1-directeffect-bias.png"),
     plot = sigma_1_directeffect_bias.plot, dpi = 300,
     units = "cm", width = fig.width, height = fig.height)
 
@@ -406,6 +406,6 @@ sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
         axis.title.x = element_text(vjust = -0.25))
 # Save this plot
-ggsave(file.path(output.folder, "sigma1-indirecteffect-boot.png"),
+ggsave(file.path(output.folder, "sigma1-indirecteffect-bias.png"),
     plot = sigma_1_indirecteffect_bias.plot, dpi = 300,
     units = "cm", width = fig.width, height = fig.height)
