@@ -379,7 +379,8 @@ estimated.loop <- function(boot.reps, example.data,
         # Print, if want the consol output of how far we are.
         if (print.progress == TRUE){
             if ((100 * (i / boot.reps)) %% 1 == 0) {
-                print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
+                print(paste0(i, " out of ", boot.reps,
+                    ", ", round(100 * (i / boot.reps)), "% done."))
             }
         }
         # First, get the total effect, by a standard regression.
@@ -591,7 +592,7 @@ for (rho.value in rho.values){
     rho.data[i, ] <- rho.boot
     # Show far we are.
     print(paste0(rho.value, " in [-1, 1], ",
-        100 * i / length(rho.values), "% done."))
+        round(100 * i / length(rho.values)), "% done."))
     gc()
 }
 
@@ -631,7 +632,7 @@ for (sigma_1.value in sigma_1.values){
     sigma_1.data[i, ] <- sigma_1.boot
     # Show how far we are.
     print(paste0(sigma_1.value, " in [0, 2], ",
-        100 * i / length(sigma_1.values), "% done."))
+        round(100 * i / length(sigma_1.values)), "% done."))
     gc()
 }
 

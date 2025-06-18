@@ -1,5 +1,5 @@
 
-R version 4.5.0 (2025-04-11) -- "How About a Twenty-Six"
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
 Copyright (C) 2025 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu
 
@@ -20,7 +20,7 @@ Type 'q()' to quit R.
 > ## Plot the estimates for indirect + direct effects, with semiparametric CF.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "22:12 EDT Sunday, 08 June 2025"
+[1] "10:59 EDT Wednesday, 18 June 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -58,7 +58,7 @@ Type 'q()' to quit R.
 > 
 > # Load data from normal DGP-strapping 10,000 times.
 > normal.data <- read_csv(file.path(output.folder, "normal-cf-data.csv"))
-Rows: 10000 Columns: 10
+Rows: 100 Columns: 10
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
 dbl (10): truth_total_effect, ols_total_effect, truth_direct_effect, ols_dir...
@@ -66,7 +66,7 @@ dbl (10): truth_total_effect, ols_total_effect, truth_direct_effect, ols_dir...
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 > print(normal.data)
-# A tibble: 10,000 × 10
+# A tibble: 100 × 10
    truth_total_effect ols_total_effect truth_direct_effect ols_direct_effect
                 <dbl>            <dbl>               <dbl>             <dbl>
  1               2.61             2.62                1.40             0.941
@@ -79,37 +79,98 @@ dbl (10): truth_total_effect, ols_total_effect, truth_direct_effect, ols_dir...
  8               2.61             2.49                1.39             0.652
  9               2.56             2.55                1.37             0.751
 10               2.58             2.53                1.39             0.913
-# ℹ 9,990 more rows
+# ℹ 90 more rows
 # ℹ 6 more variables: heckit_direct_effect <dbl>, cf_direct_effect <dbl>,
 #   truth_indirect_effect <dbl>, ols_indirect_effect <dbl>,
 #   heckit_indirect_effect <dbl>, cf_indirect_effect <dbl>
 > 
 > # Load data from uniform DGP-strapping 10,000 times.
 > uniform.data <- read_csv(file.path(output.folder, "uniform-cf-data.csv"))
-Rows: 10000 Columns: 8
+Rows: 100 Columns: 10
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
-dbl (8): truth_direct_effect, ols_direct_effect, heckit_direct_effect, cf_di...
+dbl (10): truth_total_effect, ols_total_effect, truth_direct_effect, ols_dir...
 
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 > print(uniform.data)
-# A tibble: 10,000 × 8
-   truth_direct_effect ols_direct_effect heckit_direct_effect cf_direct_effect
-                 <dbl>             <dbl>                <dbl>            <dbl>
- 1                1.34             0.939                1.72              1.98
- 2                1.39             0.947                1.01              1.11
- 3                1.37             1.01                 0.961             1.11
- 4                1.37             0.881                1.59              1.82
- 5                1.38             0.934                1.43              1.46
- 6                1.38             1.05                 1.35              1.45
- 7                1.38             0.994                1.71              1.70
- 8                1.40             1.13                 1.48              1.66
- 9                1.38             0.927                1.33              1.48
-10                1.41             1.02                 1.09              1.20
-# ℹ 9,990 more rows
-# ℹ 4 more variables: truth_indirect_effect <dbl>, ols_indirect_effect <dbl>,
+# A tibble: 100 × 10
+   truth_total_effect ols_total_effect truth_direct_effect ols_direct_effect
+                <dbl>            <dbl>               <dbl>             <dbl>
+ 1               2.55             2.57                1.38             0.996
+ 2               2.64             2.65                1.36             0.969
+ 3               2.61             2.67                1.37             1.06 
+ 4               2.57             2.59                1.35             1.00 
+ 5               2.61             2.55                1.40             0.881
+ 6               2.61             2.62                1.38             0.981
+ 7               2.60             2.66                1.38             1.11 
+ 8               2.61             2.57                1.38             1.14 
+ 9               2.63             2.68                1.38             0.934
+10               2.53             2.42                1.37             0.862
+# ℹ 90 more rows
+# ℹ 6 more variables: heckit_direct_effect <dbl>, cf_direct_effect <dbl>,
+#   truth_indirect_effect <dbl>, ols_indirect_effect <dbl>,
 #   heckit_indirect_effect <dbl>, cf_indirect_effect <dbl>
+> 
+> # Load data from different Corr(U_0, U_1) parameter values
+> rho.data <- read_csv(file.path(output.folder, "rho-cf-data.csv"))
+Rows: 9 Columns: 27
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+> print(rho.data)
+# A tibble: 9 × 27
+  truth_direct_effect truth_indirect_effect ols_direct_effect
+                <dbl>                 <dbl>             <dbl>
+1                1.36                  1.03             1.47 
+2                1.38                  1.10             1.21 
+3                1.37                  1.18             1.19 
+4                1.4                   1.21             1.18 
+5                1.38                  1.17             0.897
+6                1.37                  1.16             0.937
+7                1.38                  1.24             0.957
+8                1.38                  1.21             0.994
+9                1.38                  1.18             0.779
+# ℹ 24 more variables: ols_direct_effect_se <dbl>, ols_direct_effect_up <dbl>,
+#   ols_direct_effect_low <dbl>, ols_indirect_effect <dbl>,
+#   ols_indirect_effect_se <dbl>, ols_indirect_effect_up <dbl>,
+#   ols_indirect_effect_low <dbl>, heckit_direct_effect <dbl>,
+#   heckit_direct_effect_se <dbl>, heckit_direct_effect_up <dbl>,
+#   heckit_direct_effect_low <dbl>, heckit_indirect_effect <dbl>,
+#   heckit_indirect_effect_se <dbl>, heckit_indirect_effect_up <dbl>, …
+> 
+> # Load data from different sd(U_1) parameter values, relaltive to sd(U_0) = 1
+> sigma_1.data <- read_csv(file.path(output.folder, "sigma1-cf-data.csv"))
+Rows: 9 Columns: 27
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+> print(sigma_1.data)
+# A tibble: 9 × 27
+  truth_direct_effect truth_indirect_effect ols_direct_effect
+                <dbl>                 <dbl>             <dbl>
+1                1.39                  1.32             1.89 
+2                1.43                  1.33             1.93 
+3                1.36                  1.14             1.63 
+4                1.38                  1.22             1.56 
+5                1.39                  1.22             1.30 
+6                1.38                  1.20             1.08 
+7                1.38                  1.17             0.784
+8                1.38                  1.30             0.614
+9                1.36                  1.16             0.604
+# ℹ 24 more variables: ols_direct_effect_se <dbl>, ols_direct_effect_up <dbl>,
+#   ols_direct_effect_low <dbl>, ols_indirect_effect <dbl>,
+#   ols_indirect_effect_se <dbl>, ols_indirect_effect_up <dbl>,
+#   ols_indirect_effect_low <dbl>, heckit_direct_effect <dbl>,
+#   heckit_direct_effect_se <dbl>, heckit_direct_effect_up <dbl>,
+#   heckit_direct_effect_low <dbl>, heckit_indirect_effect <dbl>,
+#   heckit_indirect_effect_se <dbl>, heckit_indirect_effect_up <dbl>, …
 > 
 > 
 > ################################################################################
@@ -202,7 +263,7 @@ dbl (8): truth_direct_effect, ols_direct_effect, heckit_direct_effect, cf_di...
 > ## Uniform dist errors: Plot dist of ADE and AIE estimates, around truth.
 > 
 > # ADE estimates, by type.
-> direct_dist.plot <- normal.data %>%
+> direct_dist.plot <- uniform.data %>%
 +     ggplot() +
 +     # Dist of OLS estimates.
 +     geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
@@ -255,22 +316,19 @@ dbl (8): truth_direct_effect, ols_direct_effect, heckit_direct_effect, cf_di...
 > ggsave(file.path(output.folder, "uniform-direct-dist.png"),
 +     plot = direct_dist.plot,
 +     units = "cm", width = fig.width, height = fig.height)
-Warning message:
-Removed 28 rows containing non-finite outside the scale range
-(`stat_density()`). 
 > 
 > # AIE estimates, by type.
-> indirect_dist.plot <- normal.data %>%
+> indirect_dist.plot <- uniform.data %>%
 +     ggplot() +
 +     # Dist of OLS estimates.
 +     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
 +         y = after_stat(density)),
 +         colour = "black", fill = colour.list[1], alpha = 0.75) +
-+     # Dist of CF estimates.
++     # Dist of Heckit CF estimates.
 +     geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
 +         y = after_stat(density)),
 +         colour = "black", fill = colour.list[2], alpha = 0.75) +
-+     # Dist of CF estimates.
++     # Dist of semi-parametric CF estimates.
 +     geom_density(aes(x = cf_indirect_effect - truth_indirect_effect,
 +         y = after_stat(density)),
 +         colour = "black", fill = colour.list[3], alpha = 0.75) +
@@ -293,13 +351,77 @@ Removed 28 rows containing non-finite outside the scale range
 > ggsave(file.path(output.folder, "uniform-indirect-dist.png"),
 +     plot = indirect_dist.plot,
 +     units = "cm", width = fig.width, height = fig.height)
-Warning message:
-Removed 27 rows containing non-finite outside the scale range
-(`stat_density()`). 
 > 
 > 
 > ################################################################################
 > ## Plot the estimates, by OLS + CF, different rho = Corr(U_0, U_1) values.
+> 
+> # Plot the bias in direct effect est vs rho
+> rho_directeffect_bias.plot <- rho.data %>%
++     ggplot(aes(x = rho)) +
++     # OLS est + 95 % CI
++     geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
++     geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
++         fill = colour.list[1], alpha = 0.2) +
++     annotate("text", colour = colour.list[1],
++         x = 0.15, y = 0.2,
++         fontface = "bold",
++         label = ("OLS"),
++         size = 4.25, hjust = 0.5, vjust = 0) +
++     annotate("curve", colour = colour.list[1],
++         x = 0.3, y = 0.25,
++         xend = 0.5, yend = 0.5,
++         linewidth = 0.75,
++         curvature = 0.25,
++         arrow = arrow(length = unit(0.25, 'cm'))) +
++     # CF est + 95 % CI
++     geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
++     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
++         fill = colour.list[2], alpha = 0.2) +
++     annotate("text", colour = colour.list[2],
++         x = -0.5, y = 2.00,
++         fontface = "bold",
++         label = ("Parametric CF"),
++         size = 4.25, hjust = 0.5, vjust = 0) +
++     annotate("curve", colour = colour.list[2],
++         x = -0.375, y = 1.95,
++         xend = -0.25, yend = 1.55,
++         linewidth = 0.75,
++         curvature = -0.125,
++         arrow = arrow(length = unit(0.25, 'cm'))) +
++     # Truth:
++     geom_line(aes(y = (truth_direct_effect)),
++         colour = "black", linetype = "dashed", linewidth = 1) +
++     annotate("text", colour = "black",
++         x = 0.65, y = 1.8,
++         fontface = "bold",
++         label = ("Truth"),
++         size = 4.25, hjust = 0.5, vjust = 0) +
++     annotate("curve", colour = "black",
++         x = 0.6, y = 1.75,
++         xend = 0.475, yend = 1.4875,
++         linewidth = 0.75, curvature = 0.125,
++         arrow = arrow(length = unit(0.25, 'cm'))) +
++     # Presentation options
++     theme_bw() +
++     scale_x_continuous(
++         name = TeX("$\\rho$"),
++         expand = c(0, 0),
++         breaks = seq(-1, 1, by = 0.25),
++         limits = c(-1.025, 1.025)) +
++     scale_y_continuous(name = "",
++         breaks = seq(0, 2.5, by = 0.25),
++         limits = c(0, 2.5),
++         expand = c(0.01, 0.01)) +
++     ggtitle("Estimate") +
++     theme(plot.title = element_text(hjust = 0, size = rel(1)),
++         plot.title.position = "plot",
++         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
++         axis.title.x = element_text(vjust = -0.25))
+> # Save this plot
+> ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
++     plot = rho_directeffect_bias.plot, dpi = 300,
++     units = "cm", width = fig.width, height = fig.height)
 > 
 > # Plot the bias in indirect effect est vs rho
 > rho_indirecteffect_bias.plot <- rho.data %>%
@@ -331,5 +453,91 @@ Removed 27 rows containing non-finite outside the scale range
 +         plot.title.position = "plot",
 +         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
 +         axis.title.x = element_text(vjust = -0.25))
-Error: object 'rho.data' not found
-Execution halted
+> # Save this plot
+> ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
++     plot = rho_indirecteffect_bias.plot, dpi = 300,
++     units = "cm", width = fig.width, height = fig.height)
+> 
+> 
+> ################################################################################
+> ## Plot the CF effect estimates, by OLS + CF, different $\sigma_1$ values.
+> 
+> # Plot the bias in direct effect est vs sigma_1
+> sigma_1_directeffect_bias.plot <- sigma_1.data %>%
++     ggplot(aes(x = sigma_1)) +
++     # OLS est + 95 % CI
++     geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
++     geom_ribbon(aes(ymin = ols_direct_effect_low,
++         ymax = ols_direct_effect_up),
++         fill = colour.list[1], alpha = 0.2) +
++     # Heckit est + 95 % CI
++     geom_point(aes(y = heckit_direct_effect), colour = colour.list[2]) +
++     geom_ribbon(aes(ymin = heckit_direct_effect_low, ymax = heckit_direct_effect_up),
++         fill = colour.list[2], alpha = 0.2) +
++     # CF est + 95 % CI
++     #geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
++     #geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
++     #    fill = colour.list[2], alpha = 0.2) +
++     # Truth:
++     geom_line(aes(y = truth_direct_effect),
++         colour = "black", linetype = "dashed", linewidth = 1) +
++     # Presentation options
++     theme_bw() +
++     scale_x_continuous(
++         name = TeX("$\\sigma_1$"),
++         expand = c(0, 0),
++         breaks = seq(0, 2, by = 0.25),
++         limits = c(-0.02, 2.02)) +
++     scale_y_continuous(name = "",
++         breaks = seq(0, 2.5, by = 0.25),
++         limits = c(0, 2.5),
++         expand = c(0.01, 0.01)) +
++     ggtitle("Estimate") +
++     theme(plot.title = element_text(hjust = 0, size = rel(1)),
++         plot.title.position = "plot",
++         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
++         axis.title.x = element_text(vjust = -0.25))
+> # Save this plot
+> ggsave(file.path(output.folder, "sigma1-directeffect-boot.png"),
++     plot = sigma_1_directeffect_bias.plot, dpi = 300,
++     units = "cm", width = fig.width, height = fig.height)
+> 
+> # Plot the bias in indirect effect est vs sigma_1
+> sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
++     ggplot(aes(x = sigma_1)) +
++     # OLS est + 95 % CI
++     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
++     geom_ribbon(aes(ymin = ols_indirect_effect_low,
++         ymax = ols_indirect_effect_up),
++         fill = colour.list[1], alpha = 0.2) +
++     # CF est + 95 % CI
++     geom_point(aes(y = cf_indirect_effect), colour = colour.list[2]) +
++     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
++         fill = colour.list[2], alpha = 0.2) +
++     # Truth:
++     geom_line(aes(y = truth_indirect_effect),
++         colour = "black", linetype = "dashed", linewidth = 1) +
++     # Presentation options
++     theme_bw() +
++     scale_x_continuous(
++         name = TeX("$\\sigma_1$"),
++         expand = c(0, 0),
++         breaks = seq(0, 2, by = 0.25),
++         limits = c(-0.02, 2.02)) +
++     scale_y_continuous(name = "",
++         breaks = seq(0, 2.5, by = 0.25),
++         limits = c(0, 2.5),
++         expand = c(0.01, 0.01)) +
++     ggtitle("Estimate") +
++     theme(plot.title = element_text(hjust = 0, size = rel(1)),
++         plot.title.position = "plot",
++         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
++         axis.title.x = element_text(vjust = -0.25))
+> # Save this plot
+> ggsave(file.path(output.folder, "sigma1-indirecteffect-boot.png"),
++     plot = sigma_1_indirecteffect_bias.plot, dpi = 300,
++     units = "cm", width = fig.width, height = fig.height)
+> 
+> proc.time()
+   user  system elapsed 
+  5.089   0.254   6.769 

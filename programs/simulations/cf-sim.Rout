@@ -1,5 +1,5 @@
 
-R version 4.5.0 (2025-04-11) -- "How About a Twenty-Six"
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
 Copyright (C) 2025 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu
 
@@ -22,7 +22,7 @@ Type 'q()' to quit R.
 > 
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "19:37 EDT Tuesday, 17 June 2025"
+[1] "10:48 EDT Wednesday, 18 June 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -802,52 +802,343 @@ $average_indirect_effect
 > normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "normal")
 > 
 > # Get dist-strapped point est for the CF approach
-> sim.reps <- 10^4
+> sim.reps <- 10^2
 > normal.est <- estimated.loop(sim.reps, normal.data,
 +     bootstrap = FALSE, print.progress = TRUE,  error.dist = "normal",
 +     rho, sigma_0, sigma_1, sigma_C)
-[1] "100 out of 10000, 1% done."
-[1] "200 out of 10000, 2% done."
-[1] "300 out of 10000, 3% done."
-[1] "400 out of 10000, 4% done."
-[1] "500 out of 10000, 5% done."
-[1] "600 out of 10000, 6% done."
-[1] "800 out of 10000, 8% done."
-[1] "900 out of 10000, 9% done."
-[1] "1000 out of 10000, 10% done."
-[1] "1100 out of 10000, 11% done."
-[1] "1200 out of 10000, 12% done."
-[1] "1300 out of 10000, 13% done."
-[1] "1500 out of 10000, 15% done."
-[1] "1600 out of 10000, 16% done."
-[1] "1700 out of 10000, 17% done."
-[1] "1800 out of 10000, 18% done."
-[1] "1900 out of 10000, 19% done."
-[1] "2000 out of 10000, 20% done."
-[1] "2100 out of 10000, 21% done."
-[1] "2200 out of 10000, 22% done."
-[1] "2300 out of 10000, 23% done."
-[1] "2400 out of 10000, 24% done."
-[1] "2500 out of 10000, 25% done."
-[1] "2600 out of 10000, 26% done."
-[1] "2700 out of 10000, 27% done."
-[1] "3000 out of 10000, 30% done."
-[1] "3100 out of 10000, 31% done."
-[1] "3200 out of 10000, 32% done."
-[1] "3300 out of 10000, 33% done."
-[1] "3400 out of 10000, 34% done."
-[1] "3500 out of 10000, 35% done."
-[1] "3600 out of 10000, 36% done."
-[1] "3700 out of 10000, 37% done."
-[1] "3800 out of 10000, 38% done."
-[1] "3900 out of 10000, 39% done."
-[1] "4000 out of 10000, 40% done."
-[1] "4100 out of 10000, 41% done."
-[1] "4200 out of 10000, 42% done."
-[1] "4300 out of 10000, 43% done."
-[1] "4400 out of 10000, 44% done."
-[1] "4500 out of 10000, 45% done."
-[1] "4600 out of 10000, 46% done."
-[1] "4700 out of 10000, 47% done."
-[1] "4800 out of 10000, 48% done."
-[1] "4900 out of 10000, 49% done."
+[1] "1 out of 100, 1% done."
+[1] "2 out of 100, 2% done."
+[1] "3 out of 100, 3% done."
+[1] "4 out of 100, 4% done."
+[1] "5 out of 100, 5% done."
+[1] "6 out of 100, 6% done."
+[1] "8 out of 100, 8% done."
+[1] "9 out of 100, 9% done."
+[1] "10 out of 100, 10% done."
+[1] "11 out of 100, 11% done."
+[1] "12 out of 100, 12% done."
+[1] "13 out of 100, 13% done."
+[1] "15 out of 100, 15% done."
+[1] "16 out of 100, 16% done."
+[1] "17 out of 100, 17% done."
+[1] "18 out of 100, 18% done."
+[1] "19 out of 100, 19% done."
+[1] "20 out of 100, 20% done."
+[1] "21 out of 100, 21% done."
+[1] "22 out of 100, 22% done."
+[1] "23 out of 100, 23% done."
+[1] "24 out of 100, 24% done."
+[1] "25 out of 100, 25% done."
+[1] "26 out of 100, 26% done."
+[1] "27 out of 100, 27% done."
+[1] "30 out of 100, 30% done."
+[1] "31 out of 100, 31% done."
+[1] "32 out of 100, 32% done."
+[1] "33 out of 100, 33% done."
+[1] "34 out of 100, 34% done."
+[1] "35 out of 100, 35% done."
+[1] "36 out of 100, 36% done."
+[1] "37 out of 100, 37% done."
+[1] "38 out of 100, 38% done."
+[1] "39 out of 100, 39% done."
+[1] "40 out of 100, 40% done."
+[1] "41 out of 100, 41% done."
+[1] "42 out of 100, 42% done."
+[1] "43 out of 100, 43% done."
+[1] "44 out of 100, 44% done."
+[1] "45 out of 100, 45% done."
+[1] "46 out of 100, 46% done."
+[1] "47 out of 100, 47% done."
+[1] "48 out of 100, 48% done."
+[1] "49 out of 100, 49% done."
+[1] "50 out of 100, 50% done."
+[1] "51 out of 100, 51% done."
+[1] "52 out of 100, 52% done."
+[1] "53 out of 100, 53% done."
+[1] "54 out of 100, 54% done."
+[1] "59 out of 100, 59% done."
+[1] "60 out of 100, 60% done."
+[1] "61 out of 100, 61% done."
+[1] "62 out of 100, 62% done."
+[1] "63 out of 100, 63% done."
+[1] "64 out of 100, 64% done."
+[1] "65 out of 100, 65% done."
+[1] "66 out of 100, 66% done."
+[1] "67 out of 100, 67% done."
+[1] "68 out of 100, 68% done."
+[1] "69 out of 100, 69% done."
+[1] "70 out of 100, 70% done."
+[1] "71 out of 100, 71% done."
+[1] "72 out of 100, 72% done."
+[1] "73 out of 100, 73% done."
+[1] "74 out of 100, 74% done."
+[1] "75 out of 100, 75% done."
+[1] "76 out of 100, 76% done."
+[1] "77 out of 100, 77% done."
+[1] "78 out of 100, 78% done."
+[1] "79 out of 100, 79% done."
+[1] "80 out of 100, 80% done."
+[1] "81 out of 100, 81% done."
+[1] "82 out of 100, 82% done."
+[1] "83 out of 100, 83% done."
+[1] "84 out of 100, 84% done."
+[1] "85 out of 100, 85% done."
+[1] "86 out of 100, 86% done."
+[1] "87 out of 100, 87% done."
+[1] "88 out of 100, 88% done."
+[1] "89 out of 100, 89% done."
+[1] "90 out of 100, 90% done."
+[1] "91 out of 100, 91% done."
+[1] "92 out of 100, 92% done."
+[1] "93 out of 100, 93% done."
+[1] "94 out of 100, 94% done."
+[1] "95 out of 100, 95% done."
+[1] "96 out of 100, 96% done."
+[1] "97 out of 100, 97% done."
+[1] "98 out of 100, 98% done."
+[1] "99 out of 100, 99% done."
+[1] "100 out of 100, 100% done."
+> 
+> # Save the repeated DGPs' point estimates as separate data.
+> normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
+> 
+> 
+> ################################################################################
+> ## Plot DGP-strap results for uniform distributed errors, repeatedly drawn
+> # Note, using the same input parameters as before, to keep comparable.
+> 
+> # Base data to input.
+> uniform.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "uniform")
+> 
+> # Get dist-strapped point est for the CF approach
+> uniform.est <- estimated.loop(sim.reps, uniform.data,
++     bootstrap = FALSE, print.progress = TRUE, error.dist = "uniform",
++     rho, sigma_0, sigma_1, sigma_C)
+[1] "1 out of 100, 1% done."
+[1] "2 out of 100, 2% done."
+[1] "3 out of 100, 3% done."
+[1] "4 out of 100, 4% done."
+[1] "5 out of 100, 5% done."
+[1] "6 out of 100, 6% done."
+[1] "8 out of 100, 8% done."
+[1] "9 out of 100, 9% done."
+[1] "10 out of 100, 10% done."
+[1] "11 out of 100, 11% done."
+[1] "12 out of 100, 12% done."
+[1] "13 out of 100, 13% done."
+[1] "15 out of 100, 15% done."
+[1] "16 out of 100, 16% done."
+[1] "17 out of 100, 17% done."
+[1] "18 out of 100, 18% done."
+[1] "19 out of 100, 19% done."
+[1] "20 out of 100, 20% done."
+[1] "21 out of 100, 21% done."
+[1] "22 out of 100, 22% done."
+[1] "23 out of 100, 23% done."
+[1] "24 out of 100, 24% done."
+[1] "25 out of 100, 25% done."
+[1] "26 out of 100, 26% done."
+[1] "27 out of 100, 27% done."
+[1] "30 out of 100, 30% done."
+[1] "31 out of 100, 31% done."
+[1] "32 out of 100, 32% done."
+[1] "33 out of 100, 33% done."
+[1] "34 out of 100, 34% done."
+[1] "35 out of 100, 35% done."
+[1] "36 out of 100, 36% done."
+[1] "37 out of 100, 37% done."
+[1] "38 out of 100, 38% done."
+[1] "39 out of 100, 39% done."
+[1] "40 out of 100, 40% done."
+[1] "41 out of 100, 41% done."
+[1] "42 out of 100, 42% done."
+[1] "43 out of 100, 43% done."
+[1] "44 out of 100, 44% done."
+[1] "45 out of 100, 45% done."
+[1] "46 out of 100, 46% done."
+[1] "47 out of 100, 47% done."
+[1] "48 out of 100, 48% done."
+[1] "49 out of 100, 49% done."
+[1] "50 out of 100, 50% done."
+[1] "51 out of 100, 51% done."
+[1] "52 out of 100, 52% done."
+[1] "53 out of 100, 53% done."
+[1] "54 out of 100, 54% done."
+[1] "59 out of 100, 59% done."
+[1] "60 out of 100, 60% done."
+[1] "61 out of 100, 61% done."
+[1] "62 out of 100, 62% done."
+[1] "63 out of 100, 63% done."
+[1] "64 out of 100, 64% done."
+[1] "65 out of 100, 65% done."
+[1] "66 out of 100, 66% done."
+[1] "67 out of 100, 67% done."
+[1] "68 out of 100, 68% done."
+[1] "69 out of 100, 69% done."
+[1] "70 out of 100, 70% done."
+[1] "71 out of 100, 71% done."
+[1] "72 out of 100, 72% done."
+[1] "73 out of 100, 73% done."
+[1] "74 out of 100, 74% done."
+[1] "75 out of 100, 75% done."
+[1] "76 out of 100, 76% done."
+[1] "77 out of 100, 77% done."
+[1] "78 out of 100, 78% done."
+[1] "79 out of 100, 79% done."
+[1] "80 out of 100, 80% done."
+[1] "81 out of 100, 81% done."
+[1] "82 out of 100, 82% done."
+[1] "83 out of 100, 83% done."
+[1] "84 out of 100, 84% done."
+[1] "85 out of 100, 85% done."
+[1] "86 out of 100, 86% done."
+[1] "87 out of 100, 87% done."
+[1] "88 out of 100, 88% done."
+[1] "89 out of 100, 89% done."
+[1] "90 out of 100, 90% done."
+[1] "91 out of 100, 91% done."
+[1] "92 out of 100, 92% done."
+[1] "93 out of 100, 93% done."
+[1] "94 out of 100, 94% done."
+[1] "95 out of 100, 95% done."
+[1] "96 out of 100, 96% done."
+[1] "97 out of 100, 97% done."
+[1] "98 out of 100, 98% done."
+[1] "99 out of 100, 99% done."
+[1] "100 out of 100, 100% done."
+> 
+> # Save the repeated DGPs' point estimates as separate data.
+> uniform.est$data %>% write_csv(file.path(output.folder, "uniform-cf-data.csv"))
+> 
+> 
+> ################################################################################
+> ## Compare estimation methods, across different rho values.
+> 
+> # Define an empty dataframe, to start adding to.
+> rho_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
++     error.dist = "normal")
+> rho.data <- estimated.loop(1, rho_normal.data,
++     bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
++     rho, sigma_0, sigma_1, sigma_C)$estimates
+> rho.data$rho <- NA
+> rho.data <- rho.data[0, ]
+> # Define values in rho \in [-1, 1] to go across
+> rho.values <- seq(-1, 1, by = 0.25)
+> # Define the number of boot reps for each
+> boot.reps <- 10^1
+> i <- 0
+> 
+> # Start the rho loop
+> for (rho.value in rho.values){
++     i <- i + 1
++     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
++     rho_sim.data <- roy.data(rho.value, sigma_0, sigma_1, sigma_C,
++         error.dist = "normal")
++     # Get the truth + estimates + bootstrapped SEs, and save rho value
++     rho.boot <- estimated.loop(boot.reps, rho_sim.data,
++         bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
++         rho.value, sigma_0, sigma_1, sigma_C)$estimates
++     # Add to the dataframe.
++     rho.boot$rho <- rho.value
++     rho.data[i, ] <- rho.boot
++     # Show far we are.
++     print(paste0(rho.value, " in [-1, 1], ",
++         100 * i / length(rho.values), "% done."))
++     gc()
++ }
+[1] "-1 in [-1, 1], 11.1111111111111% done."
+[1] "-0.75 in [-1, 1], 22.2222222222222% done."
+[1] "-0.5 in [-1, 1], 33.3333333333333% done."
+[1] "-0.25 in [-1, 1], 44.4444444444444% done."
+[1] "0 in [-1, 1], 55.5555555555556% done."
+[1] "0.25 in [-1, 1], 66.6666666666667% done."
+[1] "0.5 in [-1, 1], 77.7777777777778% done."
+[1] "0.75 in [-1, 1], 88.8888888888889% done."
+[1] "1 in [-1, 1], 100% done."
+Warning messages:
+1: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+2: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+3: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+4: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+5: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+6: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+7: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+8: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+9: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+10: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+> 
+> # Save the output data.
+> rho.data %>% write_csv(file.path(output.folder, "rho-cf-data.csv"))
+> 
+> 
+> ################################################################################
+> ## Compare estimation methods, across different sd(U_1) values.
+> 
+> # Define an empty dataframe, to start adding to.
+> sigma_1_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
++     error.dist = "normal")
+> sigma_1.values <- estimated.loop(1, sigma_1_normal.data,
++     bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
++     rho, sigma_0, sigma_1, sigma_C)$estimates
+> sigma_1.values$sigma_1 <- NA
+> sigma_1.data <- sigma_1.values[0, ]
+> # Define values in sigma_1 in [0, 2] to go across
+> sigma_1.values <- seq(0, 2, by = 0.25)
+> # Define the number of boot reps for each
+> boot.reps <- 10^1
+> i <- 0
+> 
+> # Start the sigma_1 loop
+> for (sigma_1.value in sigma_1.values){
++     i <- i + 1
++     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
++     sigma_1_sim.data <- roy.data(rho, sigma_0, sigma_1.value, sigma_C,
++         error.dist = "normal")
++     # Get the truth + estimates + bootstrapped SEs, and save rho value
++     sigma_1.boot <- estimated.loop(boot.reps, sigma_1_sim.data,
++         bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
++         rho, sigma_0, sigma_1.value, sigma_C)$estimates
++     # Add to the dataframe.
++     sigma_1.boot$sigma_1 <- sigma_1.value
++     sigma_1.data[i, ] <- sigma_1.boot
++     # Show how far we are.
++     print(paste0(sigma_1.value, " in [0, 2], ",
++         100 * i / length(sigma_1.values), "% done."))
++     gc()
++ }
+[1] "0 in [0, 2], 11.1111111111111% done."
+[1] "0.25 in [0, 2], 22.2222222222222% done."
+[1] "0.5 in [0, 2], 33.3333333333333% done."
+[1] "0.75 in [0, 2], 44.4444444444444% done."
+[1] "1 in [0, 2], 55.5555555555556% done."
+[1] "1.25 in [0, 2], 66.6666666666667% done."
+[1] "1.5 in [0, 2], 77.7777777777778% done."
+[1] "1.75 in [0, 2], 88.8888888888889% done."
+[1] "2 in [0, 2], 100% done."
+Warning messages:
+1: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+2: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+3: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+4: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+5: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+6: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+7: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+8: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+9: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+10: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
+  Fitting terminated with step failure - check results carefully
+> 
+> # Save the output data.
+> sigma_1.data %>% write_csv(file.path(output.folder, "sigma1-cf-data.csv"))
+> th(output.folder, "sigma1-cf-data.csv"))
+Error: unexpected ')' in "th(output.folder, "sigma1-cf-data.csv"))"
+Execution halted
