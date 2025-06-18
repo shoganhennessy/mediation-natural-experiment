@@ -186,24 +186,30 @@ estimated.values <- function(firststage.reg, secondstage.reg, totaleffect.reg,
     example.data, complier.adjustment = NULL){
     ### Inputs:
     ## example.data, a data frame simulated from above.
+    example_Z0.data <- example.data
+    example_Z1.data <- example.data
+    example_D0.data <- example.data
+    example_D1.data <- example.data
+    example_Z0.data$Z <- 0
+    example_Z1.data$Z <- 1
+    example_D0.data$D <- 0
+    example_D1.data$D <- 1
     # calculate the first-stage by prediction
     firststage.est <- predict(
-        firststage.reg, newdata = mutate(example.data, Z = 1),
-            type = "response") - predict(
-                firststage.reg, newdata = mutate(example.data, Z = 0),
-                    type = "response")
+        firststage.reg, newdata = example_Z1.data, type = "response") - predict(
+            firststage.reg, newdata = example_Z0.data, type = "response")
     # Calculate the total effect estimate by prediction.
     totaleffect.est <- predict(
-        totaleffect.reg, newdata = mutate(example.data, Z = 1)) - predict(
-            totaleffect.reg, newdata = mutate(example.data, Z = 0))
+        totaleffect.reg, newdata = example_Z1.data) - predict(
+            totaleffect.reg, newdata = example_Z0.data)
     # calculate the second-stage direct effect
     direct.est <- predict(
-        secondstage.reg, newdata = mutate(example.data, Z = 1)) - predict(
-            secondstage.reg, newdata = mutate(example.data, Z = 0))
+        secondstage.reg, newdata = example_Z1.data) - predict(
+            secondstage.reg, newdata = example_Z0.data)
     # calculate the second-stage (controlled) indirect effect
     indirect.est <- predict(
-        secondstage.reg, newdata = mutate(example.data, D = 1)) - predict(
-            secondstage.reg, newdata = mutate(example.data, D = 0))
+        secondstage.reg, newdata = example_D1.data) - predict(
+            secondstage.reg, newdata = example_D0.data)
     # Add the Kline Walters (2019) IV-type complier adjustment (provided externally).
     if (!is.null(complier.adjustment)) {
         indirect.est <- indirect.est + complier.adjustment
@@ -224,6 +230,14 @@ estimated.values <- function(firststage.reg, secondstage.reg, totaleffect.reg,
 
 # Define a function to Heckman selection correct mediation est, in two-stages.
 mediate.heckit <- function(example.data){
+    example_Z0.data <- example.data
+    example_Z1.data <- example.data
+    example_D0.data <- example.data
+    example_D1.data <- example.data
+    example_Z0.data$Z <- 0
+    example_Z1.data$Z <- 1
+    example_D0.data$D <- 0
+    example_D1.data$D <- 1
     # 0. Total effect regression.
     totaleffect.reg <- lm(Y ~ 1 + Z + X_minus,
         data = example.data)
@@ -244,8 +258,8 @@ mediate.heckit <- function(example.data){
     heckit_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
         data = example.data)
     # Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
-    pi_0.est <- predict(heckit_firststage.reg, newdata = mutate(example.data, Z = 0), type = "response")
-    pi_1.est <- predict(heckit_firststage.reg, newdata = mutate(example.data, Z = 1), type = "response")
+    pi_0.est <- predict(heckit_firststage.reg, newdata = example_Z0.data, type = "response")
+    pi_1.est <- predict(heckit_firststage.reg, newdata = example_Z1.data, type = "response")
     Gamma.big <-  (pi_1.est * lambda_1.fun(pi_1.est) - pi_0.est * lambda_1.fun(pi_0.est)) / (
         pi_1.est - pi_0.est)
     rho_0 <- coef(summary(heckit_secondstage.reg))["lambda_0", "Estimate"]
@@ -266,20 +280,28 @@ mediate.heckit <- function(example.data){
 
 # Define a function to two-stage semi-parametric CF for CM effects.
 mediate.semiparametric <- function(example.data){
+    example_Z0.data <- example.data
+    example_Z1.data <- example.data
+    example_D0.data <- example.data
+    example_D1.data <- example.data
+    example_Z0.data$Z <- 0
+    example_Z1.data$Z <- 1
+    example_D0.data$D <- 0
+    example_D1.data$D <- 1
     # 1. Total effect regression.
     totaleffect.reg <- lm(Y ~ 1 + Z + X_minus,
         data = example.data)
     totaleffect.est <- mean(predict(
-        totaleffect.reg, newdata = mutate(example.data, Z = 1)) - predict(
-            totaleffect.reg, newdata = mutate(example.data, Z = 0)))
+        totaleffect.reg, newdata = example_Z1.data) - predict(
+            totaleffect.reg, newdata = example_Z0.data))
     # 2. Semi-parametric first-stage
     cf_firststage.reg <- semiBRM(D ~ 1 + Z + X_IV + X_minus,
         data = example.data, control = list(iterlim = 100))
     example.data$pi.est <- predict(cf_firststage.reg, type = "response")$prob
     pi_0.est <- predict(cf_firststage.reg,
-        newdata = mutate(example.data, Z = 0), type = "response")$prob
+        newdata = example_Z0.data, type = "response")$prob
     pi_1.est <- predict(cf_firststage.reg,
-        newdata = mutate(example.data, Z = 1), type = "response")$prob
+        newdata = example_Z1.data, type = "response")$prob
     pi.bar <- mean(pi_1.est - pi_0.est)
     # 3. Semi-parametric series estimation of the second-stage.
     cf_secondstage_D0.reg <- gam(Y ~ 1 + Z + X_minus + s(pi.est, bs = "cr"),
@@ -553,8 +575,6 @@ rho.values <- seq(-1, 1, by = 0.25)
 # Define the number of boot reps for each
 boot.reps <- 10^3
 i <- 0
-
-rho.value <- 1
 
 # Start the rho loop
 for (rho.value in rho.values){

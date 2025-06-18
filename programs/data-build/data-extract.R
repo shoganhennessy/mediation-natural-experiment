@@ -52,7 +52,7 @@ descriptive.data <- descriptive.data %>%
 # Restrict the follow-up data to relevant variables.
 survey_12m.data <- survey_12m.data %>%
     # Restrict to only those in the 12 month sample
-    filter(sample_12m == 1 & returned_12m == 1) %>%
+    filter(sample_12m == 1 & returned_12m == 1 & !is.na(weight_12m)) %>%
     # Get the relevant variables.
     transmute(person_id = person_id,
         survey_weight = weight_12m,
@@ -87,52 +87,19 @@ oregon.data <- descriptive.data %>%
 # Show the merging rates.
 oregon.data %>% pull(health_needs_met) %>% table(exclude = NULL)
 
-#! Test: the lottery IV
-lm(any_insurance ~ 1 + lottery_iv * factor(hh_size), data = oregon.data) %>%
-    summary() 
+################################################################################
+## Save the resulting (merged) data file.
 
-# Effect of insurance on healthcare (mediator)
-lm(health_needs_met ~ 1 + lottery_iv * factor(hh_size), data = oregon.data) %>%
-    summary() 
-ivreg::ivreg(health_needs_met ~ 1 + any_insurance | 1 + lottery_iv * factor(hh_size),
-    data = oregon.data) %>%
-    summary()
-# Effect on resulting happiness + health (ATE)
-ivreg::ivreg(I(health_level_survey >= 3) ~ 1 + any_insurance | 1 + lottery_iv * factor(hh_size),
-    data = oregon.data) %>%
-    summary()
-ivreg::ivreg(I(happiness_level_survey <= 2) ~ 1 + any_insurance | 1 + lottery_iv * factor(hh_size),
-    data = oregon.data) %>%
-    summary()
-# TODO: Use the Abadaie (2003) estimator, to simplify the later mediation.
+# Restrict to only those who followed up in the survey.
+oregon.data <- oregon.data %>%
+    filter(!is.na(survey_weight))
+
+# Save the file.
+oregon.data %>% write_csv(file.path(data.folder, "cleaned-oregon-data.csv"))
 
 
-# Informal mechanism, direct effect (controlling for healthcare satisfaction)
-ivreg::ivreg(I(health_level_survey >= 3) ~ 1 + any_insurance + health_needs_met
-    | 1 + lottery_iv * factor(hh_size) + health_needs_met,
-    data = oregon.data) %>%
-    summary()
-ivreg::ivreg(I(happiness_level_survey <= 2) ~ 1 + any_insurance + health_needs_met
-    | 1 + lottery_iv * factor(hh_size) + health_needs_met,
-    data = oregon.data) %>%
-    summary()
-
-# Using the cost of provider as instruments for the healthcare usage.
-# -> Direct effect of insurance on health/happiness now zero.
-ivreg::ivreg(I(health_level_survey >= 3)
-    ~ 1 + any_insurance + health_needs_met
-    | 1 + lottery_iv * factor(hh_size) + factor(usual_health_location),
-    data = oregon.data) %>%
-    summary()
-ivreg::ivreg(I(happiness_level_survey <= 2)
-    ~ 1 + any_insurance + health_needs_met
-    | 1 + lottery_iv * factor(hh_size) + factor(usual_health_location),
-    data = oregon.data) %>%
-    summary()
-
-
-
-
+#! Extra data, not yet used:
+quit("no")
 #! The in-person follow up data.
 DS0006 In-person Survey
 -> COntains objective outcome measures.

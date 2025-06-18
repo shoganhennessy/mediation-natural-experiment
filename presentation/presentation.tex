@@ -121,8 +121,11 @@
         \includegraphics[width=2cm]{presentation-files/cornell}
 
         \vspace{0.5cm}
-        Labour Work in Progress Seminar \\
-        6 March 2025
+        Econometric Society World Congress, Seoul \\
+        22 August 2025
+        %Meeting of the European Economic Association \\
+        %Bordeaux Sciences \'Economiques \\
+        %25 August 2025
     \end{center}
 \end{frame}
 
@@ -131,218 +134,68 @@
 \section{Introduction}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{Introduction}
-    \begin{figure}[h!]
-        \centering
-        \singlespacing
-        \begin{subfigure}[c]{\textwidth}
-            Ever read an epidemiology/psychology/medicine paper's abstract, and seen claims of causal effects \textbf{mediated} through some mechanism?
-        \end{subfigure}
-        \begin{subfigure}[c]{0.75\textwidth}
-            \centering
-            \singlespacing
-            \begin{subfigure}[c]{\textwidth}
-                \centering
-                \includegraphics[width=\textwidth]{presentation-files/headlines/rangarajan-2006.png}
-            \end{subfigure}
-        \end{subfigure}
-    \end{figure}
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}[noframenumbering]
-    \frametitle{Introduction}
-    \begin{figure}[h!]
-        \centering
-        \singlespacing
-        \begin{subfigure}[c]{\textwidth}
-            Ever read an epidemiology/psychology/medicine paper's abstract, and seen claims of causal effects \textbf{mediated} through some mechanism?
-        \end{subfigure}
-        \begin{subfigure}[c]{0.75\textwidth}
-            \centering
-            \singlespacing
-            \begin{subfigure}[c]{\textwidth}
-                \centering
-                \includegraphics[width=\textwidth]{presentation-files/headlines/hamer-2009.png}
-            \end{subfigure}
-        \end{subfigure}
-    \end{figure}
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}[noframenumbering]
-    \frametitle{Introduction}
-    \vskip-0.5cm
+    \frametitle{Introduction: Oregon Health Insurance}
+    In 2008, the US state Oregon started providing socialised health insurance to poor residents (Finkelstein et al, 2012).
+    \begin{itemize}
+        \item Over-subscribed, so random lottery assignment off a wait-list.
+    \end{itemize}
+    \vspace{-0.5cm}
     \begin{figure}
         \centering
         \singlespacing
-        \caption{Baron Kelly (1986), p. 1176.}
-        \vskip-0.25cm
-        \includegraphics[width=0.9\textwidth]{presentation-files/headlines/baronkelly-1986.png}
+        \includegraphics[width=0.85\textwidth]{
+            presentation-files/figures/lottery-effects.png}
+            
     \end{figure}
-    \begin{tabular}{l l}
-        \textbf{1980s:}
-        & Psychometrics defined mediation (distinct from moderation). \\
-        & Application of early econometric path analysis (Wright 1928). \\
-        \textbf{2020s:}
-        & Popular in epidemiology, medicine, psychology.
-    \end{tabular}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{Introduction}
-    \vskip-0.5cm
+    \frametitle{Introduction: Oregon Health Insurance}
+    In 2008, the US state Oregon started providing socialised health insurance to poor residents (Finkelstein et al, 2012).
+    \begin{itemize}
+        \item Over-subscribed, so random lottery assignment off a wait-list.
+    \end{itemize}
+    \vspace{-0.5cm}
     \begin{figure}
         \centering
         \singlespacing
-        \caption{Imai Keele Tingley Yamamoto (2010--).}
-        \vskip-0.25cm
-        \includegraphics[width=0.8\textwidth]{presentation-files/headlines/imai-2010b.png}
-        \includegraphics[width=0.8\textwidth]{presentation-files/headlines/imai-2010a.png}
-        \includegraphics[width=0.8\textwidth]{presentation-files/headlines/tingley-2014.png}
+        \includegraphics[width=0.85\textwidth]{
+            presentation-files/figures/insurance-effects.png}
     \end{figure}
-    \begin{tabular}{l l}
-        \textbf{1980s:}
-        & Psychometrics defined mediation (distinct from moderation). \\
-        & Application of early econometric path analysis (Wright 1928). \\
-        \textbf{2020s:}
-        & Popular in epidemiology, medicine, psychology.
-    \end{tabular}
-\end{frame}%-------------------------------------------------------------------------------
-\begin{frame}[noframenumbering]
-    \frametitle{Introduction:}
-    \begin{enumerate}
-        \item \textbf{[familiar]} Causal design to estimate a treatment effect.
-        \begin{figure}
-            \centering
-            \singlespacing
-            \vspace{-0.5cm}
-            \begin{tikzpicture}
-                \node[state, thick,blue] (treatment) at (0,0) {$Z$};
-                \node[state, thick,red] (outcome) [right=3.75cm of treatment] {$Y$};
-                \path[->, thick] (treatment) edge (outcome);
-                % Label the nodes with econ examples
-                \node[color=blue, left=0.1cm of treatment] {Treatment};
-                \node[color=red, right=0.1cm of outcome] {Outcome};
-                % Label the effect in the middle
-                \path (treatment) -- (outcome) node[midway] (label) {};
-                \node[color=red, above=-0.25cm of label] {ATE};
-            \end{tikzpicture}
-        \end{figure}
-        \item \textbf{[unfamiliar]} CM decomposes ATE along a mechanism pathway.
-        \begin{figure}
-            \centering
-            \singlespacing
-            \vspace{-0.5cm}
-            \begin{tikzpicture}
-                \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
-                \node[state, thick,blue] (treatment) [left=1.5cm of mediator] {$Z$};
-                \node[state, thick,red] (outcome) [right=1.5cm of mediator] {$Y$};
-                %\path[->,thick] (treatment) edge (mediator);
-                %\path[->,thick] (mediator) edge (outcome);
-                % Label the nodes with econ examples
-                \node[color=blue, left=0.1cm of treatment] {Treatment};
-                \node[color=red, right=0.1cm of outcome] {Outcome};
-                \node[color=ForestGreen, above=0.15cm of mediator] {Average Indirect Effect (AIE)};
-                % Add in direct + indirect effects.
-                %\path[->,thick] (treatment) edge[bend right=45] (outcome);
-                % Label the pathways with the colours
-                \path[->, thick] (treatment) edge (mediator);
-                \path[->, thick] (mediator) edge (outcome);
-                \path[->, thick] (treatment) edge[bend right=45] (outcome);
-                \node[color=MidnightBlue, below=0.75cm of mediator] {Average Direct Effect (ADE)};
-            \end{tikzpicture}
-        \end{figure}
-        \item
-        \begin{tabular}{ll}
-            \textbf{ATE} & $\implies$ Average causal effect $Z \to Y$ \\
-            \textbf{AIE} & $\implies$ How much $Z \to Y$ effect through mediator $D$? \\
-            \textbf{ADE} & $\implies$ How much $Z \to Y$ effect is left over?
-        \end{tabular}
-    \end{enumerate}
-\end{frame}%-------------------------------------------------------------------------------
-\begin{frame}[noframenumbering]
-    \frametitle{Introduction---  CM Examples:}
-    \begin{enumerate}
-        \item Lottery military draft 1969 (Angrist 1990).
-        \begin{figure}[h!]
-            \centering
-            \singlespacing
-            \begin{subfigure}[c]{0.35\textwidth}
-                \centering
-                \vskip-0.4cm
-                \includegraphics[width=\textwidth]{presentation-files/headlines/1969-draft-lottery.jpeg}
-            \end{subfigure}
-            \begin{subfigure}[c]{0.5\textwidth}
-                \begin{tikzpicture}
-                    \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
-                    \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
-                    \node[state, thick,red] (outcome) [right=1.25cm of mediator] {$Y$};
-                    %\path[->,thick] (treatment) edge (mediator);
-                    %\path[->,thick] (mediator) edge (outcome);
-                    % Label the nodes with econ examples
-                    \node[color=blue, above=0.1cm of treatment] {Drafted};
-                    \node[color=red, above=0.1cm of outcome] {Earnings};
-                    \node[color=ForestGreen, above=0.1cm of mediator] {Military Service};
-                    % Add in direct + indirect effects.
-                    %\path[->,thick] (treatment) edge[bend right=45] (outcome);
-                    % Label the pathways with the colours
-                    \path[->, thick] (treatment) edge (mediator);
-                    \path[->, thick] (mediator) edge (outcome);
-                    \path[->, thick] (treatment) edge[bend right=35] (outcome);
-                    \node[color=MidnightBlue, below=0.5cm of mediator] {Draft avoidance (education deferment)};
-                \end{tikzpicture}
-            \end{subfigure}
-        \end{figure}
-        \textbf{Note:} IV further assumes direct $=0$ (exclusion restriction).
-        \vspace{0.125cm}
-        \pause
-        \item Oregon health insurance experiment (Finkelstein$+$ 2009).
-        \vspace{-0.4cm}
-
-        \begin{figure}[h!]
-            \centering
-            \singlespacing
-            \begin{subfigure}[c]{0.475\textwidth}
-                \centering
-                \includegraphics[width=\textwidth]{presentation-files/headlines/finkelstein-2019.png}
-            \end{subfigure}
-            \begin{subfigure}[c]{0.45\textwidth}
-                \begin{tikzpicture}
-                    \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
-                    \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
-                    \node[state, thick,red] (outcome) [right=1.25cm of mediator] {$Y$};
-                    % Label the nodes with econ examples
-                    \node[color=blue, above=0.1cm of treatment] {Medicaid};
-                    \node[color=red, above=0.1cm of outcome] {Health};
-                    \node[color=ForestGreen, above=0.1cm of mediator] {Hospital use};
-                    % Add in direct + indirect effects.
-                    %\path[->,thick] (treatment) edge[bend right=45] (outcome);
-                    % Label the pathways with the colours
-                    \path[->, thick] (treatment) edge (mediator);
-                    \path[->, thick] (mediator) edge (outcome);
-                    \path[->, thick] (treatment) edge[bend right=35] (outcome);
-                    \node[color=MidnightBlue, below=0.5cm of mediator] {All else (e.g., less worry)};
-                \end{tikzpicture}
-            \end{subfigure}
-        \end{figure}
-    \end{enumerate}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
+    \frametitle{Introduction: Oregon Health Insurance}
+    In 2008, the US state Oregon started providing socialised health insurance to poor residents (Finkelstein et al, 2012).
+    
+    \vfill
+    Slide describing why the effect on outcomes might not just be physical; consider less stress from being uninsured.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Introduction: Oregon Health Insurance}
+    In 2008, the US state Oregon started providing socialised health insurance to poor residents (Finkelstein et al, 2012).
+    
+    \vfill
+    Brief demonstration of what flies in applied economics, an ``informal mechanism analysis.''
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
     \frametitle{Introduction}
-    This project examines CM methods from an economic perspective:
+    This project examines Causal Mediation from an economic perspective:
     \begin{enumerate}
-        \item Problems with conventional, selection-on-observables, approach to CM in social science settings --- including natural experiments.
+        \item Problems with conventional approach to CM (and informal mechanism analyses) in social science settings --- focusing on natural experiments.
         \\ \textbf{[Negative result]}
-        \item Recovering valid CM effects under selection-into-mediator, using a selection model.
+        \item Recovering valid CM effects under selection-into-mediator, with modelling asumptions.
         \\ \textbf{[Positive result]}
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
     Brings together ideas from two different literatures:
     \begin{itemize}
         \item \textbf{Causal mediation.}
-        \\ Baron Kelly (1986), Imai Keele Yamamoto (2010), Flores Flores-Lagunes (2009), Fr\"olich Huber (2017), Huber (2020), Kwon Roth (2024).
-        \item \textbf{Labour theory, Selection-into-treatment.}
-        \\ Roy (1951), Heckman (1979), Heckman Honor\'e (1990), Florens Heckman Meghir Vytlacil (2008).
+        \\ Baron Kelly (1986), Imai Keele Yamamoto (2010), Flores Flores-Lagunes (2012), Fr\"olich Huber (2017), Huber (2020), Kwon Roth (2024).
+        \item \textbf{Labour theory, Selection-into-treatment, MTEs.}
+        \\ Roy (1951), Heckman (1979), Heckman Honor\'e (1990), Vycatil (2002), Heckman Vycatil (2005), Kline Walters (2019).
     \end{itemize}
 \end{frame}%-------------------------------------------------------------------------------
 \section{1. Direct \& Indirect Effects}
@@ -369,17 +222,17 @@
             \path[->, thick] (mediator) edge (outcome);
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
             % Label direct and indirect effect
-            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
-            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
-            \node[color=orange] [below=0.5cm of mediator] {Direct Effect};
+            %\node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
+            %\node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
+            %\node[color=orange] [below=0.5cm of mediator] {Direct Effect};
         \end{tikzpicture}
     \end{figure}
     \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
     \begin{align*}
-        & \textcolor{ForestGreen}{\text{Mediator }D_i} \text{ is a function of } \textcolor{blue}{Z_i}
+        & \textcolor{ForestGreen}{\text{Mediator }D_i} \text{ is a function of } \textcolor{blue}{Z_i}.
         & \textcolor{red}{\text{Outcome }Y_i} \text{ is a function of both }
-        \textcolor{blue}{Z_i}, \textcolor{ForestGreen}{D_i} \\
+        \textcolor{blue}{Z_i}, \textcolor{ForestGreen}{D_i}. \\
         & D_i = \begin{cases}
             D_i(0), \text{ if } Z_i = 0 \\
             D_i(1), \text{ if } Z_i = 1.
@@ -413,6 +266,7 @@
             \path[->, thick] (mediator) edge (outcome);
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
             % Label direct and indirect effect
+            \pause
             \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
             \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
             \node[color=orange] [below=0.5cm of mediator] {Direct Effect};
@@ -426,8 +280,7 @@
     \vfill
     E.g., a natural experiment for $\textcolor{blue}{Z_i}$ disrupting open-world selection-into-$Z_i$
     \begin{itemize}
-        \item Vietnam draft lottery for \textcolor{blue}{military conscription} (Angrist, 1990).
-        \item Oregon wait-list lottery for \textcolor{blue}{health insurance} (Finkelstein+, 2009).
+        \item Oregon wait-list lottery for \textcolor{blue}{health insurance} (Finkelstein et al, 2012).
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -504,21 +357,14 @@
     \pause
     First-stage and ATE answer important questions:
     \begin{itemize}
-        \item Were drafted men poorer?
-        Did they conform or dodge?
-        (Angrist, 1990).
-        \item Did socialised health insurance increase hospital use, and improve health? (Finkelstein+, 2009).
+        \item Did socialised health insurance increase hospital use, and improve health? (Finkelstein et al, 2012).
     \end{itemize}
-    \vskip0.25cm
     \pause
     Unanswered questions about the mechanism(s):
     \begin{itemize}
-        \item Did drafted men take education to dodge the draft?
-        Was it entirely military service?
-        (Angrist, 1990).
         \item Did health benefits come from using health care more?
         Health gains from reduced uncertainty --- i.e., insurance?
-        (Finkelstein+, 2009).
+        \item Is health insurance more about the health or more about the insurance?
     \end{itemize}
 \end{frame}%-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -709,7 +555,7 @@
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection} 
-    Oregon health insurance experiment (Finkelstein$+$ 2009).
+    Oregon health insurance experiment (Finkelstein$+$ 2012).
     \vspace{-0.4cm}
 
     \begin{figure}[h!]
@@ -717,7 +563,7 @@
         \singlespacing
         \begin{subfigure}[c]{0.35\textwidth}
             \centering
-            \includegraphics[width=\textwidth]{presentation-files/headlines/finkelstein-2019.png}
+            %%\includegraphics[width=\textwidth]{presentation-files/headlines/finkelstein-2019.png}
         \end{subfigure}
         \begin{subfigure}[c]{0.55\textwidth}
             \begin{tikzpicture}
@@ -744,8 +590,8 @@
     \[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
     \text{ for } z', d' = 0, 1. \]
     \begin{enumerate}
-        \item Medicaid assigned randomly (ensured by studying the 2008 Oregon waitlist lottery).
-        \item \colorbox{yellow}{Hospital usage is quasi-random, conditional on Medicaid assignment $Z_i$} \\
+        \item Medicaid assigned randomly (ensured by studying the 2008 Oregon wait-list lottery).
+        \item \colorbox{yellow}{Healthcare usage is quasi-random, conditional on Medicaid assignment $Z_i$} \\
         \colorbox{yellow}{and demographics $\vec X_i$.}
     \end{enumerate}
 \end{frame}
@@ -834,13 +680,13 @@
             \centering
             \caption{Cells in a lab
                 $\to$ \textbf{SI} believable.}
-            \includegraphics[width=\textwidth]{presentation-files/headlines/science-lab.png}
+            %%\includegraphics[width=\textwidth]{presentation-files/headlines/science-lab.png}
         \end{subfigure}
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{People choosing healthcare
                 $\to$ \textbf{SI} not.}
-            \includegraphics[width=0.965\textwidth]{presentation-files/headlines/health-differences.jpg}
+            %%\includegraphics[width=0.965\textwidth]{presentation-files/headlines/health-differences.jpg}
         \end{subfigure}
     \end{figure}
 \end{frame}
@@ -964,7 +810,7 @@
     \end{align*}}
 \end{frame}
 %-------------------------------------------------------------------------------
-\section{2. Identification by Selection Model}
+\section{2. Identification with a Control Function}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Identification Under Selection}
@@ -1078,11 +924,11 @@
     \vskip0.5cm
     \par\noindent\rule{\textwidth}{0.4pt}
     \vfill
-    \textbf{New:} selection model solution to identification.
+    \textbf{New:} Control Function solution to identification.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{Identification with a Selection Model}
+    \frametitle{Identification with a Control Function}
     Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -1128,7 +974,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{Identification with a Selection Model}
+    \frametitle{Identification with a Control Function}
     Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -1170,11 +1016,11 @@
     \vfill
     
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{Selection model intuition:} Identify second-stage (despite correlated error term), to get ADE $+$ AIE.
+    \textbf{Control Function intuition:} Identify second-stage (despite correlated error term), to get ADE $+$ AIE.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{Identification with a Selection Model}
+    \frametitle{Identification with a Control Function}
     Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -1217,11 +1063,11 @@
     \end{align*}
     where $C_i$ are costs of taking $D_i$.
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{Selection model intuition:} use first-stage errors to purge second-stage correlated errors.
+    \textbf{Control Function intuition:} use first-stage errors to purge second-stage correlated errors.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{Identification with a Selection Model}
+    \frametitle{Identification with a Control Function}
     Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -1250,7 +1096,7 @@
     \vskip-0.25cm
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{Heckman (1979) Selection model}, assumptions:
+    \textbf{Heckman (1979) Control Function}, assumptions:
     \begin{itemize}
         \item Mediator monotonicity, $\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1$
         \[ \implies D_i(z') = \indicator{\mu(z';\vec X_i) \geq U_i}. \]
@@ -1264,7 +1110,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{Identification with a Selection Model}
+    \frametitle{Identification with a Control Function}
     Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -1293,7 +1139,7 @@
     \vskip-0.25cm
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{Heckman (1979) Selection model}, in operation:
+    \textbf{Heckman (1979) Control Function}, in operation:
     \begin{enumerate}
         \item Back out Control Function (CF) in first-stage (probit, normal errors),
         \[ \hat K_i = D_i -
@@ -1319,7 +1165,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{Identification with a Selection Model}
+    \frametitle{Identification with a Control Function}
     Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -1348,7 +1194,7 @@
     \vskip-0.25cm
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{Semi-parametric control function} (Newey Imbens 2009), assumptions:
+    \textbf{Semi-parametric control function} (Newey Imbens 2012), assumptions:
     \begin{enumerate}
         \item Mediator monotonicity, $\Probgiven{ D_i(1) \geq D_i(0) }{\vec X_i} = 1$
         \[ \implies D_i(z') = \indicator{\mu(z';\vec X_i) \geq U_i}. \]
@@ -1362,7 +1208,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{Identification with a Selection Model}
+    \frametitle{Identification with a Control Function}
     Suppose $Z$ is ignorable, $D$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -1391,7 +1237,7 @@
     \vskip-0.5cm
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{Semi-parametric control function} (Newey Imbens 2009), in operation:
+    \textbf{Semi-parametric control function} (Newey Imbens 2012), in operation:
     \begin{enumerate}
         \item Back out Control Function (CF) in first-stage (semi/non-parametric), with IV $\vec X_i^\text{IV}$,
         \vspace{-0.25cm}
@@ -1461,12 +1307,12 @@
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{ADE.}
-            \includegraphics[width=\textwidth]{../programs/simulations/sim-output/direct-boot.png}
+            %\includegraphics[width=\textwidth]{../programs/simulations/sim-output/direct-boot.png}
         \end{subfigure}
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{AIE.}
-            \includegraphics[width=\textwidth]{../programs/simulations/sim-output/indirect-boot.png}
+            %\includegraphics[width=\textwidth]{../programs/simulations/sim-output/indirect-boot.png}
         \end{subfigure}
     \end{figure}
 \end{frame}
@@ -1480,12 +1326,12 @@
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{ADE.}
-            \includegraphics[width=\textwidth]{../programs/simulations/sim-output/rho-directeffect-bias.png}
+            %%\includegraphics[width=\textwidth]{../programs/simulations/sim-output/rho-directeffect-bias.png}
         \end{subfigure}
         \begin{subfigure}[c]{0.475\textwidth}
             \centering
             \caption{AIE.}
-            \includegraphics[width=\textwidth]{../programs/simulations/sim-output/rho-indirecteffect-bias.png}
+            %%\includegraphics[width=\textwidth]{../programs/simulations/sim-output/rho-indirecteffect-bias.png}
         \end{subfigure}
     \end{figure}
 \end{frame}
@@ -1678,13 +1524,13 @@
 \begin{frame}[noframenumbering]
     \frametitle{Appendix: Connection to MTEs}
     \label{MTEs}
-    The ADE is fine to estimate with a selection model/CF, but AIE refers to mediator benefits only among mediator compliers.
+    The ADE is fine to estimate with a Control Function/CF, but AIE refers to mediator benefits only among mediator compliers.
     \[ \text{AIE } =
     \E{D_i(1) \neq D_i(0)} 
     \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) \neq  D_i(0)}. \]
     Outline of MTE approach to identifying AIE:
     \begin{enumerate}
-        \item Mediator monotonicity has a selection model for $D_i$ (Vycatil 2002).
+        \item Mediator monotonicity has a Control Function for $D_i$ (Vycatil 2002).
         \[ D_i(z') = \indicator{ \mu(z'; \vec X_i) \geq U_i } \]
         \item Identify Marginal Indirect Effect (MIE), with instrument by LIV.
         \[ \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{U_i = u'} \]

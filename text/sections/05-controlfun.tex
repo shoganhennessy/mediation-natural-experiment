@@ -61,11 +61,11 @@ For example, if the error terms deviate substantially from joint normality, the 
     While this concern is immaterial in an IV setting estimating the LATE \citep{kline2019heckits}, it is pertinent in this setting as the CF extrapolates to a different group of compliers.
 }
 
-\subsection{Semiparametric CF}
-For settings where researchers are not comfortable specifying a specific distribution for the error terms, a semiparametric CF will nonetheless consistently estimate CM effects.
+\subsection{Semi-parametric CF}
+For settings where researchers are not comfortable specifying a specific distribution for the error terms, a semi-parametric CF will nonetheless consistently estimate CM effects.
 This method maintains the same identification strategy but avoids assuming a specific parametric error distribution.
 
-The semiparametric approach begins with flexible estimation of the first-stage, non-parametrically estimating the mediator propensity score,
+The semi-parametric approach begins with flexible estimation of the first-stage, non-parametrically estimating the mediator propensity score,
 \[ \pi\left(Z_i; \vec X_i \right) = \Egiven{D_i}{Z_i, \vec X_i}, \]
 where $\vec X_i$ must include the instrument(s) $\vec X_i^{\text{IV}}$.
 This can be estimated using flexible methods such as series approximation or kernel-based approaches, as long as the first-stage is estimated $\sqrt{n}$-consistently.\footnote{
@@ -81,10 +81,10 @@ Consider the $D_i = 0$ subsample first.
 which gives a regression equation to estimate semi-parametrically, with the first-estimate estimate $\hat\pi\left(Z_i; \vec X_i \right)$ plugged in.
 The linear parameters ($\alpha, \gamma$ and a linear approximation of nuisance function $\varphi(.)$, $\vec \varphi$)\footnote{
     Appropriate interactions between $Z_i, D_i$ and $\vec X_i$ can also flexibly control for $\vec X_i$, again avoiding linearity assumptions.
-} can be estimated with OLS, with $\lambda_0$ taking a flexible semiparametric specification.
+} can be estimated with OLS, with $\lambda_0$ taking a flexible semi-parametric specification.
 An attractive option is a series estimator, such as a spline specification, as this estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
 Note that $\lambda_0$ can no longer be separated from $\rho_0$ in this semi-parametric approach; this is inconsequential because the complier adjustment term requires $\rho_0, \rho_1$ only be identified up to a constant.\footnote{
-    \aref{appendix:semiparametric} explains these points in further detail.
+    \aref{appendix:semi-parametric} explains these points in further detail.
 }
 Next, the $\rho_0 \lambda_0$ function is extrapolated to the $D_i = 1$ side, identifying the remaining terms $\beta, \delta$, and thus the ADE and AIE.
 
@@ -167,15 +167,15 @@ This gives an ATE value of 2.60, ADE 1.38, and AIE 1.22, respectively.\footnote{
         \centering
         \caption{$\hat{\text{ADE}} - \text{ADE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/semiparametric-direct-dist.png}
+            ../programs/simulations/sim-output/semi-parametric-direct-dist.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{$\hat{\text{AIE}} - \text{AIE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/semiparametric-indirect-dist.png}
+            ../programs/simulations/sim-output/semi-parametric-indirect-dist.png}
     \end{subfigure}
-    \label{fig:cm-semiparametric-dist}
+    \label{fig:cm-semi-parametric-dist}
     \justify
     \footnotesize    
     \textbf{Note:}
@@ -185,10 +185,10 @@ This gives an ATE value of 2.60, ADE 1.38, and AIE 1.22, respectively.\footnote{
     and green estimates with a two-stage semi-parametric CF.
 \end{figure}
 
-\autoref{fig:cm-heckit-dist} shows how these estimates perform, with a parametric CF approach, relative to the true value; \autoref{fig:cm-semiparametric-dist} does the same for a semiparametric approach.
+\autoref{fig:cm-heckit-dist} shows how these estimates perform, with a parametric CF approach, relative to the true value; \autoref{fig:cm-semi-parametric-dist} does the same for a semi-parametric approach.
 The OLS estimates' distribution do not overlap the true values for any standard level of significance; the distance between the OLS estimates and the true values are the underlying bias terms derived in \autoref{thm:selection-bias}.
 The parametric CF approach perfectly reproduces the true values, as the probit first-stage correctly models the normally distributed error terms.
-The semiparametric CF estimates correct conventional CM estimates, too, though exhibits some small-sample bias, which it to be expected with the involved non-parametric steps in realistic sample sizes.
+The semi-parametric CF estimates correct conventional CM estimates, too, though exhibits some small-sample bias, which it to be expected with the involved non-parametric steps in realistic sample sizes.
 
 \begin{figure}[h!]
     \caption{CF Adjusted Estimates Work with Different Error Term Parameters.}
@@ -216,7 +216,7 @@ The semiparametric CF estimates correct conventional CM estimates, too, though e
 The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\text{Corr}\big(U_{0,i}, U_{1,i}\big) \in [-1, 1]$ and $\Var{U_{0,i}} = 1, \Var{U_{1,i}} \geq 0$.
 The true AIE values vary, because $D_i(Z_i)$ compliers have higher average values of $\big(U_{1,i} - U_{0,i}\big)$ as $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ increases.
 \autoref{fig:rho-bias} shows CF estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstraps.
-The point estimates of the CF do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations, as in \autoref{fig:cm-semiparametric-dist}).
+The point estimates of the CF do not exactly equal the true values, as they are estimates from one simulation (not averages across many simulations, as in \autoref{fig:cm-semi-parametric-dist}).
 The CF approach improves on OLS estimates by correcting for bias, with confidence regions overlapping the true values.\footnote{
     In the appendix, \autoref{fig:sigma-bias} shows the same simulation while varying $\Var{U_{1,i}}$, with fixed $\Var{U_{0,i}} = 1, \text{Corr}\big(U_{0,i}, U_{1,i}\big) = 0.5$.
     The conclusion is the same as for varying the correlation coefficient, $\rho$, in \autoref{fig:rho-bias}.

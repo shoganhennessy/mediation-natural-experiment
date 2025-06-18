@@ -56,21 +56,21 @@ I develop a formal framework showing exactly how selection bias contaminates CM 
 This provides a rigorous warning to applied economists against uncritically applying conventional CM methods to investigate mechanisms in natural experiments.
 Instead, I propose an alternative approach grounded in classic labour economic theory.
 
-I use the \cite{roy1951some} model as a benchmark for judging the \cite{imai2010identification} mediator ignorability assumption in a natural experiment setting, and find it unlikely to hold in practice.\footnote{
-    An alternative method to estimate CM effects is ensuring treatment and mediator ignorability holds by a running randomised controlled trial (or suitable quasi-experiment) for both treatment and mediator, at the same time.
+I use the \cite{roy1951some} model as a benchmark for judging the \cite{imai2010identification} mediator ignorability assumption in a natural experiment setting, and find it unlikely to hold in a natural experiment setting.\footnote{
+    An alternative method to estimate CM effects is ensuring treatment and mediator ignorability holds by a running two randomised controlled trials (or suitable quasi-experiment) for both treatment and mediator, at the same time.
     This set-up has been considered in the literature previously, in theory \citep{imai2013experimental,heckman2015econometric} and in practice \citep{ludwig2011mechanism,heckman2013understanding}.
 }
 This motivates a solution to the identification problem inspired by classic labour economic work, which also uses the Roy model as a benchmark \citep{heckman1979sample,heckman1990empirical}.
 I follow the lead of these papers by using a control function to correct for the selection bias in conventional CM analyses.
 
-The control function approach requires mediator take-up respond only positively to the initial treatment, which implies mediatior selection follows a selection model.
-Second, it assumes that mediator take-up is motivated by mediator costs and benefits.
+The control function approach requires mediator take-up respond only positively to the initial treatment (monotonicity), which implies mediator selection follows a selection model.
+Second, it assumes that mediator take-up is motivated by mediator benefits.
 Last, it requires a valid instrument for mediator take-up, to avoid relying on parametric assumptions on unobserved selection.
-This approach to identifying CM effects (despite selection-into-mediator) imports insights the instrumental variables literature, connecting CM to the marginal treatment effects literature \citep{vytlacil2002independence,heckman2004using,heckman2005structural,florens2008identification,kline2019heckits}.\footnote{
+This approach to identifying CM effects (despite selection-into-mediator) imports insights from the instrumental variables literature, connecting CM to the marginal treatment effects literature \citep{vytlacil2002independence,heckman2004using,heckman2005structural,florens2008identification,kline2019heckits}.\footnote{
     Indeed, this paper does not invent control function methods, instead noting their applicability in this setting.
     See \cite{wooldridge2015control,imbens2007nonadditive} for general overviews of the approach, and \cite{frolich2017direct} for a CM setting with two instruments that notes the connection to control function methods.
 }
-Using a control function to estimate CM effects builds on the influential \cite{imai2010identification} approach, marrying the CM literature with labour economic theory on selection-into-treatment for the first time. 
+Using a control function to estimate CM effects builds on the influential \cite{imai2010identification} approach, marrying the CM literature with labour economic theory on selection-into-treatment for the first time.
 
 %\textbf{Road-map:}
 This paper proceeds as follows.
