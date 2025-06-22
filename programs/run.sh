@@ -23,7 +23,7 @@ cd simulations
 # Run the semi-parametric simulation, and plot its results
 R CMD BATCH --no-save cf-sim.R
 R CMD BATCH --no-save cf-plot.R
-# R CMD BATCH --no-save cf-sim.R & watch tail --lines=52 cf-sim.Rout
+# R CMD BATCH --no-save cf-sim.R & disown ; watch tail --lines=52 cf-sim.Rout
 
 # Go back to base folder.
 cd ..

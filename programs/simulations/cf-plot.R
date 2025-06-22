@@ -247,8 +247,8 @@ rho_directeffect_bias.plot <- rho.data %>%
         curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # CF est + 95 % CI
-    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+    geom_point(aes(y = heckit_direct_effect), colour = colour.list[2]) +
+    geom_ribbon(aes(ymin = heckit_direct_effect_low, ymax = heckit_direct_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     annotate("text", colour = colour.list[2],
         x = -0.5, y = 2.00,
@@ -303,8 +303,8 @@ rho_indirecteffect_bias.plot <- rho.data %>%
     geom_ribbon(aes(ymin = ols_indirect_effect_low, ymax = ols_indirect_effect_up),
         fill = colour.list[1], alpha = 0.2) +
     # CF est + 95 % CI
-    geom_point(aes(y = cf_indirect_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
+    geom_point(aes(y = heckit_indirect_effect), colour = colour.list[2]) +
+    geom_ribbon(aes(ymin = heckit_indirect_effect_low, ymax = heckit_indirect_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     # Truth:
     geom_line(aes(y = (truth_indirect_effect)),
@@ -383,8 +383,8 @@ sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
         ymax = ols_indirect_effect_up),
         fill = colour.list[1], alpha = 0.2) +
     # CF est + 95 % CI
-    geom_point(aes(y = cf_indirect_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
+    geom_point(aes(y = heckit_indirect_effect), colour = colour.list[2]) +
+    geom_ribbon(aes(ymin = heckit_indirect_effect_low, ymax = heckit_indirect_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     # Truth:
     geom_line(aes(y = truth_indirect_effect),

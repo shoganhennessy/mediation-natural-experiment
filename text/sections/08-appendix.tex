@@ -19,15 +19,15 @@ Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu
 or raised as an issue on the Github project,
 \url{https://github.com/shoganhennessy/mediation-natural-experiment}.
 
-\subsection{Previous Literature}
-\label{appendix:mediation-review}
-
-Create a table in this section that surveys previous research which employs mediation methods while having a clear causal design for $Z_i$, but not $D_i$.
-
-\begin{tabular}{l l l l l}
-    Paper & Field & Research Design for $Z_i$ & Research Design for $D_i$ & Selection bias? \\ \hline
-    Paper name 1.    
-\end{tabular}
+%\subsection{Previous Literature}
+%\label{appendix:mediation-review}
+%
+%Create a table in this section that surveys previous research which employs mediation methods while having a clear causal design for $Z_i$, but not $D_i$.
+%
+%\begin{tabular}{l l l l l}
+%    Paper & Field & Research Design for $Z_i$ & Research Design for $D_i$ & Selection bias? \\ \hline
+%    Paper name 1.    
+%\end{tabular}
 
 
 \subsection{Identification in Causal Mediation}
@@ -605,51 +605,55 @@ Collecting for the AIE,
     &= \text{AIE}.
 \end{align*}
 
-\subsection{Semi-parametric Estimation of the ADE and AIE}
+\subsection{Semi-parametric Estimation of the AIE}
 \label{appendix:semi-parametric}
-Note the following, to express $\Gamma(p,p')$ in terms of either $\lambda_0$ or $\lambda_1$
-for $p < p' \in (0,1)$.
+It is difficult to directly use the CFs to compose estimates of the complier adjustment term, because various intercepts lose identification, but also because trusting semi-parametric estimates at individual points across the $\hat\lambda_0(p'), \hat\lambda_1(p')$ functions would increase variation more than is necessary.
+
+This can be avoided by noting the relation between the ATE and the conditional ADE and conditional AIE.
+A simple algebraic rearrangement has the following (as first noted in \citealt[Section~3.1]{imai2010causal}),
 \begin{align*}
-    \Gamma\left(p,p'\right) 
-        &= \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i \leq p'} \\
-        &= \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p} \\
-        &= \frac{(1-p)\lambda_0\left(p\right) - (1-p')\lambda_0\left(p'\right)}{p' - p} \\
+    \text{ATE} &= \E{Y_i(1, D_i(1)) - Y_i(1, D_i(1))} \\
+    &= \E{ Y_i(1, D_i(1)) - Y_i(0, D_i(1))}
+    +  \E{ Y_i(0, D_i(1)) - Y_i(0, D_i(0))} \\
+    &= \underbrace{\Egiven{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{ Z_i = 1}}_{
+        \text{ADE conditional on } Z_i = 1}
+    +  \underbrace{\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 0}}_{
+        \text{AIE conditional on } Z_i = 0}.
+\end{align*}
+A similar re-arrangement also has the following,
+\[ \text{ATE} 
+    = \underbrace{\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 1}}_{
+        \text{AIE conditional on } Z_i = 1}
+    + \underbrace{\Egiven{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{ Z_i = 0}}_{
+        \text{ADE conditional on } Z_i = 0}. \]
+Now exploit a definition of the AIE,
+\begin{align*}
+    \text{AIE}
+    &= \Prob{Z_i = 0}
+    \underbrace{\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 0}}_{
+        \text{AIE conditional on } Z_i = 0} \\
+    &\;\;\;\;+ \Prob{Z_i = 1}
+    \underbrace{\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 1}}_{
+        \text{AIE conditional on } Z_i = 1} \\
+    &= \Prob{Z_i = 0} \Big[
+        \text{ATE} - (\text{ADE conditional on } Z_i = 1) \Big] \\
+    &\;\;\;\;+ \Prob{Z_i = 1} \Big[
+        \text{ATE} - (\text{ADE conditional on } Z_i = 0) \Big].
 \end{align*}
 
-The semi-parametric approach cannot separate $\rho_0$ from $\lambda_0$, only estimating their composition $\rho_0 \lambda_0(p')$ for $p' \in (0,1)$.
-Ultimately this does not matter, as it sufficient to identify $\rho_0, \rho_1$ up to a constant for the complier adjustment term, using either $\rho_0 \lambda_0$ or $\rho_1 \lambda_1$.
-For $\pi_0 < \pi_1 \in (0,1)$,
-\begin{align*}
-    (\rho_1 - \rho_0) \, \Gamma \big(\pi_0, \pi_1 \big)
-    &= (\rho_1 - \rho_0) \frac{\pi_1\lambda_1\left(\pi_1\right) - \pi_0\lambda_1\left(\pi_0\right)}{\pi_1 - \pi_0} \\
-    &= \left(1 - \frac{\rho_0}{\rho_1}\right) \frac{
-        \pi_1 \rho_1 \lambda_1\left(\pi_1\right) - \pi_0 \rho_1 \lambda_1\left(p\right)}{\pi_1 - \pi_0} \\
-    &= \left(\frac{\rho_1}{\rho_0} - 1 \right) \frac{
-        (1 - \pi_0) \rho_0 \lambda_0\left(\pi_0\right) - (1 - \pi_1) \rho_0 \lambda_0\left(\pi_1\right)}{\pi_1 - \pi_0}.
-\end{align*}
+The semi-parametric AIE estimate then uses this representation, avoiding directly interacting with the estimated CFs, by plugging in estimates $\hat{\Pr}(Z_i =1)$, $\hat{\text{ATE}}$, and $\hat{\text{ADE}}$ conditional on $Z_i =0,1$, respectively.
 
-The fraction $\rho_1 / \rho_0$ can be estimated with only the composition $\rho_0 \lambda_0$ or $\rho_1 \lambda_1$, thanks to the relation between $\lambda_0, \lambda_1$.
-For $p' \in (0,1)$,
-\[ \lambda_1 \left(p'\right) = 
-    \implies 
-        \frac{\rho_0}{\rho_1} = 
-        \frac{\rho_0 \lambda_0 \left(p'\right)}{ \rho_1 \lambda_1 \left(p'\right)}
-        \left( \frac{1-p'}{p'} \right). \]
-This can be estimated by estimating $\rho_1 \lambda_1$ in the $D_i = 1$ subsample with splines, extrapolating the transformed $\rho_1 \lambda_0(p') = -\rho_1\lambda_1 \left(p'\right) \left( \frac{p'}{1 - p'} \right)$ to the $D_i = 0$ subsample, and calculating the regression coefficient for $\rho_0 / \rho_1$ on $\rho_1 \lambda_0(p')$.
-
-Similarly, an approach starting with estimating $\rho_0 \lambda_0$ in the $D_i = 0$ subsample gives a coefficient for $\rho_1 / \rho_0$.
-An efficient estimate can compose these two, with weights proportional to the efficiency of each side.
-
-\subsection{Simulation Evidence}
+\subsection{Implementation and Further Simulation Evidence}
+\label{appendix:implement}
 A number of statistical packages, for the R language \citep{R2023}, made the simulation analysis for this paper possible.
 \begin{itemize}
     \item \textit{Tidyverse} \citep{tidyverse} collected tools for data analysis in the R language.
-    \item \textit{Splines} \citep{wang2021shape} allows semi-parametric estimation, using splines, in the R language.
+    \item \textit{Mgcv} \citep{wood2016mgcv} allows semi-parametric estimation, using splines, in the R language.
     \item \textit{Mediate} \citep{tingley2014mediation} automates the sequential-ignorability estimates of CM effects \citep{imai2010identification} in the R language.
 \end{itemize}
 
 \begin{figure}[h!]
-    \caption{OLS versus Control Function Estimates of CM Effects, varying $\sigma_1$ relative to $\sigma_0 = 1$.}
+    \caption{OLS versus CF Estimates of CM Effects, varying $\Var{U_{1,i}}$ relative to $\Var{U_{0,i}} = 1$.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{ADE.}
@@ -666,8 +670,8 @@ A number of statistical packages, for the R language \citep{R2023}, made the sim
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the OLS and control function estimates of the ADE and AIE, for $N = 10,000$ sample size.
-    The black dashed line is the true value, points are points estimates from data simulated with a given $\rho = 0.5, \sigma_0 = 1$ and $\sigma_1$ varied across $[0, 2]$.
+    These figures show the OLS and control function estimates of the ADE and AIE, for $N = 1,000$ sample size.
+    The black dashed line is the true value, points are points estimates from data simulated with a given $\text{Corr}\big(U_{0,i}, U_{1,i}\big) =0.5$, $\Var{U_{0,i}} = 1$, and $\Var{U_{1,i}}^{\frac12}$ varied across $[0, 2]$.
     Shaded regions are the 95\% confidence intervals;
     orange are the OLS estimates, blue the control function approach.
 \end{figure}
