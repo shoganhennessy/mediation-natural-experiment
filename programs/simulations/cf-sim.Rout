@@ -1,11 +1,13 @@
 
-R version 4.5.1 (2025-06-13) -- "Great Square Root"
-Copyright (C) 2025 The R Foundation for Statistical Computing
-Platform: x86_64-pc-linux-gnu
+R version 4.0.5 (2021-03-31) -- "Shake and Throw"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
 You are welcome to redistribute it under certain conditions.
 Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
 
 R is a collaborative project with many contributors.
 Type 'contributors()' for more information and
@@ -17,27 +19,25 @@ Type 'q()' to quit R.
 
 > #!/usr/bin/R
 > ## Senan Hogan-Hennessy, 6 May 2025
-> ## Identifying ADE + AIE with a sem-parametric control function
-> ## see Hogan-Hennessy (2025).
+> ## Identifying ADE + AIE with a (semi-)parametric control function
+> ## see Hogan-Hennessy (2025), Section 5.
 > 
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "10:48 EDT Wednesday, 18 June 2025"
+[1] "17:44 EDT Saturday, 21 June 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
 > library(tidyverse)
-── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.5
-✔ forcats   1.0.0     ✔ stringr   1.5.1
-✔ ggplot2   3.5.2     ✔ tibble    3.2.1
-✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-✔ purrr     1.0.4     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
+✔ ggplot2 3.4.0      ✔ purrr   0.3.5 
+✔ tibble  3.1.8      ✔ dplyr   1.0.10
+✔ tidyr   1.2.1      ✔ stringr 1.4.1 
+✔ readr   2.1.3      ✔ forcats 0.5.2 
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
-ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-> # Package for more distributions to sample from.
+> # Package for distributions to sample from.
 > library(MASS)
 
 Attaching package: ‘MASS’
@@ -46,7 +46,7 @@ The following object is masked from ‘package:dplyr’:
 
     select
 
-> # Package forsemi-parametric CF by splines, and one for semi-p MTEs.
+> # Package forsemi-parametric CF by splines, and one for semi-p MTEs (not used).
 > library(mgcv)
 Loading required package: nlme
 
@@ -56,7 +56,7 @@ The following object is masked from ‘package:dplyr’:
 
     collapse
 
-This is mgcv 1.9-1. For overview type 'help("mgcv-package")'.
+This is mgcv 1.8-40. For overview type 'help("mgcv-package")'.
 > library(ivmte)
 > # Semi-parametric binary choice model (for mediator first-stage).
 > # (Klein Spady 1993, https://github.com/henrykye/semiBRM)
@@ -423,7 +423,8 @@ This is mgcv 1.9-1. For overview type 'help("mgcv-package")'.
 +         # Print, if want the consol output of how far we are.
 +         if (print.progress == TRUE){
 +             if ((100 * (i / boot.reps)) %% 1 == 0) {
-+                 print(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps), "% done."))
++                 print(paste0(i, " out of ", boot.reps,
++                     ", ", round(100 * (i / boot.reps)), "% done."))
 +             }
 +         }
 +         # First, get the total effect, by a standard regression.
@@ -598,6 +599,10 @@ Call:
 glm(formula = D ~ (1 + Z) + X_IV + X_minus + U_C + U_0 + U_1, 
     family = binomial(link = "probit"), data = simulated.data)
 
+Deviance Residuals: 
+      Min         1Q     Median         3Q        Max  
+-0.005177   0.000000   0.000000   0.000000   0.005258  
+
 Coefficients:
             Estimate Std. Error z value Pr(>|z|)
 (Intercept)    265.6     2273.5   0.117    0.907
@@ -623,25 +628,25 @@ lm(formula = Y ~ (1 + Z * D) + X_minus + D * U_0 + D * U_1, data = simulated.dat
 
 Residuals:
        Min         1Q     Median         3Q        Max 
--1.977e-14 -1.970e-15 -7.600e-16  3.100e-16  4.359e-13 
+-1.033e-14 -1.760e-15 -6.900e-16  3.800e-16  4.443e-13 
 
 Coefficients:
               Estimate Std. Error    t value Pr(>|t|)    
-(Intercept)  1.972e-14  2.419e-15  8.152e+00 1.07e-15 ***
-Z            1.000e+00  1.752e-15  5.709e+14  < 2e-16 ***
-D            1.000e+00  4.074e-15  2.454e+14  < 2e-16 ***
-X_minus      1.000e+00  5.642e-16  1.773e+15  < 2e-16 ***
-U_0          1.000e+00  8.359e-16  1.196e+15  < 2e-16 ***
-U_1         -4.661e-16  5.983e-16 -7.790e-01    0.436    
-Z:D          1.000e+00  4.200e-15  2.381e+14  < 2e-16 ***
-D:U_0       -1.000e+00  1.385e-15 -7.222e+14  < 2e-16 ***
-D:U_1        1.000e+00  1.036e-15  9.653e+14  < 2e-16 ***
+(Intercept)  1.663e-14  2.241e-15  7.421e+00  2.5e-13 ***
+Z            1.000e+00  1.623e-15  6.162e+14  < 2e-16 ***
+D            1.000e+00  3.775e-15  2.649e+14  < 2e-16 ***
+X_minus      1.000e+00  5.227e-16  1.913e+15  < 2e-16 ***
+U_0          1.000e+00  7.744e-16  1.291e+15  < 2e-16 ***
+U_1         -7.224e-16  5.543e-16 -1.303e+00    0.193    
+Z:D          1.000e+00  3.891e-15  2.570e+14  < 2e-16 ***
+D:U_0       -1.000e+00  1.283e-15 -7.795e+14  < 2e-16 ***
+D:U_1        1.000e+00  9.598e-16  1.042e+15  < 2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 1.724e-14 on 991 degrees of freedom
+Residual standard error: 1.597e-14 on 991 degrees of freedom
 Multiple R-squared:      1,	Adjusted R-squared:      1 
-F-statistic: 1.758e+30 on 8 and 991 DF,  p-value: < 2.2e-16
+F-statistic: 2.048e+30 on 8 and 991 DF,  p-value: < 2.2e-16
 
 > #! Note: this automatically includes the complier term in the indirect effect.
 > #!       If U_0, U_1 are unobserved, this inclusion is not automatic.
@@ -802,102 +807,102 @@ $average_indirect_effect
 > normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "normal")
 > 
 > # Get dist-strapped point est for the CF approach
-> sim.reps <- 10^2
+> sim.reps <- 10^4
 > normal.est <- estimated.loop(sim.reps, normal.data,
 +     bootstrap = FALSE, print.progress = TRUE,  error.dist = "normal",
 +     rho, sigma_0, sigma_1, sigma_C)
-[1] "1 out of 100, 1% done."
-[1] "2 out of 100, 2% done."
-[1] "3 out of 100, 3% done."
-[1] "4 out of 100, 4% done."
-[1] "5 out of 100, 5% done."
-[1] "6 out of 100, 6% done."
-[1] "8 out of 100, 8% done."
-[1] "9 out of 100, 9% done."
-[1] "10 out of 100, 10% done."
-[1] "11 out of 100, 11% done."
-[1] "12 out of 100, 12% done."
-[1] "13 out of 100, 13% done."
-[1] "15 out of 100, 15% done."
-[1] "16 out of 100, 16% done."
-[1] "17 out of 100, 17% done."
-[1] "18 out of 100, 18% done."
-[1] "19 out of 100, 19% done."
-[1] "20 out of 100, 20% done."
-[1] "21 out of 100, 21% done."
-[1] "22 out of 100, 22% done."
-[1] "23 out of 100, 23% done."
-[1] "24 out of 100, 24% done."
-[1] "25 out of 100, 25% done."
-[1] "26 out of 100, 26% done."
-[1] "27 out of 100, 27% done."
-[1] "30 out of 100, 30% done."
-[1] "31 out of 100, 31% done."
-[1] "32 out of 100, 32% done."
-[1] "33 out of 100, 33% done."
-[1] "34 out of 100, 34% done."
-[1] "35 out of 100, 35% done."
-[1] "36 out of 100, 36% done."
-[1] "37 out of 100, 37% done."
-[1] "38 out of 100, 38% done."
-[1] "39 out of 100, 39% done."
-[1] "40 out of 100, 40% done."
-[1] "41 out of 100, 41% done."
-[1] "42 out of 100, 42% done."
-[1] "43 out of 100, 43% done."
-[1] "44 out of 100, 44% done."
-[1] "45 out of 100, 45% done."
-[1] "46 out of 100, 46% done."
-[1] "47 out of 100, 47% done."
-[1] "48 out of 100, 48% done."
-[1] "49 out of 100, 49% done."
-[1] "50 out of 100, 50% done."
-[1] "51 out of 100, 51% done."
-[1] "52 out of 100, 52% done."
-[1] "53 out of 100, 53% done."
-[1] "54 out of 100, 54% done."
-[1] "59 out of 100, 59% done."
-[1] "60 out of 100, 60% done."
-[1] "61 out of 100, 61% done."
-[1] "62 out of 100, 62% done."
-[1] "63 out of 100, 63% done."
-[1] "64 out of 100, 64% done."
-[1] "65 out of 100, 65% done."
-[1] "66 out of 100, 66% done."
-[1] "67 out of 100, 67% done."
-[1] "68 out of 100, 68% done."
-[1] "69 out of 100, 69% done."
-[1] "70 out of 100, 70% done."
-[1] "71 out of 100, 71% done."
-[1] "72 out of 100, 72% done."
-[1] "73 out of 100, 73% done."
-[1] "74 out of 100, 74% done."
-[1] "75 out of 100, 75% done."
-[1] "76 out of 100, 76% done."
-[1] "77 out of 100, 77% done."
-[1] "78 out of 100, 78% done."
-[1] "79 out of 100, 79% done."
-[1] "80 out of 100, 80% done."
-[1] "81 out of 100, 81% done."
-[1] "82 out of 100, 82% done."
-[1] "83 out of 100, 83% done."
-[1] "84 out of 100, 84% done."
-[1] "85 out of 100, 85% done."
-[1] "86 out of 100, 86% done."
-[1] "87 out of 100, 87% done."
-[1] "88 out of 100, 88% done."
-[1] "89 out of 100, 89% done."
-[1] "90 out of 100, 90% done."
-[1] "91 out of 100, 91% done."
-[1] "92 out of 100, 92% done."
-[1] "93 out of 100, 93% done."
-[1] "94 out of 100, 94% done."
-[1] "95 out of 100, 95% done."
-[1] "96 out of 100, 96% done."
-[1] "97 out of 100, 97% done."
-[1] "98 out of 100, 98% done."
-[1] "99 out of 100, 99% done."
-[1] "100 out of 100, 100% done."
+[1] "100 out of 10000, 1% done."
+[1] "200 out of 10000, 2% done."
+[1] "300 out of 10000, 3% done."
+[1] "400 out of 10000, 4% done."
+[1] "500 out of 10000, 5% done."
+[1] "600 out of 10000, 6% done."
+[1] "800 out of 10000, 8% done."
+[1] "900 out of 10000, 9% done."
+[1] "1000 out of 10000, 10% done."
+[1] "1100 out of 10000, 11% done."
+[1] "1200 out of 10000, 12% done."
+[1] "1300 out of 10000, 13% done."
+[1] "1500 out of 10000, 15% done."
+[1] "1600 out of 10000, 16% done."
+[1] "1700 out of 10000, 17% done."
+[1] "1800 out of 10000, 18% done."
+[1] "1900 out of 10000, 19% done."
+[1] "2000 out of 10000, 20% done."
+[1] "2100 out of 10000, 21% done."
+[1] "2200 out of 10000, 22% done."
+[1] "2300 out of 10000, 23% done."
+[1] "2400 out of 10000, 24% done."
+[1] "2500 out of 10000, 25% done."
+[1] "2600 out of 10000, 26% done."
+[1] "2700 out of 10000, 27% done."
+[1] "3000 out of 10000, 30% done."
+[1] "3100 out of 10000, 31% done."
+[1] "3200 out of 10000, 32% done."
+[1] "3300 out of 10000, 33% done."
+[1] "3400 out of 10000, 34% done."
+[1] "3500 out of 10000, 35% done."
+[1] "3600 out of 10000, 36% done."
+[1] "3700 out of 10000, 37% done."
+[1] "3800 out of 10000, 38% done."
+[1] "3900 out of 10000, 39% done."
+[1] "4000 out of 10000, 40% done."
+[1] "4100 out of 10000, 41% done."
+[1] "4200 out of 10000, 42% done."
+[1] "4300 out of 10000, 43% done."
+[1] "4400 out of 10000, 44% done."
+[1] "4500 out of 10000, 45% done."
+[1] "4600 out of 10000, 46% done."
+[1] "4700 out of 10000, 47% done."
+[1] "4800 out of 10000, 48% done."
+[1] "4900 out of 10000, 49% done."
+[1] "5000 out of 10000, 50% done."
+[1] "5100 out of 10000, 51% done."
+[1] "5200 out of 10000, 52% done."
+[1] "5300 out of 10000, 53% done."
+[1] "5400 out of 10000, 54% done."
+[1] "5900 out of 10000, 59% done."
+[1] "6000 out of 10000, 60% done."
+[1] "6100 out of 10000, 61% done."
+[1] "6200 out of 10000, 62% done."
+[1] "6300 out of 10000, 63% done."
+[1] "6400 out of 10000, 64% done."
+[1] "6500 out of 10000, 65% done."
+[1] "6600 out of 10000, 66% done."
+[1] "6700 out of 10000, 67% done."
+[1] "6800 out of 10000, 68% done."
+[1] "6900 out of 10000, 69% done."
+[1] "7000 out of 10000, 70% done."
+[1] "7100 out of 10000, 71% done."
+[1] "7200 out of 10000, 72% done."
+[1] "7300 out of 10000, 73% done."
+[1] "7400 out of 10000, 74% done."
+[1] "7500 out of 10000, 75% done."
+[1] "7600 out of 10000, 76% done."
+[1] "7700 out of 10000, 77% done."
+[1] "7800 out of 10000, 78% done."
+[1] "7900 out of 10000, 79% done."
+[1] "8000 out of 10000, 80% done."
+[1] "8100 out of 10000, 81% done."
+[1] "8200 out of 10000, 82% done."
+[1] "8300 out of 10000, 83% done."
+[1] "8400 out of 10000, 84% done."
+[1] "8500 out of 10000, 85% done."
+[1] "8600 out of 10000, 86% done."
+[1] "8700 out of 10000, 87% done."
+[1] "8800 out of 10000, 88% done."
+[1] "8900 out of 10000, 89% done."
+[1] "9000 out of 10000, 90% done."
+[1] "9100 out of 10000, 91% done."
+[1] "9200 out of 10000, 92% done."
+[1] "9300 out of 10000, 93% done."
+[1] "9400 out of 10000, 94% done."
+[1] "9500 out of 10000, 95% done."
+[1] "9600 out of 10000, 96% done."
+[1] "9700 out of 10000, 97% done."
+[1] "9800 out of 10000, 98% done."
+[1] "9900 out of 10000, 99% done."
+[1] "10000 out of 10000, 100% done."
 > 
 > # Save the repeated DGPs' point estimates as separate data.
 > normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
@@ -914,98 +919,98 @@ $average_indirect_effect
 > uniform.est <- estimated.loop(sim.reps, uniform.data,
 +     bootstrap = FALSE, print.progress = TRUE, error.dist = "uniform",
 +     rho, sigma_0, sigma_1, sigma_C)
-[1] "1 out of 100, 1% done."
-[1] "2 out of 100, 2% done."
-[1] "3 out of 100, 3% done."
-[1] "4 out of 100, 4% done."
-[1] "5 out of 100, 5% done."
-[1] "6 out of 100, 6% done."
-[1] "8 out of 100, 8% done."
-[1] "9 out of 100, 9% done."
-[1] "10 out of 100, 10% done."
-[1] "11 out of 100, 11% done."
-[1] "12 out of 100, 12% done."
-[1] "13 out of 100, 13% done."
-[1] "15 out of 100, 15% done."
-[1] "16 out of 100, 16% done."
-[1] "17 out of 100, 17% done."
-[1] "18 out of 100, 18% done."
-[1] "19 out of 100, 19% done."
-[1] "20 out of 100, 20% done."
-[1] "21 out of 100, 21% done."
-[1] "22 out of 100, 22% done."
-[1] "23 out of 100, 23% done."
-[1] "24 out of 100, 24% done."
-[1] "25 out of 100, 25% done."
-[1] "26 out of 100, 26% done."
-[1] "27 out of 100, 27% done."
-[1] "30 out of 100, 30% done."
-[1] "31 out of 100, 31% done."
-[1] "32 out of 100, 32% done."
-[1] "33 out of 100, 33% done."
-[1] "34 out of 100, 34% done."
-[1] "35 out of 100, 35% done."
-[1] "36 out of 100, 36% done."
-[1] "37 out of 100, 37% done."
-[1] "38 out of 100, 38% done."
-[1] "39 out of 100, 39% done."
-[1] "40 out of 100, 40% done."
-[1] "41 out of 100, 41% done."
-[1] "42 out of 100, 42% done."
-[1] "43 out of 100, 43% done."
-[1] "44 out of 100, 44% done."
-[1] "45 out of 100, 45% done."
-[1] "46 out of 100, 46% done."
-[1] "47 out of 100, 47% done."
-[1] "48 out of 100, 48% done."
-[1] "49 out of 100, 49% done."
-[1] "50 out of 100, 50% done."
-[1] "51 out of 100, 51% done."
-[1] "52 out of 100, 52% done."
-[1] "53 out of 100, 53% done."
-[1] "54 out of 100, 54% done."
-[1] "59 out of 100, 59% done."
-[1] "60 out of 100, 60% done."
-[1] "61 out of 100, 61% done."
-[1] "62 out of 100, 62% done."
-[1] "63 out of 100, 63% done."
-[1] "64 out of 100, 64% done."
-[1] "65 out of 100, 65% done."
-[1] "66 out of 100, 66% done."
-[1] "67 out of 100, 67% done."
-[1] "68 out of 100, 68% done."
-[1] "69 out of 100, 69% done."
-[1] "70 out of 100, 70% done."
-[1] "71 out of 100, 71% done."
-[1] "72 out of 100, 72% done."
-[1] "73 out of 100, 73% done."
-[1] "74 out of 100, 74% done."
-[1] "75 out of 100, 75% done."
-[1] "76 out of 100, 76% done."
-[1] "77 out of 100, 77% done."
-[1] "78 out of 100, 78% done."
-[1] "79 out of 100, 79% done."
-[1] "80 out of 100, 80% done."
-[1] "81 out of 100, 81% done."
-[1] "82 out of 100, 82% done."
-[1] "83 out of 100, 83% done."
-[1] "84 out of 100, 84% done."
-[1] "85 out of 100, 85% done."
-[1] "86 out of 100, 86% done."
-[1] "87 out of 100, 87% done."
-[1] "88 out of 100, 88% done."
-[1] "89 out of 100, 89% done."
-[1] "90 out of 100, 90% done."
-[1] "91 out of 100, 91% done."
-[1] "92 out of 100, 92% done."
-[1] "93 out of 100, 93% done."
-[1] "94 out of 100, 94% done."
-[1] "95 out of 100, 95% done."
-[1] "96 out of 100, 96% done."
-[1] "97 out of 100, 97% done."
-[1] "98 out of 100, 98% done."
-[1] "99 out of 100, 99% done."
-[1] "100 out of 100, 100% done."
+[1] "100 out of 10000, 1% done."
+[1] "200 out of 10000, 2% done."
+[1] "300 out of 10000, 3% done."
+[1] "400 out of 10000, 4% done."
+[1] "500 out of 10000, 5% done."
+[1] "600 out of 10000, 6% done."
+[1] "800 out of 10000, 8% done."
+[1] "900 out of 10000, 9% done."
+[1] "1000 out of 10000, 10% done."
+[1] "1100 out of 10000, 11% done."
+[1] "1200 out of 10000, 12% done."
+[1] "1300 out of 10000, 13% done."
+[1] "1500 out of 10000, 15% done."
+[1] "1600 out of 10000, 16% done."
+[1] "1700 out of 10000, 17% done."
+[1] "1800 out of 10000, 18% done."
+[1] "1900 out of 10000, 19% done."
+[1] "2000 out of 10000, 20% done."
+[1] "2100 out of 10000, 21% done."
+[1] "2200 out of 10000, 22% done."
+[1] "2300 out of 10000, 23% done."
+[1] "2400 out of 10000, 24% done."
+[1] "2500 out of 10000, 25% done."
+[1] "2600 out of 10000, 26% done."
+[1] "2700 out of 10000, 27% done."
+[1] "3000 out of 10000, 30% done."
+[1] "3100 out of 10000, 31% done."
+[1] "3200 out of 10000, 32% done."
+[1] "3300 out of 10000, 33% done."
+[1] "3400 out of 10000, 34% done."
+[1] "3500 out of 10000, 35% done."
+[1] "3600 out of 10000, 36% done."
+[1] "3700 out of 10000, 37% done."
+[1] "3800 out of 10000, 38% done."
+[1] "3900 out of 10000, 39% done."
+[1] "4000 out of 10000, 40% done."
+[1] "4100 out of 10000, 41% done."
+[1] "4200 out of 10000, 42% done."
+[1] "4300 out of 10000, 43% done."
+[1] "4400 out of 10000, 44% done."
+[1] "4500 out of 10000, 45% done."
+[1] "4600 out of 10000, 46% done."
+[1] "4700 out of 10000, 47% done."
+[1] "4800 out of 10000, 48% done."
+[1] "4900 out of 10000, 49% done."
+[1] "5000 out of 10000, 50% done."
+[1] "5100 out of 10000, 51% done."
+[1] "5200 out of 10000, 52% done."
+[1] "5300 out of 10000, 53% done."
+[1] "5400 out of 10000, 54% done."
+[1] "5900 out of 10000, 59% done."
+[1] "6000 out of 10000, 60% done."
+[1] "6100 out of 10000, 61% done."
+[1] "6200 out of 10000, 62% done."
+[1] "6300 out of 10000, 63% done."
+[1] "6400 out of 10000, 64% done."
+[1] "6500 out of 10000, 65% done."
+[1] "6600 out of 10000, 66% done."
+[1] "6700 out of 10000, 67% done."
+[1] "6800 out of 10000, 68% done."
+[1] "6900 out of 10000, 69% done."
+[1] "7000 out of 10000, 70% done."
+[1] "7100 out of 10000, 71% done."
+[1] "7200 out of 10000, 72% done."
+[1] "7300 out of 10000, 73% done."
+[1] "7400 out of 10000, 74% done."
+[1] "7500 out of 10000, 75% done."
+[1] "7600 out of 10000, 76% done."
+[1] "7700 out of 10000, 77% done."
+[1] "7800 out of 10000, 78% done."
+[1] "7900 out of 10000, 79% done."
+[1] "8000 out of 10000, 80% done."
+[1] "8100 out of 10000, 81% done."
+[1] "8200 out of 10000, 82% done."
+[1] "8300 out of 10000, 83% done."
+[1] "8400 out of 10000, 84% done."
+[1] "8500 out of 10000, 85% done."
+[1] "8600 out of 10000, 86% done."
+[1] "8700 out of 10000, 87% done."
+[1] "8800 out of 10000, 88% done."
+[1] "8900 out of 10000, 89% done."
+[1] "9000 out of 10000, 90% done."
+[1] "9100 out of 10000, 91% done."
+[1] "9200 out of 10000, 92% done."
+[1] "9300 out of 10000, 93% done."
+[1] "9400 out of 10000, 94% done."
+[1] "9500 out of 10000, 95% done."
+[1] "9600 out of 10000, 96% done."
+[1] "9700 out of 10000, 97% done."
+[1] "9800 out of 10000, 98% done."
+[1] "9900 out of 10000, 99% done."
+[1] "10000 out of 10000, 100% done."
 > 
 > # Save the repeated DGPs' point estimates as separate data.
 > uniform.est$data %>% write_csv(file.path(output.folder, "uniform-cf-data.csv"))
@@ -1025,7 +1030,7 @@ $average_indirect_effect
 > # Define values in rho \in [-1, 1] to go across
 > rho.values <- seq(-1, 1, by = 0.25)
 > # Define the number of boot reps for each
-> boot.reps <- 10^1
+> boot.reps <- 10^3
 > i <- 0
 > 
 > # Start the rho loop
@@ -1043,29 +1048,19 @@ $average_indirect_effect
 +     rho.data[i, ] <- rho.boot
 +     # Show far we are.
 +     print(paste0(rho.value, " in [-1, 1], ",
-+         100 * i / length(rho.values), "% done."))
++         round(100 * i / length(rho.values)), "% done."))
 +     gc()
 + }
-[1] "-1 in [-1, 1], 11.1111111111111% done."
-[1] "-0.75 in [-1, 1], 22.2222222222222% done."
-[1] "-0.5 in [-1, 1], 33.3333333333333% done."
-[1] "-0.25 in [-1, 1], 44.4444444444444% done."
-[1] "0 in [-1, 1], 55.5555555555556% done."
-[1] "0.25 in [-1, 1], 66.6666666666667% done."
-[1] "0.5 in [-1, 1], 77.7777777777778% done."
-[1] "0.75 in [-1, 1], 88.8888888888889% done."
+[1] "-1 in [-1, 1], 11% done."
+[1] "-0.75 in [-1, 1], 22% done."
+[1] "-0.5 in [-1, 1], 33% done."
+[1] "-0.25 in [-1, 1], 44% done."
+[1] "0 in [-1, 1], 56% done."
+[1] "0.25 in [-1, 1], 67% done."
+[1] "0.5 in [-1, 1], 78% done."
+[1] "0.75 in [-1, 1], 89% done."
 [1] "1 in [-1, 1], 100% done."
-Warning messages:
-1: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-2: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-3: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-4: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-5: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-6: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-7: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-8: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-9: glm.fit: fitted probabilities numerically 0 or 1 occurred 
-10: glm.fit: fitted probabilities numerically 0 or 1 occurred 
+There were 50 or more warnings (use warnings() to see the first 50)
 > 
 > # Save the output data.
 > rho.data %>% write_csv(file.path(output.folder, "rho-cf-data.csv"))
@@ -1085,7 +1080,7 @@ Warning messages:
 > # Define values in sigma_1 in [0, 2] to go across
 > sigma_1.values <- seq(0, 2, by = 0.25)
 > # Define the number of boot reps for each
-> boot.reps <- 10^1
+> boot.reps <- 10^3
 > i <- 0
 > 
 > # Start the sigma_1 loop
@@ -1103,42 +1098,23 @@ Warning messages:
 +     sigma_1.data[i, ] <- sigma_1.boot
 +     # Show how far we are.
 +     print(paste0(sigma_1.value, " in [0, 2], ",
-+         100 * i / length(sigma_1.values), "% done."))
++         round(100 * i / length(sigma_1.values)), "% done."))
 +     gc()
 + }
-[1] "0 in [0, 2], 11.1111111111111% done."
-[1] "0.25 in [0, 2], 22.2222222222222% done."
-[1] "0.5 in [0, 2], 33.3333333333333% done."
-[1] "0.75 in [0, 2], 44.4444444444444% done."
-[1] "1 in [0, 2], 55.5555555555556% done."
-[1] "1.25 in [0, 2], 66.6666666666667% done."
-[1] "1.5 in [0, 2], 77.7777777777778% done."
-[1] "1.75 in [0, 2], 88.8888888888889% done."
+[1] "0 in [0, 2], 11% done."
+[1] "0.25 in [0, 2], 22% done."
+[1] "0.5 in [0, 2], 33% done."
+[1] "0.75 in [0, 2], 44% done."
+[1] "1 in [0, 2], 56% done."
+[1] "1.25 in [0, 2], 67% done."
+[1] "1.5 in [0, 2], 78% done."
+[1] "1.75 in [0, 2], 89% done."
 [1] "2 in [0, 2], 100% done."
-Warning messages:
-1: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
-2: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
-3: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
-4: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
-5: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
-6: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
-7: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
-8: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
-9: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
-10: In newton(lsp = lsp, X = G$X, y = G$y, Eb = G$Eb, UrS = G$UrS, L = G$L,  :
-  Fitting terminated with step failure - check results carefully
+There were 50 or more warnings (use warnings() to see the first 50)
 > 
 > # Save the output data.
 > sigma_1.data %>% write_csv(file.path(output.folder, "sigma1-cf-data.csv"))
-> th(output.folder, "sigma1-cf-data.csv"))
-Error: unexpected ')' in "th(output.folder, "sigma1-cf-data.csv"))"
-Execution halted
+> 
+> proc.time()
+      user     system    elapsed 
+183452.000     34.006   9571.778 

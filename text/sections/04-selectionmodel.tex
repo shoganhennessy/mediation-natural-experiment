@@ -129,8 +129,8 @@ Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F_V^{-1}\l
 
 If we are using the canonical Heckman selection model, we assume the error term follows a normal distribution, so that $\lambda_0, \lambda_1$ are the inverse Mills ratio.
 Alternatively, $\lambda_0, \lambda_1$ could have other definitions following the assumed distribution of the error terms (see e.g, \citealt{wooldridge2015control}).
-If we do not know what distribution class the errors follow, then $\lambda_0, \lambda_1$ can be estimated separately with semiparametric methods to avoid relying on parametric assumptions.
-%(as in \autoref{sec:semiparametric}.
+If we do not know what distribution class the errors follow, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.
+%(as in \autoref{sec:semi-parametric}.
 
 \newtheorem{theoremCF}{Theorem}
 \renewcommand\thetheoremCF{CF}
@@ -164,7 +164,7 @@ Again, this is because the AIE only refers to individuals who were induced by tr
 The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
 
 This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{heckman2005structural}) applied to a CM setting.
-Just as the semiparametric local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
+Just as the semi-parametric local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
 This connection to MTEs provides a conceptual bridge between the literature on IV structural causal effects and CM.
 
 \begin{figure}[h!]

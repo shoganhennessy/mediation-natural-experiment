@@ -1,7 +1,7 @@
 #!/usr/bin/R
 ## Senan Hogan-Hennessy, 6 May 2025
-## Identifying ADE + AIE with a sem-parametric control function
-## see Hogan-Hennessy (2025).
+## Identifying ADE + AIE with a (semi-)parametric control function
+## see Hogan-Hennessy (2025), Section 5.
 
 # Show the date:
 print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
@@ -9,7 +9,7 @@ print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 ## Load libraries
 # Functions for data manipulation and visualisation
 library(tidyverse)
-# Package for more distributions to sample from.
+# Package for distributions to sample from.
 library(MASS)
 # Package forsemi-parametric CF by splines, and one for semi-p MTEs.
 library(mgcv)
