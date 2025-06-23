@@ -30,7 +30,7 @@ fig.height <- 10
 fig.width <- fig.height
 
 # Define the sample size to work with.
-sample.N <- 10^3
+sample.N <- 5 * 10^3
 
 
 ################################################################################
@@ -407,7 +407,7 @@ estimated.loop <- function(boot.reps, example.data,
         cf_direct_effect[i]       <- cf.est$"direct-effect"
         cf_indirect_effect[i]     <- cf.est$"indirect-effect"
     }
-    # Return the bootstrap data.
+    # Return the boot/dist-strapped data.
     output.list <- list()
     output.list$data <- data.frame(
         # Total effect
@@ -506,13 +506,67 @@ print(summary(true_secondstage.reg))
 ols_firststage.reg <- lm(D ~ (1 + Z) + X_minus + X_IV, data = simulated.data)
 ols_secondstage.reg <- lm(Y ~ 1 + Z * D + X_minus, data = simulated.data)
 print(theoretical.values(simulated.data))
-print(estimated.values(ols_firststage.reg, ols_secondstage.reg,
-    true_total.reg, simulated.data))
+print(estimated.values(ols_firststage.reg, ols_secondstage.reg, true_total.reg,
+    simulated.data))
 
 # Show how the CF approaches get it correct (with complier adjustment).
 print(theoretical.values(simulated.data))
 print(mediate.heckit(simulated.data))
 print(mediate.semiparametric(simulated.data))
+
+
+#! Test: equalities in the semi-p proof, to check over.
+direct.effect <- (
+    simulated.data$D * (simulated.data$Y_1_1 - simulated.data$Y_0_1) +
+    (1 - simulated.data$D) * (simulated.data$Y_1_0 - simulated.data$Y_0_0))
+indirect.effect <- (simulated.data$D_1 - simulated.data$D_0) * (
+    simulated.data$Z * (simulated.data$Y_1_1 - simulated.data$Y_1_0) +
+    (1 - simulated.data$Z) * (simulated.data$Y_0_1 - simulated.data$Y_0_0))
+
+mean(indirect.effect[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$Z == 0])
+mean(indirect.effect[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 0])
+
+mean((simulated.data$D_1 - simulated.data$D_0))
+mean((simulated.data$D_1 - simulated.data$D_0)[simulated.data$D == 0])
+
+# Test the relation between 
+(mean((simulated.data$D_1 - simulated.data$D_0)) /
+    mean((simulated.data$D_1 - simulated.data$D_0)[simulated.data$D == 0]
+        ) * mean(indirect.effect[simulated.data$D == 0]))
+mean(indirect.effect[simulated.data$Z == 0])
+
+(mean((simulated.data$D_1 - simulated.data$D_0)) /
+    mean((simulated.data$D_1 - simulated.data$D_0)[simulated.data$D == 0]))
+
+# calculated Pr(D(0) = 0, D(1) = 1 | D = 1)
+mean((simulated.data$D_1 - simulated.data$D_0)[simulated.data$D == 0])
+(mean(simulated.data$D[simulated.data$Z == 1]) - mean(
+    simulated.data$D[simulated.data$Z == 0])) * mean(simulated.data$D)
+
+# Now for the 
+mean(mean(simulated.data$D) * indirect.effect[simulated.data$Z == 0])
+mean(indirect.effect[simulated.data$D == 0])
+
+
+mean(1 - simulated.data$D) * (
+    mean((1 - simulated.data$D)[simulated.data$Z == 0]) - mean(
+    (1 - simulated.data$D)[simulated.data$Z == 1]))
+
+
+mean((1 - simulated.data$D)[simulated.data$Z == 1])
+
+# Direct effect, Z_i = 1 and D_i = 1 relation.
+mean(direct.effect)
+mean(direct.effect[simulated.data$Z == 1])
+
+(mean((simulated.data$Y_1_1 - simulated.data$Y_0_1)[simulated.data$D == 1]) * mean(simulated.data$D[simulated.data$Z == 1])
+    ) + (
+        mean((simulated.data$Y_1_0 - simulated.data$Y_0_0)[simulated.data$D == 0]) * mean((1 - simulated.data$D)[simulated.data$Z == 1]))
+
+
+
+
+error
 
 # One-shot showing how the uniform errors screw up the Heckman selection model.
 uniform.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "uniform")

@@ -539,7 +539,7 @@ This gives the final result,
             + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big).
 \end{align*}
 All parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z';\vec X_i)$ identified separately in the first-stage.
-$\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse Mills ratio in \citealt{heckman1979sample}), or treated as non-parametric parameters to be estimated with the moment equality $\lambda_1 \left(p'\right) = -\lambda_0 \left(p'\right) \left( \frac{1-p'}{p'} \right)$ for $p \in (0,1)$.
+$\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse Mills ratio in \citealt{heckman1979sample}), or treated as non-parametric parameters to be estimated --- at cost of the constant and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$, see \aref{appendix:semi-parametric}.
 
 \subsection{Control Function (CF) Identification of the ADE and AIE}
 \label{appendix:cf-ade-aie}
@@ -610,6 +610,8 @@ Collecting for the AIE,
 It is difficult to directly use the CFs to compose estimates of the complier adjustment term, because various intercepts lose identification, but also because trusting semi-parametric estimates at individual points across the $\hat\lambda_0(p'), \hat\lambda_1(p')$ functions would increase variation more than is necessary.
 
 This can be avoided by noting the relation between the ATE and the conditional ADE and conditional AIE.
+The following showing how to identify the AIE via relation to the ATE and conditional ADE, and omits the conditional on $\vec X_i$ for brevity. 
+
 A simple algebraic rearrangement has the following (as first noted in \citealt[Section~3.1]{imai2010causal}),
 \begin{align*}
     \text{ATE} &= \E{Y_i(1, D_i(1)) - Y_i(1, D_i(1))} \\
@@ -626,7 +628,20 @@ A similar re-arrangement also has the following,
         \text{AIE conditional on } Z_i = 1}
     + \underbrace{\Egiven{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{ Z_i = 0}}_{
         \text{ADE conditional on } Z_i = 0}. \]
-Now exploit a definition of the AIE,
+
+Reverting to the regression notation, to show how the ADE conditional on $Z_i$ is identified:
+\begin{align*}
+    \text{ADE} &= \E{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))} \\
+        &= \E{ \gamma + \delta D_i(Z_i) } \\
+    \implies \text{ADE conditional on } Z_i = 0
+        &= \Egiven{ \gamma + \delta D_i(Z_i) }{Z_i = 0} \\
+        &= \E{ \gamma + \delta D_i(0) } \\
+    \text{and ADE conditional on } Z_i = 1
+        &= \Egiven{ \gamma + \delta D_i(Z_i) }{Z_i = 1} \\
+        &= \E{ \gamma + \delta D_i(1) }.
+\end{align*}
+
+Finally achieve identification of the AIE via the ATE and conditional ADE, as follows,
 \begin{align*}
     \text{AIE}
     &= \Prob{Z_i = 0}
@@ -638,10 +653,66 @@ Now exploit a definition of the AIE,
     &= \Prob{Z_i = 0} \Big[
         \text{ATE} - (\text{ADE conditional on } Z_i = 1) \Big] \\
     &\;\;\;\;+ \Prob{Z_i = 1} \Big[
-        \text{ATE} - (\text{ADE conditional on } Z_i = 0) \Big].
+        \text{ATE} - (\text{ADE conditional on } Z_i = 0) \Big] \\
+    &= \text{ATE} - \Prob{Z_i = 0} \E{ \gamma + \delta D_i(1) }
+        - \Prob{Z_i = 1} \E{ \gamma + \delta D_i(0) }.
 \end{align*}
 
-The semi-parametric AIE estimate then uses this representation, avoiding directly interacting with the estimated CFs, by plugging in estimates $\hat{\Pr}(Z_i =1)$, $\hat{\text{ATE}}$, and $\hat{\text{ADE}}$ conditional on $Z_i =0,1$, respectively.
+The semi-parametric AIE estimate then uses this representation, avoiding directly interacting with the estimated CFs, by plugging in estimates $\hat{\Pr}(Z_i = 1) = \bar Z$, $\hat{\text{ATE}}$, and the estimates from each side of the $D_i =0,1$ separated samples $\hat\gamma, \hat\delta$.
+\[ \hat{\text{AIE}}^{\text{CF}}
+    = \hat{\text{ATE}}
+    - (1 - \bar Z) \, \left(\hat\gamma + \hat \delta
+        \,\frac{\sum_{i = 1}^N D_i (1 - Z_i)}{\sum_{i = 1}^N (1 - Z_i)} \right)
+    - \bar Z \, \left(\hat\gamma + \hat \delta
+        \,\frac{\sum_{i = 1}^N D_i Z_i}{\sum_{i = 1}^N Z_i} \right), \]
+where $\frac{\sum_{i = 1}^N D_i (1 - Z_i)}{\sum_{i = 1}^N (1 - Z_i)}$ estimates $\E{D_i(0)}$, and $\frac{\sum_{i = 1}^N D_i Z_i}{\sum_{i = 1}^N Z_i}$ estimates $\E{D_i(1)}$.
+Everything involved is a standard point estimate, so their composition will converge to a normal distribution, too.
+Standard error computation can be achieved by a bootstrap procedure.
+
+%The AIE conditional on $Z_i = 0$ is related to AIE conditional on $D_i = 0$ in the following manner, because $Z_i = D_i$ and is thus ignorable among $D_i(Z_i)$ compliers.
+%\begin{align*}
+%    &\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 0}\\
+%    &= \Probgiven{D_i(0) = 0, D_i(1) = 1}{Z_i = 0}
+%        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{ Z_i = 0, D_i(0) = 0, D_i(1) = 1} \\
+%    &= \Prob{D_i(0) = 0, D_i(1) = 1}
+%    \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{ D_i = 0, D_i(0) = 0, D_i(1) = 1} \\
+%    &= \frac{\Prob{D_i(0) = 0, D_i(1) = 1}}{
+%        \Probgiven{D_i(0) = 0, D_i(1) = 1}{D_i = 0}}
+%        \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ D_i = 0 } \\
+%    &= \frac{1}{\Prob{D_i = 0}}
+%        \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ D_i = 0 }
+%\end{align*}
+%And similarly, for the relation between AIE conditional on $Z_i = 1$ and AIE conditional on $D_i = 1$,
+%\begin{align*}
+%    &\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 1} \\
+%    &= \frac{1}{\Prob{D_i = 1}}
+%        \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ D_i = 1 }.
+%\end{align*}
+
+%The ADE conditional on $Z_i = 1$ can be identified relative to the ADE conditional on $D_i$.
+%\begin{align*}
+%    &\Egiven{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{ Z_i = 1} \\
+%    &= \Probgiven{D_i = 1}{Z_i = 1} 
+%        \Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{Z_i =1, D_i = 1} \\
+%    &\;\;\;\;+ \Probgiven{D_i = 0}{Z_i = 1} 
+%        \Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{Z_i =1, D_i = 0} \\
+%    &= \Probgiven{D_i = 1}{Z_i = 1} 
+%        \underbrace{\Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{D_i = 1}}_{
+%            \text{ADE conditional on } D_i = 1} \\
+%    &\;\;\;\;+ \Probgiven{D_i = 0}{Z_i = 1} 
+%        \underbrace{\Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{D_i = 0}}_{
+%            \text{ADE conditional on } D_i = 0}.
+%\end{align*}
+%And similarly for the ADE conditional on $Z_i = 0$,
+%\begin{align*}
+%    &\Egiven{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{ Z_i = 0} \\
+%    &= \Probgiven{D_i = 1}{Z_i = 0}
+%        \underbrace{\Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{D_i = 1}}_{
+%            \text{ADE conditional on } D_i = 1} \\
+%    &\;\;\;\;+ \Probgiven{D_i = 0}{Z_i = 0}
+%        \underbrace{\Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{D_i = 0}}_{
+%            \text{ADE conditional on } D_i = 0}.
+%\end{align*}
 
 \subsection{Implementation and Further Simulation Evidence}
 \label{appendix:implement}
