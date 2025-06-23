@@ -324,8 +324,8 @@ mediate.semiparametric <- function(example.data){
         example.data$D[example.data$Z == 0])
     ade_Z1.est <- gammma.est + delta.est * mean(
         example.data$D[example.data$Z == 1])
-    aie.est <- totaleffect.est - mean(
-        (1 - example.data$Z) * ade_Z1.est + example.data$Z * ade_Z0.est)
+    aie.est <- (totaleffect.est - mean(1 - example.data$Z) * ade_Z1.est
+        + mean(example.data$Z) * ade_Z0.est)
     # Return the estimates.
     output.list <- list(
         "first-stage"     = pi.bar,

@@ -111,9 +111,9 @@ $\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\
 \[ \hat{\text{AIE}}^{\text{CF}}
     = \hat{\text{ATE}}
     - (1 - \bar Z) \, \left(\hat\gamma + \hat \delta
-        \,\frac{\sum_{i = 1}^N D_i (1 - Z_i)}{\sum_{i = 1}^N (1 - Z_i)} \right)
+        \,\frac{\sum_{i = 1}^N D_i Z_i}{\sum_{i = 1}^N Z_i} \right)
     - \bar Z \, \left(\hat\gamma + \hat \delta
-        \,\frac{\sum_{i = 1}^N D_i Z_i}{\sum_{i = 1}^N Z_i} \right). \]
+        \,\frac{\sum_{i = 1}^N D_i (1 - Z_i)}{\sum_{i = 1}^N (1 - Z_i)} \right). \]
 % \aref{appendix:implement} describes in further detail the implementation of this approach in the R language \citep{R2023}, with a \cite{klein1993efficient} first-stage and splines in the second-stage CF estimation.
 
 This semi-parametric approach achieves valid estimation of the CM effects, without specifying the distribution behind unobserved error terms, and achieves desirable properties as long as the first-stage correctly estimates the mediator propensity score, and the structural assumptions hold true.

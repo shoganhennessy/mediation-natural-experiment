@@ -662,9 +662,9 @@ The semi-parametric AIE estimate then uses this representation, avoiding directl
 \[ \hat{\text{AIE}}^{\text{CF}}
     = \hat{\text{ATE}}
     - (1 - \bar Z) \, \left(\hat\gamma + \hat \delta
-        \,\frac{\sum_{i = 1}^N D_i (1 - Z_i)}{\sum_{i = 1}^N (1 - Z_i)} \right)
+        \,\frac{\sum_{i = 1}^N D_i Z_i}{\sum_{i = 1}^N Z_i} \right)
     - \bar Z \, \left(\hat\gamma + \hat \delta
-        \,\frac{\sum_{i = 1}^N D_i Z_i}{\sum_{i = 1}^N Z_i} \right), \]
+        \,\frac{\sum_{i = 1}^N D_i (1 - Z_i)}{\sum_{i = 1}^N (1 - Z_i)} \right), \]
 where $\frac{\sum_{i = 1}^N D_i (1 - Z_i)}{\sum_{i = 1}^N (1 - Z_i)}$ estimates $\E{D_i(0)}$, and $\frac{\sum_{i = 1}^N D_i Z_i}{\sum_{i = 1}^N Z_i}$ estimates $\E{D_i(1)}$.
 Everything involved is a standard point estimate, so their composition will converge to a normal distribution, too.
 Standard error computation can be achieved by a bootstrap procedure.
