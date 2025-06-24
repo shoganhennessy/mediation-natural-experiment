@@ -1,7 +1,7 @@
 #!/usr/bin/R
 ## Senan Hogan-Hennessy, 6 May 2025
 ## Identifying ADE + AIE with a (semi-)parametric control function
-## see Hogan-Hennessy (2025), Section 5.
+## see Hogan-Hennessy (2025), Estimation section.
 
 # Show the date:
 print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
@@ -324,8 +324,8 @@ mediate.semiparametric <- function(example.data){
         example.data$D[example.data$Z == 0])
     ade_Z1.est <- gammma.est + delta.est * mean(
         example.data$D[example.data$Z == 1])
-    aie.est <- (totaleffect.est - mean(1 - example.data$Z) * ade_Z1.est
-        + mean(example.data$Z) * ade_Z0.est)
+    aie.est <- (totaleffect.est - mean(
+        (1 - example.data$Z) * ade_Z1.est + (example.data$Z) * ade_Z0.est))
     # Return the estimates.
     output.list <- list(
         "first-stage"     = pi.bar,

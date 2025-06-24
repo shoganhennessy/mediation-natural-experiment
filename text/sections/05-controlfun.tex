@@ -18,14 +18,16 @@ The Heckman selection model assumes unobserved errors $V_i$ follow a normal dist
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
     = \Phi \big( \theta + \bar\pi Z_i + \vec\zeta' \vec X_i \big), \]
 where $\Phi(.)$ is the cumulative density function for the standard normal distribution, and $\theta, \bar\pi, \vec\zeta$ are parameters estimated with maximum likelihood.
+In the parametric case, an excluded instrument ($\vec X_i^{\text{IV}}$) is not technically necessary in the first-stage equation --- though not including one exposes the method to indeterminacy if the errors are not normally distributed.
+Thus, it is best practice to use this method with access to an instrument.
 
-From this probit first-stage, we construct an estimate of the inverse Mills ratio terms to serve as the CFs.
+From this probit first-stage, construct an estimate of the inverse Mills ratio terms to serve as the CFs.
 These terms capture the correlation between unobserved factors influencing both mediator selection and outcomes, when the errors are normally distributed.
 \[ \lambda_0(p') = - \frac{\phi(p')}{\Phi(p')}, \;\;\;\;
 \lambda_1(p') = \frac{\phi(p')}{\Phi(p')}, \;\;\;\; \text{ for } p' \in (0,1) \]
 where $\phi(.)$ is the probability density function for the standard normal distribution.
 
-Lastly, the second-stage is estimated with OLS, including the estimated CFs.
+Lastly, the second-stage is estimated with OLS, including the CFs with plug in estimates of the mediator propensity score.
 \begin{align*}
     \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
         \alpha
@@ -47,7 +49,7 @@ The resulting ADE and AIE estimates are composed from sample estimates of the te
         \hat{\beta} + \hat{\delta}\,\bar Z
         + \big(\hat \rho_1 - \hat \rho_0 \big)
         \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i)\big) \Big) \]
-where $\bar D = \frac1N \sum_{i=1}^N D_i$, $\bar Z = \frac1N \sum_{i=1}^N Z_i$, and $\Gamma(.,.)$ is the mean estimate of the complier adjustment term as a function of $\lambda_1$.
+where $\bar D = \frac1N \sum_{i=1}^N D_i$, $\bar Z = \frac1N \sum_{i=1}^N Z_i$, and $\Gamma(.,.)$ is the the average of the complier adjustment term as a function of $\lambda_1$ with $\hat\pi \big(0; \vec X_i \big), \hat\pi \big(1; \vec X_i \big)$ values plugged in.
 
 The standard errors for estimates can be computed using the delta method.
 Specifically, accounting for both the sampling variability in the first-stage estimates of the mediator propensity score as well as the second-stage sampling variability.
@@ -105,15 +107,15 @@ As such, it is not possible to directly use $\hat \lambda_0, \hat \lambda_1$ in 
 
 Theses problem can be avoided by estimating the AIE using its relation to the ATE.
 Write $\hat{\text{ATE}}$ for the point-estimate of the ATE, and 
-$\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\gamma$, to give the following representation,\footnote{
-    \aref{appendix:semi-parametric} describes the reasoning for this estimator of the AIE, relative to estimates of the ATE and AIE, in further detail.
-}
+$\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\gamma$, to give the following representation,
 \[ \hat{\text{AIE}}^{\text{CF}}
     = \hat{\text{ATE}}
-    - (1 - \bar Z) \, \left(\hat\gamma + \hat \delta
-        \,\frac{\sum_{i = 1}^N D_i Z_i}{\sum_{i = 1}^N Z_i} \right)
-    - \bar Z \, \left(\hat\gamma + \hat \delta
-        \,\frac{\sum_{i = 1}^N D_i (1 - Z_i)}{\sum_{i = 1}^N (1 - Z_i)} \right). \]
+    - (1 - \bar Z) \, \left( \hat\gamma +
+        \frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(1; \vec X_i) \right)
+    - \bar Z \, \left(\hat\gamma +
+        \frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
+where $\frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(0)}$, and $\frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(1)}$.
+\aref{appendix:semi-parametric} describes the reasoning for this estimator of the AIE, relative to estimates of the ATE and AIE, in further detail.
 % \aref{appendix:implement} describes in further detail the implementation of this approach in the R language \citep{R2023}, with a \cite{klein1993efficient} first-stage and splines in the second-stage CF estimation.
 
 This semi-parametric approach achieves valid estimation of the CM effects, without specifying the distribution behind unobserved error terms, and achieves desirable properties as long as the first-stage correctly estimates the mediator propensity score, and the structural assumptions hold true.
