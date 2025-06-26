@@ -19,15 +19,15 @@ Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu
 or raised as an issue on the Github project,
 \url{https://github.com/shoganhennessy/mediation-natural-experiment}.
 
-%\subsection{Previous Literature}
-%\label{appendix:mediation-review}
-%
-%Create a table in this section that surveys previous research which employs mediation methods while having a clear causal design for $Z_i$, but not $D_i$.
-%
-%\begin{tabular}{l l l l l}
-%    Paper & Field & Research Design for $Z_i$ & Research Design for $D_i$ & Selection bias? \\ \hline
-%    Paper name 1.    
-%\end{tabular}
+\subsection{Previous Literature}
+\label{appendix:mediation-review}
+
+Create a table in this section that surveys previous research which employs mediation methods while having a clear causal design for $Z_i$, but not $D_i$.
+
+\begin{tabular}{l l l l l}
+    Paper & Field & Research Design for $Z_i$ & Research Design for $D_i$ & Selection bias? \\ \hline
+    Paper name 1.    
+\end{tabular}
 
 
 \subsection{Identification in Causal Mediation}
@@ -612,7 +612,7 @@ It is difficult to directly use the CFs to compose estimates of the complier adj
 This can be avoided by noting the relation between the ATE and the conditional ADE and conditional AIE.
 The following showing how to identify the AIE via relation to the ATE and conditional ADE, and omits the conditional on $\vec X_i$ for brevity. 
 
-A simple algebraic rearrangement has the following (as first noted in \citealt[Section~3.1]{imai2010causal}),
+A simple algebraic rearrangement has the following (as first noted in \citealt[Section~3.1]{imai2010identification}),
 \begin{align*}
     \text{ATE} &= \E{Y_i(1, D_i(1)) - Y_i(1, D_i(1))} \\
     &= \E{ Y_i(1, D_i(1)) - Y_i(0, D_i(1))}
