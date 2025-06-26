@@ -157,7 +157,7 @@ This proof starts with the relevant expectations, conditional on a specific valu
         \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i}
 \end{align*}
 When $D_i$ is not ignorable, the bias comes from estimating the second term,
-\\ $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i}$, the direct effect among mediator compliers.
+\\ $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i}$, the indirect effect among mediator compliers.
 
 Let $z' \in \{ 0, 1 \}$.
 Again, note the mean outcomes in terms of average potential outcomes,
@@ -167,13 +167,13 @@ Again, note the mean outcomes in terms of average potential outcomes,
     \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i}
     =& \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i}.
 \end{align*}
-So compose the selection bias term, as follows.
+Compose the selection bias term, as follows.
 \begin{align*}
     & \Egiven{Y_i}{Z_i = z', D_i = 1, \vec X_i}
     - \Egiven{Y_i}{Z_i = z', D_i = 0, \vec X_i} \\
-    =& \Egiven{Y_i(z', 1)}{D_i = 1, \vec X_i}
+    &= \Egiven{Y_i(z', 1)}{D_i = 1, \vec X_i}
         - \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i} \\
-    =& \Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 1, \vec X_i}
+    &= \Egiven{Y_i(z', 1) - Y_i(z', 0)}{D_i = 1, \vec X_i}
     + \Egiven{Y_i(z', 0)}{D_i = 1, \vec X_i} - \Egiven{Y_i(z', 0)}{D_i = 0, \vec X_i}
 \end{align*}
 The final term is a sum of the AIE, among the treated group $D_i = 1$, and a selection bias term --- difference in baseline potential outcomes between the groups for whom $D_i = 1$ and $D_i = 0$.

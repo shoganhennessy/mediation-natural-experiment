@@ -72,7 +72,11 @@
 
 @comment{% Roy Model for selection into treatment based on treatment gains}
 
-@comment{% Conference commenting on IV}
+@comment{% Semi-parametric generalisation of probit/logit}
+
+@comment{% Non-parametric code for E[outcome | predictor], wth root-n consistency.}
+
+@comment{% Semi-parametric splines in R}
 
 @comment{% Robins g-computation}
 
@@ -194,6 +198,17 @@
  title = {Empirical strategies in economics: Illuminating the path from cause to effect},
  volume = {90},
  year = {2022}
+}
+
+@article{athey2019generalized,
+ author = {Athey, Susan and Tibshirani, Julie and Wager, Stefan},
+ journal = {The Annals of Statistics},
+ note = {\url{https://doi.org/10.1214/18-aos1709}},
+ number = {2},
+ pages = {1148--1178},
+ title = {Generalized random forests},
+ volume = {47},
+ year = {2019}
 }
 
 @article{bia2024double,
@@ -383,6 +398,16 @@
  year = {2017}
 }
 
+@misc{garg2025causalclaimseconomics,
+ archiveprefix = {arXiv},
+ author = {Prashant Garg and Thiemo Fetzer},
+ eprint = {2501.06873},
+ primaryclass = {econ.GN},
+ title = {Causal Claims in Economics},
+ url = {https://doi.org/10.48550/arXiv.2501.06873},
+ year = {2025}
+}
+
 @article{heckman1974shadow,
  author = {Heckman, James},
  journal = {Econometrica: journal of the econometric society},
@@ -563,15 +588,6 @@
  year = {1994}
 }
 
-@inproceedings{imbens2001some,
- author = {Imbens, Guido W},
- booktitle = {Econometric Evaluation of Labour Market Policies},
- organization = {Springer},
- pages = {17--42},
- title = {Some remarks on instrumental variables},
- year = {2001}
-}
-
 @article{imbens2007nonadditive,
  author = {Imbens, Guido W},
  journal = {Econometric Society Monographs},
@@ -624,6 +640,16 @@
  title = {A test for instrument validity},
  volume = {83},
  year = {2015}
+}
+
+@article{klein1993efficient,
+ author = {Klein, Roger W and Spady, Richard H},
+ journal = {Econometrica},
+ note = {\url{https://doi.org/10.2307/2951556}},
+ pages = {387--421},
+ publisher = {JSTOR},
+ title = {An efficient semiparametric estimator for binary response models},
+ year = {1993}
 }
 
 @article{kline2019heckits,
@@ -708,6 +734,7 @@
 @article{pearl2003direct,
  author = {Judea Pearl},
  journal = {CoRR},
+ note = {\url{https://doi.org/10.1145/3501714.3501736}},
  title = {Direct and Indirect Effects},
  url = {http://arxiv.org/abs/1301.2300},
  volume = {abs/1301.2300},
@@ -715,12 +742,12 @@
 }
 
 @manual{R2023,
- title = {R: A Language and Environment for Statistical Computing},
- author = {{R Core Team}},
- organization = {R Foundation for Statistical Computing},
  address = {Vienna, Austria},
- year = {2025},
- note = {\url{https://www.R-project.org/}}
+ author = {{R Core Team}},
+ note = {\url{https://www.R-project.org/}},
+ organization = {R Foundation for Statistical Computing},
+ title = {R: A Language and Environment for Statistical Computing},
+ year = {2025}
 }
 
 @article{robins1986g,
@@ -770,9 +797,10 @@
 }
 
 @article{sanchezbecerra2023robust,
- journal = {ArXiv preprint},
  author = {Alejandro Sanchez-Becerra},
  eprint = {2306.03363},
+ journal = {ArXiv preprint},
+ note = {\url{https://doi.org/10.2139/ssrn.4910058}},
  primaryclass = {econ.EM},
  title = {Robust inference for the treatment effect variance in experiments using machine learning},
  year = {2023}
@@ -849,6 +877,16 @@
  title = {Shape-Restricted Regression Splines with R Package splines2.},
  volume = {19},
  year = {2021}
+}
+
+@article{wood2016mgcv,
+ author = {S.N. Wood and {N.} and {Pya} and B. S{"a}fken},
+ journal = {Journal of the American Statistical Association},
+ note = {\url{https://doi.org/10.1080/01621459.2016.1180986}},
+ pages = {1548-1575},
+ title = {Smoothing parameter and model selection for general smooth models (with discussion)},
+ volume = {111},
+ year = {2016}
 }
 
 @article{wooldridge2015control,

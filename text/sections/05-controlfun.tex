@@ -49,7 +49,7 @@ The resulting ADE and AIE estimates are composed from sample estimates of the te
         \hat{\beta} + \hat{\delta}\,\bar Z
         + \big(\hat \rho_1 - \hat \rho_0 \big)
         \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i)\big) \Big) \]
-where $\bar D = \frac1N \sum_{i=1}^N D_i$, $\bar Z = \frac1N \sum_{i=1}^N Z_i$, and $\Gamma(.,.)$ is the the average of the complier adjustment term as a function of $\lambda_1$ with $\hat\pi \big(0; \vec X_i \big), \hat\pi \big(1; \vec X_i \big)$ values plugged in.
+where $\bar D = \frac1N \sum_{i=1}^N D_i$, $\bar Z = \frac1N \sum_{i=1}^N Z_i$, and $\Gamma(.,.)$ is the average of the complier adjustment term as a function of $\lambda_1$ with $\hat\pi \big(0; \vec X_i \big), \hat\pi \big(1; \vec X_i \big)$ values plugged in.
 
 The standard errors for estimates can be computed using the delta method.
 Specifically, accounting for both the sampling variability in the first-stage estimates of the mediator propensity score as well as the second-stage sampling variability.
@@ -101,20 +101,20 @@ Take $\hat \gamma$, the $D_i = 0$ subsample estimate of $\gamma$, and $(\hat{\ga
     = (1 - \bar D) \, \hat \gamma + \bar D \, (\hat{\gamma + \delta}). \]
 
 The AIE is less simple, for two reasons that differ from the parametric CF setting.
-First, the the intercepts for each subsample, $\alpha$ and $(\alpha + \beta)$ are not separately identified from the CFs if the $\lambda_0, \lambda_1$ functions are flexibly estimated.
+First, the intercepts for each subsample, $\alpha$ and $(\alpha + \beta)$, are not separately identified from the CFs if the $\lambda_0, \lambda_1$ functions are flexibly estimated.
 Second, a semi-parametric specification for the CFs mean $\rho_0$ and $\lambda_0$ are no longer separately identified from each other (and same for $\rho_1,\lambda_1$).
 As such, it is not possible to directly use $\hat \lambda_0, \hat \lambda_1$ in estimating the complier adjustment term (as is done in the parametric case).
 
 Theses problem can be avoided by estimating the AIE using its relation to the ATE.
 Write $\hat{\text{ATE}}$ for the point-estimate of the ATE, and 
-$\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\gamma$, to give the following representation,
+$\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\delta$, to give the following representation,
 \[ \hat{\text{AIE}}^{\text{CF}}
     = \hat{\text{ATE}}
-    - (1 - \bar Z) \, \left( \hat\gamma +
-        \frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(1; \vec X_i) \right)
-    - \bar Z \, \left(\hat\gamma +
-        \frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
-where $\frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(0)}$, and $\frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(1)}$.
+    - (1 - \bar Z) \, \left( 
+        \frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i) \right)
+    - \bar Z \, \left(
+        \frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
+where $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 0$, $\E{\gamma + \delta D_i(0)}$, and $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 1$, $\E{\gamma + \delta D_i(1)}$.
 \aref{appendix:semi-parametric} describes the reasoning for this estimator of the AIE, relative to estimates of the ATE and AIE, in further detail.
 % \aref{appendix:implement} describes in further detail the implementation of this approach in the R language \citep{R2023}, with a \cite{klein1993efficient} first-stage and splines in the second-stage CF estimation.
 
