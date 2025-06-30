@@ -163,9 +163,9 @@ The ADE is straightforward to calculate as an average of the direct effect param
 Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
 The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
 
-This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{heckman2005structural}) applied to a CM setting.
+This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{bjorklund1987estimation,heckman2005structural}) applied to a CM setting.
 Just as the semi-parametric local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
-This connection to MTEs provides a conceptual bridge between the literature on IV structural causal effects and CM.
+This connection to MTEs provides a conceptual bridge between the literature on structural IV for causal effects and CM.
 
 \begin{figure}[h!]
     \caption{The CF Adjustment Addresses Persistent Bias in Conventional CM Estimates.}
@@ -183,7 +183,7 @@ This connection to MTEs provides a conceptual bridge between the literature on I
     \end{subfigure}
     \label{fig:cm-normal-dist}
     \justify
-    \footnotesize    
+    \footnotesize
     \textbf{Note:}
     These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with normally distributed error terms (with both correlation and heteroscedasticity, further described in \autoref{sec:simulations}).
     The black dashed line is the true value;

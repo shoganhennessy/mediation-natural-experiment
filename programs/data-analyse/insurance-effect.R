@@ -7,6 +7,8 @@ set.seed(47)
 ## Packages:
 # functions for data manipulation and visualisation
 library(tidyverse)
+# Functions for bootstrapping.
+library(boot)
 
 # Define folder paths (1) input data (2) clean data.
 data.folder <- file.path("..", "..", "data", "oregon-lottery-icspr")
@@ -19,10 +21,11 @@ fig.height <- (2 / 3) * fig.width
 presentation.width <- 15
 presentation.height <- (2 / 3) * presentation.width
 # List of 3 default colours.
-colour.list <- c("orange", "blue")
-    #"#1f77b4", # Blue
-    #"#2ca02c", # Green
-    #"#d62728") # Red
+colour.list <- c(
+    "#1f77b4", # Blue
+    "#2ca02c", # Green
+    "#d62728") # Red
+
 
 ################################################################################
 ## Load the Oregon Health Insurance Experiment replication data.
@@ -31,6 +34,7 @@ colour.list <- c("orange", "blue")
 oregon.data <- data.folder %>%
     file.path("cleaned-oregon-data.csv") %>%
     read_csv()
+
 
 ################################################################################
 ## Validate the lottery encouragement instrument for having health insurance.
@@ -52,71 +56,120 @@ print(summary(iv_prop.reg))
 
 
 ################################################################################
-## Create a figure showing the happinness + subjective health effects.
+## Create a figure showing the happiness + subjective health effects.
 
 ## Get relevant data.
 analysis.data <- oregon.data %>%
-    select(health_level_survey, happiness_level_survey, lottery_iv,
-        any_insurance, health_needs_met,
-        any_doc_visits, any_hospital_visits, hh_size) %>%
+    select(health_level_survey,
+        happiness_level_survey,
+        lottery_iv,
+        any_insurance,
+        any_doc_visits,
+        any_hospital_visits,
+        hh_size) %>%
     drop_na()
 
-#! Test: bootstrap
-#analysis.data <- analysis.data %>%
-#    sample_frac(replace = TRUE)
-
 # Health survey outcome -> Overall health is good or better (2 is fair, 1 is poor).
-Y_health <- as.integer(analysis.data$health_level_survey >= 3)
+analysis.data$Y_health <- as.integer(analysis.data$health_level_survey >= 3)
 # Happiness outcome -> very or pretty overall happiness (1 == not happy)
-Y_happy <- as.integer(analysis.data$happiness_level_survey <= 2)
+analysis.data$Y_happy <- as.integer(analysis.data$happiness_level_survey <= 2)
 # Lottery instrument for health insurance.
 Z_iv <- analysis.data$lottery_iv
+analysis.data$hh_size <- factor(analysis.data$hh_size)
 # Treatment -> have any health insurance insurance.
 Z <- analysis.data$any_insurance
-# Mediator -> health_needs_met
-D <- analysis.data$health_needs_met
-#! Test: DOctor visits
-D <- as.integer((analysis.data$any_doc_visits +
-    analysis.data$any_hospital_visits) > 0)
+# Mediator -> any visits to the doctor or 
+analysis.data$any_healthcare <- as.integer(
+    (analysis.data$any_doc_visits + analysis.data$any_hospital_visits) > 0)
 
-## Use the Abadie (2003) kappa weights to get E[ Y(d') | lottery complier ]
-est_probZ_iv <- glm(Z_iv ~ 1 + factor(analysis.data$hh_size))
-hat_probZ_iv <- est_probZ_iv$fitted
-kappa_1 <- Z * ((Z_iv - hat_probZ_iv) / ((1 - hat_probZ_iv) * hat_probZ_iv))
-kappa_0 <- (1 - Z) * (((1 - Z_iv) - (1 - hat_probZ_iv)) / ((1 - hat_probZ_iv) * hat_probZ_iv))
-kappa <- kappa_0 * (1 - hat_probZ_iv) + kappa_1 * hat_probZ_iv
+## Use the Abadie (2003) kappa weights to get E[ Y(z') | lottery complier ]
+abadie.late <- function(data, outcome, Z, Z_iv, control_iv, indices = NULL){
+    # Bootstrap sample, if indices provided.
+    if (!is.null(indices)){
+        data <- data[indices,]
+    }
+    # Get the relevant variables.
+    outcome <- data[[outcome]]
+    Z <- data[[Z]]
+    Z_iv <- data[[Z_iv]]
+    control_iv <- data[[control_iv]]
+    # Estimate the kappa weighting
+    est_probZ_iv <- glm(Z_iv ~ 1 + control_iv)
+    hat_probZ_iv <- est_probZ_iv$fitted
+    kappa_0 <- (1 - Z) * (((1 - Z_iv) - (1 - hat_probZ_iv)) / 
+        ((1 - hat_probZ_iv) * hat_probZ_iv))
+    kappa_1 <- Z * ((Z_iv - hat_probZ_iv) / (
+        (1 - hat_probZ_iv) * hat_probZ_iv))
+    kappa <- kappa_0 * (1 - hat_probZ_iv) + kappa_1 * hat_probZ_iv
+    # Calculate the complier levels for z' = 0, 1, and resulting effect.
+    outcome_0_complier      <- mean(kappa_0 * outcome) / mean(kappa_0)
+    outcome_1_complier      <- mean(kappa_1 * outcome) / mean(kappa_1)
+    outcome_effect_complier <- outcome_1_complier - outcome_0_complier
+    return(c(outcome_0_complier, outcome_1_complier, outcome_effect_complier))
+}
 
-## Estimate mean outcomes among (un)insured lottery compliers.
+
+## Estimate mean outcomes among (un)insured lottery compliers, with boot SEs
+boot.samples <- 10^3
 # Health insurance effect of the lottery (among entire population).
-Z_0_complier      <- mean(Z[Z_iv == 0])
-Z_1_complier      <- mean(Z[Z_iv == 1])
-Z_effect_complier <- Z_1_complier - Z_0_complier
-print(Z_effect_complier)
-# Health needs met?
-D_0_complier      <- mean(kappa_0 * D) / mean(kappa_0)
-D_1_complier      <- mean(kappa_1 * D) / mean(kappa_1)
-D_effect_complier <- D_1_complier - D_0_complier
-print(D_effect_complier)
+Z.late <- boot(statistic = abadie.late, R = boot.samples,
+    data = analysis.data,
+    outcome = "any_insurance", Z = "lottery_iv",
+    Z_iv = "lottery_iv", control_iv = "hh_size")
+Z_0_complier      <- mean(Z.late$t[, 1])
+Z_1_complier      <- mean(Z.late$t[, 2])
+Z_effect_complier <- mean(Z.late$t[, 3])
+Z_0_complier.se      <- sd(Z.late$t[, 1])
+Z_1_complier.se      <- sd(Z.late$t[, 2])
+Z_effect_complier.se <- sd(Z.late$t[, 3])
+print(c(Z_effect_complier, Z_effect_complier.se))
+# Mediator: healthcare utilisation.
+D.late <- boot(statistic = abadie.late, R = boot.samples,
+    data = analysis.data,
+    outcome = "any_healthcare", Z = "any_insurance",
+    Z_iv = "lottery_iv", control_iv = "hh_size")
+D_0_complier      <- mean(D.late$t[, 1])
+D_1_complier      <- mean(D.late$t[, 2])
+D_effect_complier <- mean(D.late$t[, 3])
+D_0_complier.se      <- sd(D.late$t[, 1])
+D_1_complier.se      <- sd(D.late$t[, 2])
+D_effect_complier.se <- sd(D.late$t[, 3])
+print(c(D_effect_complier, D_effect_complier.se))
 # Health overall good?
-Y_health_0_complier      <- mean(kappa_0 * Y_health) / mean(kappa_0)
-Y_health_1_complier      <- mean(kappa_1 * Y_health) / mean(kappa_1)
-Y_health_effect_complier <- Y_health_1_complier - Y_health_0_complier
-print(Y_health_effect_complier)
+Y_health.late <- boot(statistic = abadie.late, R = boot.samples,
+    data = analysis.data,
+    outcome = "Y_health", Z = "any_insurance",
+    Z_iv = "lottery_iv", control_iv = "hh_size")
+Y_health_0_complier      <- mean(Y_health.late$t[, 1])
+Y_health_1_complier      <- mean(Y_health.late$t[, 2])
+Y_health_effect_complier <- mean(Y_health.late$t[, 3])
+Y_health_0_complier.se      <- sd(Y_health.late$t[, 1])
+Y_health_1_complier.se      <- sd(Y_health.late$t[, 2])
+Y_health_effect_complier.se <- sd(Y_health.late$t[, 3])
+print(c(Y_health_effect_complier, Y_health_effect_complier.se))
 # Happy overall?
-Y_happy_0_complier      <- mean(kappa_0 * Y_happy) / mean(kappa_0)
-Y_happy_1_complier      <- mean(kappa_1 * Y_happy) / mean(kappa_1)
-Y_happy_effect_complier <- Y_happy_1_complier - Y_happy_0_complier
-print(Y_happy_effect_complier)
+Y_happy.late <- boot(statistic = abadie.late, R = boot.samples,
+    data = analysis.data,
+    outcome = "Y_happy", Z = "any_insurance",
+    Z_iv = "lottery_iv", control_iv = "hh_size")
+Y_happy_0_complier      <- mean(Y_happy.late$t[, 1])
+Y_happy_1_complier      <- mean(Y_happy.late$t[, 2])
+Y_happy_effect_complier <- mean(Y_happy.late$t[, 3])
+Y_happy_0_complier.se      <- sd(Y_happy.late$t[, 1])
+Y_happy_1_complier.se      <- sd(Y_happy.late$t[, 2])
+Y_happy_effect_complier.se <- sd(Y_happy.late$t[, 3])
+print(c(Y_happy_effect_complier, Y_happy_effect_complier.se))
 
 
 ################################################################################
 ## Bar chart of the health insurance effects
 
 # Name of the outcome variables (in order)
-outcome_name.list <- c("Health insured?",
-    "Survey: \nAny healthcare visits?",
-    "Survey: \nHealth overall good?",
-    "Survey: \nHappy overall?")
+outcome_name.list <- c(
+    "0               1\nHealth insured?",
+    "0               1\nAny healthcare visits?",
+    "0               1\nSurvey: \nHealth overall good?",
+    "0               1\nSurvey: \nHappy overall?")
 
 # Get a dataframe of the relevant effects.
 complier.data <- data.frame(
@@ -126,67 +179,40 @@ complier.data <- data.frame(
         D_0_complier, D_1_complier,
         Y_health_0_complier, Y_health_1_complier,
         Y_happy_0_complier, Y_happy_1_complier),
+    #ci_lower = c(
+    #    Z_0_lower, Z_1_lower,
+    #    D_0_lower, D_1_lower,
+    #    Y_health_0_lower, Y_health_1_lower, 
+    #    Y_happy_0_lower, Y_happy_1_lower),
+    #ci_upper = c(
+    #    Z_0_upper, Z_1_upper,
+    #    D_0_upper, D_1_upper,
+    #    Y_health_0_upper, Y_health_1_upper, 
+    #    Y_happy_0_upper, Y_happy_1_upper),
     outcome_name = c(
         rep(outcome_name.list[1], 2),
         rep(outcome_name.list[2], 2),
         rep(outcome_name.list[3], 2),
         rep(outcome_name.list[4], 2)))
 
-# Show a barchart of just the lottery effects.
-lottery.plot <- complier.data %>%
-    mutate(outcome_value =
-        ifelse(outcome_name != outcome_name.list[1], 0, outcome_value)) %>%
-    ggplot() +
-    geom_bar(aes(fill = Z_iv, x = outcome_name, y = outcome_value),
-        colour = 1, position = "dodge", stat = "identity") +
-    theme_bw() +
-    scale_x_discrete(name = "") +
-    scale_fill_manual("", values = colour.list) +
-    scale_y_continuous(expand = c(0, 0),
-        name = "",
-        limits = c(0, 1.025),
-        breaks = seq(0, 1, by = 0.1)) +
-    ggtitle("Mean Outcome") +
-    guides(fill = guide_legend(ncol = 2)) + 
-    theme(plot.title = element_text(size = rel(1), hjust = 0),
-        plot.title.position = "plot",
-        legend.position = c(0.9125, 1.05),
-        plot.margin = unit(c(0.5, 3, 0, 0), "mm")) +
-    # Add a caliper noting the lottery effects
-    ggbrace::stat_brace(
-        data = data.frame(x = c(0.6, 1.4), y = c(0.75, 0.85)), aes(x, y),
-        size = 1, colour = "black") +
-    annotate("text", x = 1, y = 0.94,
-        label = ("Lottery effect"),
-        size = 4, hjust = 0.5, vjust = 0) +
-    # Label the effect sizes.
-    annotate("text", x = 0.8, y = Z_0_complier + Z_effect_complier / 2,
-        label = paste0("+ ", round(100 * Z_effect_complier), "%"),
-        size = 4, hjust = 0.5, vjust = 0.5,
-        fontface = "bold", colour = colour.list[2])
-# Save this plot
-ggsave(file.path(presentation.folder, "lottery-effects.png"),
-    plot = lottery.plot,
-    units = "cm", width = presentation.width, height = presentation.height)
-
 # Full barchart
 complier.plot <- complier.data %>%
     ggplot() +
-    geom_bar(aes(fill = Z_iv, x = outcome_name, y = outcome_value),
+    geom_bar(aes(group = Z_iv,
+        fill = outcome_name, x = outcome_name, y = outcome_value),
         colour = 1, position = "dodge", stat = "identity") +
     theme_bw() +
     scale_x_discrete(name = "") +
-    scale_fill_manual("", values = colour.list) +
+    scale_fill_manual("", values = colour.list[c(3, 2, 1, 1)]) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
         limits = c(0, 1.025),
         breaks = seq(0, 1, by = 0.1)) +
     ggtitle("Mean Outcome") +
-    guides(fill = guide_legend(ncol = 2)) + 
-    theme(plot.title = element_text(size = rel(1), hjust = 0),
+    theme(legend.position = "none",
+        plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
-        legend.position = c(0.9125, 1.05),
-        plot.margin = unit(c(0.5, 3, 0, 0), "mm")) +
+        plot.margin = unit(c(0, 0, -2.5, 0), "mm")) +
     # Add a caliper noting the lottery effects
     ggbrace::stat_brace(
         data = data.frame(x = c(0.6, 1.4), y = c(0.75, 0.85)), aes(x, y),
@@ -203,21 +229,25 @@ complier.plot <- complier.data %>%
         size = 4, hjust = 1, vjust = 0) +
     # Label the effect sizes.
     annotate("text", x = 0.8, y = Z_0_complier + Z_effect_complier / 2,
-        label = paste0("+ ", round(100 * Z_effect_complier), "%"),
+        label = paste0("+ ", round(Z_effect_complier, 2),
+            "\n(", round(Z_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
-        fontface = "bold", colour = colour.list[2]) +
+        fontface = "bold", colour = colour.list[1]) +
     annotate("text", x = 1.8, y = D_0_complier + D_effect_complier / 2,
-        label = paste0("+ ", round(100 * D_effect_complier), "%"),
+        label = paste0("+ ", round(D_effect_complier, 2),
+            "\n(", round(D_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[2]) +
     annotate("text", x = 2.8, y = Y_happy_0_complier + Y_happy_effect_complier / 2,
-        label = paste0("+ ", round(100 * Y_happy_effect_complier), "%"),
+        label = paste0("+ ", round(Y_happy_effect_complier, 2),
+            "\n(", round(Y_happy_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
-        fontface = "bold", colour = colour.list[2]) +
+        fontface = "bold", colour = colour.list[3]) +
     annotate("text", x = 3.8, y = Y_health_0_complier + Y_health_effect_complier / 2,
-        label = paste0("+ ", round(100 * Y_health_effect_complier), "%"),
+        label = paste0("+ ", round(Y_health_effect_complier, 2),
+            "\n(", round(Y_health_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
-        fontface = "bold", colour = colour.list[2])
+        fontface = "bold", colour = colour.list[3])
 
 # Save this plot
 ggsave(file.path(presentation.folder, "insurance-effects.png"),
@@ -226,6 +256,14 @@ ggsave(file.path(presentation.folder, "insurance-effects.png"),
 ggsave(file.path(figures.folder, "insurance-effects.png"),
     plot = complier.plot,
     units = "cm", width = fig.width, height = fig.height)
+
+
+
+
+
+
+
+
 
 # Code from LARF package for estimating OLS with possibly negative kappa weights.
 X <- 1
