@@ -23,12 +23,12 @@ The main problem is that second-stage regression equation \eqref{eqn:parametric-
 The CF approach models the contaminating terms in \eqref{eqn:secondstage-reg}, avoiding the bias from omitting them in regression estimates.
 CF methods were first devised to correct for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem of the same form as \autoref{eqn:secondstage-reg} \citep{heckman1979sample}.
 The approach works in the following manner: (1) assume that the variable of interest follows a selection model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage; and (3) incorporate this information as control terms in the second-stage equation to adjust for selection-into-mediator.
-Identification in CF methods typically relies on either distributional assumptions on the unobserved error terms, or an exclusion restriction for Instrumental Variables (IVs) in the first-stage (or both).
+Identification in CF methods typically relies an external instrument or distributional assumptions; the identification strategy here focuses exclusively on the case that an instrument is available.
 By explicitly accounting for the information contained in the first-stage selection model, CF methods enable consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors \citep{florens2008identification}.
 
 In the example of analysing health gains from health insurance \citep{finkelstein2008oregon}, a CF approach addresses the unobserved confounding from underlying health conditions.
-It does so by assuming that unobserved selection-into-frequent health care usage is informative for underlying health conditions, assuming people with more severe underlying conditions visit the doctor more often than those without.
-Then it uses this information in the second-stage estimation of how much the effect goes through increased healthcare usage, estimating the ADE and AIE.
+It does so by assuming that unobserved selection-into-healthcare use is informative for underlying health conditions, assuming people with more severe underlying conditions visit the doctor more often than those without.
+Then it uses this information in the second-stage estimation of how much the effect goes through increased healthcare usage, estimating the ADE and AIE after controlling for this confounding.
 
 \subsection{Re-identification of Causal Mediation (CM) Effects}
 The following assumptions are sufficient to model the correlated error terms, identifying $\beta, \gamma, \delta$ in the second-stage regression \eqref{eqn:parametric-secondstage}, and thus both the ADE and AIE.
@@ -71,7 +71,7 @@ See \aref{appendix:cf-monotonicity} for a validation of the general \cite{vytlac
 \end{assumptionCF}
 \noindent
 Assumption \ref{cf:identification} is stating that unobserved selection in mediator take-up ($U_i$) informs second-stage confounding, when refusing or taking the mediator ($U_{0,i}$ and $U_{1,i}$).
-If there is confounding in $Y_i$, then it can be measured in $D_i$.
+If there is unobserved confounding in $Y_i$, then it can be measured in $D_i$.
 
 This is a strong assumption, and will not hold in all examples.
 If people had been deciding to take $D_i$ by a Roy model, then this assumption holds because $V_i = U_{C,i} - \big( U_{1,i} - U_{0,i} \big)$.
@@ -157,17 +157,7 @@ If we do not know what distribution class the errors follow, then $\lambda_0, \l
     Proof: see \aref{appendix:cf-ade-aie}.
 \end{theoremCF}
 
-This theorem provides a solution to the identification problem for CM effects when facing selection;
-rather than assuming away selection problems, it explicitly models them.
-The ADE is straightforward to calculate as an average of the direct effect parameters, while the AIE also includes an adjustment for unobserved complier gains to the mediator.
-Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
-The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
-
-This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{bjorklund1987estimation,heckman2005structural}) applied to a CM setting.
-Just as the semi-parametric local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
-This connection to MTEs provides a conceptual bridge between the literature on structural IV for causal effects and CM.
-
-\begin{figure}[h!]
+\begin{figure}[!h]
     \caption{The CF Adjustment Addresses Persistent Bias in Conventional CM Estimates.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
@@ -190,6 +180,16 @@ This connection to MTEs provides a conceptual bridge between the literature on s
     orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
     and blue estimates with a two-stage Heckman selection adjustment.
 \end{figure}
+
+This theorem provides a solution to the identification problem for CM effects when facing selection;
+rather than assuming away selection problems, it explicitly models them.
+The ADE is straightforward to calculate as an average of the direct effect parameters, while the AIE also includes an adjustment for unobserved complier gains to the mediator.
+Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
+The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
+
+This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{bjorklund1987estimation,heckman2005structural}) applied to a CM setting.
+Just as the local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
+This connection to MTEs provides a conceptual bridge between the literature on structural IV for causal effects and CM.
 
 In a simulation with Roy selection-into-mediator based on unobserved error terms, the CF adjustment pushes conventional CM estimates back to the true value. 
 \autoref{fig:cm-normal-dist} shows how a CF adjustment corrects unadjusted CM effect estimates.

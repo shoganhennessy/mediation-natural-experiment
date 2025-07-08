@@ -9,6 +9,11 @@ set.seed(47)
 library(tidyverse)
 # Functions for bootstrapping.
 library(boot)
+# Library for better colour choice.
+library(ggthemes)
+# Library for equations in plots
+library(latex2exp)
+
 
 # Define folder paths (1) input data (2) clean data.
 data.folder <- file.path("..", "..", "data", "oregon-lottery-icspr")
@@ -195,6 +200,12 @@ complier.data <- data.frame(
         rep(outcome_name.list[3], 2),
         rep(outcome_name.list[4], 2)))
 
+colour.list <- c(
+    "#1f77b4", # Blue
+    "#2ca02c", # Green
+    "#d62728") # Red
+
+
 # Full barchart
 complier.plot <- complier.data %>%
     ggplot() +
@@ -202,13 +213,13 @@ complier.plot <- complier.data %>%
         fill = outcome_name, x = outcome_name, y = outcome_value),
         colour = 1, position = "dodge", stat = "identity") +
     theme_bw() +
-    scale_x_discrete(name = "") +
-    scale_fill_manual("", values = colour.list[c(3, 2, 1, 1)]) +
+    scale_x_discrete(name = "", limits = outcome_name.list) +
+    scale_fill_manual("", values = colour.list[c(2, 1, 3, 3)]) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
         limits = c(0, 1.025),
         breaks = seq(0, 1, by = 0.1)) +
-    ggtitle("Mean Outcome") +
+    ggtitle(TeX(r"(Mean Outcome, for each $z' =0,1$.)")) +
     theme(legend.position = "none",
         plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
@@ -238,14 +249,14 @@ complier.plot <- complier.data %>%
             "\n(", round(D_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[2]) +
-    annotate("text", x = 2.8, y = Y_happy_0_complier + Y_happy_effect_complier / 2,
-        label = paste0("+ ", round(Y_happy_effect_complier, 2),
-            "\n(", round(Y_happy_effect_complier.se, 2), ")"),
-        size = 4, hjust = 0.5, vjust = 0.5,
-        fontface = "bold", colour = colour.list[3]) +
-    annotate("text", x = 3.8, y = Y_health_0_complier + Y_health_effect_complier / 2,
+    annotate("text", x = 2.8, y = Y_health_0_complier + Y_health_effect_complier / 2,
         label = paste0("+ ", round(Y_health_effect_complier, 2),
             "\n(", round(Y_health_effect_complier.se, 2), ")"),
+        size = 4, hjust = 0.5, vjust = 0.5,
+        fontface = "bold", colour = colour.list[3])  +
+    annotate("text", x = 3.8, y = Y_happy_0_complier + Y_happy_effect_complier / 2,
+        label = paste0("+ ", round(Y_happy_effect_complier, 2),
+            "\n(", round(Y_happy_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[3])
 

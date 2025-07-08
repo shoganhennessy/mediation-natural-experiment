@@ -113,18 +113,18 @@ As such, it is not possible to directly use $\hat \lambda_0, \hat \lambda_1$ in 
 
 Theses problem can be avoided by estimating the AIE using its relation to the ATE.
 Write $\hat{\text{ATE}}$ for the point-estimate of the ATE, and 
-$\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\delta$, to give the following representation,
+$\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\delta$, to give the following estimator,
 \[ \hat{\text{AIE}}^{\text{CF}}
     = \hat{\text{ATE}}
     - (1 - \bar Z) \, \left( 
         \frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i) \right)
     - \bar Z \, \left(
         \frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
-where $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 0$, $\E{\gamma + \delta D_i(0)}$, and $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 1$, $\E{\gamma + \delta D_i(1)}$.
+where $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 0$, $\E{\gamma + \delta D_i(0)}$, and $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i)$ estimates the ADE conditional on $Z_i = 1$, $\E{\gamma + \delta D_i(1)}$.
 \aref{appendix:semi-parametric} describes the reasoning for this estimator of the AIE, relative to estimates of the ATE and ADE, in further detail.
 % \aref{appendix:implement} describes in further detail the implementation of this approach in the R language \citep{R2023}, with a \cite{klein1993efficient} first-stage and splines in the second-stage CF estimation.
 
-The ideal instrument $\vec X_i^{\text{IV}}$ for this semi-parametric approach is continuous, and varies $\pi(z'; \vec X_i)$ between 0 and 1 for every value of $z', \vec X_i$ (identification at infinity).
+The ideal instrument $\vec X_i^{\text{IV}}$ for this semi-parametric approach is continuous, and varies $\pi(z'; \vec X_i)$ between 0 and 1 for every value of $z', \vec X_i^-$ (identification at infinity).
 In practice, it is unlikely to find IV(s) that satisfy this condition.
 In this case, the \cite{brinch2017beyond} restricted approach can be used for estimation --- even with a categorical instrument and no control variables.
 This amounts to limiting the number of parameters in the semi-parametric CF estimation to the number of discrete values that $\pi(z'; \vec X_i)$ takes minus one, changing little to the estimation strategy.

@@ -632,11 +632,11 @@ A similar re-arrangement also has the following,
 Reverting to the regression notation, to show how the ADE conditional on $Z_i$ is identified:
 \begin{align*}
     \text{ADE} &= \E{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))} \\
-        &= \E{ \gamma + \delta D_i(Z_i) } \\
+        &= \E{ \gamma + \delta D_i(Z_i) }. \\
     \implies \text{ADE conditional on } Z_i = 0
         &= \Egiven{ \gamma + \delta D_i(Z_i) }{Z_i = 0} \\
-        &= \E{ \gamma + \delta D_i(0) } \\
-    \text{and ADE conditional on } Z_i = 1
+        &= \E{ \gamma + \delta D_i(0) }. \\
+    \text{ADE conditional on } Z_i = 1
         &= \Egiven{ \gamma + \delta D_i(Z_i) }{Z_i = 1} \\
         &= \E{ \gamma + \delta D_i(1) }.
 \end{align*}

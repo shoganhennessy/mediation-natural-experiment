@@ -33,7 +33,7 @@ For each $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec 
 %        &= \E{\Big( D_i(1) - D_i(0) \Big)
 %        \times \Big( \mu_1(Z_i; \vec X_i) - \mu_0(Z_i; \vec X_i) + U_{1,i} - U_{0,i}\Big) }.
 %\end{align*}
-With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following outcome formulae --- which characterise direct effects, indirect effects, and selection bias.
+With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following random coefficient outcome formulae --- which characterise direct effects, indirect effects, and selection bias.
 \begin{align}
     \label{eqn:parametric-firststage}
     D_i &= \theta + \bar \pi Z_i + \zeta(\vec X_i) + \eta_i  \\
@@ -43,8 +43,8 @@ With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following o
     + \underbrace{ \left(1 - D_i \right) U_{0,i} + D_i U_{1,i}}_{
         \text{Correlated error term.}}
 \end{align}
-This is not consequence  of linearity assumptions; the regression functions allow for unconstrained heterogenous treatment effects.
-This is because $Z_i, D_i$ are categorical, and if either were instead continuously distributed then this representative would not necessarily hold true.
+This is not consequence  of linearity assumptions; the outcome formulae allow for unconstrained heterogeneous treatment effects, because the coefficients are random.
+This is because $Z_i, D_i$ are binary variables, and if either were instead continuously distributed then this representative would not necessarily hold true.
 First-stage \eqref{eqn:parametric-firststage} is identified, with $\theta + \zeta(\vec X_i)$ the intercept, and $\bar \pi$ the first-stage average compliance rate (conditional on $\vec X_i$).
 Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to omitted variables bias.
 See \aref{appendix:regression-model} for the derivation.
@@ -56,7 +56,7 @@ See \aref{appendix:regression-model} for the derivation.
     \item $\left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}$ is the disruptive error term.
 \end{enumerate}
 
-The ADE and AIE are averages of these regression coefficients.
+The ADE and AIE are averages of the regression random coefficients:
 \begin{align*}
     \text{ADE}
     %= \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
@@ -76,7 +76,8 @@ The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:p
 If not, then estimates of CM effects suffer from omitted variables bias from failing to adjust for the unobserved confounder, $\vec U_i$.
 
 \subsection{Selection on Costs and Benefits}
-CM is at risk of bias because $D_i \indep  \left(U_{0, i}, U_{1, i} \right)$ is unlikely to hold in applied settings.
+CM is at risk of bias because $D_i \indep  \vec U_i$ %\left(U_{0, i}, U_{1, i} \right)$
+is unlikely to hold in applied settings.
 A separate identification strategy could disrupt the selection-into-$D_i$ based on unobserved factors, and lend credibility to the mediator ignorability assumption.
 Without it, bias will persist, given how we conventionally think of selection-into-treatment.
 
@@ -94,7 +95,7 @@ The Roy model has $i$ taking the mediator if the benefits exceed the costs,
 \end{equation}
 
 The Roy model provides an intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome under study \citep{roy1951some,heckman1990empirical}.
-If the treatment $Z_i$ is health insurance, outcome $Y_i$ a measure of health outcomes, and the mediator $D_i$ increased use of healthcare institutions, then this models the choice to visit the doctor more often in terms of health benefits relative to costs.\footnote{
+If the treatment $Z_i$ is health insurance, outcome $Y_i$ a measure of health outcomes, and the mediator $D_i$ increased use of healthcare institutions, then this models choice to visit the doctor in terms of health benefits relative to costs.\footnote{
     If the choice is considers over a sum of outcomes, then a simple extension to a utility maximisation model maintains this same framework with expected costs and benefits.
     See \cite{heckman1990empirical,eisenhauer2015generalized}.
 }
@@ -132,7 +133,7 @@ An unmotivated note saying
 ``we conduct an informal mechanism analysis by controlling for this variable''
 or
 ``we assume the mediator satisfies selection-on-observables''
-does not cut it here, and will lead to biased inference in practice.
+does not cut it here, and will lead to biased inference in applied settings.
 
 % \subsection{Applied Settings}
 % 

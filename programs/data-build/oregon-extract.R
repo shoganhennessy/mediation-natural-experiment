@@ -87,6 +87,7 @@ oregon.data <- descriptive.data %>%
 # Show the merging rates.
 oregon.data %>% pull(health_needs_met) %>% table(exclude = NULL)
 
+
 ################################################################################
 ## Save the resulting (merged) data file.
 
