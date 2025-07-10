@@ -85,7 +85,7 @@ direct_dist.plot <- normal.data %>%
     # Other presentation options
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
-        name = TeX("Estimate $-$ True Value"),,
+        name = TeX("Estimate $-$ True Value"),
         breaks = seq(-1.0, 1.0, by = 0.25),
         limits = c(-1.0, 1.0)) +
     scale_y_continuous(expand = c(0, 0),
@@ -175,7 +175,7 @@ direct_dist.plot <- uniform.data %>%
     # Other presentation options
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
-        name = TeX("Estimate $-$ True Value"),,
+        name = TeX("Estimate $-$ True Value"),
         breaks = seq(-1.0, 1.0, by = 0.25),
         limits = c(-1.0, 1.0)) +
     scale_y_continuous(expand = c(0, 0),
@@ -277,7 +277,7 @@ rho_directeffect_bias.plot <- rho.data %>%
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX("$\\rho$"),
+        name = TeX(r"(Corr$(U_{i,0}, U_{i,1})$)"),
         expand = c(0, 0),
         breaks = seq(-1, 1, by = 0.25),
         limits = c(-1.025, 1.025)) +
@@ -312,7 +312,7 @@ rho_indirecteffect_bias.plot <- rho.data %>%
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX("$\\rho$"),
+        name = TeX(r"(Corr$(U_{i,0}, U_{i,1})$)"),
         expand = c(0, 0),
         breaks = seq(-1, 1, by = 0.25),
         limits = c(-1.025, 1.025)) +
@@ -356,7 +356,7 @@ sigma_1_directeffect_bias.plot <- sigma_1.data %>%
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX("$\\sigma_1$"),
+        name = TeX(r"(Var$(U_{i,1})^{\frac{1}{2}})$)"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +
@@ -392,7 +392,7 @@ sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX("$\\sigma_1$"),
+        name = TeX(r"(Var$(U_{i,1})^{\frac{1}{2}})$)"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +

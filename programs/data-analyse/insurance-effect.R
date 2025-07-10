@@ -18,6 +18,7 @@ library(latex2exp)
 # Define folder paths (1) input data (2) clean data.
 data.folder <- file.path("..", "..", "data", "oregon-lottery-icspr")
 figures.folder <- file.path("..", "..", "text", "sections", "figures")
+tables.folder <- file.path("..", "..", "text", "sections", "tables")
 presentation.folder <- file.path("..", "..", "presentation",
     "presentation-files", "figures")
 # Size of figures.
@@ -73,6 +74,12 @@ analysis.data <- oregon.data %>%
         any_hospital_visits,
         hh_size) %>%
     drop_na()
+
+# Get the observation count of people who consistently answered this survey.
+analysis.data %>%
+    nrow() %>%
+    prettyNum(big.mark = ",", scientific = FALSE) %>%
+    writeLines(file.path(tables.folder, "oregon-obs-count.txt"))
 
 # Health survey outcome -> Overall health is good or better (2 is fair, 1 is poor).
 analysis.data$Y_health <- as.integer(analysis.data$health_level_survey >= 3)
@@ -172,7 +179,7 @@ print(c(Y_happy_effect_complier, Y_happy_effect_complier.se))
 # Name of the outcome variables (in order)
 outcome_name.list <- c(
     "0               1\nHealth insured?",
-    "0               1\nAny healthcare visits?",
+    "0               1\nAny use of healthcare?",
     "0               1\nSurvey: \nHealth overall good?",
     "0               1\nSurvey: \nHappy overall?")
 
@@ -268,6 +275,7 @@ ggsave(file.path(figures.folder, "insurance-effects.png"),
     plot = complier.plot,
     units = "cm", width = fig.width, height = fig.height)
 
+quit("no")
 
 
 
@@ -275,8 +283,7 @@ ggsave(file.path(figures.folder, "insurance-effects.png"),
 
 
 
-
-# Code from LARF package for estimating OLS with possibly negative kappa weights.
+# Code from LARF package for estimating OLS with (possibly negative) k weights.
 X <- 1
 solve ( t(cbind(Z,X) * kappa) %*% cbind(Z,X)) %*% t(cbind(Z,X) * kappa)  %*% Y_health
 
