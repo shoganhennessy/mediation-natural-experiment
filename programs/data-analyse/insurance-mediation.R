@@ -9,6 +9,8 @@ set.seed(47)
 library(tidyverse)
 # Functions for bootstrapping.
 library(boot)
+# Package forsemi-parametric CF by splines.
+library(mgcv)
 # Library for better colour choice.
 library(ggthemes)
 # Library for equations in plots
@@ -40,6 +42,11 @@ colour.list <- c(
 analysis.data <- data.folder %>%
     file.path("cleaned-oregon-data.csv") %>%
     read_csv()
+
+# Factorise the relevant variables.
+analysis.data$hh_size <- factor(analysis.data$hh_size)
+analysis.data$usual_health_location <- factor(
+    analysis.data$usual_health_location)
 
 
 ################################################################################ Define the functions to use.
@@ -88,22 +95,41 @@ estimated.values <- function(firststage.reg, secondstage.reg, totaleffect.reg,
 }
 
 # Define a function to Heckman selection correct mediation est, in two-stages.
-mediate.naive <- function(Y, Z, D, X_iv, X_minus, input.data){
+mediate.naive <- function(Y, Z, D, X_iv, X_minus, input.data,
+    Z_iv = NULL, control_iv = NULL){
     # Make the names consistent
     input.data$Y <- input.data[[Y]]
     input.data$Z <- input.data[[Z]]
     input.data$D <- input.data[[D]]
     input.data$X_iv <- input.data[[X_iv]]
     input.data$X_minus <- input.data[[X_minus]]
+    # If given a treatment IV, use that.
+    if (!is.null(Z_iv)){
+        input.data$Z_iv <- input.data[[Z_iv]]
+        if (!is.null(control_iv)){
+            input.data$control_iv <- input.data[[control_iv]]}
+        else { input.data$control_iv <- 0}
+        # Calculate the kappa.weight weights
+        est_probZ_iv <- glm(Z_iv ~ 1 + control_iv, data = input.data)
+        hat_probZ_iv <- est_probZ_iv$fitted
+        kappa.weight_0 <- (1 - input.data$Z) * (((1 - input.data$Z_iv
+            ) - (1 - hat_probZ_iv)) / ( 
+                (1 - hat_probZ_iv) * hat_probZ_iv))
+        kappa.weight_1 <- input.data$Z * ((input.data$Z_iv - hat_probZ_iv) / (
+            (1 - hat_probZ_iv) * hat_probZ_iv))
+        input.data$kappa.weight <- kappa.weight_0 * (
+            1 - hat_probZ_iv) + kappa.weight_1 * hat_probZ_iv
+    }
+    # If no treatment IV, set the IV re-weighting to unity.
+    else { input.data$kappa.weight <- 1 }
     # 0. Total effect regression.
-    totaleffect.reg <- lm(Y ~ 1 + Z + X_minus,
+    totaleffect.reg <- gam(Y ~ 1 + Z + X_minus, weights = kappa.weight,
         data = input.data)
-    # 1. Probit first-stage (well identified).
-    firststage.reg <- glm(D ~ (1 + Z) + X_iv + X_minus,
-        family = binomial(link = "binomial"),
+    # 1. Regular first-stage (well identified).
+    firststage.reg <- gam(D ~ 1 + Z * X_iv + X_minus, weights = kappa.weight,
         data = input.data)
     # 2. Estimate second-stage, including the CFs.
-    naive_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus,
+    naive_secondstage.reg <- gam(Y ~ (1 + Z * D) + X_minus, weights = kappa.weight,
         data = input.data)
     # Compile the estimates.
     naive.est <- estimated.values(
@@ -119,29 +145,50 @@ mediate.naive <- function(Y, Z, D, X_iv, X_minus, input.data){
     return(output.list)
 }
 
+#! Test it out, with the specification I want.
+analysis.data$intercept <- 0
+mediate.est <- mediate.naive(
+    Y = "Y_health", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    analysis.data)
+print(mediate.est)
+
+
 # Define a function to Heckman selection correct mediation est, in two-stages.
-mediate.heckit <- function(Y, Z, D, X_iv, X_minus, input.data){
+mediate.heckit <- function(Y, Z, D, X_iv, X_minus, input.data,
+    Z_iv = NULL, control_iv = NULL){
     # Make the names consistent
     input.data$Y <- input.data[[Y]]
     input.data$Z <- input.data[[Z]]
     input.data$D <- input.data[[D]]
     input.data$X_iv <- input.data[[X_iv]]
     input.data$X_minus <- input.data[[X_minus]]
-    # Get relevant columns for imputation.
-    input_Z0.data <- input.data
-    input_Z1.data <- input.data
-    input_D0.data <- input.data
-    input_D1.data <- input.data
-    input_Z0.data$Z <- 0
-    input_Z1.data$Z <- 1
-    input_D0.data$D <- 0
-    input_D1.data$D <- 1
+    # If given a treatment IV, use that.
+    if (!is.null(Z_iv)){
+        input.data$Z_iv <- input.data[[Z_iv]]
+        if (!is.null(control_iv)){
+            input.data$control_iv <- input.data[[control_iv]]}
+        else { input.data$control_iv <- 0}
+        # Calculate the kappa.weight weights
+        est_probZ_iv <- glm(Z_iv ~ 1 + control_iv, data = input.data)
+        hat_probZ_iv <- est_probZ_iv$fitted
+        kappa.weight_0 <- (1 - input.data$Z) * (((1 - input.data$Z_iv
+            ) - (1 - hat_probZ_iv)) / ( 
+                (1 - hat_probZ_iv) * hat_probZ_iv))
+        kappa.weight_1 <- input.data$Z * ((input.data$Z_iv - hat_probZ_iv) / (
+            (1 - hat_probZ_iv) * hat_probZ_iv))
+        input.data$kappa.weight <- kappa.weight_0 * (
+            1 - hat_probZ_iv) + kappa.weight_1 * hat_probZ_iv
+    }
+    # If no treatment IV, set the IV re-weighting to unity.
+    else { input.data$kappa.weight <- 1 }
     # 0. Total effect regression.
-    totaleffect.reg <- lm(Y ~ 1 + Z + X_minus,
+    totaleffect.reg <- gam(Y ~ 1 + Z + X_minus, weights = kappa.weight,
         data = input.data)
     # 1. Probit first-stage (well identified).
-    heckit_firststage.reg <- glm(D ~ (1 + Z) + X_iv + X_minus,
-        family = binomial(link = "probit"),
+    heckit_firststage.reg <- gam(D ~ 1 + Z * X_iv + X_minus, weights = kappa.weight,
+        #family = binomial(link = "probit"),
         data = input.data)
     # 2. Define the CFs --- for assumed N(0,1) dist.
     lambda_1.fun <- function(pi.est){
@@ -153,17 +200,22 @@ mediate.heckit <- function(Y, Z, D, X_iv, X_minus, input.data){
         - pi.est / (1 - pi.est))
     input.data$lambda_1 <- input.data$D * lambda_1.fun(pi.est)
     # 3. Estimate second-stage, including the CFs.
-    heckit_secondstage.reg <- lm(Y ~ (1 + Z * D) + X_minus + lambda_0 + lambda_1,
+    heckit_secondstage.reg <- gam(Y ~ (1 + Z * D) + X_minus +
+        lambda_0 + lambda_1, weights = kappa.weight,
         data = input.data)
     # Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
+    input_Z0.data <- input.data
+    input_Z1.data <- input.data
+    input_Z0.data$Z <- 0
+    input_Z1.data$Z <- 1
     pi_0.est <- predict(heckit_firststage.reg,
         newdata = input_Z0.data, type = "response")
     pi_1.est <- predict(heckit_firststage.reg,
         newdata = input_Z1.data, type = "response")
     Gamma.big <-  (pi_1.est * lambda_1.fun(pi_1.est)
         - pi_0.est * lambda_1.fun(pi_0.est)) / (pi_1.est - pi_0.est)
-    rho_0 <- coef(summary(heckit_secondstage.reg))["lambda_0", "Estimate"]
-    rho_1 <- coef(summary(heckit_secondstage.reg))["lambda_1", "Estimate"]
+    rho_0 <- as.numeric(coef(heckit_secondstage.reg)["lambda_0"])
+    rho_1 <- as.numeric(coef(heckit_secondstage.reg)["lambda_1"])
     complier.adjustment <- (rho_1 - rho_0) * Gamma.big
     # Compile the estimates.
     heckit.est <- estimated.values(
@@ -179,8 +231,19 @@ mediate.heckit <- function(Y, Z, D, X_iv, X_minus, input.data){
     return(output.list)
 }
 
+#! Test it out, with the specification I want.
+analysis.data$intercept <- 0
+mediate.est <- mediate.heckit(
+    Y = "Y_health", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    analysis.data)
+print(mediate.est)
+
+
 # Define a function to two-stage semi-parametric CF for CM effects.
-mediate.semiparametric <- function(Y, Z, D, X_iv, X_minus, input.data){
+mediate.semiparametric <- function(Y, Z, D, X_iv, X_minus, input.data,
+    Z_iv = NULL, control_iv = NULL){
     # Make the names consistent
     input.data$Y <- input.data[[Y]]
     input.data$Z <- input.data[[Z]]
@@ -196,27 +259,48 @@ mediate.semiparametric <- function(Y, Z, D, X_iv, X_minus, input.data){
     input_Z1.data$Z <- 1
     input_D0.data$D <- 0
     input_D1.data$D <- 1
+    # If given a treatment IV, use that.
+    if (!is.null(Z_iv)){
+        input.data$Z_iv <- input.data[[Z_iv]]
+        if (!is.null(control_iv)){
+            input.data$control_iv <- input.data[[control_iv]]}
+        else { input.data$control_iv <- 0}
+        # Calculate the kappa.weight weights
+        est_probZ_iv <- glm(Z_iv ~ 1 + control_iv, data = input.data)
+        hat_probZ_iv <- est_probZ_iv$fitted
+        kappa.weight_0 <- (1 - input.data$Z) * (((1 - input.data$Z_iv
+            ) - (1 - hat_probZ_iv)) / ( 
+                (1 - hat_probZ_iv) * hat_probZ_iv))
+        kappa.weight_1 <- input.data$Z * ((input.data$Z_iv - hat_probZ_iv) / (
+            (1 - hat_probZ_iv) * hat_probZ_iv))
+        input.data$kappa.weight <- kappa.weight_0 * (
+            1 - hat_probZ_iv) + kappa.weight_1 * hat_probZ_iv
+    }
+    # If no treatment IV, set the IV re-weighting to unity.
+    else { input.data$kappa.weight <- 1 }
     # 1. Total effect regression.
-    totaleffect.reg <- lm(Y ~ 1 + Z + X_minus,
+    totaleffect.reg <- gam(Y ~ 1 + Z + X_minus, weights = kappa.weight,
         data = input.data)
     totaleffect.est <- mean(predict(
         totaleffect.reg, newdata = input_Z1.data) - predict(
             totaleffect.reg, newdata = input_Z0.data))
     # 2. Semi-parametric first-stage
-    cf_firststage.reg <- semiBRM(D ~ 1 + Z + X_iv + X_minus,
-        data = input.data, control = list(iterlim = 100))
-    input.data$pi.est <- predict(cf_firststage.reg, type = "response")$prob
+    cf_firststage.reg <- gam(D ~ 1 + Z * X_iv + X_minus, weights = kappa.weight,
+        data = input.data)
+    input.data$pi.est <- predict(cf_firststage.reg, type = "response")
     pi_0.est <- predict(cf_firststage.reg,
-        newdata = input_Z0.data, type = "response")$prob
+        newdata = input_Z0.data, type = "response")
     pi_1.est <- predict(cf_firststage.reg,
-        newdata = input_Z1.data, type = "response")$prob
+        newdata = input_Z1.data, type = "response")
     pi.bar <- mean(pi_1.est - pi_0.est)
     # 3. Semi-parametric series estimation of the second-stage.
-    cf_secondstage_D0.reg <- gam(Y ~ 1 + Z + X_minus + s(pi.est, bs = "cr"),
-        method = "REML",
+    cf_secondstage_D0.reg <- gam(Y ~ 1 + Z + X_minus +
+        pi.est + I(pi.est^2) + I(pi.est^3) + I(pi.est^4) + I(pi.est^5),
+        weights = kappa.weight,
         data = input.data, subset = (D == 0))
-    cf_secondstage_D1.reg <- gam(Y ~ 1 + Z + X_minus + s(pi.est, bs = "cr"),
-        method = "REML",
+    cf_secondstage_D1.reg <- gam(Y ~ 1 + Z + X_minus +
+        pi.est + I(pi.est^2) + I(pi.est^3) + I(pi.est^4) + I(pi.est^5),
+        weights = kappa.weight,
         data = input.data, subset = (D == 1))
     # 4. Compose the CM effects from this object.
     D_0 <- 1 - mean(input.data$D)
@@ -243,48 +327,61 @@ mediate.semiparametric <- function(Y, Z, D, X_iv, X_minus, input.data){
     return(output.list)
 }
 
-##TODO Define a function to use these functions,
-##TODO and provide a summary object (with booted SEs).
+#! Test it out, with the specification I want.
+mediate.est <- mediate.semiparametric(
+    Y = "Y_health", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    analysis.data)
+print(mediate.est)
 
+
+## Define a function to wrap around all the others.
 mediate.selection <- function(Y, Z, D, X_iv, X_minus, input.data,
+    Z_iv = NULL, control_iv = NULL,
     type = "parametric", boot.reps = NULL){
     # If no bootstrapping, just give the point estimates.
     if (is.null(boot.reps)){
         if (type == "parametric"){
-            point.est <- mediate.heckit(Y, Z, D, X_iv, X_minus, input.data)
+            point.est <- mediate.heckit(Y, Z, D, X_iv, X_minus, input.data,
+                Z_iv = Z_iv, control_iv = control_iv)
         }
         else if (type == "semi-parametric"){
             point.est <- mediate.semiparametric(
-                Y, Z, D, X_iv, X_minus, input.data)
+                Y, Z, D, X_iv, X_minus, input.data,
+                    Z_iv = Z_iv, control_iv = control_iv)
         }
         else if (type == "naive"){
-            point.est <- mediate.naive(Y, Z, D, X_iv, X_minus, input.data)
+            point.est <- mediate.naive(Y, Z, D, X_iv, X_minus, input.data,
+                Z_iv = Z_iv, control_iv = control_iv)
         }
         else {
             stop(paste0("The type option only takes values of ",
                 'c("parametric", "semi-parametric", "naive").'))}
-        return(point.est)
     }
-    # IF bootstrapping for SEs, then calculated via the bootstrap.
-
+    #TODO: code the summary object.
+    return(point.est)
+    # If bootstrapping for SEs, then calculated via the bootstrap.
 }
 
 
 ## Test on the Oregon data.
 analysis.data$intercept <- 0
 mediate.est <- mediate.selection(
-    Y = "Y_happy", Z = "any_insurance", D = "any_healthcare",
-    X_iv = "usual_health_location", X_minus = "intercept"
-    #TODO: Z_iv = "lottery_iv", 
-    #TODO: control_iv = "hh_size"
-)
-    
-    Y, Z, D, X_iv, X_minus, input.data,
-
+    Y = "Y_health", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    type = "naive",
+    analysis.data)
 
 # Show that the health location influences healthcare take-up
-lm(any_healthcare ~ 0 + factor(usual_health_location), data = analysis.data) %>%
-    summary()
+location.data <- analysis.data %>%
+    group_by(usual_health_location) %>%
+    summarise(
+        any_healthcare_mean = mean(any_healthcare, na.rm = TRUE),
+        any_healthcare_sd = sd(any_healthcare, na.rm = TRUE),
+        count = n()) %>%
+    mutate(any_healthcare_se = any_healthcare_sd / (count^(0.5)))
 # Note values in usual health location:
 # 1 private clinic
 # 2 public clinic
@@ -293,16 +390,15 @@ lm(any_healthcare ~ 0 + factor(usual_health_location), data = analysis.data) %>%
 # 5 urgent care clinic
 # 6 other place
 # 7 don't have usual place
-#! TEST: is it related to the IV?  Answer: not significantly.
-lm(lottery_iv ~ 0 + factor(usual_health_location), data = analysis.data) %>%
-    summary()
 
 
+#TODO: code this as a simple a figure, justifying the instrument.
 
-
+#TODO: code the bootstrapped SEs of the ADE and AIE.
+#TODO: SHow one simple table of the results from the Oregon Health Insurance Experiment.
 
 
 quit("no")
-# Code from LARF package for estimating OLS with (possibly negative) k weights.
-X <- 1
-solve ( t(cbind(Z,X) * kappa) %*% cbind(Z,X)) %*% t(cbind(Z,X) * kappa)  %*% Y_health
+# Old code to calculate OLS with (possibly negative) weights, from LARF package.
+reg.matrix <- cbind(Z, X_minus)
+solve(t(reg.matrix * kappa.weight) %*% reg.matrix) %*% t(reg.matrix * kappa.weight) %*% Y
