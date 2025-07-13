@@ -11,6 +11,7 @@ library(tidyverse)
 # Define folder paths (1) input data (2) clean data.
 data.folder <- file.path("..", "..", "data", "oregon-lottery-icspr")
 figures.folder <- file.path("..", "..", "text", "sections", "figures")
+tables.folder <- file.path("..", "..", "text", "sections", "tables")
 
 
 ################################################################################
@@ -69,7 +70,7 @@ survey_12m.data <- survey_12m.data %>%
         days_bad_health_survey = baddays_phys_12m, # Number of days (out of past 30) when physical health not goo
         days_bad_mentalhealth_survey = baddays_ment_12m, # Number of days (out of past 30) when mental health not good
         health_limits_work = health_work_12m, # Physical, mental or emotional problem currently limits ability to work
-        ## Controls for (presumably prior) health conditions.
+        ## Controls for prior health conditions.
         dia_diagnosis = dia_dx_12m, # Ever been told by a health professional that you have: Diabetes/Sugar diabetes
         ast_diagnosis = ast_dx_12m, # Ever been told by a health professional that you have: Asthma
         hbp_diagnosis = hbp_dx_12m, # Ever been told by a health professional that you have: High blood pressure
@@ -89,14 +90,69 @@ oregon.data %>% pull(health_needs_met) %>% table(exclude = NULL)
 
 
 ################################################################################
+## Clean the merged variables.
+
+# Get relevant data.
+analysis.data <- oregon.data %>%
+    select(
+        lottery_iv,
+        health_level_survey,
+        happiness_level_survey,
+        any_insurance,
+        any_doc_visits,
+        any_hospital_visits,
+        usual_health_location,
+        hh_size,
+        survey_weight) %>%
+    drop_na()
+
+# Note values in usual health location:
+analysis.data %>% select(usual_health_location) %>% table() %>% print()
+# 1 private clinic
+# 2 public clinic
+# 3 hospital-based clinic
+# 4 hospital ER
+# 5 urgent care clinic
+# 6 other place
+# 7 don't have usual place
+
+# Get the observation count of people who consistently answered this survey.
+analysis.data %>%
+    nrow() %>%
+    prettyNum(big.mark = ",", scientific = FALSE) %>%
+    writeLines(file.path(tables.folder, "oregon-obs-count.txt"))
+
+# Health survey outcome -> Overall health is good or better (2 is fair, 1 is poor).
+analysis.data$Y_health <- as.integer(analysis.data$health_level_survey >= 3)
+
+# Happiness outcome -> very or pretty overall happiness (1 == not happy)
+analysis.data$Y_happy <- as.integer(analysis.data$happiness_level_survey <= 2)
+
+# Lottery instrument for health insurance, depends on household size.
+analysis.data$hh_size <- factor(analysis.data$hh_size)
+
+# Mediator -> any visits to the doctor or hospital (healthcare).
+analysis.data$any_healthcare <- as.integer(
+    (analysis.data$any_doc_visits + analysis.data$any_hospital_visits) > 0)
+
+# Restrict the columns
+analysis.data <- analysis.data %>%
+    select(
+        lottery_iv,
+        hh_size,
+        any_insurance,
+        any_healthcare,
+        usual_health_location,
+        Y_health,
+        Y_happy,
+        survey_weight)
+
+
+################################################################################
 ## Save the resulting (merged) data file.
 
-# Restrict to only those who followed up in the survey.
-oregon.data <- oregon.data %>%
-    filter(!is.na(survey_weight))
-
 # Save the file.
-oregon.data %>% write_csv(file.path(data.folder, "cleaned-oregon-data.csv"))
+analysis.data %>% write_csv(file.path(data.folder, "cleaned-oregon-data.csv"))
 
 
 #! Extra data, not yet used:

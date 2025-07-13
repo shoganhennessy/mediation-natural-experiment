@@ -37,7 +37,7 @@ colour.list <- c(
 ## Load the Oregon Health Insurance Experiment replication data.
 
 # Load the pre-cleaned Oregon Health data.
-oregon.data <- data.folder %>%
+analysis.data <- data.folder %>%
     file.path("cleaned-oregon-data.csv") %>%
     read_csv()
 
@@ -47,63 +47,37 @@ oregon.data <- data.folder %>%
 
 # Show lottery IV -> insurance is strong.
 iv_firststage.reg <- lm(any_insurance ~ 1 + lottery_iv,
-    data = oregon.data)
+    weights = survey_weight,
+    data = analysis.data)
 print(summary(iv_firststage.reg))
 
 # Show lottery IV -> insurance is strong, conditional on household size.
 iv_firststage.reg <- lm(any_insurance ~ 1 + lottery_iv * factor(hh_size),
-    data = oregon.data)
+    weights = survey_weight,
+    data = analysis.data)
 print(summary(iv_firststage.reg))
 
 # Calculate Pr(Z_iv = 1 | household size), the known instrument prop score.
 iv_prop.reg <- lm(lottery_iv ~ 0 + factor(hh_size),
-    data = oregon.data)
+    weights = survey_weight,
+    data = analysis.data)
 print(summary(iv_prop.reg))
 
 
 ################################################################################
 ## Create a figure showing the happiness + subjective health effects.
 
-## Get relevant data.
-analysis.data <- oregon.data %>%
-    select(health_level_survey,
-        happiness_level_survey,
-        lottery_iv,
-        any_insurance,
-        any_doc_visits,
-        any_hospital_visits,
-        hh_size) %>%
-    drop_na()
-
-# Get the observation count of people who consistently answered this survey.
-analysis.data %>%
-    nrow() %>%
-    prettyNum(big.mark = ",", scientific = FALSE) %>%
-    writeLines(file.path(tables.folder, "oregon-obs-count.txt"))
-
-# Health survey outcome -> Overall health is good or better (2 is fair, 1 is poor).
-analysis.data$Y_health <- as.integer(analysis.data$health_level_survey >= 3)
-# Happiness outcome -> very or pretty overall happiness (1 == not happy)
-analysis.data$Y_happy <- as.integer(analysis.data$happiness_level_survey <= 2)
-# Lottery instrument for health insurance.
-Z_iv <- analysis.data$lottery_iv
-analysis.data$hh_size <- factor(analysis.data$hh_size)
-# Treatment -> have any health insurance insurance.
-Z <- analysis.data$any_insurance
-# Mediator -> any visits to the doctor or 
-analysis.data$any_healthcare <- as.integer(
-    (analysis.data$any_doc_visits + analysis.data$any_hospital_visits) > 0)
-
-## Use the Abadie (2003) kappa weights to get E[ Y(z') | lottery complier ]
-abadie.late <- function(data, outcome, Z, Z_iv, control_iv, indices = NULL){
+# Use the Abadie (2003) kappa weights to get E[ Y(z') | lottery complier ]
+abadie.late <- function(data, outcome, Z, Z_iv, control_iv,
+        indices = NULL){
     # Bootstrap sample, if indices provided.
     if (!is.null(indices)){
         data <- data[indices,]
     }
     # Get the relevant variables.
     outcome <- data[[outcome]]
-    Z <- data[[Z]]
-    Z_iv <- data[[Z_iv]]
+    Z          <- data[[Z]]
+    Z_iv       <- data[[Z_iv]]
     control_iv <- data[[control_iv]]
     # Estimate the kappa weighting
     est_probZ_iv <- glm(Z_iv ~ 1 + control_iv)
@@ -135,7 +109,7 @@ Z_0_complier.se      <- sd(Z.late$t[, 1])
 Z_1_complier.se      <- sd(Z.late$t[, 2])
 Z_effect_complier.se <- sd(Z.late$t[, 3])
 print(c(Z_effect_complier, Z_effect_complier.se))
-# Mediator: healthcare utilisation.
+# Mediator: healthcare utilisation (among lottery compliers).
 D.late <- boot(statistic = abadie.late, R = boot.samples,
     data = analysis.data,
     outcome = "any_healthcare", Z = "any_insurance",
@@ -147,7 +121,7 @@ D_0_complier.se      <- sd(D.late$t[, 1])
 D_1_complier.se      <- sd(D.late$t[, 2])
 D_effect_complier.se <- sd(D.late$t[, 3])
 print(c(D_effect_complier, D_effect_complier.se))
-# Health overall good?
+# Outcome: Health overall good? (among lottery compliers).
 Y_health.late <- boot(statistic = abadie.late, R = boot.samples,
     data = analysis.data,
     outcome = "Y_health", Z = "any_insurance",
@@ -159,7 +133,7 @@ Y_health_0_complier.se      <- sd(Y_health.late$t[, 1])
 Y_health_1_complier.se      <- sd(Y_health.late$t[, 2])
 Y_health_effect_complier.se <- sd(Y_health.late$t[, 3])
 print(c(Y_health_effect_complier, Y_health_effect_complier.se))
-# Happy overall?
+# Outcome: Happy overall?  (among lottery compliers).
 Y_happy.late <- boot(statistic = abadie.late, R = boot.samples,
     data = analysis.data,
     outcome = "Y_happy", Z = "any_insurance",
@@ -206,12 +180,6 @@ complier.data <- data.frame(
         rep(outcome_name.list[2], 2),
         rep(outcome_name.list[3], 2),
         rep(outcome_name.list[4], 2)))
-
-colour.list <- c(
-    "#1f77b4", # Blue
-    "#2ca02c", # Green
-    "#d62728") # Red
-
 
 # Full barchart
 complier.plot <- complier.data %>%
@@ -274,59 +242,3 @@ ggsave(file.path(presentation.folder, "insurance-effects.png"),
 ggsave(file.path(figures.folder, "insurance-effects.png"),
     plot = complier.plot,
     units = "cm", width = fig.width, height = fig.height)
-
-quit("no")
-
-
-
-
-
-
-
-# Code from LARF package for estimating OLS with (possibly negative) k weights.
-X <- 1
-solve ( t(cbind(Z,X) * kappa) %*% cbind(Z,X)) %*% t(cbind(Z,X) * kappa)  %*% Y_health
-
-
-
-lm(any_insurance ~ 1 + lottery_iv * factor(hh_size), data = oregon.data) %>%
-    summary() 
-
-# Effect of insurance on healthcare (mediator)
-lm(health_needs_met ~ 1 + lottery_iv * factor(hh_size), data = oregon.data) %>%
-    summary() 
-ivreg::ivreg(health_needs_met ~ 1 + any_insurance | 1 + lottery_iv * factor(hh_size),
-    data = oregon.data) %>%
-    summary()
-# Effect on resulting happiness + health (ATE)
-ivreg::ivreg(I(health_level_survey >= 3) ~ 1 + any_insurance | 1 + lottery_iv * factor(hh_size),
-    data = oregon.data) %>%
-    summary()
-ivreg::ivreg(I(happiness_level_survey <= 2) ~ 1 + any_insurance | 1 + lottery_iv * factor(hh_size),
-    data = oregon.data) %>%
-    summary()
-# TODO: Use the Abadaie (2003) estimator, to simplify the later mediation.
-
-
-# Informal mechanism, direct effect (controlling for healthcare satisfaction)
-ivreg::ivreg(I(health_level_survey >= 3) ~ 1 + any_insurance + health_needs_met
-    | 1 + lottery_iv * factor(hh_size) + health_needs_met,
-    data = oregon.data) %>%
-    summary()
-ivreg::ivreg(I(happiness_level_survey <= 2) ~ 1 + any_insurance + health_needs_met
-    | 1 + lottery_iv * factor(hh_size) + health_needs_met,
-    data = oregon.data) %>%
-    summary()
-
-# Using the cost of provider as instruments for the healthcare usage.
-# -> Direct effect of insurance on health/happiness now zero.
-ivreg::ivreg(I(health_level_survey >= 3)
-    ~ 1 + any_insurance + health_needs_met
-    | 1 + lottery_iv * factor(hh_size) + factor(usual_health_location),
-    data = oregon.data) %>%
-    summary()
-ivreg::ivreg(I(happiness_level_survey <= 2)
-    ~ 1 + any_insurance + health_needs_met
-    | 1 + lottery_iv * factor(hh_size) + factor(usual_health_location),
-    data = oregon.data) %>%
-    summary()

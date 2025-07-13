@@ -30,7 +30,7 @@ fig.height <- 10
 fig.width <- fig.height
 
 # Define the sample size to work with.
-sample.N <- 5 * 10^3
+sample.N <- 10^3
 
 
 ################################################################################

@@ -1,18 +1,20 @@
 \noindent
 Natural experiments are a cornerstone of applied economics, providing settings for estimating causal effects with a compelling argument for treatment randomisation.
-Applied researchers often investigate mechanisms behind treatment effects by controlling for a mediator of interest, alluding to Causal Mediation (CM) methods for estimating direct and indirect effects (CM effects).
-This approach to investigating mechanisms unintentionally assumes the mediator is quasi-randomly assigned --- in addition to quasi-random assignment of the initial treatment.
-Individuals' choice to take (or refuse) a mediator based on costs and benefits is inconsistent with this assumption, suggesting in-practice estimates of causal mechanisms have no causal interpretation.
-I consider an alternative approach to credibly estimate CM effects, using control function methods and relying on instrumental variation in mediator take-up costs.
+Applied researchers often investigate mechanisms with a suggestive investigation of mechanisms, giving at best shaky evidence for mechanisms behind causal effects.
+Causal Mediation (CM) provides an alternative, robust framework for identifying and estimating direct and indirect effects (CM effects) for causal mechanisms.
+However, conventional CM methods require strong assumptions, which are implausible in natural experiment settings.
+In particular, they assume the mediator is as-good-as-random, conditional on treatment and covariates.
+When individuals select into a mediator based on costs and benefits, this assumption fails, undermining causal inference.
+I develop an alternative approach to credibly estimate CM effects, using control function methods and instrumental variation in take-up costs to avoid unrealistic assumptions.
 Simulations confirm this approach corrects for bias in conventional CM estimates, providing parametric and semi-parametric methods.
-This approach gives applied researchers an alternative method to estimate CM effects when an initial treatment is quasi-randomly assigned, but the mediator is not, as is common in natural experiments.
-% I illustrate the approach by estimating the proportion of the causal effect of genes associated with education that operates via higher education decisions versus a direct genetic channel.
+I illustrate the approach by analysing the effect of health insurance through healthcare in the Oregon Health Insurance Experiment.
 % Finally, I provide an implementation of this method in the \textit{R} package \textit{mediate-selection}, offering an accessible tool to investigate mechanisms in natural experiment settings.
+This approach gives applied researchers an alternative method to estimate CM effects when an initial treatment is quasi-randomly assigned, but the mediator is not, as is common in natural experiments.
 
 \vspace{0.5cm}
 \noindent
 \textbf{Keywords:}
-Direct/indirect effects, quasi-experiment, selection, control function.
+Direct/indirect effects, quasi-experiment, selection, control function, MTEs.
 
 \vspace{0.1cm}
 \noindent

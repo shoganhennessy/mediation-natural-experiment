@@ -9,7 +9,8 @@
 ## Analyse Oregon Health Insurance Experiment (Finkelstein+ 2012) data. 
 # Extract data
 cd data-build
-R CMD BATCH --no-save data-extract.R
+R CMD BATCH --no-save oregon-extract.R
+R CMD BATCH --no-save causal-extract.R
 cd ..
 # Statistical analysis
 cd data-analyse

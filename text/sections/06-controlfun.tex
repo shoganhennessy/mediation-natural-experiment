@@ -12,9 +12,8 @@ While both methods effectively address the selection bias issues detailed in pre
 A parametric CF solves the identification problem by assuming a distribution for the unobserved error terms in the first-stage selection model, and modelling selection based on this distribution.
 The Heckman selection model is the most pertinent example, assuming the normal distribution for unobserved errors \citep{heckman1979sample}.
 A parametric CF using other distributions works in exactly the same manner, replacing the relevant density functions for an alternative distribution as needed.
-As such, this section focuses exclusively on the Heckman selection model.\footnote{
-    Note that this estimation approach is equivalent to that in the parametric selection model approach to MTEs, in \cite{bjorklund1987estimation}.
-}
+As such, this section focuses exclusively on the Heckman selection model.
+This estimation approach is equivalent to that in the parametric selection model approach to MTEs, in \cite{bjorklund1987estimation}.
 
 The Heckman selection model assumes unobserved errors $V_i$ follow a normal distribution, so estimates the first-stage using a probit model.
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
@@ -73,6 +72,7 @@ For example, if the error terms deviate substantially from joint normality, the 
 \subsection{Semi-parametric CF}
 For settings where researchers are not comfortable specifying a specific distribution for the error terms, a semi-parametric CF will nonetheless consistently estimate CM effects.
 This method maintains the same identification strategy but avoids assuming a specific error distribution.
+This estimation approach is similar to the modern semi-parametric approach to estimating MTEs, for example seen in \cite{brinch2017beyond,heckman2007econometric}.
 
 The semi-parametric approach begins with flexible estimation of the first-stage, estimating the mediator propensity score,
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
@@ -111,7 +111,7 @@ First, the intercepts for each subsample, $\alpha$ and $(\alpha + \beta)$, are n
 Second, a semi-parametric specification for the CFs mean $\rho_0$ and $\lambda_0$ are no longer separately identified from each other (and same for $\rho_1,\lambda_1$).
 As such, it is not possible to directly use $\hat \lambda_0, \hat \lambda_1$ in estimating the complier adjustment term (as is done in the parametric case).
 
-Theses problem can be avoided by estimating the AIE using its relation to the ATE.
+These problems can be avoided by estimating the AIE using its relation to the ATE.
 Write $\hat{\text{ATE}}$ for the point-estimate of the ATE, and 
 $\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\delta$, to give the following estimator,
 \[ \hat{\text{AIE}}^{\text{CF}}
@@ -123,11 +123,6 @@ $\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\
 where $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 0$, $\E{\gamma + \delta D_i(0)}$, and $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i)$ estimates the ADE conditional on $Z_i = 1$, $\E{\gamma + \delta D_i(1)}$.
 \aref{appendix:semi-parametric} describes the reasoning for this estimator of the AIE, relative to estimates of the ATE and ADE, in further detail.
 % \aref{appendix:implement} describes in further detail the implementation of this approach in the R language \citep{R2023}, with a \cite{klein1993efficient} first-stage and splines in the second-stage CF estimation.
-
-The ideal instrument $\vec X_i^{\text{IV}}$ for this semi-parametric approach is continuous, and varies $\pi(z'; \vec X_i)$ between 0 and 1 for every value of $z', \vec X_i^-$ (identification at infinity).
-In practice, it is unlikely to find IV(s) that satisfy this condition.
-In this case, the \cite{brinch2017beyond} restricted approach can be used for estimation --- even with a categorical instrument and no control variables.
-This amounts to limiting the number of parameters in the semi-parametric CF estimation to the number of discrete values that $\pi(z'; \vec X_i)$ takes minus one, changing little to the estimation strategy.
 
 This semi-parametric approach achieves valid estimation of the CM effects, without specifying the distribution behind unobserved error terms, and achieves desirable properties as long as the first-stage correctly estimates the mediator propensity score, and the structural assumptions hold true.
 The standard errors for estimates can again be computed using the delta method, or estimated by the bootstrap --- again, across both first and second-stages within each bootstrap iteration.

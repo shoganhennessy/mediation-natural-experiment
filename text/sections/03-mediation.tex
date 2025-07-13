@@ -96,7 +96,7 @@ Estimating the ADE answers the following equation: how much is left over after a
     See \cite{imai2010identification} for this point in full.
 }
 For the health insurance example, how much of the health insurance effect is a direct effect, other than increased healthcare usage --- e.g., income effects of lower medical debt, or less worry over health shocks.
-An instrumental variables approach assumes this direct effect is zero for everyone (the exclusion restriction).
+The Instrumental Variables (IV) approach assumes this direct effect is zero for everyone (the exclusion restriction).
 CM is a similar, yet distinct, framework attempting to explicitly model the direct effect, and not assuming it is zero.
 
 The ADE and AIE are not separately identified without further assumptions.
@@ -134,13 +134,14 @@ If \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:seq-ign}\eqref{eqn:seq-ig
     \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i, \vec X_i$ constant}} } \]
 \[ = \underbrace{\E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}}_{\text{Average Indirect Effect (AIE)}} \]
 }}
+
 I refer to the estimands on the left-hand side as CM estimands, which are typically estimated by a composition of two-stage Ordinary Least Squares (OLS) estimates \citep{imai2010identification}.
-While this is the most common approach in the applied literature, I do not assume the linear model.
-Linearity assumptions are unnecessary to my analysis; it suffices to note that heterogeneous treatment effects and non-linear confounding would bias OLS estimates of CM estimands in the same manner that is well documented elsewhere (see e.g., \citealt{angrist1998estimating,sloczynski2022interpreting}).
+While this is the most common approach in the applied literature, I do not assume the linear model for my identification analysis.
+Linearity assumptions are not necessary for identification, and it suffices to note that heterogeneous treatment effects and non-linear confounding can bias OLS estimates of CM estimands in the same manner that is well documented elsewhere (see e.g., \citealt{angrist1998estimating,sloczynski2022interpreting}).
 This section focuses on problems that plague CM by selection-on-observables, regardless of estimation method.
 
 \subsection{Non-identification of CM Effects}
-Applied researchers often use a natural experiment to study settings where treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
+Applied research often uses a natural experiment to study settings where treatment $Z_i$ is ignorable, justifying assumption \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z}.
 Rarely do they also have access to an additional, overlapping natural experiment to isolate random variation in $D_i$ --- to justify mediator ignorability \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}.
 One might consider conventional CM methods in such a setting to learn about the mechanisms behind the causal effect $Z_i$ on $Y_i$, without the problems associated with suggestive evidence of mechanisms.
 This approach leads to biased estimates, and further contaminates inference regarding direct and indirect effects.
@@ -210,7 +211,7 @@ The selection bias terms come from systematic differences between the groups tak
 These selection bias terms would equal zero if the mediator had been ignorable \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, but do not necessarily average to zero if not.
 In the Oregon Health Insurance Experiment, the wait-list gave random variation in the treatment (health insurance) but there was not a similar natural experiment for healthcare usage; correspondingly, the selection-on-observables approach to CM has selection bias.
 
-The group differences represent the fact that a matching approach gives an average effect on the treated group and, when selection-on-observables does not hold, this is systematically different from the average effect \citep{heckman1998characterizing}.
+The group differences represent the fact that a matching approach gives an average effect on the treated group, which is systematically different from the average effect if selection-on-observables does not hold.
 These terms are a non-parametric framing of the bias from controlling for intermediate outcomes, previously studied only in a linear setting (i.e., bad controls in \citealt{cinelli2024crash}, or M-bias in \citealt{ding2015adjust}).
 
 The AIE group differences term is longer, because the indirect effect is comprised of the effect of $D_i$ local to $D_i(Z_i)$ compliers.

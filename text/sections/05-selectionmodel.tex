@@ -157,6 +157,16 @@ If we do not know what distribution class the errors follow, then $\lambda_0, \l
     Proof: see \aref{appendix:cf-ade-aie}.
 \end{theoremCF}
 
+This theorem provides a solution to the identification problem for CM effects when facing selection;
+rather than assuming away selection problems, it explicitly models them.
+The ADE is straightforward to calculate as an average of the direct effect parameters, while the AIE also includes an adjustment for unobserved complier gains to the mediator.
+Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
+The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
+
+This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{bjorklund1987estimation,heckman2005structural}) applied to a CM setting.
+Just as the local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
+This connection to MTEs provides a conceptual bridge between the literature on structural IV for causal effects and CM.
+
 \begin{figure}[!h]
     \caption{The CF Adjustment Addresses Persistent Bias in Conventional CM Estimates.}
     \begin{subfigure}[c]{0.475\textwidth}
@@ -181,15 +191,15 @@ If we do not know what distribution class the errors follow, then $\lambda_0, \l
     and blue estimates with a two-stage Heckman selection adjustment.
 \end{figure}
 
-This theorem provides a solution to the identification problem for CM effects when facing selection;
-rather than assuming away selection problems, it explicitly models them.
-The ADE is straightforward to calculate as an average of the direct effect parameters, while the AIE also includes an adjustment for unobserved complier gains to the mediator.
-Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
-The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
-
-This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{bjorklund1987estimation,heckman2005structural}) applied to a CM setting.
-Just as the local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
-This connection to MTEs provides a conceptual bridge between the literature on structural IV for causal effects and CM.
+The ideal instrument $\vec X_i^{\text{IV}}$ for identification is continuous, and varies $\pi(z'; \vec X_i)$ between 0 and 1 for every possible value of $z', \vec X_i^-$ (identification at infinity).
+In practice, it is unlikely to find IV(s) that satisfy this condition.
+In this case, the \cite{brinch2017beyond} restricted approach can be used --- even with a categorical instrument and no control variables.
+This amounts to assuming a limited specification for the respective CFs, limiting the number of parameters used to approximate $\lambda_0, \lambda_1$ to the number of discrete values that $\pi(z'; \vec X_i)$ takes minus one.
+E.g., if there are no control variables and $\vec X_i^{\text{IV}}$ is binary, then $\lambda_0, \lambda_1$ can only be identified up to 3 parameters each.\footnote{
+    The value of 3 comes from the cases that $Z_i, \vec X_i^{\text{IV}}$ each could take 2 values, so $\pi(z'; \vec X_i)$ has 4 possible values, giving the semi-parametric identification (and estimation) of each CF only 3 degrees of freedom to work with.
+    If the CFs are instead assumed to have a known distribution (i.e., parametric CF), then those concerns do not matter.
+}
+Ultimately, this changes little to the identification strategy, and little to the estimation.
 
 In a simulation with Roy selection-into-mediator based on unobserved error terms, the CF adjustment pushes conventional CM estimates back to the true value. 
 \autoref{fig:cm-normal-dist} shows how a CF adjustment corrects unadjusted CM effect estimates.

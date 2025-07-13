@@ -1,7 +1,7 @@
 \section{CM in Applied Settings}
 \label{sec:applied}
 Unobserved confounding is particularly problematic when studying the mechanisms behind treatment effects.
-For example, in studying health gains from health insurance, we might expect that health gains came about because those with new insurance started visiting their healthcare provider more often, when in past they forewent using healthcare over financial concerns \citep{finkelstein2008oregon}.
+For example, in studying health gains from health insurance, we might expect that health gains came about because those with new insurance started visiting their healthcare provider more often, when in past they forewent using healthcare over financial concerns.
 Applying conventional CM methods to investigate this expectation would be dismissing unobserved confounders for how often individuals visit healthcare providers, leading to biased results.
 
 The wider population does not have one uniform bill of health; many people are born predisposed to ailments, due to genetic variation or other unrelated factors.
@@ -84,7 +84,11 @@ Without it, bias will persist, given how we conventionally think of selection-in
 
 Consider a model where individual $i$ selects into a mediator based on costs and benefits (in terms of outcome $Y_i$), after $Z_i, \vec X_i$ have been assigned.
 In a natural experiment setting, an external factor has disrupted individuals selecting $Z_i$ by choice (thus $Z_i$ is ignorable), but it has not disrupted the choice to take mediator (thus $D_i$ is not ignorable).
-In the Oregon Health Insurance Experiment, the treatment variation comes from the wait-list lottery (for compliers), while healthcare usage was not subject to a similar lottery.
+In the Oregon Health Insurance Experiment, the treatment variation comes from the wait-list lottery (for compliers),\footnote{
+    Note that health insurance was given by wait-list lottery, so is not independently assigned for everyone.
+    Health insurance was, however, randomly assigned among the population of lottery compliers.
+    See \autoref{sec:oregon} for this distinction in further detail.
+} while healthcare usage was not subject to a similar lottery.
 Write $C_i$ for individual $i$'s costs of taking mediator $D_i$, and $\indicator{.}$ for the indicator function.
 The Roy model has $i$ taking the mediator if the benefits exceed the costs,
 \begin{equation}
