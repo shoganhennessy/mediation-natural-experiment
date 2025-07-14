@@ -2,3 +2,37 @@
 \label{sec:oregon}
 
 Apply the parametric $+$ semi-parametric CM to the Oregon data.
+
+
+\begin{table}[!htbp]
+    \singlespacing
+    \centering
+    \small
+    \caption{CM Effect Estimates, Health Insurance Effects on Health and Happiness.}
+    \begin{tabular}{l c c c c c}
+        \\[-1.8ex]\hline \hline \\[-1.8ex] 
+        & First-stage & ATE & ADE & AIE & AIE / ATE \\
+        \cmidrule(lr){2-6}
+        & (1) & (2) & (3) & (4) & (5) \\
+        \midrule
+        \multicolumn{1}{l}{\textbf{Panel A:} Health overall good?} \\
+        \input{sections/tables/cm-oregon-health.tex}
+        \\[-1.8ex]\hline \\[-1.8ex]
+        \multicolumn{1}{l}{\textbf{Panel B:} Happy overall?} \\
+        \input{sections/tables/cm-oregon-happy.tex}
+        \\[-1.8ex]\hline \\[-1.8ex]
+    \end{tabular}
+    \vspace{-0.125cm}
+    \label{tab:cm-oregon}
+    \justify
+    \footnotesize
+    \textbf{Note:}
+    This table shows the point estimates (and SEs in brackets) of applying the proposed CM methods to replication data from the Oregon Health Insurance Experiment \citep{icspr2014oregon}.
+    These figures were calculated by using the wait-lottery to instrument for having health insurance in 2008, using the \cite{abadie2003semiparametric} weighting scheme, as discussed in \aref{appendix:oregon}.
+    This means the effects identified here are averages among lottery compliers.
+    The First-stage refers to the average effect of health insurance on healthcare usage, ATE average effect of health insurance on surveyed outcomes, ADE and AIE to respective CM effects through and absent healthcare usage.
+    SEs were calculated with 1,000 bootstrap replications.
+\end{table}
+
+
+

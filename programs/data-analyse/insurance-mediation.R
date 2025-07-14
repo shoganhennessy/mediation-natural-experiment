@@ -15,6 +15,8 @@ library(mgcv)
 library(ggthemes)
 # Library for equations in plots
 library(latex2exp)
+# Package for LaTeX tables
+library(xtable)
 
 
 # Define folder paths (1) input data (2) clean data.
@@ -28,6 +30,8 @@ fig.width <- 15
 fig.height <- (2 / 3) * fig.width
 presentation.width <- 15
 presentation.height <- (2 / 3) * presentation.width
+# Number of digits to round to.
+digits.no <- 2
 # List of 3 default colours.
 colour.list <- c(
     "#1f77b4", # Blue
@@ -93,11 +97,6 @@ estimated.values <- function(firststage.reg, secondstage.reg, totaleffect.reg,
     # Return the output.list
     return(output.list)
 }
-
-# Get the df from a gam
-test.reg <- glm(Y_health ~ 1 + hh_size, data = analysis.data)
-print(summary(test.reg))
-length(test.reg$coefficients)
 
 # Define a function to Heckman selection correct mediation est, in two-stages.
 mediate.unadjusted <- function(Y, Z, D, X_iv, X_minus, data,
@@ -342,7 +341,7 @@ mediate.semiparametric <- function(Y, Z, D, X_iv, X_minus, data,
         weights = kappa.weight,
         data = data, subset = (D == 0))
     cf_secondstage_D1.reg <- gam(Y ~ 1 + Z + X_minus + lambda,
-        #pi.est + I(pi.est^2) + I(pi.est^3) + I(pi.est^4) + I(pi.est^5),
+        #pi.est + I(pi.est^2) + I(pi.est^3),# + I(pi.est^4) + I(pi.est^5),
         weights = kappa.weight,
         data = data, subset = (D == 1))
     count.coef <- count.coef + length(cf_secondstage_D0.reg$coefficients)
@@ -380,14 +379,6 @@ mediate.est <- mediate.semiparametric(
     Z_iv = "lottery_iv", control_iv = "hh_size",
     analysis.data)
 print(mediate.est)
-
-boot.reps <- 10
-mediate.boot <- boot(statistic = mediate.semiparametric, R = boot.reps,
-    data = analysis.data,
-    Y = "Y_health", Z = "any_insurance", D = "any_healthcare",
-    X_iv = "usual_health_location", X_minus = "intercept",
-    Z_iv = "lottery_iv", control_iv = "hh_size")
-
 
 ## Define a function to wrap around all the others.
 mediate.selection <- function(Y, Z, D, X_iv, X_minus, data,
@@ -501,16 +492,9 @@ print.summary.mediate.selection <- function(x, digits = 4, ...){
     print.default(round(x$coefficients, digits = digits), quote = FALSE)
 }
 
-## Test on the Oregon data.
-analysis.data$intercept <- 0
-mediate.est <- mediate.selection(
-    Y = "Y_health", Z = "any_insurance", D = "any_healthcare",
-    X_iv = "usual_health_location", X_minus = "intercept",
-    Z_iv = "lottery_iv", control_iv = "hh_size",
-    type = "parametric",
-    data = analysis.data,
-    boot.reps = 10)
-print(mediate.est)
+
+################################################################################
+## Show the regular location is a strong IV for healthcare visits.
 
 # Show that the health location influences healthcare take-up
 location.data <- analysis.data %>%
@@ -519,6 +503,7 @@ location.data <- analysis.data %>%
         any_healthcare_mean = mean(any_healthcare, na.rm = TRUE),
         any_healthcare_sd = sd(any_healthcare, na.rm = TRUE),
         count = n()) %>%
+    ungroup() %>%
     mutate(any_healthcare_se = any_healthcare_sd / (count^(0.5)))
 # Note values in usual health location:
 # 1 private clinic
@@ -532,4 +517,143 @@ location.data <- analysis.data %>%
 
 #TODO: code this as a simple a figure, justifying the instrument.
 
-#TODO: SHow one simple table of the results from the Oregon Health Insurance Experiment.
+
+################################################################################
+## Estimate the CM effects with my methods.
+
+# State how many bootstrap replications are needed.
+boot.reps <- 10^3
+# Define controls (none, for now).
+analysis.data$intercept <- 0
+
+## Panel A: Self-reported healthiness.
+# Naive selection-on-observables
+unadjusted.est <- mediate.selection(
+    Y = "Y_health", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    type = "unadjusted",
+    data = analysis.data,
+    boot.reps = boot.reps)
+# Parametric CF
+parametric.est <- mediate.selection(
+    Y = "Y_health", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    type = "parametric",
+    data = analysis.data,
+    boot.reps = boot.reps)
+# Semi-parametric CF
+semiparametric.est <- mediate.selection(
+    Y = "Y_health", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    type = "semi-parametric",
+    data = analysis.data,
+    boot.reps = boot.reps)
+
+# Extract the relevant figures.
+panelA.data <- data.frame(
+    unadjusted_point = coef(summary(unadjusted.est))[, "Estimate"],
+    unadjusted_se = coef(summary(unadjusted.est))[, "SE"],
+    parametric_point = coef(summary(parametric.est))[, "Estimate"],
+    parametric_se = coef(summary(parametric.est))[, "SE"],
+    semiparametric_point = coef(summary(semiparametric.est))[, "Estimate"],
+    semiparametric_se = coef(summary(semiparametric.est))[, "SE"])
+
+# Clean up the data.
+panelA.data <- panelA.data %>%
+    signif(digits.no) %>%
+    format(scientific = FALSE) %>%
+    as.character()
+panelA.data$unadjusted_se <- panelA.data$unadjusted_se %>% paste0("(", ., ")")
+panelA.data$parametric_se <- panelA.data$parametric_se %>% paste0("(", ., ")")
+panelA.data$semiparametric_se <- panelA.data$semiparametric_se %>% paste0("(", ., ")")
+panelA.data <- data.frame(t(panelA.data))
+# Add on the first column
+panelA.data$model <- c(
+    "Unadjusted", "", "Parametric CF", "", "Semi-parametric CF", "")
+panelA.data <- panelA.data[c(6, 1:5)]
+
+# Save the LaTeX table
+panelA.data %>%
+    xtable() %>%
+    print(
+        digits = digits.no,
+        sanitize.colnames.function = identity,
+        sanitize.text.function = identity,
+        NA.string = " ",
+        include.colnames = FALSE,
+        include.rownames = FALSE,
+        only.contents = TRUE,
+        hline.after = NULL,
+        format.args = list(big.mark = ","),
+        file = file.path(tables.folder, "cm-oregon-health.tex"))
+
+
+## Panel B: Self-reported happiness.
+# Naive selection-on-observables
+unadjusted.est <- mediate.selection(
+    Y = "Y_happy", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    type = "unadjusted",
+    data = analysis.data,
+    boot.reps = boot.reps)
+# Parametric CF
+parametric.est <- mediate.selection(
+    Y = "Y_happy", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    type = "parametric",
+    data = analysis.data,
+    boot.reps = boot.reps)
+# Semi-parametric CF
+semiparametric.est <- mediate.selection(
+    Y = "Y_happy", Z = "any_insurance", D = "any_healthcare",
+    X_iv = "usual_health_location", X_minus = "intercept",
+    Z_iv = "lottery_iv", control_iv = "hh_size",
+    type = "semi-parametric",
+    data = analysis.data,
+    boot.reps = boot.reps)
+
+# Extract the relevant figures.
+panelB.data <- data.frame(
+    unadjusted_point = coef(summary(unadjusted.est))[, "Estimate"],
+    unadjusted_se = coef(summary(unadjusted.est))[, "SE"],
+    parametric_point = coef(summary(parametric.est))[, "Estimate"],
+    parametric_se = coef(summary(parametric.est))[, "SE"],
+    semiparametric_point = coef(summary(semiparametric.est))[, "Estimate"],
+    semiparametric_se = coef(summary(semiparametric.est))[, "SE"])
+
+# Clean up the data.
+panelB.data <- panelB.data %>%
+    signif(digits.no) %>%
+    format(scientific = FALSE) %>%
+    as.character()
+panelB.data$unadjusted_se <- panelB.data$unadjusted_se %>% paste0("(", ., ")")
+panelB.data$parametric_se <- panelB.data$parametric_se %>% paste0("(", ., ")")
+panelB.data$semiparametric_se <- panelB.data$semiparametric_se %>% paste0("(", ., ")")
+panelB.data <- data.frame(t(panelB.data))
+# Add on the first column
+panelB.data$model <- c(
+    "Unadjusted", "", "Parametric CF", "", "Semi-parametric CF", "")
+panelB.data <- panelB.data[c(6, 1:5)]
+
+# Save the LaTeX table
+panelB.data %>%
+    xtable() %>%
+    print(
+        digits = digits.no,
+        sanitize.colnames.function = identity,
+        sanitize.text.function = identity,
+        NA.string = " ",
+        include.colnames = FALSE,
+        include.rownames = FALSE,
+        only.contents = TRUE,
+        hline.after = NULL,
+        format.args = list(big.mark = ","),
+        file = file.path(tables.folder, "cm-oregon-happy.tex"))
+
+#TODO: This would probably really benefit from control variables, in the pi.est.
+#TODO: code the control variables for this.
