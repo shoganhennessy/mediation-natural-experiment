@@ -138,55 +138,82 @@
 \section{Introduction}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{Introduction: Oregon Health Insurance}
-    In 2008, the US state Oregon started providing socialised health insurance to poor residents (Finkelstein et al, 2012).
-    \begin{itemize}
-        \item Over-subscribed, so random lottery assignment off a wait-list.
-    \end{itemize}
-    \vspace{-0.5cm}
+    \frametitle{Oregon Health Insurance Experiment}
+    Oregon gave health insurance by wait-list lottery (Finkelstein et al, 2012).
+    \vspace{-0.35cm}
     \begin{figure}
         \centering
         \singlespacing
         \includegraphics[width=0.85\textwidth]{
-            presentation-files/figures/lottery-effects.png}
-            
+            ../text/sections/figures/insurance-effects.png}
     \end{figure}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{Introduction: Oregon Health Insurance}
-    In 2008, the US state Oregon started providing socialised health insurance to poor residents (Finkelstein et al, 2012).
-    \begin{itemize}
-        \item Over-subscribed, so random lottery assignment off a wait-list.
-    \end{itemize}
-    \vspace{-0.5cm}
+    \frametitle{Oregon Health Insurance Experiment}
+    Oregon gave health insurance by wait-list lottery (Finkelstein et al, 2012).
+    \vspace{-0.25cm}
     \begin{figure}
-        \centering
-        \singlespacing
-        \includegraphics[width=0.85\textwidth]{
-            presentation-files/figures/insurance-effects.png}
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2cm of mediator] {$Y_i$};
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Healthcare};
+            \node[color=blue] [left=0.1cm of treatment] {Health insurance};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Health \& \\ Happiness};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            %\path[->, dashed,color=gray] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label the IV.
+            \node[state,thick,RoyalPurple] (treatmentIV) [above=0.75cm of treatment] {IV};
+            \node[color=RoyalPurple] [left=0.1cm of treatmentIV] {Wait-list lottery};
+            \path[->,thick,color=RoyalPurple] (treatmentIV) edge (treatment);
+        \end{tikzpicture}
     \end{figure}
+    $\Rightarrow$ suggestive evidence of healthcare visits as a mechanism for health insurance gains.
+    \begin{itemize}
+        \item Missing the $D_i \to Y_i$ edge of the triangular system...
+        \item Is it small, large, or even existent?
+        \item Where else do we accept assumed causal effects without evidence?
+    \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
-\begin{frame}[noframenumbering]
-    \frametitle{Introduction: Oregon Health Insurance}
-    In 2008, the US state Oregon started providing socialised health insurance to poor residents (Finkelstein et al, 2012).
-    
-    \vfill
-    Slide describing why the effect on outcomes might not just be physical; consider less stress from being uninsured.
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}[noframenumbering]
-    \frametitle{Introduction: Oregon Health Insurance}
-    In 2008, the US state Oregon started providing socialised health insurance to poor residents (Finkelstein et al, 2012).
-    
-    \vfill
-    Brief demonstration of what flies in applied economics, an ``informal mechanism analysis.''
+\begin{frame}
+    \frametitle{Oregon Health Insurance Experiment}
+    Oregon gave health insurance by wait-list lottery (Finkelstein et al, 2012).
+    \vspace{-0.25cm}
+    \begin{figure}
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2cm of mediator] {$Y_i$};
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Healthcare};
+            \node[color=blue] [left=0.1cm of treatment] {Health insurance};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Health \& \\ Happiness};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            %\path[->, dashed,color=gray] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label the IV.
+            \node[state,thick,RoyalPurple] (treatmentIV) [above=0.75cm of treatment] {IV};
+            \node[color=RoyalPurple] [left=0.1cm of treatmentIV] {Wait-list lottery};
+            \path[->,thick,color=RoyalPurple] (treatmentIV) edge (treatment);
+        \end{tikzpicture}
+    \end{figure}
+    $\Rightarrow$ suggestive evidence of healthcare visits as a mechanism for health insurance gains.
+    \begin{enumerate}
+        \item This paper considers an alternative approach, Causal Mediation (CM)
+        \item CM explicitly states its estimands $+$ identifying assumptions
+        \item Hugely popular in other fields, but not so in quas-experimental economics (for good reason...) 
+    \end{enumerate}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Introduction}
-    This project examines Causal Mediation from an economic perspective:
+    This project examines Causal Mediation (CM) with economic perspective:
     \begin{enumerate}
         \item Problems with conventional approach to CM (and informal mechanism analyses) in social science settings --- focusing on natural experiments.
         \\ \textbf{[Negative result]}
@@ -196,13 +223,13 @@
     \par\noindent\rule{\textwidth}{0.4pt}
     Brings together ideas from two different literatures:
     \begin{itemize}
-        \item \textbf{Causal mediation.}
-        \\ Baron Kelly (1986), Imai Keele Yamamoto (2010), Flores Flores-Lagunes (2012), Fr\"olich Huber (2017), Huber (2020), Kwon Roth (2024).
+        \item \textbf{Causal Mediation (CM).}
+        \\ Imai Keele Yamamoto (2010), Fr\"olich Huber (2017), Deuchert Huber Schelker (2019), Huber (2020), Kwon Roth (2024).
         \item \textbf{Labour theory, Selection-into-treatment, MTEs.}
         \\ Roy (1951), Heckman (1979), Heckman Honor\'e (1990), Vycatil (2002), Heckman Vycatil (2005), Kline Walters (2019).
     \end{itemize}
 \end{frame}%-------------------------------------------------------------------------------
-\section{1. Direct \& Indirect Effects}
+\section{1. CM}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Direct \& Indirect Effects --- Model}
@@ -270,46 +297,6 @@
             \path[->, thick] (mediator) edge (outcome);
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
             % Label direct and indirect effect
-            \pause
-            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
-            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
-            \node[color=orange] [below=0.5cm of mediator] {Direct Effect};
-        \end{tikzpicture}
-    \end{figure}
-    \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
-    Suppose $Z_i$ is ignorable, conditional on controls $\vec X_i$.
-    \[ Z_i \indep  D_i(z), Y_i(z', d') \; \; | \;\; \vec X_i \text{ for } z, z', d' = 0, 1. \]
-
-    \vfill
-    E.g., a natural experiment for $\textcolor{blue}{Z_i}$ disrupting open-world selection-into-$Z_i$
-    \begin{itemize}
-        \item Oregon wait-list lottery for \textcolor{blue}{health insurance} (Finkelstein et al, 2012).
-    \end{itemize}
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}[noframenumbering]
-    \frametitle{Direct \& Indirect Effects --- Model}
-    Consider binary \textcolor{blue}{treatment $Z_i = 0, 1$},
-    binary \textcolor{ForestGreen}{mediator $D_i = 0, 1$},
-    and continuous \textcolor{red}{outcome $Y_i$} for individuals $i = 1, \hdots, N$.
-    \vskip-0.5cm
-    \begin{figure}
-        \centering
-        \singlespacing
-        \begin{tikzpicture}
-            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
-            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
-            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
-            % Label Z, D, Y
-            \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
-            \node[color=blue] [left=0.1cm of treatment] {Treatment};
-            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
-            % Draw the causal arrows
-            \path[->, thick] (treatment) edge (mediator);
-            \path[->, thick] (mediator) edge (outcome);
-            \path[->, thick] (treatment) edge[bend right=30] (outcome);
-            % Label direct and indirect effect
             \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
             \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
             \node[color=orange] [below=0.5cm of mediator] {Direct Effect};
@@ -319,7 +306,6 @@
     Suppose $Z_i$ is ignorable, conditional on $\vec X_i$.
     \[ Z_i \indep  D_i(z), Y_i(z', d') \; \; | \;\; \vec X_i \text{ for } z, z', d' = 0, 1. \]
 
-    \pause
     Only two causal effects are identified so far.
     \begin{align*}
     \text{ATE:} \;\; \E{Y_i(1, D_i(1)) - Y_i(0, D_i(0))}
@@ -358,12 +344,10 @@
     \end{figure}
     \vskip-0.5cm
     \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
     First-stage and ATE answer important questions:
     \begin{itemize}
-        \item Did socialised health insurance increase hospital use, and improve health? (Finkelstein et al, 2012).
+        \item Did socialised health insurance increase healthcare use, and improve health? (Finkelstein et al, 2012).
     \end{itemize}
-    \pause
     Unanswered questions about the mechanism(s):
     \begin{itemize}
         \item Did health benefits come from using health care more?
@@ -407,7 +391,6 @@
     \begin{itemize}
         \item ADE is causal effect $Z\to Y$, blocking the indirect $D$ path.
     \end{itemize}
-    \pause
     \vskip0.25cm
     \[ \text{Average Indirect Effect (AIE):} \;\;\;
     \E{Y_i\left(Z_i, \eqhighlight{ForestGreen}{D_i(1)} \right)
@@ -429,81 +412,16 @@
     \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
     If \textbf{SI} holds then ADE and AIE are identified by two-stage regression:
-    \begin{align*}
-        \text{ADE} &= \E[D_i, \vec X_i]{
-            \underbrace{\Egiven{Y_i}{Z_i = 1, D_i, \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i, \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i, \vec X_i$ constant}}}
-    \end{align*}
-    \vskip0.75cm
-    \par\noindent\rule{\textwidth}{0.4pt}
-    \vskip-0.6cm
-    \begin{figure}
-        \centering
-        \singlespacing
-        \begin{tikzpicture}
-            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
-            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
-            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
-            % Label Z, D, Y
-            \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
-            \node[color=blue] [left=0.1cm of treatment] {Treatment};
-            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
-            % Draw the causal arrows
-            \path[->, thick] (treatment) edge (mediator);
-            \path[->, thick] (mediator) edge (outcome);
-            \path[->, thick] (treatment) edge[bend right=30] (outcome);
-            % Label direct and indirect effect
-            %\node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
-            %\node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
-            \node[color=orange] [below=0.5cm of mediator] {Direct Effect};
-            \node[color=red] [left=0.75cm  of mediator] {\textbf X};
-            \node[color=red] [right=0.75cm of mediator] {\textbf X};
-            \node[color=red] at (0,0) {\textbf X};
-        \end{tikzpicture}
-    \end{figure}
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}[noframenumbering]
-    \frametitle{Direct \& Indirect Effects --- Identification} 
-    \textbf{Sequential ignorability} (\textbf{SI}, Imai Keele Yamamoto 2010):
-    \vskip0.125cm
-    Assume \textcolor{ForestGreen}{mediator $D_i$} is \textit{also} ignorable, conditional on $\vec X_i$ and \textcolor{blue}{$Z_i$ realisation}
-    \[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
-    \text{ for } z', d' = 0, 1. \]
-    \vskip-0.25cm
-    \par\noindent\rule{\textwidth}{0.4pt}
-    If \textbf{SI} holds then ADE and AIE are identified by two-stage regression:
-    \[ \text{AIE} = \E[Z_i, \vec X_i]{
-        \begin{aligned}
-            & \underbrace{\Big(\Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i} \Big)}_{\text{First-stage regression, $D_i$ on $Z_i$}} \\
-            & \times \underbrace{\Big(
-                \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i, \vec X_i$ constant}}
-        \end{aligned}} \]
-    \par\noindent\rule{\textwidth}{0.4pt}
-    \vskip-0.5cm
-    \begin{figure}
-        \centering
-        \singlespacing
-        \begin{tikzpicture}
-            \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
-            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z$};
-            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y$};
-            % Label Z, D, Y
-            \node[color=ForestGreen] [above=0.1cm of mediator] {Mediator};
-            \node[color=blue] [left=0.1cm of treatment] {Treatment};
-            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
-            % Draw the causal arrows
-            \path[->, thick] (treatment) edge (mediator);
-            \path[->, thick] (mediator) edge (outcome);
-            \path[->, thick] (treatment) edge[bend right=30] (outcome);
-            % Label direct and indirect effect
-            \node[color=orange] [above left=-0.35cm and 0.2cm of mediator] {First-stage};
-            \node[color=orange] [above right=-0.3cm and 0.4cm of mediator] {Indirect};
-            %\node[color=orange] [below=0.5cm of mediator] {Direct Effect};
-            \node[color=red] [below=0.3cm of mediator] {\textbf X};
-            \node[color=red] [below left=0.175cm and 0.75cm of mediator] {\textbf X};
-            \node[color=red] [below right=0.175cm and 0.75cm of mediator] {\textbf X};
-        \end{tikzpicture}
-    \end{figure}
+    \makebox[\textwidth]{\parbox{1.25\textwidth}{
+        \footnotesize
+\[ \E[D_i, \vec X_i]{
+    \underbrace{\Egiven{Y_i}{Z_i = 1, D_i, \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i, \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i, \vec X_i$ constant}}}
+    = \text{ADE} \]
+\[ \E[Z_i, \vec X_i]{ \begin{aligned}&\underbrace{\Big(
+    \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i} \Big)}_{\text{First-stage regression, $D_i$ on $Z_i$}}\\
+    &\times \underbrace{\Big(
+    \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i, \vec X_i$ constant}} \end{aligned}} = \text{AIE} \]
+}}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
@@ -549,7 +467,6 @@
     $\to$ big gain!
     \par\noindent\rule{\textwidth}{0.4pt}
 
-    \pause
     \vfill
     Before we import these methods to applied/labour economics and observational research, interrogate the \textbf{SI} assumption.
     \[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
@@ -557,36 +474,26 @@
     \colorbox{yellow}{Would this assumption hold true in settings economists study?}
 \end{frame}
 %-------------------------------------------------------------------------------
+\section{2. Selection Bias}
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection} 
-    Oregon health insurance experiment (Finkelstein$+$ 2012).
+    E.g., Oregon Health Insurance Experiment.
     \vspace{-0.4cm}
 
-    \begin{figure}[h!]
-        \centering
-        \singlespacing
-        \begin{subfigure}[c]{0.35\textwidth}
-            \centering
-            %%\includegraphics[width=\textwidth]{presentation-files/headlines/finkelstein-2019.png}
-        \end{subfigure}
-        \begin{subfigure}[c]{0.55\textwidth}
-            \begin{tikzpicture}
-                \node[state, thick,ForestGreen] (mediator) at (0,0) {$D$};
-                \node[state, thick,blue] (treatment) [left=1.25cm of mediator] {$Z$};
-                \node[state, thick,red] (outcome) [right=1.25cm of mediator] {$Y$};
-                % Label the nodes with econ examples
-                \node[color=blue, above=0.1cm of treatment] {Medicaid};
-                \node[color=red, above=0.1cm of outcome] {Health};
-                \node[color=ForestGreen, above=0.1cm of mediator] {Hospital use};
-                % Add in direct + indirect effects.
-                %\path[->,thick] (treatment) edge[bend right=45] (outcome);
-                % Label the pathways with the colours
-                \path[->, thick] (treatment) edge (mediator);
-                \path[->, thick] (mediator) edge (outcome);
-                \path[->, thick] (treatment) edge[bend right=35] (outcome);
-                \node[color=MidnightBlue, below=0.5cm of mediator] {All else (e.g., less worry)};
-            \end{tikzpicture}
-        \end{subfigure}
+    \begin{figure}
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2cm of mediator] {$Y_i$};
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Healthcare};
+            \node[color=blue] [left=0.1cm of treatment] {Health insurance};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Health \& \\ Happiness};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator) edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+        \end{tikzpicture}
     \end{figure}
     \par\noindent\rule{\textwidth}{0.4pt}
     
@@ -594,8 +501,8 @@
     \[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
     \text{ for } z', d' = 0, 1. \]
     \begin{enumerate}
-        \item Medicaid assigned randomly (ensured by studying the 2008 Oregon wait-list lottery).
-        \item \colorbox{yellow}{Healthcare usage is quasi-random, conditional on Medicaid assignment $Z_i$} \\
+        \item Health insurance assigned randomly (e.g., the 2008 Oregon wait-list lottery).
+        \item \colorbox{yellow}{Healthcare is quasi-random, conditional on health insurance $Z_i$} \\
         \colorbox{yellow}{and demographics $\vec X_i$.}
     \end{enumerate}
 \end{frame}
@@ -603,18 +510,17 @@
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection} 
     \colorbox{yellow}{\textbf{SI:}
-        Hospital usage is quasi-random, conditional on Medicaid assignment} \\
+        healthcare usage is quasi-random, conditional on Health insurance assignment} \\
     \colorbox{yellow}{$Z_i$ and demographics $\vec X_i$.}
 
     \vskip0.25cm
-    Consider the case \textbf{individuals go to the hospital} to maximise health.
+    Consider the case \textbf{individuals go to the healthcare} to maximise health.
     \[ D_i \left( z' \right) = \indicator{
         \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
         \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1.
     \]
     i.e., Roy (1951) selection into $D_i$.
     \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
     \vfill
     \textbf{Theorem:}
     If selection is Roy-style, and benefits are not 100\% explained by $Z_i, \vec X_i$, then \textbf{SI} does not hold.
@@ -626,18 +532,17 @@
 \begin{frame}[noframenumbering]
     \frametitle{Direct \& Indirect Effects --- Selection} 
     \colorbox{yellow}{\textbf{SI:}
-        Hospital usage is quasi-random, conditional on Medicaid assignment} \\
+        healthcare usage is quasi-random, conditional on Health insurance assignment} \\
     \colorbox{yellow}{$Z_i$ and demographics $\vec X_i$.}
 
     \vskip0.25cm
-    Consider the case \textbf{individuals go to the hospital} to maximise health.
+    Consider the case \textbf{individuals go to the healthcare} to maximise health.
     \[ D_i \left( z' \right) = \indicator{
         \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
         \geq \underbrace{C_i}_{\text{Costs}}}, \;\;\; \text{for } z'=0,1.
     \]
     i.e., Roy (1951) selection into $D_i$.
     \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
     Roy selection-into-$D$ $\implies$ unobserved confounder $\vec U$ \\
     e.g., underlying health conditions.
     \vskip-1.375cm
@@ -649,17 +554,17 @@
             \node[state, thick,blue] (treatment) [left=2.5cm of mediator] {$Z$};
             \node[state, thick,red] (outcome) [right=2.5cm of mediator] {$Y$};
             % Label Z, D, Y
-            \node[color=ForestGreen] [above=0.1cm of mediator] {Hospital Use};
-            \node[color=blue] [left=0.1cm of treatment] {Medicaid};
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Healthcare};
+            \node[color=blue] [left=0.1cm of treatment] {Health insurance};
             \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Health};
             % Draw the causal arrows
             \path[->, thick] (treatment) edge (mediator);
             \path[->, thick] (mediator) edge (outcome);
-            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            \path[->, thick] (treatment) edge[bend right=20] (outcome);
             % Label direct and indirect effect
-            \node[color=orange] [below left=-0.2cm and 0.2cm of mediator] {First-stage};
-            \node[color=orange] [below right=-0.2cm and 0.5cm of mediator] {LAIE};
-            \node[color=orange] [below=0.675cm of mediator] {Direct Effect};
+            %\node[color=orange] [below left=-0.2cm and 0.2cm of mediator] {First-stage};
+            %\node[color=orange] [below right=-0.2cm and 0.5cm of mediator] {LAIE};
+            %\node[color=orange] [below=0.675cm of mediator] {Direct Effect};
             % Add in the confounders
             %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
             %\path[->,RoyalPurple] (confounderX) edge (mediator);
@@ -814,7 +719,7 @@
     \end{align*}}
 \end{frame}
 %-------------------------------------------------------------------------------
-\section{2. Identification with a Control Function}
+\section{3. Control Function}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Identification Under Selection}
@@ -823,7 +728,6 @@
     \par\noindent\rule{\textwidth}{0.4pt}
     \vskip0.25cm
     If you can use a two-way research design, then please do!
-    \pause
     \begin{figure}
         \centering
         \singlespacing
@@ -868,7 +772,6 @@
     \par\noindent\rule{\textwidth}{0.4pt}
     \vskip0.25cm
     If you can use a two-way research design, then please do!
-    \pause
     \begin{figure}
         \centering
         \singlespacing
@@ -893,10 +796,10 @@
             \path[->, thick,   violet] (IV-Z) edge (treatment);
             \path[->, thick,   violet] (IV-D) edge (mediator);
             % and the exclusion restrictions
-            \pause
+            
             \path[->, dashed, red] (IV-Z) edge (mediator);
             \path[->, dashed, red] (IV-Z) edge (outcome);
-            \pause
+            
             \path[->, dashed, red] (IV-D) edge (treatment);
             \path[->, dashed, red] (IV-D) edge (outcome);
             %\node[state, thick,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
@@ -1281,7 +1184,6 @@
             \;\; \text{Costs }C_i \sim N(0, 0.5). $
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
     Roy \textcolor{ForestGreen}{selection-into-$D_i$}, with constant partial effects $+$ interaction term.
     \begin{align*}
         D_i(z')    &= \indicator{Y_i(z', 1) - Y_i(z', 0) \geq C_i},&  \\
@@ -1289,7 +1191,6 @@
         & \text{ for } z',d' = 0,1.
     \end{align*}
     \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
     Following the previous, these data have the following first and second-stage equations, where $\vec X_i^\text{IV}$ is an additive cost IV:
     \begin{align*}
         D_i &= \indicator{Z_i - \vec X_i^{\text{IV}}
@@ -1340,6 +1241,8 @@
     \end{figure}
 \end{frame}
 %-------------------------------------------------------------------------------
+\section{4. Oregon}
+%-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Conclusion}
     \textbf{Overarching goals:}
@@ -1350,7 +1253,6 @@
         $\to$ Methods valid when selection-into-treatment theory relevant.
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
     \textbf{Work-in-progress part of LWIPS:}
     \begin{itemize}
         \item Connect the control function approach to MTE methods
