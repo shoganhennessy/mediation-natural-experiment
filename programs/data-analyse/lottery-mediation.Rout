@@ -1,0 +1,743 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #!/usr/bin/R
+> ## Senan Hogan-Hennessy, 11 July 2025.
+> ## Script to to extract relevant data from Oregon Health Insurance rep package.
+> print(Sys.time())
+[1] "2025-07-29 11:49:22 EDT"
+> set.seed(47)
+> 
+> ## Packages:
+> # functions for data manipulation and visualisation
+> library(tidyverse)
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+> # Functions for bootstrapping.
+> library(boot)
+> # Package forsemi-parametric CF by splines.
+> library(mgcv)
+Loading required package: nlme
+
+Attaching package: ‘nlme’
+
+The following object is masked from ‘package:dplyr’:
+
+    collapse
+
+This is mgcv 1.9-1. For overview type 'help("mgcv-package")'.
+> library(splines)
+> # Library for better colour choice.
+> library(ggthemes)
+> # Library for equations in plots
+> library(latex2exp)
+> # Package for LaTeX tables
+> library(xtable)
+> 
+> 
+> # Define folder paths (1) input data (2) clean data.
+> data.folder <- file.path("..", "..", "data", "oregon-lottery-icspr")
+> figures.folder <- file.path("..", "..", "text", "sections", "figures")
+> tables.folder <- file.path("..", "..", "text", "sections", "tables")
+> presentation.folder <- file.path("..", "..", "presentation",
++     "presentation-files", "figures")
+> # Size of figures.
+> fig.width <- 15
+> fig.height <- (2 / 3) * fig.width
+> presentation.width <- 15
+> presentation.height <- (2 / 3) * presentation.width
+> # Number of digits to round to.
+> digits.no <- 2
+> # List of 3 default colours.
+> colour.list <- c(
++     "#1f77b4", # Blue
++     "#2ca02c", # Green
++     "#d62728") # Red
+> 
+> 
+> ################################################################################
+> ## Load the Oregon Health Insurance Experiment replication data.
+> 
+> # Load the pre-cleaned Oregon Health data.
+> analysis.data <- data.folder %>%
++     file.path("cleaned-oregon-data.csv") %>%
++     read_csv()
+Rows: 11126 Columns: 17
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (17): lottery_iv, hh_size, any_insurance, any_healthcare, usual_health_l...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+> 
+> # Factorise the relevant variables.
+> analysis.data$hh_size <- factor(analysis.data$hh_size)
+> analysis.data$usual_health_location <- factor(
++     analysis.data$usual_health_location)
+> 
+> 
+> ################################################################################
+> ## Define the functions to use.
+> 
+> # Estimate the values, given a first and second-stages
+> estimated.values <- function(firststage.reg, secondstage.reg, totaleffect.reg,
++     data, complier.adjustment = NULL){
++     ### Inputs:
++     ## data, a data frame simulated from above.
++     input_Z0.data <- data
++     input_Z1.data <- data
++     input_D0.data <- data
++     input_D1.data <- data
++     input_Z0.data$Z <- 0
++     input_Z1.data$Z <- 1
++     input_D0.data$D <- 0
++     input_D1.data$D <- 1
++     # calculate the first-stage by prediction
++     firststage.est <- predict(
++         firststage.reg, newdata = input_Z1.data, type = "response") - predict(
++             firststage.reg, newdata = input_Z0.data, type = "response")
++     # Calculate the total effect estimate by prediction.
++     totaleffect.est <- predict(
++         totaleffect.reg, newdata = input_Z1.data) - predict(
++             totaleffect.reg, newdata = input_Z0.data)
++     # calculate the second-stage direct effect
++     direct.est <- predict(
++         secondstage.reg, newdata = input_Z1.data) - predict(
++             secondstage.reg, newdata = input_Z0.data)
++     # calculate the second-stage (controlled) indirect effect
++     indirect.est <- predict(
++         secondstage.reg, newdata = input_D1.data) - predict(
++             secondstage.reg, newdata = input_D0.data)
++     # Add the Kline Walters (2019) IV-type complier adjustment (provided externally).
++     if (!is.null(complier.adjustment)) {
++         indirect.est <- indirect.est + complier.adjustment
++     }
++     # Return the mean estimates.
++     output.list <- list(
++         "first-stage"     = mean(firststage.est, na.rm = TRUE),
++         "total-effect"    = mean(totaleffect.est, na.rm = TRUE),
++         "direct-effect"   = mean(direct.est, na.rm = TRUE),
++         "indirect-effect" = mean(firststage.est * indirect.est, na.rm = TRUE))
++     # Return the output.list
++     return(output.list)
++ }
+> 
+> # Define a function to Heckman selection correct mediation est, in two-stages.
+> mediate.unadjusted <- function(Y, Z, D, X_iv, data,
++     X_minus = NULL, control_iv = NULL, indices = NULL){
++     # Bootstrap sample, if indices provided.
++     if (!is.null(indices)){
++         data <- data[indices, ]
++     }
++     # Make the names consistent
++     data$Y <- data[[Y]]
++     data$Z <- data[[Z]]
++     data$D <- data[[D]]
++     total.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus))
++     firststage.formula <- formula(paste0("D ~ 1 + Z * (", X_iv, ") +", X_minus))
++     secondstage.formula <- formula(paste0("Y ~ 1 + Z * D + ", X_minus))
++     # Start counting coefficients estimated.
++     count.coef <- 0
++     # 0. Total effect regression.
++     totaleffect.reg <- lm(total.formula, data = data)
++     count.coef <- count.coef + length(totaleffect.reg$coefficients)
++     # 1. Regular first-stage (well identified).
++     firststage.reg <- lm(firststage.formula, data = data)
++     count.coef <- count.coef + length(firststage.reg$coefficients)
++     # 2. Estimate second-stage (naive case has no CFs).
++     unadjusted_secondstage.reg <- lm(secondstage.formula, data = data)
++     count.coef <- count.coef + length(unadjusted_secondstage.reg$coefficients)
++     # Compile the estimates.
++     unadjusted.est <- estimated.values(
++         firststage.reg, unadjusted_secondstage.reg,
++         totaleffect.reg, data,
++         complier.adjustment = NULL)
++     # Return the off-setting estimates.
++     output.list <- c(
++         unadjusted.est$"first-stage",
++         unadjusted.est$"total-effect",
++         unadjusted.est$"direct-effect",
++         unadjusted.est$"indirect-effect",
++         count.coef)
++     return(output.list)
++ }
+> 
+> #! Test it out, with the specification I want.
+> mediate.est <- mediate.unadjusted(
++     Y = "Y_health", Z = "lottery_iv", D = "any_insurance",
++     X_iv = "usual_health_location",
++     X_minus = paste0("hh_size + dia_diagnosis +",
++         "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
++         "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
++     analysis.data)# %>% sample_frac(prop = 1, replace = TRUE))
+> print(mediate.est)
+[1]  0.18410960  0.05271893  0.03620666  0.01362546 53.00000000
+> 
+> # Define a function to Heckman selection correct mediation est, in two-stages.
+> lambda_1.fun <- function(pi.est){
++         # Inv Mills ratio, taking as input the estimated mediator propensity.
++         return(dnorm(qnorm(pi.est)) / pnorm(qnorm(pi.est)))
++     }
+> # THe actual function.
+> mediate.heckit <- function(Y, Z, D, X_iv, data,
++     X_minus = NULL, indices = NULL){
++     # Bootstrap sample, if indices provided.
++     if (!is.null(indices)){
++         data <- data[indices, ]
++     }
++     # Make the names consistent
++     data$Y <- data[[Y]]
++     data$Z <- data[[Z]]
++     data$D <- data[[D]]
++     total.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus))
++     firststage.formula <- formula(paste0("D ~ 1 + Z * (", X_iv, ") +", X_minus))
++     secondstage.formula <- formula(paste0("Y ~ 1 + Z * D + ", X_minus,
++         " + lambda_0 + lambda_1"))
++     # Start counting coefficients estimated.
++     count.coef <- 0
++     # 0. Total effect regression.
++     totaleffect.reg <- lm(total.formula, data = data)
++     count.coef <- count.coef + length(totaleffect.reg$coefficients)
++     # 1. Probit first-stage (well identified).
++     heckit_firststage.reg <- glm(firststage.formula,
++         family = binomial(link = "probit"),
++         data = data)
++     count.coef <- count.coef + length(heckit_firststage.reg$coefficients)
++     # 2. Define the CFs --- for assumed N(0,1) dist.
++     pi.est <- predict(heckit_firststage.reg, type = "response")
++     data$lambda_0 <- (1 - data$D) * lambda_1.fun(pi.est) * (
++         - pi.est / (1 - pi.est))
++     data$lambda_1 <- data$D * lambda_1.fun(pi.est)
++     # 3. Estimate second-stage, including the CFs.
++     heckit_secondstage.reg <- lm(secondstage.formula, data = data)
++     count.coef <- count.coef + length(heckit_secondstage.reg$coefficients)
++     # Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
++     input_Z0.data <- data
++     input_Z1.data <- data
++     input_Z0.data$Z <- 0
++     input_Z1.data$Z <- 1
++     pi_0.est <- predict(heckit_firststage.reg, newdata = input_Z0.data)
++     pi_1.est <- predict(heckit_firststage.reg, newdata = input_Z1.data)
++     Gamma.big <-  (pi_1.est * lambda_1.fun(pi_1.est)
++         - pi_0.est * lambda_1.fun(pi_0.est)) / (pi_1.est - pi_0.est)
++     rho_0 <- as.numeric(coef(heckit_secondstage.reg)["lambda_0"])
++     rho_1 <- as.numeric(coef(heckit_secondstage.reg)["lambda_1"])
++     complier.adjustment <- (rho_1 - rho_0) * Gamma.big
++     # Compile the estimates.
++     heckit.est <- estimated.values(
++         heckit_firststage.reg, heckit_secondstage.reg,
++         totaleffect.reg, data,
++         complier.adjustment = complier.adjustment)
++     # Return the off-setting estimates.
++     output.list <- c(
++         heckit.est$"first-stage",
++         heckit.est$"total-effect",
++         heckit.est$"direct-effect",
++         heckit.est$"indirect-effect",
++         count.coef)
++     return(output.list)
++ }
+> 
+> #! Test it out, with the specification I want.
+> mediate.est <- mediate.heckit(
++     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
++     X_iv = "usual_health_location",
++     X_minus = paste0("hh_size + dia_diagnosis +",
++         "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
++         "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
++     data = analysis.data %>% sample_frac(prop = 1, replace = TRUE))
+Warning messages:
+1: In qnorm(pi.est) : NaNs produced
+2: In qnorm(pi.est) : NaNs produced
+3: In qnorm(pi.est) : NaNs produced
+4: In qnorm(pi.est) : NaNs produced
+> print(mediate.est)
+[1]  0.04902046  0.04963009  0.02958301  0.01810015 55.00000000
+> 
+> # Define a function to two-stage semi-parametric CF for CM effects.
+> mediate.semiparametric <- function(Y, Z, D, X_iv, data,
++     X_minus = NULL, indices = NULL){
++     # Bootstrap sample, if indices provided.
++     if (!is.null(indices)){
++         data <- data[indices, ]
++     }
++     # Make the names consistent
++     data$Y <- data[[Y]]
++     data$Z <- data[[Z]]
++     data$D <- data[[D]]
++     total.formula <- formula(paste0("Y ~ 1 + Z +", X_minus))
++     firststage.formula <- formula(paste0("D ~ 1 + Z * (", X_iv, ") +", X_minus))
++     secondstage.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus,
++         " + s(pi.est, bs = 'cr')"))
++     # Get relevant columns for imputation.
++     input_Z0.data <- data
++     input_Z1.data <- data
++     input_D0.data <- data
++     input_D1.data <- data
++     input_Z0.data$Z <- 0
++     input_Z1.data$Z <- 1
++     input_D0.data$D <- 0
++     input_D1.data$D <- 1
++     # Start counting coefficients estimated.
++     count.coef <- 0
++     # 1. Total effect regression.
++     totaleffect.reg <- lm(total.formula, data = data)
++     totaleffect.est <- mean(predict(
++         totaleffect.reg, newdata = input_Z1.data) - predict(
++             totaleffect.reg, newdata = input_Z0.data))
++     count.coef <- count.coef + length(totaleffect.reg$coefficients)
++     # 2. Semi-parametric first-stage
++     cf_firststage.reg <- glm(firststage.formula,
++         family = binomial(link = "probit"),
++         data = data)
++     data$pi.est <- predict(cf_firststage.reg, type = "response")
++     pi_0.est <- predict(cf_firststage.reg, newdata = input_Z0.data, type = "response")
++     pi_1.est <- predict(cf_firststage.reg, newdata = input_Z1.data, type = "response")
++     pi.bar <- mean(pi_1.est - pi_0.est)
++     count.coef <- count.coef + length(cf_firststage.reg$coefficients)
++     # Calculate the levels of pi, accounting for few values in the IV.
++     distinct_cf.values <- min(
++         length(unique(data$pi.est)) - 2, as.integer(nrow(data) / 2000))
++     # 3. Semi-parametric series estimation of the second-stage.
++     cf_secondstage_D0.reg <- gam(secondstage.formula,
++         method = "REML", data = data, subset = (D == 0))
++     cf_secondstage_D1.reg <- gam(secondstage.formula,
++         method = "REML", data = data, subset = (D == 1))
++     count.coef <- count.coef + length(cf_secondstage_D0.reg$coefficients)
++     count.coef <- count.coef + length(cf_secondstage_D1.reg$coefficients)
++     # 4. Compose the CM effects from this object.
++     D_0 <- 1 - mean(data$D)
++     D_1 <- 1 - D_0
++     # 4.1 ADE point estimate, from the CF model.
++     gammma.est <- coef(cf_secondstage_D0.reg)["Z"]
++     delta_plus.est <- coef(cf_secondstage_D1.reg)["Z"]
++     ade.est <- as.numeric(D_0 * gammma.est + D_1 * delta_plus.est)
++     # 4.2 AIE by using ADE estimate, relative to ATE.
++     # (Avoiding semi-parametric extrapolation, see notes on ATE comparison)
++     delta.est <- delta_plus.est - gammma.est
++     ade_Z0.est <- gammma.est + delta.est * mean(
++         data$D[data$Z == 0])
++     ade_Z1.est <- gammma.est + delta.est * mean(
++         data$D[data$Z == 1])
++     aie.est <- (totaleffect.est - mean(
++         (1 - data$Z) * ade_Z1.est + (data$Z) * ade_Z0.est))
++     # Return the estimates.
++     output.list <- c(
++         pi.bar,
++         totaleffect.est,
++         ade.est,
++         aie.est,
++         count.coef)
++     return(output.list)
++ }
+> 
+> #! Test it out, with the specification I want.
+> mediate.est <- mediate.semiparametric(
++     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
++     X_iv = "usual_health_location",
++     X_minus = paste0("hh_size + dia_diagnosis +",
++         "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
++         "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
++     data = analysis.data)# %>% sample_frac(prop = 1, replace = TRUE))
+> print(mediate.est)
+[1]  0.04172030  0.05271893  0.01818865  0.03453035 82.00000000
+> 
+> # Define a function to bootstrap.
+> mediate.bootstrap <- function(Y, Z, D, X_iv, data,
++         X_minus = NULL, type = "parametric", boot.reps = 10){
++     # Define an empty data.frame.
++     boot.data <- data.frame(matrix(ncol = 4, nrow = 0))
++     names(boot.data) <- c(
++         "First-stage", "ATE", "ADE", "AIE")
++     j <- 1
++     for (i in 1:boot.reps){
++         if ((boot.reps >= 100) & ((100 * i / boot.reps) %% 5 == 0)){
++             cat(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps),
++                 "% done.", "\n"))
++         }
++         boot.indices <- sample(1:nrow(data), nrow(data), replace = TRUE)
++         if (type == "parametric"){
++             point.est <- mediate.heckit(Y, Z, D, X_iv, data,
++                 X_minus = X_minus, indices = boot.indices)
++             }
++             else if (type == "semi-parametric"){
++                 point.est <- mediate.semiparametric(
++                     Y, Z, D, X_iv, data,
++                     X_minus = X_minus, indices = boot.indices)
++             }
++             else if (type == "unadjusted"){
++                 point.est <- mediate.unadjusted(Y, Z, D, X_iv, data,
++                     X_minus = X_minus, indices = boot.indices)
++             }
++             else {
++                 stop(paste0("The type option only takes values of ",
++                     'c("parametric", "semi-parametric", "unadjusted").'))
++             }
++         boot.data[i, ] <- point.est
++     }
++     return(boot.data)
++ }
+> 
+> #! Test it out.
+> mediate.boot <- mediate.bootstrap(
++     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
++     X_iv = "usual_health_location",
++     X_minus = paste0("hh_size + dia_diagnosis +",
++         "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
++         "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
++     data = analysis.data, type = "unadjusted", boot.reps = 10)
+Warning messages:
+1: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+2: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+3: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+4: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+5: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+6: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+7: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+8: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+9: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+10: In matrix(value, n, p) :
+  data length [5] is not a sub-multiple or multiple of the number of columns [4]
+> print(mediate.boot)
+   First-stage        ATE        ADE           AIE
+1   0.01958526 0.06167365 0.06177846 -5.774485e-05
+2   0.02186444 0.05457535 0.05486550 -1.759759e-04
+3   0.04257869 0.05743405 0.05843391 -7.816477e-04
+4   0.03492471 0.06478162 0.06620302 -9.549385e-04
+5   0.05462943 0.05415838 0.05593743 -1.615635e-03
+6   0.03479727 0.05577089 0.05630015 -4.223050e-04
+7   0.02918130 0.06203869 0.06309734 -7.426826e-04
+8   0.04293353 0.05515110 0.05554714 -2.924929e-04
+9   0.04219358 0.06291833 0.06415576 -1.017365e-03
+10  0.03888613 0.05647897 0.05814651 -1.358612e-03
+> 
+> ## Define a function to wrap around all the others.
+> mediate.selection <- function(Y, Z, D, X_iv, X_minus, data,
++     type = "parametric", boot.reps = 10){
++     # Calculate the point estimates.
++     if (type == "parametric"){
++         point.est <- mediate.heckit(Y, Z, D, X_iv, data, X_minus = X_minus)
++     }
++     else if (type == "semi-parametric"){
++         point.est <- mediate.semiparametric(Y, Z, D, X_iv, data, X_minus = X_minus)
++     }
++     else if (type == "unadjusted"){
++         point.est <- mediate.unadjusted(Y, Z, D, X_iv, data, X_minus = X_minus)
++     }
++     else {
++         stop(paste0("The type option only takes values of ",
++             'c("parametric", "semi-parametric", "unadjusted").'))
++     }
++     count.coef <- point.est[5]
++     # Calculate the SEs by a non-parametric bootstrap.
++     if (!is.null(boot.reps)){
++         if (boot.reps < 500){
++             print(paste0("Attempting to bootstrap with fewer than 500 reps.",
++                 "  Are you sure?  This is likely not enough for convergence."))
++         }
++         point.boot <- mediate.bootstrap(
++             Y = Y, Z = Z, D = D, X_minus = X_minus, X_iv = X_iv,
++             data = data, type = type, boot.reps = boot.reps)
++     }
++     # Report output
++     point.est <- as.matrix(c(100 * point.est[1:4], point.est[4] / point.est[2]))
++     point.se <- as.matrix(c(
++         sd(100 * point.boot$"First-stage"),
++         sd(100 * point.boot$"ATE"),
++         sd(100 * point.boot$"ADE"),
++         sd(100 * point.boot$"AIE"),
++         sd(point.boot$"AIE" / point.boot$"ATE")))
++     tratio <- as.matrix(point.est / point.se)
++     ptratio <- as.matrix(2 * pt(abs(tratio),
++         df = nrow(data) - count.coef, lower.tail = FALSE))
++     # Preapred object to putput.
++     out <- list(
++         coefficients = point.est,
++         SE = point.se,
++         tratio = tratio,
++         ptratio = ptratio,
++         type = type,
++         variables = paste(Z, D, Y, sep = ", "),
++         boot.reps = boot.reps)
++     rownames(out$coefficients) <-
++         c("First-stage", "ATE", "ADE", "AIE", "Proportion, AIE / ATE")
++     rownames(out$SE)      <-rownames(out$coefficients)
++     rownames(out$tratio)  <-rownames(out$coefficients)
++     rownames(out$ptratio) <-rownames(out$coefficients)
++     class(out) <- "mediate.selection"
++     return(out)
++ }
+> 
+> # Print applied to the function.
+> print.mediate.selection <- function(x, digits = 4, ...){
++     cat("Treatment, Mediator, Outcome: \n")
++     cat(x$variables)
++     cat("\n")
++     est <- cbind(x$coefficients, x$SE)
++     colnames(est) <- c("Coefficients", "SE")
++     cat(paste0("\n", x$type, " Estimates, With SEs from ", x$boot.reps, " bootstrap replications."))
++     cat("\n\n")
++     print.default(format(est, digits = digits), quote = FALSE)
++ }
+> 
+> # Apply the summary function, to get a presentable output.
+> summary.mediate.selection <- function(object, ...){
++     TAP <- cbind(
++         Estimate = coef(object),
++         SE = object$SE,
++         ptratio = object$ptratio )
++     colnames(TAP) <- c("Estimate", "SE", "P")
++     res <- list(variables = object$variables, coefficients = TAP)  
++     class(res) <- "summary.larf"
++     return(res)
++ }
+> 
+> # Presentable summary, via printing.
+> print.summary.mediate.selection <- function(x, digits = 4, ...){
++     cat("Treatment, Mediator, Outcome: \n")
++     cat(x$variables)
++     cat("\n")
++     print.default(round(x$coefficients, digits = digits), quote = FALSE)
++ }
+> 
+> 
+> ################################################################################
+> ## Show the regular location is a strong IV for healthcare visits.
+> 
+> # Show that the health location influences healthcare take-up
+> location.data <- analysis.data %>%
++     group_by(usual_health_location) %>%
++     summarise(
++         any_healthcare_mean = mean(any_healthcare, na.rm = TRUE),
++         any_healthcare_sd = sd(any_healthcare, na.rm = TRUE),
++         count = n()) %>%
++     ungroup() %>%
++     mutate(any_healthcare_se = any_healthcare_sd / (count^(0.5)))
+> # Note values in usual health location:
+> # 1 private clinic
+> # 2 public clinic
+> # 3 hospital-based clinic
+> # 4 hospital ER
+> # 5 urgent care clinic
+> # 6 other place
+> # 7 don't have usual place
+> 
+> 
+> #TODO: code this as a simple a figure, justifying the instrument.
+> #TODO: panel (a) first-stage, (b) second-stage effect on health + happiness.
+> #TODO: annotate the 
+> 
+> 
+> ################################################################################
+> ## Estimate the CM effects with my methods.
+> 
+> # State how many bootstrap replications are needed.
+> boot.reps <- 10^3
+> control.formula <- paste0("hh_size + dia_diagnosis +",
++     "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
++     "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis")
+> 
+> ## Panel A: Self-reported healthiness.
+> # Naive selection-on-observables
+> unadjusted.est <- mediate.selection(
++     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
++     X_iv = "usual_health_location", X_minus = control.formula,
++     type = "unadjusted",
++     data = analysis.data,
++     boot.reps = boot.reps)
+50 out of 1000, 5% done.
+100 out of 1000, 10% done.
+150 out of 1000, 15% done.
+200 out of 1000, 20% done.
+250 out of 1000, 25% done.
+300 out of 1000, 30% done.
+350 out of 1000, 35% done.
+400 out of 1000, 40% done.
+450 out of 1000, 45% done.
+500 out of 1000, 50% done.
+550 out of 1000, 55% done.
+600 out of 1000, 60% done.
+650 out of 1000, 65% done.
+700 out of 1000, 70% done.
+750 out of 1000, 75% done.
+800 out of 1000, 80% done.
+850 out of 1000, 85% done.
+900 out of 1000, 90% done.
+950 out of 1000, 95% done.
+1000 out of 1000, 100% done.
+There were 50 or more warnings (use warnings() to see the first 50)
+> print(unadjusted.est)
+Treatment, Mediator, Outcome: 
+lottery_iv, any_healthcare, Y_health
+
+unadjusted Estimates, With SEs from 1000 bootstrap replications.
+
+                      Coefficients SE       
+First-stage            4.139740     0.807011
+ATE                    5.271893     0.844152
+ADE                    5.373716     0.846739
+AIE                   -0.080487     0.046014
+Proportion, AIE / ATE -0.015267     0.009472
+> # Parametric CF
+> parametric.est <- mediate.selection(
++     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
++     X_iv = "usual_health_location", X_minus = control.formula,
++     type = "parametric",
++     data = analysis.data,
++     boot.reps = boot.reps)
+50 out of 1000, 5% done.
+100 out of 1000, 10% done.
+150 out of 1000, 15% done.
+200 out of 1000, 20% done.
+250 out of 1000, 25% done.
+300 out of 1000, 30% done.
+350 out of 1000, 35% done.
+400 out of 1000, 40% done.
+450 out of 1000, 45% done.
+500 out of 1000, 50% done.
+550 out of 1000, 55% done.
+600 out of 1000, 60% done.
+650 out of 1000, 65% done.
+700 out of 1000, 70% done.
+750 out of 1000, 75% done.
+800 out of 1000, 80% done.
+850 out of 1000, 85% done.
+900 out of 1000, 90% done.
+950 out of 1000, 95% done.
+1000 out of 1000, 100% done.
+There were 50 or more warnings (use warnings() to see the first 50)
+> print(parametric.est)
+Treatment, Mediator, Outcome: 
+lottery_iv, any_healthcare, Y_health
+
+parametric Estimates, With SEs from 1000 bootstrap replications.
+
+                      Coefficients SE     
+First-stage           4.17203      0.72446
+ATE                   5.27189      0.87884
+ADE                   3.55323      0.94572
+AIE                   1.37534      0.34297
+Proportion, AIE / ATE 0.26088      0.08532
+> # Semi-parametric CF
+> semiparametric.est <- mediate.selection(
++     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
++     X_iv = "usual_health_location", X_minus = control.formula,
++     type = "semi-parametric",
++     data = analysis.data,
++     boot.reps = boot.reps)
+50 out of 1000, 5% done.
+100 out of 1000, 10% done.
+150 out of 1000, 15% done.
+200 out of 1000, 20% done.
+250 out of 1000, 25% done.
+300 out of 1000, 30% done.
+350 out of 1000, 35% done.
+400 out of 1000, 40% done.
+450 out of 1000, 45% done.
+500 out of 1000, 50% done.
+550 out of 1000, 55% done.
+600 out of 1000, 60% done.
+650 out of 1000, 65% done.
+700 out of 1000, 70% done.
+750 out of 1000, 75% done.
+800 out of 1000, 80% done.
+850 out of 1000, 85% done.
+900 out of 1000, 90% done.
+950 out of 1000, 95% done.
+1000 out of 1000, 100% done.
+There were 50 or more warnings (use warnings() to see the first 50)
+> print(semiparametric.est)
+Treatment, Mediator, Outcome: 
+lottery_iv, any_healthcare, Y_health
+
+semi-parametric Estimates, With SEs from 1000 bootstrap replications.
+
+                      Coefficients SE    
+First-stage           4.1720       0.7687
+ATE                   5.2719       0.9040
+ADE                   1.8189       1.2098
+AIE                   3.4530       0.7758
+Proportion, AIE / ATE 0.6550       0.1973
+> 
+> # Extract the relevant figures.
+> panelA.data <- data.frame(
++     unadjusted_point = coef(summary(unadjusted.est))[, "Estimate"],
++     unadjusted_se = coef(summary(unadjusted.est))[, "SE"],
++     parametric_point = coef(summary(parametric.est))[, "Estimate"],
++     parametric_se = coef(summary(parametric.est))[, "SE"],
++     semiparametric_point = coef(summary(semiparametric.est))[, "Estimate"],
++     semiparametric_se = coef(summary(semiparametric.est))[, "SE"])
+> 
+> # Clean up the data.
+> panelA.data <- panelA.data %>%
++     signif(digits.no) %>%
++     format(scientific = FALSE)
+> 
+> panelA.data$unadjusted_se <- panelA.data$unadjusted_se %>% paste0("(", ., ")")
+> panelA.data$parametric_se <- panelA.data$parametric_se %>% paste0("(", ., ")")
+> panelA.data$semiparametric_se <- panelA.data$semiparametric_se %>% paste0("(", ., ")")
+> panelA.data <- data.frame(t(panelA.data))
+> # Add on the first column
+> panelA.data$model <- c(
++     "Unadjusted", "", "Parametric CF", "", "Semi-parametric CF", "")
+> panelA.data <- panelA.data[c(6, 1:5)]
+> 
+> # Save the LaTeX table
+> panelA.data %>%
++     xtable() %>%
++     print(
++         digits = digits.no,
++         sanitize.colnames.function = identity,
++         sanitize.text.function = identity,
++         NA.string = " ",
++         include.colnames = FALSE,
++         include.rownames = FALSE,
++         only.contents = TRUE,
++         hline.after = NULL,
++         format.args = list(big.mark = ","),
++         file = file.path(tables.folder, "cm-oregon-health.tex"))
+> 
+> 
+> ## Panel B: Self-reported happiness.
+> # Naive selection-on-observables
+> unadjusted.est <- mediate.selection(
++     Y = "Y_happy", Z = "any_insurance", D = "any_healthcare",
++     X_iv = "usual_health_location", X_minus = "hh_size",
++     Z_iv = "lottery_iv", control_iv = "hh_size",
++     type = "unadjusted",
++     data = analysis.data,
++     boot.reps = boot.reps)
+Error in mediate.selection(Y = "Y_happy", Z = "any_insurance", D = "any_healthcare",  : 
+  unused arguments (Z_iv = "lottery_iv", control_iv = "hh_size")
+Execution halted
