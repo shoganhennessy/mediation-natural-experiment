@@ -1,4 +1,4 @@
-\section{Control Function (CF) Estimation of CM Effects}
+\section{CF Estimation of CM Effects}
 \label{sec:controlfun}
 A conventional approach to estimating CM effects involves a two-stage approach to estimating the ADE and the AIE: the first-stage ($Z_i$ on $D_i$), and the second-stage ($Z_i, D_i$ on $Y_i$).
 A CF approach is a simple and intuitive addition to this approach: including the CF terms $\lambda_0, \lambda_1$ in the second-stage regression to address selection-into-mediator.
@@ -13,7 +13,7 @@ A parametric CF solves the identification problem by assuming a distribution for
 The Heckman selection model is the most pertinent example, assuming the normal distribution for unobserved errors \citep{heckman1979sample}.
 A parametric CF using other distributions works in exactly the same manner, replacing the relevant density functions for an alternative distribution as needed.
 As such, this section focuses exclusively on the Heckman selection model.
-This estimation approach is equivalent to that in the parametric selection model approach to MTEs, in \cite{bjorklund1987estimation}.
+This estimation approach is the same as in the parametric selection model approach to MTEs, in \cite{bjorklund1987estimation}.
 
 The Heckman selection model assumes unobserved errors $V_i$ follow a normal distribution, so estimates the first-stage using a probit model.
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
@@ -72,7 +72,7 @@ For example, if the error terms deviate substantially from joint normality, the 
 \subsection{Semi-parametric CF}
 For settings where researchers are not comfortable specifying a specific distribution for the error terms, a semi-parametric CF will nonetheless consistently estimate CM effects.
 This method maintains the same identification strategy but avoids assuming a specific error distribution.
-This estimation approach is similar to the modern semi-parametric approach to estimating MTEs, for example seen in \cite{brinch2017beyond,heckman2007econometric}.
+This estimation approach is used in the modern semi-parametric approach to estimating MTEs, for example in \cite{brinch2017beyond,heckman2007econometric}.
 
 The semi-parametric approach begins with flexible estimation of the first-stage, estimating the mediator propensity score,
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}

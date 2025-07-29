@@ -103,7 +103,16 @@ analysis.data <- oregon.data %>%
         any_hospital_visits,
         usual_health_location,
         hh_size,
-        survey_weight) %>%
+        survey_weight,
+        dia_diagnosis,
+        ast_diagnosis,
+        hbp_diagnosis,
+        emp_diagnosis,
+        ami_diagnosis,
+        chf_diagnosis,
+        dep_diagnosis,
+        chl_diagnosis,
+        kid_diagnosis) %>%
     drop_na()
 
 # Note values in usual health location:
@@ -145,7 +154,15 @@ analysis.data <- analysis.data %>%
         usual_health_location,
         Y_health,
         Y_happy,
-        survey_weight)
+        survey_weight,dia_diagnosis,
+        ast_diagnosis,
+        hbp_diagnosis,
+        emp_diagnosis,
+        ami_diagnosis,
+        chf_diagnosis,
+        dep_diagnosis,
+        chl_diagnosis,
+        kid_diagnosis)
 
 
 ################################################################################

@@ -14,9 +14,8 @@ R CMD BATCH --no-save causal-extract.R
 cd ..
 # Statistical analysis
 cd data-analyse
-R CMD BATCH --no-save insurance-effect.R
-R CMD BATCH --no-save informal-mechanism.R
-R CMD BATCH --no-save actual-mediation.R
+R CMD BATCH --no-save lottery-effect.R
+R CMD BATCH --no-save lottery-mediation.R
 cd ..
 
 ## Enact simulation evidence, and figures.
