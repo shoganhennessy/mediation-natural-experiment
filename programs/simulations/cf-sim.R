@@ -30,7 +30,7 @@ fig.height <- 10
 fig.width <- fig.height
 
 # Define the sample size to work with.
-sample.N <- 10^3
+sample.N <- 5 * 10^3
 
 
 ################################################################################
@@ -295,13 +295,16 @@ mediate.semiparametric <- function(example.data){
         totaleffect.reg, newdata = example_Z1.data) - predict(
             totaleffect.reg, newdata = example_Z0.data))
     # 2. Semi-parametric first-stage
-    cf_firststage.reg <- semiBRM(D ~ 1 + Z + X_IV + X_minus,
-        data = example.data, control = list(iterlim = 100))
-    example.data$pi.est <- predict(cf_firststage.reg, type = "response")$prob
+    #cf_firststage.reg <- semiBRM(D ~ 1 + Z + X_IV + X_minus,
+    #    data = example.data, control = list(iterlim = 100))
+    cf_firststage.reg <- glm(D ~ (1 + Z) + X_IV + X_minus,
+        family = binomial(link = "probit"),
+        data = example.data)
+    example.data$pi.est <- predict(cf_firststage.reg, type = "response")#$prob
     pi_0.est <- predict(cf_firststage.reg,
-        newdata = example_Z0.data, type = "response")$prob
+        newdata = example_Z0.data, type = "response")#$prob
     pi_1.est <- predict(cf_firststage.reg,
-        newdata = example_Z1.data, type = "response")$prob
+        newdata = example_Z1.data, type = "response")#$prob
     pi.bar <- mean(pi_1.est - pi_0.est)
     # 3. Semi-parametric series estimation of the second-stage.
     cf_secondstage_D0.reg <- gam(Y ~ 1 + Z + X_minus + s(pi.est, bs = "cr"),
@@ -514,61 +517,8 @@ print(theoretical.values(simulated.data))
 print(mediate.heckit(simulated.data))
 print(mediate.semiparametric(simulated.data))
 
-
-#! Test: equalities in the semi-p proof, to check over.
-direct.effect <- (
-    simulated.data$D * (simulated.data$Y_1_1 - simulated.data$Y_0_1) +
-    (1 - simulated.data$D) * (simulated.data$Y_1_0 - simulated.data$Y_0_0))
-indirect.effect <- (simulated.data$D_1 - simulated.data$D_0) * (
-    simulated.data$Z * (simulated.data$Y_1_1 - simulated.data$Y_1_0) +
-    (1 - simulated.data$Z) * (simulated.data$Y_0_1 - simulated.data$Y_0_0))
-
-mean(indirect.effect[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$Z == 0])
-mean(indirect.effect[simulated.data$D_0 == 0 & simulated.data$D_1 == 1 & simulated.data$D == 0])
-
-mean((simulated.data$D_1 - simulated.data$D_0))
-mean((simulated.data$D_1 - simulated.data$D_0)[simulated.data$D == 0])
-
-# Test the relation between 
-(mean((simulated.data$D_1 - simulated.data$D_0)) /
-    mean((simulated.data$D_1 - simulated.data$D_0)[simulated.data$D == 0]
-        ) * mean(indirect.effect[simulated.data$D == 0]))
-mean(indirect.effect[simulated.data$Z == 0])
-
-(mean((simulated.data$D_1 - simulated.data$D_0)) /
-    mean((simulated.data$D_1 - simulated.data$D_0)[simulated.data$D == 0]))
-
-# calculated Pr(D(0) = 0, D(1) = 1 | D = 1)
-mean((simulated.data$D_1 - simulated.data$D_0)[simulated.data$D == 0])
-(mean(simulated.data$D[simulated.data$Z == 1]) - mean(
-    simulated.data$D[simulated.data$Z == 0])) * mean(simulated.data$D)
-
-# Now for the 
-mean(mean(simulated.data$D) * indirect.effect[simulated.data$Z == 0])
-mean(indirect.effect[simulated.data$D == 0])
-
-
-mean(1 - simulated.data$D) * (
-    mean((1 - simulated.data$D)[simulated.data$Z == 0]) - mean(
-    (1 - simulated.data$D)[simulated.data$Z == 1]))
-
-
-mean((1 - simulated.data$D)[simulated.data$Z == 1])
-
-# Direct effect, Z_i = 1 and D_i = 1 relation.
-mean(direct.effect)
-mean(direct.effect[simulated.data$Z == 1])
-
-(mean((simulated.data$Y_1_1 - simulated.data$Y_0_1)[simulated.data$D == 1]) * mean(simulated.data$D[simulated.data$Z == 1])
-    ) + (
-        mean((simulated.data$Y_1_0 - simulated.data$Y_0_0)[simulated.data$D == 0]) * mean((1 - simulated.data$D)[simulated.data$Z == 1]))
-
-
-
-
-error
-
 # One-shot showing how the uniform errors screw up the Heckman selection model.
+#! Not a big concern if you have an IV....
 uniform.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, error.dist = "uniform")
 print(theoretical.values(uniform.data))
 print(mediate.heckit(uniform.data))

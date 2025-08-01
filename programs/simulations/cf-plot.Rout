@@ -20,7 +20,7 @@ Type 'q()' to quit R.
 > ## Plot the estimates for indirect + direct effects, with semiparametric CF.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "10:59 EDT Wednesday, 18 June 2025"
+[1] "20:56 EDT Thursday, 31 July 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -58,7 +58,7 @@ Type 'q()' to quit R.
 > 
 > # Load data from normal DGP-strapping 10,000 times.
 > normal.data <- read_csv(file.path(output.folder, "normal-cf-data.csv"))
-Rows: 100 Columns: 10
+Rows: 10000 Columns: 10
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
 dbl (10): truth_total_effect, ols_total_effect, truth_direct_effect, ols_dir...
@@ -66,27 +66,27 @@ dbl (10): truth_total_effect, ols_total_effect, truth_direct_effect, ols_dir...
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 > print(normal.data)
-# A tibble: 100 × 10
+# A tibble: 10,000 × 10
    truth_total_effect ols_total_effect truth_direct_effect ols_direct_effect
                 <dbl>            <dbl>               <dbl>             <dbl>
- 1               2.61             2.62                1.40             0.941
- 2               2.62             2.52                1.38             0.881
- 3               2.57             2.60                1.39             0.864
- 4               2.66             2.63                1.39             1.01 
- 5               2.61             2.70                1.36             1.05 
- 6               2.54             2.57                1.36             1.12 
- 7               2.58             2.53                1.39             0.745
- 8               2.61             2.49                1.39             0.652
- 9               2.56             2.55                1.37             0.751
-10               2.58             2.53                1.39             0.913
-# ℹ 90 more rows
+ 1               2.56             2.57                1.38             0.945
+ 2               2.60             2.62                1.39             0.818
+ 3               2.62             2.65                1.39             0.952
+ 4               2.63             2.64                1.38             0.900
+ 5               2.61             2.61                1.38             0.894
+ 6               2.61             2.60                1.38             0.940
+ 7               2.58             2.63                1.38             0.904
+ 8               2.57             2.57                1.37             0.888
+ 9               2.58             2.56                1.38             1.02 
+10               2.60             2.59                1.37             0.889
+# ℹ 9,990 more rows
 # ℹ 6 more variables: heckit_direct_effect <dbl>, cf_direct_effect <dbl>,
 #   truth_indirect_effect <dbl>, ols_indirect_effect <dbl>,
 #   heckit_indirect_effect <dbl>, cf_indirect_effect <dbl>
 > 
 > # Load data from uniform DGP-strapping 10,000 times.
 > uniform.data <- read_csv(file.path(output.folder, "uniform-cf-data.csv"))
-Rows: 100 Columns: 10
+Rows: 10000 Columns: 10
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
 dbl (10): truth_total_effect, ols_total_effect, truth_direct_effect, ols_dir...
@@ -94,20 +94,20 @@ dbl (10): truth_total_effect, ols_total_effect, truth_direct_effect, ols_dir...
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 > print(uniform.data)
-# A tibble: 100 × 10
+# A tibble: 10,000 × 10
    truth_total_effect ols_total_effect truth_direct_effect ols_direct_effect
                 <dbl>            <dbl>               <dbl>             <dbl>
- 1               2.55             2.57                1.38             0.996
- 2               2.64             2.65                1.36             0.969
- 3               2.61             2.67                1.37             1.06 
- 4               2.57             2.59                1.35             1.00 
- 5               2.61             2.55                1.40             0.881
- 6               2.61             2.62                1.38             0.981
- 7               2.60             2.66                1.38             1.11 
- 8               2.61             2.57                1.38             1.14 
- 9               2.63             2.68                1.38             0.934
-10               2.53             2.42                1.37             0.862
-# ℹ 90 more rows
+ 1               2.59             2.60                1.37             0.987
+ 2               2.60             2.63                1.38             1.00 
+ 3               2.61             2.65                1.39             1.07 
+ 4               2.62             2.62                1.38             0.965
+ 5               2.60             2.58                1.38             1.07 
+ 6               2.59             2.62                1.37             1.06 
+ 7               2.60             2.54                1.37             1.03 
+ 8               2.61             2.59                1.37             0.961
+ 9               2.57             2.56                1.37             1.05 
+10               2.62             2.57                1.38             0.962
+# ℹ 9,990 more rows
 # ℹ 6 more variables: heckit_direct_effect <dbl>, cf_direct_effect <dbl>,
 #   truth_indirect_effect <dbl>, ols_indirect_effect <dbl>,
 #   heckit_indirect_effect <dbl>, cf_indirect_effect <dbl>
@@ -125,15 +125,15 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 # A tibble: 9 × 27
   truth_direct_effect truth_indirect_effect ols_direct_effect
                 <dbl>                 <dbl>             <dbl>
-1                1.36                  1.03             1.47 
-2                1.38                  1.10             1.21 
-3                1.37                  1.18             1.19 
-4                1.4                   1.21             1.18 
-5                1.38                  1.17             0.897
-6                1.37                  1.16             0.937
-7                1.38                  1.24             0.957
-8                1.38                  1.21             0.994
-9                1.38                  1.18             0.779
+1                1.39                  1.08             1.31 
+2                1.39                  1.12             1.20 
+3                1.38                  1.14             1.23 
+4                1.38                  1.13             1.13 
+5                1.39                  1.21             1.12 
+6                1.38                  1.19             0.901
+7                1.37                  1.23             0.914
+8                1.39                  1.22             0.728
+9                1.40                  1.20             0.388
 # ℹ 24 more variables: ols_direct_effect_se <dbl>, ols_direct_effect_up <dbl>,
 #   ols_direct_effect_low <dbl>, ols_indirect_effect <dbl>,
 #   ols_indirect_effect_se <dbl>, ols_indirect_effect_up <dbl>,
@@ -155,15 +155,15 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 # A tibble: 9 × 27
   truth_direct_effect truth_indirect_effect ols_direct_effect
                 <dbl>                 <dbl>             <dbl>
-1                1.39                  1.32             1.89 
-2                1.43                  1.33             1.93 
-3                1.36                  1.14             1.63 
-4                1.38                  1.22             1.56 
-5                1.39                  1.22             1.30 
-6                1.38                  1.20             1.08 
-7                1.38                  1.17             0.784
-8                1.38                  1.30             0.614
-9                1.36                  1.16             0.604
+1                1.38                  1.23             1.90 
+2                1.38                  1.22             1.91 
+3                1.39                  1.20             1.83 
+4                1.38                  1.21             1.65 
+5                1.37                  1.19             1.41 
+6                1.37                  1.22             1.18 
+7                1.38                  1.23             0.910
+8                1.37                  1.20             0.779
+9                1.37                  1.14             0.613
 # ℹ 24 more variables: ols_direct_effect_se <dbl>, ols_direct_effect_up <dbl>,
 #   ols_direct_effect_low <dbl>, ols_indirect_effect <dbl>,
 #   ols_indirect_effect_se <dbl>, ols_indirect_effect_up <dbl>,
@@ -184,13 +184,13 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         y = after_stat(density)),
 +         colour = "black", fill = colour.list[1], alpha = 0.75) +
 +     annotate("text", colour = colour.list[1],
-+         x = 0.5, y = 4,
++         x = 0.5, y = 6,
 +         fontface = "bold",
 +         label = ("Unadjusted"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[1],
-+         x = 0.5, y = 3.875,
-+         xend = -0.3, yend = 2.75,
++         x = 0.5, y = 5.875,
++         xend = -0.3, yend = 4.25,
 +         linewidth = 0.75, curvature = -0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Dist of CF estimates.
@@ -213,11 +213,11 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     # Other presentation options
 +     theme_bw() +
 +     scale_x_continuous(expand = c(0, 0),
-+         name = TeX("Estimate $-$ True Value"),,
++         name = TeX("Estimate $-$ True Value"),
 +         breaks = seq(-1.0, 1.0, by = 0.25),
-+         limits = c(-1.0, 1.0)) +
-+     scale_y_continuous(expand = c(0, 0),
-+         name = "", limits = c(0, 5.1)) +
++         limits = 0.81 * c(-1, 1)) +
++     scale_y_continuous(expand = c(0, 0), name = "",
++         breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
 +     ggtitle("Density") +
 +     theme(plot.title = element_text(size = rel(1), hjust = 0),
 +         plot.title.position = "plot",
@@ -245,10 +245,10 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     theme_bw() +
 +     scale_x_continuous(expand = c(0, 0),
 +         name = TeX("Estimate $-$ True Value"),
-+         breaks = seq(-1.0, 1.0, by = 0.25),
-+         limits = c(-1.0, 1.0)) +
-+     scale_y_continuous(expand = c(0, 0),
-+         name = "", limits = c(0, 5.1)) +
++         breaks = seq(-1.0, 1.0, by = 0.2),
++         limits = 0.81 * c(-1, 1)) +
++     scale_y_continuous(expand = c(0, 0), name = "",
++         breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
 +     ggtitle("Density") +
 +     theme(plot.title = element_text(size = rel(1), hjust = 0),
 +         plot.title.position = "plot",
@@ -270,13 +270,13 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         y = after_stat(density)),
 +         colour = "black", fill = colour.list[1], alpha = 0.75) +
 +     annotate("text", colour = colour.list[1],
-+         x = 0.5, y = 4,
++         x = 0.5, y = 8,
 +         fontface = "bold",
 +         label = ("Unadjusted"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[1],
-+         x = 0.5, y = 3.875,
-+         xend = -0.25, yend = 3,
++         x = 0.5, y = 7.875,
++         xend = -0.3, yend = 6,
 +         linewidth = 0.75, curvature = -0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Dist of Heckit estimates.
@@ -288,13 +288,13 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         y = after_stat(density)),
 +         colour = "black", fill = colour.list[3], alpha = 0.75) +
 +     annotate("text", colour = colour.list[3],
-+         x = 0.5, y = 2.5,
++         x = 0.4, y = 4,
 +         fontface = "bold",
 +         label = ("Semi-parametric CF"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[3],
-+         x = 0.675, y = 2.375,
-+         xend = 0.4, yend = 0.75,
++         x = 0.5, y = 3.875,
++         xend = 0.25, yend = 0.75,
 +         linewidth = 0.75, curvature = -0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Truth value
@@ -303,11 +303,11 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     # Other presentation options
 +     theme_bw() +
 +     scale_x_continuous(expand = c(0, 0),
-+         name = TeX("Estimate $-$ True Value"),,
-+         breaks = seq(-1.0, 1.0, by = 0.25),
-+         limits = c(-1.0, 1.0)) +
-+     scale_y_continuous(expand = c(0, 0),
-+         name = "", limits = c(0, 5.1)) +
++         name = TeX("Estimate $-$ True Value"),
++         breaks = seq(-1.0, 1.0, by = 0.2),
++         limits = 0.81 * c(-1.0, 1.0)) +
++     scale_y_continuous(expand = c(0, 0), name = "",
++         breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
 +     ggtitle("Density") +
 +     theme(plot.title = element_text(size = rel(1), hjust = 0),
 +         plot.title.position = "plot",
@@ -339,10 +339,10 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     theme_bw() +
 +     scale_x_continuous(expand = c(0, 0),
 +         name = TeX("Estimate $-$ True Value"),
-+         breaks = seq(-1.0, 1.0, by = 0.25),
-+         limits = c(-1.0, 1.0)) +
-+     scale_y_continuous(expand = c(0, 0),
-+         name = "", limits = c(0, 5.1)) +
++         breaks = seq(-1.0, 1.0, by = 0.2),
++         limits = 0.81 * c(-1.0, 1.0)) +
++     scale_y_continuous(expand = c(0, 0), name = "",
++         breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
 +     ggtitle("Density") +
 +     theme(plot.title = element_text(size = rel(1), hjust = 0),
 +         plot.title.position = "plot",
@@ -363,31 +363,39 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
 +     geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
 +         fill = colour.list[1], alpha = 0.2) +
++     geom_line(aes(y = (ols_direct_effect_low)), alpha = 0.5,
++         colour = colour.list[1], linetype = "dashed") +
++     geom_line(aes(y = (ols_direct_effect_up)), alpha = 0.5,
++         colour = colour.list[1], linetype = "dashed") +
 +     annotate("text", colour = colour.list[1],
-+         x = 0.15, y = 0.2,
++         x = 0.25, y = 0.25,
 +         fontface = "bold",
-+         label = ("OLS"),
++         label = ("Unadjusted"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[1],
-+         x = 0.3, y = 0.25,
-+         xend = 0.5, yend = 0.5,
++         x = 0.55, y = 0.325,
++         xend = 0.75, yend = 0.55,
 +         linewidth = 0.75,
 +         curvature = 0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # CF est + 95 % CI
-+     geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
++     geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
 +     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
-+         fill = colour.list[2], alpha = 0.2) +
-+     annotate("text", colour = colour.list[2],
-+         x = -0.5, y = 2.00,
++         fill = colour.list[3], alpha = 0.2) +
++     geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
++         colour = colour.list[3], linetype = "dashed") +
++     geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
++         colour = colour.list[3], linetype = "dashed") +
++     annotate("text", colour = colour.list[3],
++         x = -0.5, y = 2.25,
 +         fontface = "bold",
-+         label = ("Parametric CF"),
++         label = ("Semi-parametric CF"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
-+     annotate("curve", colour = colour.list[2],
-+         x = -0.375, y = 1.95,
-+         xend = -0.25, yend = 1.55,
++     annotate("curve", colour = colour.list[3],
++         x = -0.65, y = 2.2,
++         xend = -0.55, yend = 1.65,
 +         linewidth = 0.75,
-+         curvature = -0.125,
++         curvature = 0.125,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Truth:
 +     geom_line(aes(y = (truth_direct_effect)),
@@ -398,14 +406,14 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         label = ("Truth"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = "black",
-+         x = 0.6, y = 1.75,
-+         xend = 0.475, yend = 1.4875,
-+         linewidth = 0.75, curvature = 0.125,
++         x = 0.65, y = 1.75,
++         xend = 0.7, yend = 1.45,
++         linewidth = 0.75, curvature = -0.125,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Presentation options
 +     theme_bw() +
 +     scale_x_continuous(
-+         name = TeX("$\\rho$"),
++         name = TeX(r"(Corr$(U_{i,0}, U_{i,1})$)"),
 +         expand = c(0, 0),
 +         breaks = seq(-1, 1, by = 0.25),
 +         limits = c(-1.025, 1.025)) +
@@ -430,17 +438,25 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
 +     geom_ribbon(aes(ymin = ols_indirect_effect_low, ymax = ols_indirect_effect_up),
 +         fill = colour.list[1], alpha = 0.2) +
++     geom_line(aes(y = (ols_indirect_effect_low)), alpha = 0.5,
++         colour = colour.list[1], linetype = "dashed") +
++     geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
++         colour = colour.list[1], linetype = "dashed") +
 +     # CF est + 95 % CI
-+     geom_point(aes(y = cf_indirect_effect), colour = colour.list[2]) +
++     geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
 +     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
-+         fill = colour.list[2], alpha = 0.2) +
++         fill = colour.list[3], alpha = 0.2) +
++     geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
++         colour = colour.list[3], linetype = "dashed") +
++     geom_line(aes(y = (cf_indirect_effect_up)), alpha = 0.5,
++         colour = colour.list[3], linetype = "dashed") +
 +     # Truth:
 +     geom_line(aes(y = (truth_indirect_effect)),
 +         colour = "black", linetype = "dashed", linewidth = 1) +
 +     # Presentation options
 +     theme_bw() +
 +     scale_x_continuous(
-+         name = TeX("$\\rho$"),
++         name = TeX(r"(Corr$(U_{i,0}, U_{i,1})$)"),
 +         expand = c(0, 0),
 +         breaks = seq(-1, 1, by = 0.25),
 +         limits = c(-1.025, 1.025)) +
@@ -466,25 +482,27 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > sigma_1_directeffect_bias.plot <- sigma_1.data %>%
 +     ggplot(aes(x = sigma_1)) +
 +     # OLS est + 95 % CI
-+     geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
-+     geom_ribbon(aes(ymin = ols_direct_effect_low,
-+         ymax = ols_direct_effect_up),
++     geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
 +         fill = colour.list[1], alpha = 0.2) +
-+     # Heckit est + 95 % CI
-+     geom_point(aes(y = heckit_direct_effect), colour = colour.list[2]) +
-+     geom_ribbon(aes(ymin = heckit_direct_effect_low, ymax = heckit_direct_effect_up),
-+         fill = colour.list[2], alpha = 0.2) +
++     geom_line(aes(y = (ols_direct_effect_low)), alpha = 0.5,
++         colour = colour.list[1], linetype = "dashed") +
++     geom_line(aes(y = (ols_direct_effect_up)), alpha = 0.5,
++         colour = colour.list[1], linetype = "dashed") +
 +     # CF est + 95 % CI
-+     #geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
-+     #geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
-+     #    fill = colour.list[2], alpha = 0.2) +
++     geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
++     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
++         fill = colour.list[3], alpha = 0.2) +
++     geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
++         colour = colour.list[3], linetype = "dashed") +
++     geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
++         colour = colour.list[3], linetype = "dashed") +
 +     # Truth:
 +     geom_line(aes(y = truth_direct_effect),
 +         colour = "black", linetype = "dashed", linewidth = 1) +
 +     # Presentation options
 +     theme_bw() +
 +     scale_x_continuous(
-+         name = TeX("$\\sigma_1$"),
++         name = TeX(r"(Var$(U_{i,1})^{0.5}$)"),
 +         expand = c(0, 0),
 +         breaks = seq(0, 2, by = 0.25),
 +         limits = c(-0.02, 2.02)) +
@@ -498,29 +516,34 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
 +         axis.title.x = element_text(vjust = -0.25))
 > # Save this plot
-> ggsave(file.path(output.folder, "sigma1-directeffect-boot.png"),
+> ggsave(file.path(output.folder, "sigma1-directeffect-bias.png"),
 +     plot = sigma_1_directeffect_bias.plot, dpi = 300,
 +     units = "cm", width = fig.width, height = fig.height)
 > 
 > # Plot the bias in indirect effect est vs sigma_1
 > sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
 +     ggplot(aes(x = sigma_1)) +
-+     # OLS est + 95 % CI
-+     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
-+     geom_ribbon(aes(ymin = ols_indirect_effect_low,
-+         ymax = ols_indirect_effect_up),
++     geom_ribbon(aes(ymin = ols_indirect_effect_low, ymax = ols_indirect_effect_up),
 +         fill = colour.list[1], alpha = 0.2) +
++     geom_line(aes(y = (ols_indirect_effect_low)), alpha = 0.5,
++         colour = colour.list[1], linetype = "dashed") +
++     geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
++         colour = colour.list[1], linetype = "dashed") +
 +     # CF est + 95 % CI
-+     geom_point(aes(y = cf_indirect_effect), colour = colour.list[2]) +
++     geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
 +     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
-+         fill = colour.list[2], alpha = 0.2) +
++         fill = colour.list[3], alpha = 0.2) +
++     geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
++         colour = colour.list[3], linetype = "dashed") +
++     geom_line(aes(y = (cf_indirect_effect_up)), alpha = 0.5,
++         colour = colour.list[3], linetype = "dashed") +
 +     # Truth:
 +     geom_line(aes(y = truth_indirect_effect),
 +         colour = "black", linetype = "dashed", linewidth = 1) +
 +     # Presentation options
 +     theme_bw() +
 +     scale_x_continuous(
-+         name = TeX("$\\sigma_1$"),
++         name = TeX(r"(Var$(U_{i,1})^{0.5}$)"),
 +         expand = c(0, 0),
 +         breaks = seq(0, 2, by = 0.25),
 +         limits = c(-0.02, 2.02)) +
@@ -534,10 +557,10 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
 +         axis.title.x = element_text(vjust = -0.25))
 > # Save this plot
-> ggsave(file.path(output.folder, "sigma1-indirecteffect-boot.png"),
+> ggsave(file.path(output.folder, "sigma1-indirecteffect-bias.png"),
 +     plot = sigma_1_indirecteffect_bias.plot, dpi = 300,
 +     units = "cm", width = fig.width, height = fig.height)
 > 
 > proc.time()
    user  system elapsed 
-  5.089   0.254   6.769 
+  6.298   0.244   6.753 

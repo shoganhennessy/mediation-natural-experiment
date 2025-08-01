@@ -56,13 +56,13 @@ direct_dist.plot <- normal.data %>%
         y = after_stat(density)),
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     annotate("text", colour = colour.list[1],
-        x = 0.5, y = 4,
+        x = 0.5, y = 6,
         fontface = "bold",
         label = ("Unadjusted"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.5, y = 3.875,
-        xend = -0.3, yend = 2.75,
+        x = 0.5, y = 5.875,
+        xend = -0.3, yend = 4.25,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Dist of CF estimates.
@@ -87,9 +87,9 @@ direct_dist.plot <- normal.data %>%
     scale_x_continuous(expand = c(0, 0),
         name = TeX("Estimate $-$ True Value"),
         breaks = seq(-1.0, 1.0, by = 0.25),
-        limits = c(-1.0, 1.0)) +
-    scale_y_continuous(expand = c(0, 0),
-        name = "", limits = c(0, 5.1)) +
+        limits = 0.81 * c(-1, 1)) +
+    scale_y_continuous(expand = c(0, 0), name = "",
+        breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -117,10 +117,10 @@ indirect_dist.plot <- normal.data %>%
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
         name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.25),
-        limits = c(-1.0, 1.0)) +
-    scale_y_continuous(expand = c(0, 0),
-        name = "", limits = c(0, 5.1)) +
+        breaks = seq(-1.0, 1.0, by = 0.2),
+        limits = 0.81 * c(-1, 1)) +
+    scale_y_continuous(expand = c(0, 0), name = "",
+        breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -142,13 +142,13 @@ direct_dist.plot <- uniform.data %>%
         y = after_stat(density)),
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     annotate("text", colour = colour.list[1],
-        x = 0.5, y = 4,
+        x = 0.5, y = 8,
         fontface = "bold",
         label = ("Unadjusted"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.5, y = 3.875,
-        xend = -0.25, yend = 3,
+        x = 0.5, y = 7.875,
+        xend = -0.3, yend = 6,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Dist of Heckit estimates.
@@ -160,13 +160,13 @@ direct_dist.plot <- uniform.data %>%
         y = after_stat(density)),
         colour = "black", fill = colour.list[3], alpha = 0.75) +
     annotate("text", colour = colour.list[3],
-        x = 0.5, y = 2.5,
+        x = 0.4, y = 4,
         fontface = "bold",
         label = ("Semi-parametric CF"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[3],
-        x = 0.675, y = 2.375,
-        xend = 0.4, yend = 0.75,
+        x = 0.5, y = 3.875,
+        xend = 0.25, yend = 0.75,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth value
@@ -176,10 +176,10 @@ direct_dist.plot <- uniform.data %>%
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
         name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.25),
-        limits = c(-1.0, 1.0)) +
-    scale_y_continuous(expand = c(0, 0),
-        name = "", limits = c(0, 5.1)) +
+        breaks = seq(-1.0, 1.0, by = 0.2),
+        limits = 0.81 * c(-1.0, 1.0)) +
+    scale_y_continuous(expand = c(0, 0), name = "",
+        breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -211,10 +211,10 @@ indirect_dist.plot <- uniform.data %>%
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
         name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.25),
-        limits = c(-1.0, 1.0)) +
-    scale_y_continuous(expand = c(0, 0),
-        name = "", limits = c(0, 5.1)) +
+        breaks = seq(-1.0, 1.0, by = 0.2),
+        limits = 0.81 * c(-1.0, 1.0)) +
+    scale_y_continuous(expand = c(0, 0), name = "",
+        breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -235,31 +235,39 @@ rho_directeffect_bias.plot <- rho.data %>%
     geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
     geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
         fill = colour.list[1], alpha = 0.2) +
+    geom_line(aes(y = (ols_direct_effect_low)), alpha = 0.5,
+        colour = colour.list[1], linetype = "dashed") +
+    geom_line(aes(y = (ols_direct_effect_up)), alpha = 0.5,
+        colour = colour.list[1], linetype = "dashed") +
     annotate("text", colour = colour.list[1],
-        x = 0.15, y = 0.2,
+        x = 0.25, y = 0.25,
         fontface = "bold",
-        label = ("OLS"),
+        label = ("Unadjusted"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.3, y = 0.25,
-        xend = 0.5, yend = 0.5,
+        x = 0.55, y = 0.325,
+        xend = 0.75, yend = 0.55,
         linewidth = 0.75,
         curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # CF est + 95 % CI
-    geom_point(aes(y = heckit_direct_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = heckit_direct_effect_low, ymax = heckit_direct_effect_up),
-        fill = colour.list[2], alpha = 0.2) +
-    annotate("text", colour = colour.list[2],
-        x = -0.5, y = 2.00,
+    geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
+    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+        fill = colour.list[3], alpha = 0.2) +
+    geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
+        colour = colour.list[3], linetype = "dashed") +
+    geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
+        colour = colour.list[3], linetype = "dashed") +
+    annotate("text", colour = colour.list[3],
+        x = -0.5, y = 2.25,
         fontface = "bold",
-        label = ("Parametric CF"),
+        label = ("Semi-parametric CF"),
         size = 4.25, hjust = 0.5, vjust = 0) +
-    annotate("curve", colour = colour.list[2],
-        x = -0.375, y = 1.95,
-        xend = -0.25, yend = 1.55,
+    annotate("curve", colour = colour.list[3],
+        x = -0.65, y = 2.2,
+        xend = -0.55, yend = 1.65,
         linewidth = 0.75,
-        curvature = -0.125,
+        curvature = 0.125,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth:
     geom_line(aes(y = (truth_direct_effect)),
@@ -270,9 +278,9 @@ rho_directeffect_bias.plot <- rho.data %>%
         label = ("Truth"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = "black",
-        x = 0.6, y = 1.75,
-        xend = 0.475, yend = 1.4875,
-        linewidth = 0.75, curvature = 0.125,
+        x = 0.65, y = 1.75,
+        xend = 0.7, yend = 1.45,
+        linewidth = 0.75, curvature = -0.125,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Presentation options
     theme_bw() +
@@ -302,10 +310,18 @@ rho_indirecteffect_bias.plot <- rho.data %>%
     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
     geom_ribbon(aes(ymin = ols_indirect_effect_low, ymax = ols_indirect_effect_up),
         fill = colour.list[1], alpha = 0.2) +
+    geom_line(aes(y = (ols_indirect_effect_low)), alpha = 0.5,
+        colour = colour.list[1], linetype = "dashed") +
+    geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
+        colour = colour.list[1], linetype = "dashed") +
     # CF est + 95 % CI
-    geom_point(aes(y = heckit_indirect_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = heckit_indirect_effect_low, ymax = heckit_indirect_effect_up),
-        fill = colour.list[2], alpha = 0.2) +
+    geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
+    geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
+        fill = colour.list[3], alpha = 0.2) +
+    geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
+        colour = colour.list[3], linetype = "dashed") +
+    geom_line(aes(y = (cf_indirect_effect_up)), alpha = 0.5,
+        colour = colour.list[3], linetype = "dashed") +
     # Truth:
     geom_line(aes(y = (truth_indirect_effect)),
         colour = "black", linetype = "dashed", linewidth = 1) +
@@ -338,25 +354,27 @@ ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
 sigma_1_directeffect_bias.plot <- sigma_1.data %>%
     ggplot(aes(x = sigma_1)) +
     # OLS est + 95 % CI
-    geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
-    geom_ribbon(aes(ymin = ols_direct_effect_low,
-        ymax = ols_direct_effect_up),
+    geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
         fill = colour.list[1], alpha = 0.2) +
-    # Heckit est + 95 % CI
-    geom_point(aes(y = heckit_direct_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = heckit_direct_effect_low, ymax = heckit_direct_effect_up),
-        fill = colour.list[2], alpha = 0.2) +
+    geom_line(aes(y = (ols_direct_effect_low)), alpha = 0.5,
+        colour = colour.list[1], linetype = "dashed") +
+    geom_line(aes(y = (ols_direct_effect_up)), alpha = 0.5,
+        colour = colour.list[1], linetype = "dashed") +
     # CF est + 95 % CI
-    #geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
-    #geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
-    #    fill = colour.list[2], alpha = 0.2) +
+    geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
+    geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
+        fill = colour.list[3], alpha = 0.2) +
+    geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
+        colour = colour.list[3], linetype = "dashed") +
+    geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
+        colour = colour.list[3], linetype = "dashed") +
     # Truth:
     geom_line(aes(y = truth_direct_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX(r"(Var$(U_{i,1})^{\frac{1}{2}})$)"),
+        name = TeX(r"(Var$(U_{i,1})^{0.5}$)"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +
@@ -377,22 +395,27 @@ ggsave(file.path(output.folder, "sigma1-directeffect-bias.png"),
 # Plot the bias in indirect effect est vs sigma_1
 sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
     ggplot(aes(x = sigma_1)) +
-    # OLS est + 95 % CI
-    geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
-    geom_ribbon(aes(ymin = ols_indirect_effect_low,
-        ymax = ols_indirect_effect_up),
+    geom_ribbon(aes(ymin = ols_indirect_effect_low, ymax = ols_indirect_effect_up),
         fill = colour.list[1], alpha = 0.2) +
+    geom_line(aes(y = (ols_indirect_effect_low)), alpha = 0.5,
+        colour = colour.list[1], linetype = "dashed") +
+    geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
+        colour = colour.list[1], linetype = "dashed") +
     # CF est + 95 % CI
-    geom_point(aes(y = heckit_indirect_effect), colour = colour.list[2]) +
-    geom_ribbon(aes(ymin = heckit_indirect_effect_low, ymax = heckit_indirect_effect_up),
-        fill = colour.list[2], alpha = 0.2) +
+    geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
+    geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
+        fill = colour.list[3], alpha = 0.2) +
+    geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
+        colour = colour.list[3], linetype = "dashed") +
+    geom_line(aes(y = (cf_indirect_effect_up)), alpha = 0.5,
+        colour = colour.list[3], linetype = "dashed") +
     # Truth:
     geom_line(aes(y = truth_indirect_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX(r"(Var$(U_{i,1})^{\frac{1}{2}})$)"),
+        name = TeX(r"(Var$(U_{i,1})^{0.5}$)"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +

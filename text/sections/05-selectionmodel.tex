@@ -26,7 +26,7 @@ The approach works in the following manner: (1) assume that the variable of inte
 Identification in CF methods typically relies an external instrument or distributional assumptions; the identification strategy here focuses exclusively on the case that an instrument is available.
 By explicitly accounting for the information contained in the first-stage selection model, CF methods enable consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors \citep{florens2008identification}.
 
-In the example of analysing health gains from health insurance \citep{finkelstein2008oregon}, a CF approach addresses the unobserved confounding from underlying health conditions.
+In the example of analysing health gains from the Oregon Health Insurance Experiment, a CF approach addresses the unobserved confounding by modelling unobserved effects of underlying health conditions.
 It does so by assuming that unobserved selection-into-healthcare use is informative for underlying health conditions, assuming people with more severe underlying conditions visit the doctor more often than those without.
 Then it uses this information in the second-stage estimation of how much the effect goes through increased healthcare usage, estimating the ADE and AIE after controlling for this confounding.
 
