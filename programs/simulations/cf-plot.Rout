@@ -20,7 +20,7 @@ Type 'q()' to quit R.
 > ## Plot the estimates for indirect + direct effects, with semiparametric CF.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "20:56 EDT Thursday, 31 July 2025"
+[1] "17:37 EDT Saturday, 02 August 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -482,6 +482,7 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > sigma_1_directeffect_bias.plot <- sigma_1.data %>%
 +     ggplot(aes(x = sigma_1)) +
 +     # OLS est + 95 % CI
++     geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
 +     geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
 +         fill = colour.list[1], alpha = 0.2) +
 +     geom_line(aes(y = (ols_direct_effect_low)), alpha = 0.5,
@@ -523,6 +524,8 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > # Plot the bias in indirect effect est vs sigma_1
 > sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
 +     ggplot(aes(x = sigma_1)) +
++     # Ols est + 95% CI
++     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
 +     geom_ribbon(aes(ymin = ols_indirect_effect_low, ymax = ols_indirect_effect_up),
 +         fill = colour.list[1], alpha = 0.2) +
 +     geom_line(aes(y = (ols_indirect_effect_low)), alpha = 0.5,
@@ -563,4 +566,4 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > 
 > proc.time()
    user  system elapsed 
-  6.298   0.244   6.753 
+  4.820   0.219   5.228 

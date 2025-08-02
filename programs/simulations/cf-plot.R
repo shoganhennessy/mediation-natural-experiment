@@ -354,6 +354,7 @@ ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
 sigma_1_directeffect_bias.plot <- sigma_1.data %>%
     ggplot(aes(x = sigma_1)) +
     # OLS est + 95 % CI
+    geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
     geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
         fill = colour.list[1], alpha = 0.2) +
     geom_line(aes(y = (ols_direct_effect_low)), alpha = 0.5,
@@ -395,6 +396,8 @@ ggsave(file.path(output.folder, "sigma1-directeffect-bias.png"),
 # Plot the bias in indirect effect est vs sigma_1
 sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
     ggplot(aes(x = sigma_1)) +
+    # Ols est + 95% CI
+    geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
     geom_ribbon(aes(ymin = ols_indirect_effect_low, ymax = ols_indirect_effect_up),
         fill = colour.list[1], alpha = 0.2) +
     geom_line(aes(y = (ols_indirect_effect_low)), alpha = 0.5,
