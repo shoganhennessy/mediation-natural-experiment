@@ -33,7 +33,7 @@ cd text
 # Adjust DOIs in each bib entry (by my own custom tool)
 # point to the cleaned bib file in my working paper.
 cd sections
-# ~/venv/bin/python3 ../../../latex-templates/bib-edit.py 07-bibliography.bib
+# ~/venv/bin/python3 ../../../latex-templates/bib-edit.py 09-bibliography.bib
 bibOld="bibliography.bib"
 bibNew="bibliography-doi.bib"
 sed -i -e "s/$bibOld/$bibNew/g" ../paper.tex

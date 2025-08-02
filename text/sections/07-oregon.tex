@@ -1,14 +1,24 @@
 \section{CM in the Oregon Health Insurance Experiment}
 \label{sec:oregon}
+In the Oregon Health Insurance Experiment, winning the wait-list lottery significantly improved self-reported health and happiness among participants. 
+This study investigates the mechanisms behind these benefits, quantifying the extent to which improvements are mediated through increased healthcare usage.
 
-Apply the parametric $+$ semi-parametric CM to the Oregon data.
+To credibly address mediation concerns, I use the respondents' regular healthcare provider type as an IV for healthcare usage.
+Approximately 75.4\% reported visiting a healthcare provider within the past year, but rates vary notably depending on their usual provider type: those attending hospital emergency rooms (A\&E) and urgent care clinics reported significantly lower visitation rates (12.6 and 20 percentage points lower, respectively) than the 40\% attending private clinics.
+The IV validity arises from differential costs faced by individuals based on their usual care provider.
+Private clinics generally charge through health insurance and are more expensive without coverage, while A\&E and urgent care often provide costly services but rarely follow up on unpaid bills, effectively creating variation in healthcare attendance costs.
+Additionally, individuals' choice of provider may depend on neighbourhood-based access.
 
+Initial results with unadjusted CM estimates suggest almost no mediating role for healthcare usage; the estimated Average Indirect Effect (AIE) was close to zero, contradicting intuitive suggestive evidence.
+These estimates remained robust when controlling for serious health conditions, such as kidney disease or diabetes, thus reinforcing the initially surprising conclusion.
+However, applying my CF methods reveals a much larger, positive AIE, restoring the mediating role of healthcare usage in line with suggestive intuition.
+These figures are reported in \autoref{tab:cm-oregon}, where panel A shows the CM effects with the binary outcome of self-reported good overall health, and panel B the binary outcome of self-reported overall happiness.
 
 \begin{table}[!h]
     \singlespacing
     \centering
     \small
-    \caption{CM Effect Estimates, Health Insurance Effects on Health and Happiness.}
+    \caption{CM Effect Estimates, Wait-list Lottery Effects on Health and Happiness.}
     \begin{tabular}{l c c c c c}
         \\[-1.8ex]\hline \hline \\[-1.8ex] 
         & First-stage & ATE & ADE & AIE & AIE / ATE \\
@@ -28,12 +38,20 @@ Apply the parametric $+$ semi-parametric CM to the Oregon data.
     \footnotesize
     \textbf{Note:}
     This table shows the point estimates (and SEs in brackets) of applying the proposed CM methods to replication data from the Oregon Health Insurance Experiment \citep{icspr2014oregon}.
-    These figures were calculated by using the wait-lottery to instrument for having health insurance in 2008, using the \cite{abadie2003semiparametric} weighting scheme, as discussed in \aref{appendix:oregon}.
-    This means the effects identified here are averages among lottery compliers.
-    The First-stage refers to the average effect of health insurance on healthcare usage, ATE average effect of health insurance on surveyed outcomes, ADE and AIE to respective CM effects through and absent healthcare usage.
+    The first-stage column to the average effect of winning the wait-list lottery on healthcare usage (mediator first-stage), ATE average effect on surveyed health and happiness, ADE and AIE to respective CM effects through and absent healthcare usage.
     SEs were calculated with 1,000 bootstrap replications.
+    The numbers are pp increases in the binary outcome, so an estimate of 4.1 in row 1 column 1 means an increase in 4.1 pp of using healthcare in the last 12 months after winning the wait-list lottery.
 \end{table}
 
-Note that the wait-list lottery was the random component, and it did not force people to take health insurance, instead randomly assigning access to health insurance.
-Identifying the direct and indirect effects of Medicaid health insurance explicitly would require further assumptions, and methods to isolation direct and indirect effects among those compliers.
-See \cite{frolich2007nonparametric} for some approaches.
+This reversal in conclusions highlights the importance of correcting for negative selection into healthcare usage.
+Conventional approaches fail to account for the fact that individuals with poorer underlying health tend to visit healthcare providers more frequently, generating negative selection bias that obscures the true positive AIE.
+By explicitly adjusting for this bias using CF methods, I isolate a credible positive indirect effect of healthcare usage on self-reported health and happiness.
+
+These findings offer credible evidence that improved healthcare access does yield meaningful self-reported health and well-being benefits even after 12 months, despite previous research emphasising negligible effects on objective health measures such as blood pressure \citep{baicker2013oregon}.
+Subjective measures likely reflect broader psychological and financial relief associated with reduced healthcare-related anxiety and diminished risk of catastrophic medical debt, thus producing more noticeable short-term subjective improvements.
+
+Nevertheless, this analysis is subject to notable limitations.
+The IV is not ideal, and potentially more important mediators (such as explicit health insurance status) would require additional IVs beyond the wait-list lottery itself, presenting a challenging identification issue.
+Furthermore, confidence intervals for both ADE and AIE estimates remain large, though statistically significant and excluding zero.
+This uncertainty underscores common challenges in applied CM analyses, where statistical precision can be limited by data constraints.
+Future research could explore relaxing strict IV assumptions through credible functional form assumptions linking propensity scores to potential outcomes, as recently advanced in the MTE literature \citep{pan2024marginal}.

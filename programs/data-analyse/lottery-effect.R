@@ -68,6 +68,13 @@ iv_prop.reg <- lm(lottery_iv ~ 0 + factor(hh_size),
     data = analysis.data)
 print(summary(iv_prop.reg))
 
+# Show mean rate of using healthcare
+analysis.data %>% pull(any_healthcare) %>% mean(na.rm = TRUE)
+table(pull(analysis.data, usual_health_location), exclude = NULL) / NROW(analysis.data)
+# and it relates to usual location of care.
+print(summary(lm(any_healthcare ~ 1 + usual_health_location,
+    data = analysis.data)))
+
 
 ################################################################################
 ## Create a figure showing the happiness + subjective health effects.
@@ -99,55 +106,55 @@ abadie.late <- function(data, outcome, Z, Z_iv, control_iv,
     return(c(outcome_0_complier, outcome_1_complier, outcome_effect_complier))
 }
 
-## Estimate mean outcomes among (un)insured lottery compliers, with boot SEs
+## Estimate mean outcomes among lottery winners, with boot SEs
 boot.samples <- 10^3
-# Health insurance effect of the lottery (among entire population).
+# Lottery effects (among entire population).
 Z.late <- boot(statistic = abadie.late, R = boot.samples,
     data = analysis.data,
     outcome = "any_insurance", Z = "lottery_iv",
     Z_iv = "lottery_iv", control_iv = "hh_size")
-Z_0_complier      <- mean(Z.late$t[, 1])
-Z_1_complier      <- mean(Z.late$t[, 2])
-Z_effect_complier <- mean(Z.late$t[, 3])
-Z_0_complier.se      <- sd(Z.late$t[, 1])
-Z_1_complier.se      <- sd(Z.late$t[, 2])
-Z_effect_complier.se <- sd(Z.late$t[, 3])
+Z_0_complier      <- mean(Z.late$t[, 1], na.rm = TRUE)
+Z_1_complier      <- mean(Z.late$t[, 2], na.rm = TRUE)
+Z_effect_complier <- mean(Z.late$t[, 3], na.rm = TRUE)
+Z_0_complier.se      <- sd(Z.late$t[, 1], na.rm = TRUE)
+Z_1_complier.se      <- sd(Z.late$t[, 2], na.rm = TRUE)
+Z_effect_complier.se <- sd(Z.late$t[, 3], na.rm = TRUE)
 print(c(Z_effect_complier, Z_effect_complier.se))
 # Mediator: healthcare utilisation (among lottery compliers).
 D.late <- boot(statistic = abadie.late, R = boot.samples,
     data = analysis.data,
-    outcome = "any_healthcare", Z = "any_insurance",
+    outcome = "any_healthcare", Z = "lottery_iv",
     Z_iv = "lottery_iv", control_iv = "hh_size")
-D_0_complier      <- mean(D.late$t[, 1])
-D_1_complier      <- mean(D.late$t[, 2])
-D_effect_complier <- mean(D.late$t[, 3])
-D_0_complier.se      <- sd(D.late$t[, 1])
-D_1_complier.se      <- sd(D.late$t[, 2])
-D_effect_complier.se <- sd(D.late$t[, 3])
+D_0_complier      <- mean(D.late$t[, 1], na.rm = TRUE)
+D_1_complier      <- mean(D.late$t[, 2], na.rm = TRUE)
+D_effect_complier <- mean(D.late$t[, 3], na.rm = TRUE)
+D_0_complier.se      <- sd(D.late$t[, 1], na.rm = TRUE)
+D_1_complier.se      <- sd(D.late$t[, 2], na.rm = TRUE)
+D_effect_complier.se <- sd(D.late$t[, 3], na.rm = TRUE)
 print(c(D_effect_complier, D_effect_complier.se))
 # Outcome: Health overall good? (among lottery compliers).
 Y_health.late <- boot(statistic = abadie.late, R = boot.samples,
     data = analysis.data,
-    outcome = "Y_health", Z = "any_insurance",
+    outcome = "Y_health", Z = "lottery_iv",
     Z_iv = "lottery_iv", control_iv = "hh_size")
-Y_health_0_complier      <- mean(Y_health.late$t[, 1])
-Y_health_1_complier      <- mean(Y_health.late$t[, 2])
-Y_health_effect_complier <- mean(Y_health.late$t[, 3])
-Y_health_0_complier.se      <- sd(Y_health.late$t[, 1])
-Y_health_1_complier.se      <- sd(Y_health.late$t[, 2])
-Y_health_effect_complier.se <- sd(Y_health.late$t[, 3])
+Y_health_0_complier      <- mean(Y_health.late$t[, 1], na.rm = TRUE)
+Y_health_1_complier      <- mean(Y_health.late$t[, 2], na.rm = TRUE)
+Y_health_effect_complier <- mean(Y_health.late$t[, 3], na.rm = TRUE)
+Y_health_0_complier.se      <- sd(Y_health.late$t[, 1], na.rm = TRUE)
+Y_health_1_complier.se      <- sd(Y_health.late$t[, 2], na.rm = TRUE)
+Y_health_effect_complier.se <- sd(Y_health.late$t[, 3], na.rm = TRUE)
 print(c(Y_health_effect_complier, Y_health_effect_complier.se))
 # Outcome: Happy overall?  (among lottery compliers).
 Y_happy.late <- boot(statistic = abadie.late, R = boot.samples,
     data = analysis.data,
-    outcome = "Y_happy", Z = "any_insurance",
+    outcome = "Y_happy", Z = "lottery_iv",
     Z_iv = "lottery_iv", control_iv = "hh_size")
-Y_happy_0_complier      <- mean(Y_happy.late$t[, 1])
-Y_happy_1_complier      <- mean(Y_happy.late$t[, 2])
-Y_happy_effect_complier <- mean(Y_happy.late$t[, 3])
-Y_happy_0_complier.se      <- sd(Y_happy.late$t[, 1])
-Y_happy_1_complier.se      <- sd(Y_happy.late$t[, 2])
-Y_happy_effect_complier.se <- sd(Y_happy.late$t[, 3])
+Y_happy_0_complier      <- mean(Y_happy.late$t[, 1], na.rm = TRUE)
+Y_happy_1_complier      <- mean(Y_happy.late$t[, 2], na.rm = TRUE)
+Y_happy_effect_complier <- mean(Y_happy.late$t[, 3], na.rm = TRUE)
+Y_happy_0_complier.se      <- sd(Y_happy.late$t[, 1], na.rm = TRUE)
+Y_happy_1_complier.se      <- sd(Y_happy.late$t[, 2], na.rm = TRUE)
+Y_happy_effect_complier.se <- sd(Y_happy.late$t[, 3], na.rm = TRUE)
 print(c(Y_happy_effect_complier, Y_happy_effect_complier.se))
 
 
@@ -196,53 +203,63 @@ complier.plot <- complier.data %>%
     scale_fill_manual("", values = colour.list[c(2, 1, 3, 3)]) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
-        limits = c(0, 1.025),
+        limits = c(0.275, 0.825), oob = scales::rescale_none,
         breaks = seq(0, 1, by = 0.1)) +
     ggtitle(TeX(r"(Mean Outcome, for each $z' =0,1$.)")) +
     theme(legend.position = "none",
         plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
-        plot.margin = unit(c(0, 0, -2.5, 0), "mm")) +
-    # Add a caliper noting the lottery effects
-    ggbrace::stat_brace(
-        data = data.frame(x = c(0.6, 1.4), y = c(0.8, 0.9)), aes(x, y),
-        size = 1, colour = "black") +
-    annotate("text", x = 1, y = 0.98,
-        label = ("Lottery effect"),
-        size = 4, hjust = 0.5, vjust = 0) +
-    # Add a caliper noting the health insurance effects (lottery compliers).
-    ggbrace::stat_brace(
-        data = data.frame(x = c(1.6, 4.4), y = c(0.775, 0.85)), aes(x, y),
-        size = 1, colour = "black") +
-    annotate("text", x = 4.25, y = 0.98,
-        label = ("Health insurance effect (lottery compliers)"),
-        size = 4, hjust = 1, vjust = 0) +
+        plot.margin = unit(c(0, 0, -2.5, 0), "mm"))
+# Annotate
+complier.plot <- complier.plot +
     # Label the effect sizes.
-    annotate("text", x = 0.8, y = Z_0_complier + Z_effect_complier / 2,
+    annotate("text", x = 0.8, y = 0.0125 +  Z_0_complier + Z_effect_complier / 2,
         label = paste0("+ ", round(Z_effect_complier, 2),
             "\n(", round(Z_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[1]) +
-    annotate("text", x = 1.8, y = D_0_complier + D_effect_complier / 2,
+    annotate("text", x = 1.8, y = 0.0125 +  D_0_complier + D_effect_complier / 2,
         label = paste0("+ ", round(D_effect_complier, 2),
             "\n(", round(D_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[2]) +
-    annotate("text", x = 2.8, y = Y_health_0_complier + Y_health_effect_complier / 2,
+    annotate("text", x = 2.8, y = 0.0125 +  Y_health_0_complier + Y_health_effect_complier / 2,
         label = paste0("+ ", round(Y_health_effect_complier, 2),
             "\n(", round(Y_health_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[3])  +
-    annotate("text", x = 3.8, y = Y_happy_0_complier + Y_happy_effect_complier / 2,
+    annotate("text", x = 3.8, y = 0.0125 +  Y_happy_0_complier + Y_happy_effect_complier / 2,
         label = paste0("+ ", round(Y_happy_effect_complier, 2),
             "\n(", round(Y_happy_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[3])
+# Save this plot
+ggsave(file.path(figures.folder, "insurance-effects.png"),
+    plot = complier.plot,
+    units = "cm", width = fig.width, height = fig.height)
+
+# Label the effects.
+# +
+#    # Add a caliper noting the lottery effects
+#    ggbrace::stat_brace(
+#        data = data.frame(x = c(0.6, 1.4), y = c(0.8, 0.9)), aes(x, y),
+#        linewidth = 1, colour = "black") +
+#    annotate("text", x = 1, y = 0.98,
+#        label = ("Lottery effect"),
+#        linewidth = 4, hjust = 0.5, vjust = 0) +
+#    # Add a caliper noting the health insurance effects (lottery compliers).
+#    ggbrace::stat_brace(
+#        data = data.frame(x = c(1.6, 4.4), y = c(0.775, 0.85)), aes(x, y),
+#        linewidth = 1, colour = "black") +
+#    annotate("text", x = 4.25, y = 0.98,
+#        label = ("Health insurance effect (lottery compliers)"),
+#        linewidth = 4, hjust = 1, vjust = 0) +
 
 # Save this plot
 ggsave(file.path(presentation.folder, "insurance-effects.png"),
     plot = complier.plot,
     units = "cm", width = presentation.width, height = presentation.height)
+# Save this plot
 ggsave(file.path(figures.folder, "insurance-effects.png"),
     plot = complier.plot,
     units = "cm", width = fig.width, height = fig.height)

@@ -3,13 +3,13 @@
 % \textbf{The introduction formula \url{https://blogs.ubc.ca/khead/research/research-advice/formula}.}
 %\textbf{Hook:}
 Economists use natural experiments to credibly answer social questions, when an experiment was infeasible.
-For example, does access to health insurance causally improve health and well-being \citep{finkelstein2008oregon}?
+For example, does winning access to health insurance causally improve health and well-being \citep{finkelstein2008oregon}?
 Natural experiments are settings which answer these questions, but give little indication of how these effects came about.
 Causal Mediation (CM) aims to estimate the mechanisms behind causal effects, by estimating how much of the treatment effect operates through a proposed mediator.
-For example, do causal gains from access to health insurance come mostly from starting to utilise healthcare more often, or are there other direct effects?
+For example, do causal gains from access to health insurance come mostly from using healthcare more often, or are there other direct effects?
 This study of mechanisms behind causal effects broadens the economic understanding of social settings studied with natural experiments.
 This paper shows that the conventional approach to estimating CM effects is inappropriate in a natural experiment setting, provides a theoretical framework for how bias operates, and develops an approach to correctly estimate CM effects under alternative assumptions.
-These methods contrast the current practice in applied economics of providing suggestive evidence of mechanisms, which does not identify or quantify causal effects.
+These methods contrast the current practice in applied economics of providing suggestive evidence of mechanisms, which neither identifies nor quantifies mechanisms behind causal effects.
 
 % Paragraph here: how do applied economists currently do it?
 % Summarise my work with the Finkelstein+ data.
@@ -34,7 +34,7 @@ Indeed, this approach provides no safe harbour for estimating CM effects if thes
 %Paragraph on the results of the Oregon experiment.
 
 %\textbf{Antecedents:}
-Assuming the mediator is quasi-randomly assigned conveniently ignores selection by assuming either (1) people na\"ively made decisions to take or refuse a mediator, or (2) a researcher controlled for everything relevant to this decision.
+Assuming the mediator is as-good-as-randomly assigned conveniently ignores selection by assuming either (1) people na\"ively made decisions to take or refuse a mediator, or (2) a researcher controlled for everything relevant to this decision.
 This assumption might be reasonable when studying single-celled organisms in a laboratory --- their ``decisions'' are simple and mechanical.
 Social scientists, however, study humans who make complex choices based on costs, benefits, and preferences --- which are only partially observed by researchers, at best.
 Assuming a mediator is ignorable in social science contexts is often unrealistic.
@@ -52,20 +52,26 @@ These include overlapping quasi-experimental research designs \citep{deuchert201
 The new literature has arisen in implicit acknowledgement that suggestive evidence of mechanisms, or a conventional approach to CM, can lead to biased inference and needs alternative methods for credible inference.
 
 %\textbf{Value-added:}
-I develop a framework showing exactly how selection bias contaminates CM estimates when mediator choices are driven by unobserved gains --- settings where none of the natural experiment research designs in the previously cited papers apply (i.e., the mediator is not ignorable).
-This provides a rigorous warning to applied economists against uncritically applying conventional CM methods to investigate mechanisms in natural experiments --- as is common in the applied fields of epidemiology, psychology, and medicine.
-Selection based on costs and benefits, as in the \cite{roy1951some} model, is at odds with assuming a mediator is randomly assigned in an observational setting, so I import methods grounded in labour economic theory to solve the identification problem.
+I develop a framework showing exactly how selection bias contaminates conventional CM estimates when mediator choices are driven by unobserved gains --- settings where none of the natural experiment research designs in the previously cited papers apply (i.e., the mediator is not ignorable).
+This provides a rigorous warning to applied economists against uncritically applying conventional CM methods to investigate mechanisms --- as is common in the applied fields of epidemiology, psychology, and medicine.
+Selection based on costs and benefits is at odds with assuming a mediator is randomly assigned in an observational setting, so I import methods grounded in labour economic theory to solve the identification problem.
 
-Identifying CM effects via the marginal treatment effect of the mediator requires mediator take-up respond only positively to the initial treatment (monotonicity), which implies mediator selection follows a selection model.
-Second, it assumes that mediator take-up is motivated by mediator benefits.
-Last, it requires a valid instrument for mediator take-up, to avoid relying on parametric assumptions on unobserved selection.
+I develop identification of CM effects via the marginal treatment effect of the mediator.
+This approach requires the main assumptions.
+(1) Mediator take-up must respond only positively to the initial treatment (monotonicity), which implies mediator selection follows a selection model.
+(2) Mediator take-up is motivated by mediator benefits.
+(3) A valid instrument for mediator take-up must exist, to avoid relying on parametric assumptions on unobserved selection.
 This approach to identifying CM effects imports insights from the instrumental variables literature, connecting the influential \cite{imai2010identification} approach to CM with the economics literature on selection-into-treatment and marginal treatment effects \citep{vytlacil2002independence,heckman2004using,heckman2005structural,florens2008identification,kline2019heckits}.
 %\footnote{
 %    Indeed, this paper does not invent control function methods, instead noting their applicability in this setting.
 %    See \cite{wooldridge2015control,imbens2007nonadditive} for general overviews of the approach.
 %}
 \cite{frolich2017direct} have previously explored identification of CM effects with a control function in the context of two instruments (one each for treatment and mediator) and a continuous mediator.
-This paper considers the marginal treatment effect of a binary mediator, with a correspondingly different identification analysis and resulting estimation strategies.
+This paper considers CM effects via the marginal effect of a binary mediator, with a correspondingly different identification analysis and estimation strategies.
+
+Applying the new methods to the Oregon Health Insurance Experiment shows that selection matters: after instrumenting for healthcare usage with respondents' usual provider type, a substantial portion of the wait-list lottery's impact on self-reported health and happiness is mediated indirectly through extra healthcare usage.
+A conventional CM analysis would put this indirect mediated share at practically zero, so that my methods expose that negative selection into healthcare usage would be hiding evidence for this mechanism.
+These estimates replace suggestive conjecture on mechanisms with credible causal evidence that extra healthcare use mediates a sizeable share of the Medicaid-lottery's benefits, avoiding claims based only on suggestive evidence.
 
 %\textbf{Road-map:}
 This paper proceeds as follows.
@@ -74,6 +80,6 @@ This paper proceeds as follows.
 \autoref{sec:mediation} introduces the formal framework for CM, and develops expressions for bias in CM estimates in natural experiments.
 \autoref{sec:applied} describes this bias in applied settings with (1) a regression framework, (2) a setting with selection based on costs and benefits.
 \autoref{sec:selectionmodel} purges bias from CM estimates by identifying CM effects via the marginal treatment effect of the mediator, with a control function adjustment.
-\autoref{sec:controlfun} demonstrates how to estimate CM effects with this approach, with either parametric or semi-parametric methods, giving supporting simulation evidence.
-\autoref{sec:oregon} returns to the Oregon Health Insurance Experiment, providing credible estimates of access to health insurance effects on self-reported health and well-being mediated through healthcare usage.
+\autoref{sec:controlfun} demonstrates how to estimate CM effects with this approach, with either parametric or semi-parametric methods, and gives simulation evidence.
+\autoref{sec:oregon} returns to the Oregon Health Insurance Experiment, providing credible estimates of effects on self-reported health and well-being mediated through healthcare usage.
 \autoref{sec:conclusion} concludes.
