@@ -102,7 +102,7 @@
 % Title Page
 %-------------------------------------------------------------------------------
 \title{\color{titleText}
-    Causal Mediation in Natural Experiments
+    \href{https://raw.githubusercontent.com/shoganhennessy/mediation-natural-experiment/main/mediation-natural-experiment-2025.pdf}{Causal Mediation in Natural Experiments}
 }
 \author[Senan Hogan-Hennessy, Cornell University]{
     Senan Hogan-Hennessy \\
@@ -430,7 +430,8 @@
     Roy selection-into-$D_i$ $\implies$ unobserved confounder $\vec U_i$ \\
     e.g., underlying health conditions.
 
-    \vskip-1.875cm
+    \vskip-1.75cm
+    \makebox[\textwidth]{\parbox{1.25\textwidth}{
     \begin{figure}[h!]
         \centering
         \singlespacing
@@ -453,6 +454,7 @@
             %\node[color=RoyalBlue] [right=0.1cm of confounderU] {Unobserved confounder};
         \end{tikzpicture}
     \end{figure}
+    }}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -844,7 +846,7 @@
 
     \vskip0.25cm
 
-    Control functions are the inverse Mills ratio, with $\phi$ normal pdf and $\Phi$ cdf, 
+    Control functions are the inverse Mills ratio, with $\phi$ normal pdf $\Phi$ cdf, 
     \[ \lambda_0(p') =
         \frac{\phi( - \Phi^{-1}(p') )}{\Phi( -\Phi^{-1}(p') )}, \;\;\;\;
     \lambda_1(p') =
@@ -855,8 +857,8 @@
     \textbf{Parametric Estimation Recipe:}
     \begin{enumerate}
         \item Estimate first-stage $\pi_i(Z_i; \vec X_i)$ with probit.
-        \item Include $\lambda_0, \lambda_1$ in second-stage OLS estimation.
-        \item Compose CM estimates from plug-in estimates from two-stages.
+        \item Include $\lambda_0, \lambda_1$ inverse Mills ratios in second-stage OLS estimation.
+        \item Compose CM estimates from two-stage plug-in estimates.
     \end{enumerate}
     \vfill
     \makebox[\textwidth]{\parbox{1.25\textwidth}{
@@ -954,7 +956,7 @@
     \frametitle{Conclusion}
     \textbf{Overarching goals:}
     \begin{enumerate}
-        \item Decry ``suggestive evidence of mechanisms.''
+        \item Point holes in the popular ``suggestive evidence of mechanisms.''
         \item Ward researchers away from CM methods with no case for mediator ignorability. \\
         $\to$ Noted problems in the most popular methods for CM effects, pertinent for economic applications.
         \item CM methods away from ignorability assumptions, inappropriate for economic settings. \\
