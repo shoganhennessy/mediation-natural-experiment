@@ -58,7 +58,7 @@ $\hat{\bar\pi}$ is the estimate of the mean compliance rate, and $\frac1N \sum_{
 
 The standard errors for estimates can be computed using the delta method.
 Specifically, accounting for both the sampling variability in the first-stage estimates of the mediator propensity score as well as the second-stage sampling variability.
-This approach yields $\sqrt{N}$-consistent estimates when the underlying error terms follow a bivariate normal distribution --- i.e., when $\pi(Z_i; \vec X_i)$ is correctly modelled by the probit first-stage.
+This approach yields $\sqrt{n}$-consistent estimates when the underlying error terms follow a bivariate normal distribution --- i.e., when $\pi(Z_i; \vec X_i)$ is correctly modelled by the probit first-stage.
 Errors can also be estimated by the bootstrap, by including estimation of both the first and second-stage within each bootstrap iteration.
 % \aref{appendix:implement} further describes the implementation of this approach in the R language \citep{R2023}, with a linear probit first-stage and second-stage estimated by OLS.
 
@@ -70,6 +70,7 @@ For example, if the error terms deviate substantially from joint normality, the 
 }
 
 \subsection{Semi-parametric CF}
+\label{sec:semiparametric-cf}
 For settings where researchers are not comfortable specifying a specific distribution for the error terms, a semi-parametric CF will nonetheless consistently estimate CM effects.
 This method maintains the same identification strategy but avoids assuming a specific error distribution.
 This estimation approach is used in the modern semi-parametric approach to estimating MTEs, for example in \cite{brinch2017beyond,heckman2007econometric}.
@@ -78,8 +79,8 @@ The semi-parametric approach begins with flexible estimation of the first-stage,
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
     = \pi\left(Z_i; \vec X_i \right), \]
 where $\vec X_i$ must include the instrument(s) $\vec X_i^{\text{IV}}$.
-This can be estimated using flexible methods, as long as the first-stage is estimated $\sqrt{N}$-consistently.\footnote{
-    If an estimate of the first-stage that is not $\sqrt{N}$-consistent is used (e.g., a modern machine learning estimator), then the resulting second-stage estimate will not be $\sqrt{N}$-consistent.
+This can be estimated using flexible methods, as long as the first-stage is estimated $\sqrt{n}$-consistently.\footnote{
+    If an estimate of the first-stage that is not $\sqrt{n}$-consistent is used (e.g., a modern machine learning estimator), then the resulting second-stage estimate will not be $\sqrt{n}$-consistent.
     %This could be ameliorated by augmenting the approach with cross-fitting, and the appropriate Neyman orthogonal moments; \cite{bia2024double} use this approach for one-sided selection problems, but (as fas as I am aware) there is no general double machine learning approach for CF methods with a two-sided selection problem.
 }
 An attractive option is the \cite{klein1993efficient} semi-parametric binary response model, which avoids relying on an assumed distribution of first-stage errors though requires a linear specification.

@@ -24,8 +24,6 @@ presentation.folder <- file.path("..", "..", "presentation",
 # Size of figures.
 fig.width <- 15
 fig.height <- (2 / 3) * fig.width
-presentation.width <- 15
-presentation.height <- (2 / 3) * presentation.width
 # List of 3 default colours.
 colour.list <- c(
     "#1f77b4", # Blue
@@ -213,22 +211,22 @@ complier.plot <- complier.data %>%
 # Annotate
 complier.plot <- complier.plot +
     # Label the effect sizes.
-    annotate("text", x = 0.8, y = 0.0125 +  Z_0_complier + Z_effect_complier / 2,
+    annotate("text", x = 0.8, y = 0.025 + Z_0_complier + Z_effect_complier / 2,
         label = paste0("+ ", round(Z_effect_complier, 2),
             "\n(", round(Z_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[1]) +
-    annotate("text", x = 1.8, y = 0.0125 +  D_0_complier + D_effect_complier / 2,
+    annotate("text", x = 1.8, y = 0.025 + D_0_complier + D_effect_complier / 2,
         label = paste0("+ ", round(D_effect_complier, 2),
             "\n(", round(D_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[2]) +
-    annotate("text", x = 2.8, y = 0.0125 +  Y_health_0_complier + Y_health_effect_complier / 2,
+    annotate("text", x = 2.8, y = 0.025 + Y_health_0_complier + Y_health_effect_complier / 2,
         label = paste0("+ ", round(Y_health_effect_complier, 2),
             "\n(", round(Y_health_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[3])  +
-    annotate("text", x = 3.8, y = 0.0125 +  Y_happy_0_complier + Y_happy_effect_complier / 2,
+    annotate("text", x = 3.8, y = 0.025 + Y_happy_0_complier + Y_happy_effect_complier / 2,
         label = paste0("+ ", round(Y_happy_effect_complier, 2),
             "\n(", round(Y_happy_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
@@ -255,11 +253,9 @@ ggsave(file.path(figures.folder, "insurance-effects.png"),
 #        label = ("Health insurance effect (lottery compliers)"),
 #        linewidth = 4, hjust = 1, vjust = 0) +
 
-# Save this plot
+# Save this plot for the presentation (different size).
+presentation.width <- 15
+presentation.height <- (7 / 12) * presentation.width
 ggsave(file.path(presentation.folder, "insurance-effects.png"),
     plot = complier.plot,
     units = "cm", width = presentation.width, height = presentation.height)
-# Save this plot
-ggsave(file.path(figures.folder, "insurance-effects.png"),
-    plot = complier.plot,
-    units = "cm", width = fig.width, height = fig.height)

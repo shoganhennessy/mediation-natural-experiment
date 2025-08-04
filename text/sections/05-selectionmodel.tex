@@ -109,7 +109,7 @@ The most compelling example of a mediator IV is using data on the cost of mediat
             + \gamma Z_i
             + \delta Z_i D_i
             + \varphi\big(\vec X_i^-\big) \\
-            & \;\; +  \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
+            & \;\; + \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
                 + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big),
             \label{eqn:cf-secondstage}
     \end{align*}
@@ -127,10 +127,12 @@ Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F_V^{-1}\l
             -\lambda_0\big( p' \big) \left(\frac{1-p'}{p'}\right), \text{ for } p' \in (0,1).
 \end{align*}
 
-If we are using the canonical Heckman selection model, we assume the error term follows a normal distribution, so that $\lambda_0, \lambda_1$ are the inverse Mills ratio.
-Alternatively, $\lambda_0, \lambda_1$ could have other definitions following the assumed distribution of the error terms (see e.g, \citealt{wooldridge2015control}).
-If we do not know what distribution class the errors follow, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.
-%(as in \autoref{sec:semi-parametric}.
+All relevant parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.)$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z';\vec X_i)$ identified separately in the first-stage thanks to the instrument(s) $\vec X_i^{\text{IV}}$.
+In the case that the CFs have an assumed functional form, then identification is complete.
+For example, in the canonical Heckman selection model, the error terms follow a normal distribution, so that $\lambda_0, \lambda_1$ are the inverse Mills ratio.
+If we do not know want to assume a specific distribution, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.\footnote{
+    This comes at the cost of $\alpha$ and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$ --- ultimately, however, this does not jeopardise identification and estimation of the ADE and AIE (see \autoref{sec:semiparametric-cf}).
+}
 
 \newtheorem{theoremCF}{Theorem}
 \renewcommand\thetheoremCF{CF}

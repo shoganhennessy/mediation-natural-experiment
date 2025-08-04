@@ -20,7 +20,7 @@ Type 'q()' to quit R.
 > ## Plot the estimates for indirect + direct effects, with semiparametric CF.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "17:37 EDT Saturday, 02 August 2025"
+[1] "10:57 EDT Monday, 04 August 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -181,7 +181,7 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     ggplot() +
 +     # Dist of OLS estimates.
 +     geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[1], alpha = 0.75) +
 +     annotate("text", colour = colour.list[1],
 +         x = 0.5, y = 6,
@@ -195,7 +195,7 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Dist of CF estimates.
 +     geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[2], alpha = 0.75) +
 +     annotate("text", colour = colour.list[2],
 +         x = 0.5, y = 2.5,
@@ -232,11 +232,11 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     ggplot() +
 +     # Dist of OLS estimates.
 +     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[1], alpha = 0.75) +
 +     # Dist of CF estimates.
 +     geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2, adjust = 2,
 +         colour = "black", fill = colour.list[2], alpha = 0.75) +
 +     # Truth value
 +     geom_vline(xintercept = 0,
@@ -253,6 +253,8 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     theme(plot.title = element_text(size = rel(1), hjust = 0),
 +         plot.title.position = "plot",
 +         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
+Warning message:
+Duplicated aesthetics after name standardisation: adjust 
 > # Save this plot
 > ggsave(file.path(output.folder, "normal-indirect-dist.png"),
 +     plot = indirect_dist.plot,
@@ -267,7 +269,7 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     ggplot() +
 +     # Dist of OLS estimates.
 +     geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[1], alpha = 0.75) +
 +     annotate("text", colour = colour.list[1],
 +         x = 0.5, y = 8,
@@ -281,11 +283,11 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Dist of Heckit estimates.
 +     geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[2], alpha = 0.75) +
 +     # Dist of CF estimates.
 +     geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[3], alpha = 0.75) +
 +     annotate("text", colour = colour.list[3],
 +         x = 0.4, y = 4,
@@ -322,15 +324,15 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     ggplot() +
 +     # Dist of OLS estimates.
 +     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[1], alpha = 0.75) +
 +     # Dist of Heckit CF estimates.
 +     geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[2], alpha = 0.75) +
 +     # Dist of semi-parametric CF estimates.
 +     geom_density(aes(x = cf_indirect_effect - truth_indirect_effect,
-+         y = after_stat(density)),
++         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[3], alpha = 0.75) +
 +     # Truth value
 +     geom_vline(xintercept = 0,
@@ -566,4 +568,4 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > 
 > proc.time()
    user  system elapsed 
-  4.820   0.219   5.228 
+  4.844   0.224   5.134 

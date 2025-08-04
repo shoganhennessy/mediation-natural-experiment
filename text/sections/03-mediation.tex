@@ -1,7 +1,7 @@
 \section{Causal Mediation (CM)}
 \label{sec:mediation}
 CM decomposes causal effects into two channels, through a mediator (indirect effect) and through all other paths (direct effect).
-To develop notation, write $Z_i = 0, 1$ for a binary treatment, $D_i = 0, 1$ a binary mediator, and $Y_i$ a continuous outcome.\footnote{
+To develop notation, write $Z_i = 0, 1$ for a binary treatment, $D_i = 0, 1$ a binary mediator, and $Y_i$ a continuous outcome for individuals $i = 1, \hdots, n$.\footnote{
     This paper exclusively focuses on the binary case.
     See \cite{huber2020direct} or \cite{frolich2017direct} for a discussion of CM with continuous treatment and/or mediator, and the assumptions required.
 }
@@ -17,13 +17,11 @@ $D_i, Y_i$ are a sum of their potential outcomes,
     Y_i &= (1 - Z_i) Y_i(0, D_i(0))
         +   Z_i      Y_i(1, D_i(1)).
 \end{align*}
-
-%Write $\vec X_i$ for a set of control variables, and assume $Z_i$ is ignorable --- possibly conditional on $\vec X_i$.
-Assume treatment $Z_i$ is ignorable.\footnote{
-    This assumption can hold conditional on covariates.
+Assume treatment $Z_i$ is ignorable,\footnote{
+    This assumption can hold conditional on a covariate vector, $\vec X_i$.
     To simplify notation in this section, leave the conditional part unsaid, as it changes no part of the identification framework.
 }
-\[ Z_i \indep  D_i(z'), Y_i(z, d'), \text{ for } z', z, d' = 0, 1 \]
+\[ Z_i \indep  D_i(z'), Y_i(z, d'), \text{ for } z', z, d' = 0, 1. \]
 
 There are only two average effects which are identified without additional assumptions.
 \begin{enumerate}
@@ -90,13 +88,13 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
 \end{figure}
 
 Estimating the AIE answers the following question: how much of the causal effect $Z_i$ on $Y_i$ goes through the $D_i$ channel?
-When studying the health gains of health insurance \citep{finkelstein2008oregon}, the AIE represents how much of the effect comes from using the hospital more often.
+When studying the health gains of winning the Medicaid wait-list lottery \citep{finkelstein2008oregon}, the AIE represents how much of the effect comes from using the hospital more often.
 Estimating the ADE answers the following equation: how much is left over after accounting for the $D_i$ channel?\footnote{
     In a non-parametric setting it is not necessary that ADE $+$ AIE $=$ ATE.
     See \cite{imai2010identification} for this point in full.
 }
-For the health insurance example, how much of the health insurance effect is a direct effect, other than increased healthcare usage --- e.g., income effects of lower medical debt, or less worry over health shocks.
-The Instrumental Variables (IV) approach assumes this direct effect is zero for everyone (the exclusion restriction).
+For the example, how much of the wait-list lottery effect is a direct effect, other than increased healthcare usage --- e.g., income effects of lower medical debt, or less worry over health shocks thanks to government support.
+An Instrumental Variables (IV) approach assumes this direct effect is zero for everyone (the exclusion restriction).
 CM is a similar, yet distinct, framework attempting to explicitly model the direct effect, and not assuming it is zero.
 
 The ADE and AIE are not separately identified without further assumptions.

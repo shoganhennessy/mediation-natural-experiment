@@ -53,7 +53,7 @@ direct_dist.plot <- normal.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     annotate("text", colour = colour.list[1],
         x = 0.5, y = 6,
@@ -67,7 +67,7 @@ direct_dist.plot <- normal.data %>%
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Dist of CF estimates.
     geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     annotate("text", colour = colour.list[2],
         x = 0.5, y = 2.5,
@@ -104,11 +104,11 @@ indirect_dist.plot <- normal.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     # Dist of CF estimates.
     geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2, adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     # Truth value
     geom_vline(xintercept = 0,
@@ -117,7 +117,7 @@ indirect_dist.plot <- normal.data %>%
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
         name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.2),
+        breaks = seq(-1.0, 1.0, by = 0.25)         ,
         limits = 0.81 * c(-1, 1)) +
     scale_y_continuous(expand = c(0, 0), name = "",
         breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
@@ -139,7 +139,7 @@ direct_dist.plot <- uniform.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     annotate("text", colour = colour.list[1],
         x = 0.5, y = 8,
@@ -153,11 +153,11 @@ direct_dist.plot <- uniform.data %>%
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Dist of Heckit estimates.
     geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     # Dist of CF estimates.
     geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[3], alpha = 0.75) +
     annotate("text", colour = colour.list[3],
         x = 0.4, y = 4,
@@ -176,7 +176,7 @@ direct_dist.plot <- uniform.data %>%
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
         name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.2),
+        breaks = seq(-1.0, 1.0, by = 0.25)         ,
         limits = 0.81 * c(-1.0, 1.0)) +
     scale_y_continuous(expand = c(0, 0), name = "",
         breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
@@ -194,15 +194,15 @@ indirect_dist.plot <- uniform.data %>%
     ggplot() +
     # Dist of OLS estimates.
     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     # Dist of Heckit CF estimates.
     geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     # Dist of semi-parametric CF estimates.
     geom_density(aes(x = cf_indirect_effect - truth_indirect_effect,
-        y = after_stat(density)),
+        y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[3], alpha = 0.75) +
     # Truth value
     geom_vline(xintercept = 0,
@@ -211,7 +211,7 @@ indirect_dist.plot <- uniform.data %>%
     theme_bw() +
     scale_x_continuous(expand = c(0, 0),
         name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.2),
+        breaks = seq(-1.0, 1.0, by = 0.25)         ,
         limits = 0.81 * c(-1.0, 1.0)) +
     scale_y_continuous(expand = c(0, 0), name = "",
         breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
