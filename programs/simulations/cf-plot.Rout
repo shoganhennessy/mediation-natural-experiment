@@ -20,7 +20,7 @@ Type 'q()' to quit R.
 > ## Plot the estimates for indirect + direct effects, with semiparametric CF.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "10:57 EDT Monday, 04 August 2025"
+[1] "10:56 EDT Tuesday, 05 August 2025"
 > 
 > ## Load libraries
 > # Functions for data manipulation and visualisation
@@ -245,7 +245,7 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +     theme_bw() +
 +     scale_x_continuous(expand = c(0, 0),
 +         name = TeX("Estimate $-$ True Value"),
-+         breaks = seq(-1.0, 1.0, by = 0.2),
++         breaks = seq(-1.0, 1.0, by = 0.25)         ,
 +         limits = 0.81 * c(-1, 1)) +
 +     scale_y_continuous(expand = c(0, 0), name = "",
 +         breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
@@ -306,7 +306,7 @@ Duplicated aesthetics after name standardisation: adjust
 +     theme_bw() +
 +     scale_x_continuous(expand = c(0, 0),
 +         name = TeX("Estimate $-$ True Value"),
-+         breaks = seq(-1.0, 1.0, by = 0.2),
++         breaks = seq(-1.0, 1.0, by = 0.25)         ,
 +         limits = 0.81 * c(-1.0, 1.0)) +
 +     scale_y_continuous(expand = c(0, 0), name = "",
 +         breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
@@ -341,7 +341,7 @@ Duplicated aesthetics after name standardisation: adjust
 +     theme_bw() +
 +     scale_x_continuous(expand = c(0, 0),
 +         name = TeX("Estimate $-$ True Value"),
-+         breaks = seq(-1.0, 1.0, by = 0.2),
++         breaks = seq(-1.0, 1.0, by = 0.25)         ,
 +         limits = 0.81 * c(-1.0, 1.0)) +
 +     scale_y_continuous(expand = c(0, 0), name = "",
 +         breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
@@ -568,4 +568,4 @@ Duplicated aesthetics after name standardisation: adjust
 > 
 > proc.time()
    user  system elapsed 
-  4.844   0.224   5.134 
+  5.914   0.442  11.484 

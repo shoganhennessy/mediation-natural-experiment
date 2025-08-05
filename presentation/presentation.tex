@@ -191,7 +191,7 @@
     \begin{enumerate}
         \item Problems with conventional approach to CM in observational settings.
         \\ \textbf{[Negative result]}
-        \item Recovering valid CM effects, via control function $+$ MTE modelling.
+        \item Recovering valid CM effects, via MTE $+$ control function modelling.
         \\ \textbf{[Positive result]}
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
@@ -399,7 +399,7 @@
         \colorbox{yellow}{and demographic controls $\vec X_i$ (no natural experiment...).}
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    Consider the case \textbf{individuals go to the healthcare} to maximise health.
+    Consider the case \textbf{individuals visit the doctor} to maximise health.
     \[ D_i \left( z' \right) = \indicator{
         \underbrace{C_i}_{\text{Costs}} \leq
         \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}}, \;\;\; \text{for } z'=0,1
@@ -420,7 +420,7 @@
         \colorbox{yellow}{and demographic controls $\vec X_i$ (no natural experiment...).}
 
     \vskip0.25cm
-    Consider the case \textbf{individuals go to the healthcare} to maximise health.
+    Consider the case \textbf{individuals visit the doctor} to maximise health.
     \[ D_i \left( z' \right) = \indicator{
         \underbrace{C_i}_{\text{Costs}} \leq
         \underbrace{Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}}, \;\;\; \text{for } z'=0,1.
@@ -593,7 +593,7 @@
     \end{enumerate}
     \vfill
     \par\noindent\rule{\textwidth}{0.4pt}
-    Applied economics would do better by thinking more deeply about mediators.
+    Applied economics would do better by thinking deeper on mediation.
 \end{frame}
 %-------------------------------------------------------------------------------
 \section{3. Saving CM Effects}
@@ -740,7 +740,7 @@
 
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{Identification intuition:}
-    Identify second-stage via MTE control function.
+    Identify second-stage via MTE control function (CF).
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -750,7 +750,7 @@
         \item Mediator monotonicity,
         $\Probgiven{ D_i(0) \leq D_i(1) }{\vec X_i} = 1$
         \[ \implies D_i(z') = \indicator{U_i \leq \pi(z'; \vec X_i)},
-            \;\;\; \text{for } z'=0,1 \text{  (Vycatil 2022)}. \]
+            \;\;\; \text{for } z'=0,1 \text{  (Vycatil 2002)}. \]
         \item Selection on mediator benefits,
         $\Cov{U_i, \, U_{0,i}}, \; \Cov{U_i, \, U_{1,i}} \neq 0$
         \[ \implies \text{First-stage take-up informs second-stage confounding.} \]
@@ -771,13 +771,13 @@
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{3. Saving CM Effects --- Identification}
-    The marginal effect has corresponding control functions, describing unobserved selection-into-$D_i$,
+    The marginal effect has corresponding Control Functions (CFs), describing unobserved selection-into-$D_i$,
     \[ \lambda_0(p') = \Egiven{ U_{0,i} }{ p' \leq U_i }, \;\;\;\;
         \lambda_1(p') = \Egiven{ U_{1,i} }{ U_i \leq p' }. \]
 
     \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
-    These control functions restore second-stage identification, by extrapolating from $\vec X_i^{\text{IV}}$ compliers to $D_i(Z_i)$ mediator compliers,
+    These CFs restore second-stage identification, by extrapolating from $\vec X_i^{\text{IV}}$ compliers to $D_i(Z_i)$ mediator compliers,
     \begin{align*}
         \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
             \alpha
@@ -788,9 +788,8 @@
             & \;\; + \underbrace{\eqhighlight{yellow}{
                 \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
                 + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big)}}_{
-                    \text{Control function adjustment.}}
+                    \text{CF adjustment.}}
     \end{align*}
-
 
     \par\noindent\rule{\textwidth}{0.4pt}
     This adjusted second-stage re-identifies the ADE and AIE,
@@ -846,7 +845,7 @@
 
     \vskip0.25cm
 
-    Control functions are the inverse Mills ratio, with $\phi$ normal pdf $\Phi$ cdf, 
+    CFs are the inverse Mills ratio, with $\phi(.)$ normal pdf and $\Phi(.)$ normal cdf, 
     \[ \lambda_0(p') =
         \frac{\phi( - \Phi^{-1}(p') )}{\Phi( -\Phi^{-1}(p') )}, \;\;\;\;
     \lambda_1(p') =
@@ -856,11 +855,15 @@
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{Parametric Estimation Recipe:}
     \begin{enumerate}
-        \item Estimate first-stage $\pi_i(Z_i; \vec X_i)$ with probit.
-        \item Include $\lambda_0, \lambda_1$ inverse Mills ratios in second-stage OLS estimation.
+        \item Estimate first-stage $\pi(Z_i; \vec X_i)$ with probit, including $\vec X_i^{\text{IV}}$.
+        \item \hl{Include $\lambda_0, \lambda_1$ CFs in second-stage} OLS estimation.
         \item Compose CM estimates from two-stage plug-in estimates.
     \end{enumerate}
     \vfill
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    $\to$ Same as conventional CM estimates (two-stages), with CFs added.
+
     \makebox[\textwidth]{\parbox{1.25\textwidth}{
         \small
         \[ \hat{\text{ADE}}
@@ -876,45 +879,55 @@
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{3. Saving CM Effects --- Estimation}
-    \begin{figure}
-        \caption{Simulated Distribution of CM Effect Estimates from 10,000 DGPs.}
-        \begin{subfigure}[c]{0.475\textwidth}
-            \centering
-            \caption{$\hat{\text{ADE}} - \text{ADE}$.}
-            \includegraphics[width=\textwidth]{
-                ../programs/simulations/sim-output/normal-direct-dist.png}
-        \end{subfigure}
-        \begin{subfigure}[c]{0.475\textwidth}
-            \centering
-            \caption{$\hat{\text{AIE}} - \text{AIE}$.}
-            \includegraphics[width=\textwidth]{
-                ../programs/simulations/sim-output/normal-indirect-dist.png}
-        \end{subfigure}
-    \end{figure}
+    \vskip-0.25cm
+    \makebox[\textwidth]{\parbox{1.25\textwidth}{
+        \begin{figure}
+            \caption{Simulated Distribution of CM Effect Estimates from 10,000 DGPs.}
+            \vskip-0.25cm
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{$\hat{\text{ADE}} - \text{ADE}$.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../programs/simulations/sim-output/normal-direct-dist.png}
+            \end{subfigure}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{$\hat{\text{AIE}} - \text{AIE}$.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../programs/simulations/sim-output/normal-indirect-dist.png}
+            \end{subfigure}
+        \end{figure}
+    }}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{3. Saving CM Effects --- Estimation}
-    If errors are not normal, then control functions do not have a known form, so semi-parametrically estimate them (e.g., splines).
+    If errors are not normal, then CFs do not have a known form, so semi-parametrically estimate them (e.g., splines).
     \begin{align*}
         \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} &=
             \alpha + \gamma Z_i + \varphi\big( \vec X_i \big)
             + \eqhighlight{yellow}{\rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)}, \\
         \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} &=
-            (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i^\big)
+            (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i\big)
             + \eqhighlight{yellow}{\rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big)}.
     \end{align*}
 
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{Semi-parametric Estimation Recipe:}
     \begin{enumerate}
-        \item Estimate first-stage $\pi_i(Z_i; \vec X_i)$ with semi- or non-parametric methods.
-        \item Estimate second-stage separately for $D_i = 0,1$, with flexible semi-parametric regressors for $\lambda_0, \lambda_1$.
+        \item Estimate first-stage $\pi(Z_i; \vec X_i)$, including $\vec X_i^{\text{IV}}$.
+        \item \hl{Estimate second-stage separately for $D_i = 0$ and $D_i = 1$, with regressors $\lambda_0(p'), \lambda_1(p')$,} semi-parametric in $p' = \hat\pi(Z_i; \vec X_i)$.
         \item Compose CM estimates from two-stage plug-in estimates. 
     \end{enumerate}
-    \hyperlink{cf-semiparametric}{\beamergotobutton{CF separation.}}
+    \vfill
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    $\to$ Same as conventional CM estimates, with semi-parametric CFs.
+    \hyperlink{cf-semiparametric}{\beamergotobutton{CFs.}}
     
-    \vskip0.25cm
+    \vskip0.125cm
     \makebox[\textwidth]{\parbox{1.25\textwidth}{
         \small
         \[ \hat{\text{ADE}}
@@ -929,25 +942,52 @@
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{3. Saving CM Effects --- Estimation}
-
+    \vskip-0.25cm
     \makebox[\textwidth]{\parbox{1.25\textwidth}{
-    \begin{figure}
-        \caption{Simulated Distribution of CM Effect Estimates with Uniform Errors.}
-        \begin{subfigure}[c]{0.475\textwidth}
-            \centering
-            \caption{$\hat{\text{ADE}} - \text{ADE}$.}
+        \begin{figure}
+            \caption{Simulated Distribution of CM Effect Estimates with Uniform Errors.}
             \vskip-0.25cm
-            \includegraphics[width=\textwidth]{
-                ../programs/simulations/sim-output/uniform-direct-dist.png}
-        \end{subfigure}
-        \begin{subfigure}[c]{0.475\textwidth}
-            \centering
-            \caption{$\hat{\text{AIE}} - \text{AIE}$.}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{$\hat{\text{ADE}} - \text{ADE}$.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../programs/simulations/sim-output/uniform-direct-dist.png}
+            \end{subfigure}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{$\hat{\text{AIE}} - \text{AIE}$.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../programs/simulations/sim-output/uniform-indirect-dist.png}
+            \end{subfigure}
+        \end{figure}
+    }}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{3. Saving CM Effects --- Estimation}
+    \vskip-0.25cm
+    \makebox[\textwidth]{\parbox{1.25\textwidth}{
+        \begin{figure}
+            \caption{CF Adjusted Estimates Work with Different Error Term Parameters.}
             \vskip-0.25cm
-            \includegraphics[width=\textwidth]{
-                ../programs/simulations/sim-output/uniform-indirect-dist.png}
-        \end{subfigure}
-    \end{figure} }}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{ADE.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../programs/simulations/sim-output/rho-directeffect-bias.png}
+            \end{subfigure}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{AIE.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../programs/simulations/sim-output/rho-indirecteffect-bias.png}
+            \end{subfigure}
+        \end{figure}
+    }}
 \end{frame}
 %-------------------------------------------------------------------------------
 \section{Conclusion}
@@ -956,19 +996,19 @@
     \frametitle{Conclusion}
     \textbf{Overarching goals:}
     \begin{enumerate}
-        \item Point holes in the popular ``suggestive evidence of mechanisms.''
-        \item Ward researchers away from CM methods with no case for mediator ignorability. \\
+        \item Alternative to practice of ``suggestive evidence of mechanisms.''
+        \item Selection bias in conventional CM analyses with no case for mediator ignorability \\
         $\to$ Noted problems in the most popular methods for CM effects, pertinent for economic applications.
-        \item CM methods away from ignorability assumptions, inappropriate for economic settings. \\
-        $\to$ Methods valid when selection-into-treatment theory relevant.
+        \item Connect CM with labour theory $+$ selection-into-treatment $+$ MTEs \\
+        $\to$ Valid CM identification in these settings.
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
     \small
     \textbf{Caveats and points to remember:}
     \begin{itemize}
-        \item Structural assumptions and an IV for identification $+$ estimation (not ideal).
+        \item Structural assumptions and IV for identification $+$ estimation (not ideal).
         \item Application to Oregon Health Insurance Experiment in the paper, showing health $+$ well-being effects mediated by healthcare (wide confidence intervals).
-        \item \textit{Credible} CM analyses are hard in practice.
+        \item \hl{\textbf{Credible} CM analyses are hard in practice.}
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -1099,17 +1139,18 @@
 \begin{frame}[noframenumbering]
     \frametitle{Semi-parametric Control Functions}
     \label{cf-semiparametric}
-    Semi-parametric specifications for the control functions $\lambda_0, \lambda_1$ bring some complications to estimating the AIE.
+    Semi-parametric specifications for the CFs $\lambda_0, \lambda_1$ bring some complications to estimating the AIE.
     \begin{align*}
         \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} &=
             \alpha + \gamma Z_i + \varphi\big( \vec X_i \big)
             + \eqhighlight{yellow}{\rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)}, \\
         \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} &=
-            (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i^\big)
+            (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i\big)
             + \eqhighlight{yellow}{\rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big)}.
     \end{align*}
-    Intercepts, $\alpha, (\alpha + \beta)$, and relevance parameters $\rho_0, \rho_1$ are not separately identified from the CFs $\lambda_0, \lambda_1$.
-    
+    Intercepts, $\alpha, (\alpha + \beta)$, and relevance parameters $\rho_0, \rho_1$ are not separately identified from the CFs $\lambda_0(.), \lambda_1(.)$.
+
+    \par\noindent\rule{\textwidth}{0.4pt}    
     These problems can be avoided by estimating the AIE using its relation to the ATE, $\hat{\text{AIE}}^{\text{CF}} =$
     \[ \hat{\text{ATE}}
         - (1 - \bar Z) \, \underbrace{\left( 

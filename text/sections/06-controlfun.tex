@@ -133,7 +133,7 @@ Note that relying on propensity score estimation requires assumptions that can b
 \label{sec:simulations}
 The following simulation gives an example to show how these methods work in practice.
 Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from the following data generating processes, for $i = 1, \hdots, N$, with 
-$N = 5,000$ for this simulation.
+$n = 5,000$ for this simulation.
 \[ Z_i \sim \text{Binom}\left(0.5 \right),
     \;\; \vec X_i^- \sim N(4, 1),
     \;\; \vec X_i^{\text{IV}} \sim \text{Uniform}\left( -1, 1 \right),
@@ -229,7 +229,7 @@ The semi-parametric approach is centred exactly around the truth, with a slightl
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the OLS and CF point estimates of the ADE and AIE, for $N = 5,000$ sample size, varying $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values with $\Var{U_{0,i}} = 1, \Var{U_{1,i}} = 1.5$ fixed.
+    These figures show the OLS and CF point estimates of the ADE and AIE, for $n = 5,000$ sample size, varying $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values with $\Var{U_{0,i}} = 1, \Var{U_{1,i}} = 1.5$ fixed.
     The black dashed line is the true value, coloured points are points estimates for the respective data generated, and shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
     Orange represents OLS estimates, blue the CF approach.
 \end{figure}
