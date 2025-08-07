@@ -16,8 +16,9 @@ library(latex2exp)
 set.seed(47)
 # Define number of digits in tables and graphs
 digits.no <- 3
-# Define where output files go.
-output.folder <- file.path("sim-output")
+# Define where input files come form + output files go.
+input.folder <- file.path("sim-output")
+output.folder <- file.path("..", "..", "text", "sections", "figures")
 # Set the options for the plot sizes, in saving ggplot output.
 fig.height <- 10
 fig.width <- fig.height
@@ -29,19 +30,19 @@ colour.list <- c("orange", "blue", "#2ca02c") # Orange, blue, Green
 ## Load the simulated data.  (saved as separate file in advance.)
 
 # Load data from normal DGP-strapping 10,000 times.
-normal.data <- read_csv(file.path(output.folder, "normal-cf-data.csv"))
+normal.data <- read_csv(file.path(input.folder, "normal-cf-data.csv"))
 print(normal.data)
 
 # Load data from uniform DGP-strapping 10,000 times.
-uniform.data <- read_csv(file.path(output.folder, "uniform-cf-data.csv"))
+uniform.data <- read_csv(file.path(input.folder, "uniform-cf-data.csv"))
 print(uniform.data)
 
 # Load data from different Corr(U_0, U_1) parameter values
-rho.data <- read_csv(file.path(output.folder, "rho-cf-data.csv"))
+rho.data <- read_csv(file.path(input.folder, "rho-cf-data.csv"))
 print(rho.data)
 
-# Load data from different sd(U_1) parameter values, relaltive to sd(U_0) = 1
-sigma_1.data <- read_csv(file.path(output.folder, "sigma1-cf-data.csv"))
+# Load data from different sd(U_1) parameter values, relative to sd(U_0) = 1
+sigma_1.data <- read_csv(file.path(input.folder, "sigma1-cf-data.csv"))
 print(sigma_1.data)
 
 
@@ -56,13 +57,13 @@ direct_dist.plot <- normal.data %>%
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     annotate("text", colour = colour.list[1],
-        x = 0.5, y = 6,
+        x = 0.5, y = 7,
         fontface = "bold",
         label = ("Unadjusted"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.5, y = 5.875,
-        xend = -0.3, yend = 4.25,
+        x = 0.5, y = 6.875,
+        xend = -0.3, yend = 5.25,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Dist of CF estimates.
@@ -142,13 +143,13 @@ direct_dist.plot <- uniform.data %>%
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     annotate("text", colour = colour.list[1],
-        x = 0.5, y = 8,
+        x = 0.5, y = 7,
         fontface = "bold",
         label = ("Unadjusted"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.5, y = 7.875,
-        xend = -0.3, yend = 6,
+        x = 0.5, y = 6.875,
+        xend = -0.3, yend = 5.25,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Dist of Heckit estimates.
@@ -179,7 +180,8 @@ direct_dist.plot <- uniform.data %>%
         breaks = seq(-1.0, 1.0, by = 0.25)         ,
         limits = 0.81 * c(-1.0, 1.0)) +
     scale_y_continuous(expand = c(0, 0), name = "",
-        breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
+        breaks = seq(0, 100, by = 1),
+        limits = c(0, 8.5), oob = scales::rescale_none) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -214,7 +216,8 @@ indirect_dist.plot <- uniform.data %>%
         breaks = seq(-1.0, 1.0, by = 0.25)         ,
         limits = 0.81 * c(-1.0, 1.0)) +
     scale_y_continuous(expand = c(0, 0), name = "",
-        breaks = seq(0, 100, by = 1), limits = c(0, 11.5)) +
+        breaks = seq(0, 100, by = 1),
+        limits = c(0, 8.5), oob = scales::rescale_none) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",

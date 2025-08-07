@@ -283,7 +283,8 @@ larf.fit <- function(Y, X, D, Z, method, AME, optimizer, zProb) {
       b <- b1
       
       if ( is.null(zProb) ) {   # Get the SE using theorem 4.2
-        u <- y-(cbind(d,X)%*%b)        
+        u <- y-(cbind(d,X)%*%b)
+    Assume $Z_i$ is ignorable (conditional on $\vec X_i$).    
         # M_theta <- crossprod(cbind(d,X),diag(as.vector(kappa),n))%*%cbind(d,X)
         M_theta <- t(cbind(d,X) * kappa)%*%cbind(d,X)
         

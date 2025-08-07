@@ -140,8 +140,11 @@
 \section{Introduction}
 \begin{frame}
     \frametitle{Intro: Oregon Health Insurance Experiment}
-    In 2008, Oregon gave health insurance by lottery (Finkelstein et al, 2012).
-    \vspace{-0.875cm}
+    \vspace{-0.125cm}
+
+    In 2008, Oregon gave access to socialised health insurance by wait-list lottery (Finkelstein et al, 2012).
+    
+    \vspace{-0.625cm}
     \begin{figure}
         \centering
         \singlespacing
@@ -149,14 +152,17 @@
             presentation-files/figures/insurance-effects.png}
     \end{figure}
     \vspace{-0.5cm}
-    $\Rightarrow$ Suggestive evidence for healthcare as mechanism for wait-list lottery, access to health insurance….
+
+    \textbf{Applied practice:}
+
+    $\Rightarrow$ Suggestive evidence for healthcare as mechanism for wait-list lottery….
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
     \frametitle{Intro: Oregon Health Insurance Experiment}
-    Oregon gave health insurance by wait-list lottery (Finkelstein et al, 2012).
+    In 2008, Oregon gave access to socialised health insurance by wait-list lottery (Finkelstein et al, 2012).
     \begin{figure}
-            \caption{SCM for Suggestive Evidence of a Mechanism.}
+            \caption{Model for Suggestive Evidence of a Mechanism.}
             \begin{tikzpicture}
             \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
             \node[state,thick,blue] (treatment) [left=2cm of mediator] {$Z_i$};
@@ -175,8 +181,9 @@
     \end{figure}
     \vfill
     \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{Inconsistencies in this conclusion:}
     \begin{itemize}
-        \item Missing the $D_i \to Y_i$ edge of the triangular system…
+        \item A triangular system missing the $D_i \to Y_i$ edge…
         \item Is $D_i \to Y_i$ small, large, or even existent?
         \item Where else do we accept assumed causal effects without evidence?
     \end{itemize}
@@ -198,9 +205,9 @@
     Brings together ideas from two different literatures:
     \begin{itemize}
         \item \textbf{CM.}
-        \\ Imai Keele Yamamoto (2010), Fr\"olich Huber (2017), Deuchert Huber Schelker (2019), Huber (2020), Kwon Roth (2024).
+        \\ {\small Imai Keele Yamamoto (2010), Fr\"olich Huber (2017), Deuchert Huber Schelker (2019), Huber (2020), Kwon Roth (2024).}
         \item \textbf{Labour theory, Selection-into-treatment, MTEs.}
-        \\ Roy (1951), Heckman (1979), Heckman Honor\'e (1990), Vycatil (2002), Heckman Vycatil (2005), Kline Walters (2019).
+        \\ {\small Roy (1951), Heckman (1979), Heckman Honor\'e (1990), Vycatil (2002), Heckman Vycatil (2005), Brinch Mogstad Wiswall (2017), Kline Walters (2019).}
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -233,7 +240,7 @@
             %\node[color=orange] [below=0.5cm of mediator] {Direct Effect};
         \end{tikzpicture}
     \end{figure}
-    Assume $Z_i$ is ignorable, $Z_i \indep D_i(z'), Y_i(z,d') \; | \; \vec X_i, \;\; \text{ for }z',z, d' = 0,1$.
+    Assume $Z_i$ is ignorable (conditional on $\vec X_i$).
     \par\noindent\rule{\textwidth}{0.4pt}
     \begin{align*}
         & \textcolor{ForestGreen}{\text{Mediator }D_i} \text{ is a function of } \textcolor{blue}{Z_i}.
@@ -523,7 +530,7 @@
         & = \underbrace{\E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}}_{
             \text{\textcolor{blue}{Average Direct Effect}}} \\
         & \;\;\;\; + 
-        \pause \underbrace{ \mathbb E_{D_i=d'} \Big[ 
+        \underbrace{ \mathbb E_{D_i=d'} \Big[ 
             \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d'} 
             - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d'} \Big] }_{
                 \text{\textcolor{red}{Selection Bias}}} \\
@@ -589,17 +596,17 @@
     \begin{enumerate}
         \item Counter to accepted intuitive reasoning in applied economics, which oftens controls for plausible mediators
         \item Invalidates conclusions in fields that uncritically apply CM methods with no case for mediator ignorability (common in some fields of epidemiology, psychology, medicine, and sociology)
-        \item Warning sign for economists to avoid picking up this practice, and stop using it as a ``robustness check.''
+        \item Warning sign for economists to avoid picking up this practice, and stop using it as a robustness check.
     \end{enumerate}
     \vfill
     \par\noindent\rule{\textwidth}{0.4pt}
     Applied economics would do better by thinking deeper on mediation.
 \end{frame}
 %-------------------------------------------------------------------------------
-\section{3. Saving CM Effects}
+\section{3. CM with Selection}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{3. Saving CM Effects}
+    \frametitle{3. CM with Selection}
     Suppose $Z_i$ is ignorable, $D_i$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -647,7 +654,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{3. Saving CM Effects}
+    \frametitle{3. CM with Selection}
     Suppose $Z_i$ is ignorable, $D_i$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -685,6 +692,9 @@
             \left(1 - D_i \right)U_{0,i} + D_i U_{1,i}}}_{
             \text{Correlated error term}}
     \end{align*}
+    \vskip-0.5cm
+    where $\beta, \gamma, \delta$ are functions of $\mu_{d'}(z'; \vec X_i)$.
+
     \par\noindent\rule{\textwidth}{0.4pt}
     \[ \text{ADE} = \E{\gamma + \delta D_i}, \;\;\;\;
     \text{AIE} = \E{ \bar \pi \big( \beta +  \delta Z_i + \tilde U_i \big)} \]
@@ -693,7 +703,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{3. Saving CM Effects}
+    \frametitle{3. CM with Selection}
     Suppose $Z_i$ is ignorable, $D_i$ is not, so we have the following causal model.
     \vskip-0.75cm
     \begin{figure}
@@ -740,11 +750,11 @@
 
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{Identification intuition:}
-    Identify second-stage via MTE control function (CF).
+    Identify second-stage via MTE control function.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{3. Saving CM Effects --- Identification}
+    \frametitle{3. CM with Selection --- Identification}
     Assume:
     \begin{enumerate}
         \item Mediator monotonicity,
@@ -754,26 +764,27 @@
         \item Selection on mediator benefits,
         $\Cov{U_i, \, U_{0,i}}, \; \Cov{U_i, \, U_{1,i}} \neq 0$
         \[ \implies \text{First-stage take-up informs second-stage confounding.} \]
-        \item There is an IV for the mediator, $\vec X_i^{\text{IV}}$ among control matrix $\vec X_i$.
-        \[ \implies \pi(z'; \vec X_i) = \Probgiven{D_i = 1}{Z_i =z',\vec X_i} 
+        \item There is an IV for the mediator, $\vec X_i^{\text{IV}}$ among control variables $\vec X_i$.
+        \[ \implies \pi(Z_i \vec X_i) = \Probgiven{D_i = 1}{Z_i,\vec X_i} 
         \text{ is separately identified.} \]
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{Proposition:}
-    Under assumptions (1), (2), (3) the marginal indirect effect is identified,
+    Under assumptions (1), (2), (3) the marginal effect of the mediator is identified,
 
-    \vskip-0.75cm
+    \vskip-0.5cm
     \begin{align*}
-        & \Egiven{Y_i(z', 1) - Y_i(z', 0)}{Z_i = z', \vec X_i, U_i = u'} \\
-        &= \beta + \delta z' + \Egiven{U_{1,i} - U_{0,i}}{\vec X_i, U_i = u'}.
+        & \Egiven{Y_i(z', 1) - Y_i(z', 0)}{Z_i = z', \vec X_i, U_i = p'} \\
+        &= \beta + \delta z' + \Egiven{U_{1,i} - U_{0,i}}{\vec X_i, U_i = p'},
+        \;\;\;\; \text{ for } p' \in (0,1).
     \end{align*}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{3. Saving CM Effects --- Identification}
+    \frametitle{3. CM with Selection --- Identification}
     The marginal effect has corresponding Control Functions (CFs), describing unobserved selection-into-$D_i$,
-    \[ \lambda_0(p') = \Egiven{ U_{0,i} }{ p' \leq U_i }, \;\;\;\;
-        \lambda_1(p') = \Egiven{ U_{1,i} }{ U_i \leq p' }. \]
+    \[ \rho_0 \lambda_0(p') = \Egiven{ U_{0,i} }{ p' \leq U_i }, \;\;\;\;
+        \rho_1 \lambda_1(p') = \Egiven{ U_{1,i} }{ U_i \leq p' }. \]
 
     \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
@@ -808,12 +819,12 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{3. Saving CM Effects --- Estimation}
-    Will explain how estimation works, with simulation evidence $n = 5,000$.
+    \frametitle{3. CM with Selection --- Estimation}
+    Will explain how estimation works, with simulation evidence.
     \vskip0cm
     \begin{enumerate}
         \item $\text{\textcolor{blue}{Random treatment $Z_i$}}
-            \sim \text{Binom}\left(0.5 \right) $
+            \sim \text{Binom}\left(0.5 \right)$, for $n = 5,000$.
         \item $ \eqhighlight{yellow}{
             \left( U_{0,i}, U_{1,i} \right) \sim
         \text{BivariateNormal}\left( 0, 0, \sigma_0, \sigma_1, \rho \right)},
@@ -822,15 +833,16 @@
     \par\noindent\rule{\textwidth}{0.4pt}
     Roy \textcolor{ForestGreen}{selection-into-$D_i$}, with constant partial effects $+$ interaction term.
     \begin{align*}
-        D_i(z')    &= \indicator{Y_i(z', 1) - Y_i(z', 0) \geq C_i},&  \\
+        D_i(z')    &= \indicator{C_i \leq Y_i(z', 1) - Y_i(z', 0)},&  \\
         Y_i(z',d') &= \left( z' + d' + z' d' \right) + U_{d'}
         & \text{ for } z',d' = 0,1.
     \end{align*}
     \par\noindent\rule{\textwidth}{0.4pt}
     Following the previous, these data have the following first and second-stage equations, where $\vec X_i^\text{IV}$ is an additive cost IV:
     \begin{align*}
-        D_i &= \indicator{Z_i - \vec X_i^{\text{IV}}
-            \geq C_i - \Big(\eqhighlight{yellow}{U_{1,i} - U_{0,i}} \Big) } \\
+        D_i &= \indicator{
+            C_i - \Big( \eqhighlight{yellow}{U_{1,i} - U_{0,i}} \Big)
+                \leq Z_i - \vec X_i^{\text{IV}} } \\
         Y_i &= Z_i + D_i + Z_i D_i
             + \eqhighlight{yellow}{
                 \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}}.
@@ -840,7 +852,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{3. Saving CM Effects --- Estimation}
+    \frametitle{3. CM with Selection --- Estimation}
     Errors are normal, so system is Heckman (1979) selection model.
 
     \vskip0.25cm
@@ -878,7 +890,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{3. Saving CM Effects --- Estimation}
+    \frametitle{3. CM with Selection --- Estimation}
     \vskip-0.25cm
     \makebox[\textwidth]{\parbox{1.25\textwidth}{
         \begin{figure}
@@ -889,21 +901,21 @@
                 \caption{$\hat{\text{ADE}} - \text{ADE}$.}
                 \vskip-0.25cm
                 \includegraphics[width=\textwidth]{
-                    ../programs/simulations/sim-output/normal-direct-dist.png}
+                    ../text/sections/figures/normal-direct-dist.png}
             \end{subfigure}
             \begin{subfigure}[c]{0.525\textwidth}
                 \centering
                 \caption{$\hat{\text{AIE}} - \text{AIE}$.}
                 \vskip-0.25cm
                 \includegraphics[width=\textwidth]{
-                    ../programs/simulations/sim-output/normal-indirect-dist.png}
+                    ../text/sections/figures/normal-indirect-dist.png}
             \end{subfigure}
         \end{figure}
     }}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{3. Saving CM Effects --- Estimation}
+    \frametitle{3. CM with Selection --- Estimation}
     If errors are not normal, then CFs do not have a known form, so semi-parametrically estimate them (e.g., splines).
     \begin{align*}
         \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} &=
@@ -918,7 +930,7 @@
     \textbf{Semi-parametric Estimation Recipe:}
     \begin{enumerate}
         \item Estimate first-stage $\pi(Z_i; \vec X_i)$, including $\vec X_i^{\text{IV}}$.
-        \item \hl{Estimate second-stage separately for $D_i = 0$ and $D_i = 1$, with regressors $\lambda_0(p'), \lambda_1(p')$,} semi-parametric in $p' = \hat\pi(Z_i; \vec X_i)$.
+        \item \hl{Estimate second-stage separately for $D_i = 0$ and $D_i = 1$, with regressors $\lambda_0(p'), \lambda_1(p')$,} semi-parametric in $\hat\pi(Z_i; \vec X_i)$.
         \item Compose CM estimates from two-stage plug-in estimates. 
     \end{enumerate}
     \vfill
@@ -941,7 +953,7 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{3. Saving CM Effects --- Estimation}
+    \frametitle{3. CM with Selection --- Estimation}
     \vskip-0.25cm
     \makebox[\textwidth]{\parbox{1.25\textwidth}{
         \begin{figure}
@@ -952,21 +964,21 @@
                 \caption{$\hat{\text{ADE}} - \text{ADE}$.}
                 \vskip-0.25cm
                 \includegraphics[width=\textwidth]{
-                    ../programs/simulations/sim-output/uniform-direct-dist.png}
+                    ../text/sections/figures//uniform-direct-dist.png}
             \end{subfigure}
             \begin{subfigure}[c]{0.525\textwidth}
                 \centering
                 \caption{$\hat{\text{AIE}} - \text{AIE}$.}
                 \vskip-0.25cm
                 \includegraphics[width=\textwidth]{
-                    ../programs/simulations/sim-output/uniform-indirect-dist.png}
+                    ../text/sections/figures//uniform-indirect-dist.png}
             \end{subfigure}
         \end{figure}
     }}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}[noframenumbering]
-    \frametitle{3. Saving CM Effects --- Estimation}
+    \frametitle{3. CM with Selection --- Estimation}
     \vskip-0.25cm
     \makebox[\textwidth]{\parbox{1.25\textwidth}{
         \begin{figure}
@@ -977,14 +989,14 @@
                 \caption{ADE.}
                 \vskip-0.25cm
                 \includegraphics[width=\textwidth]{
-                    ../programs/simulations/sim-output/rho-directeffect-bias.png}
+                    ../text/sections/figures//rho-directeffect-bias.png}
             \end{subfigure}
             \begin{subfigure}[c]{0.525\textwidth}
                 \centering
                 \caption{AIE.}
                 \vskip-0.25cm
                 \includegraphics[width=\textwidth]{
-                    ../programs/simulations/sim-output/rho-indirecteffect-bias.png}
+                    ../text/sections/figures//rho-indirecteffect-bias.png}
             \end{subfigure}
         \end{figure}
     }}
@@ -996,9 +1008,9 @@
     \frametitle{Conclusion}
     \textbf{Overarching goals:}
     \begin{enumerate}
-        \item Alternative to practice of ``suggestive evidence of mechanisms.''
+        \item Alternative to practice of suggestive evidence for mechanisms.
         \item Selection bias in conventional CM analyses with no case for mediator ignorability \\
-        $\to$ Noted problems in the most popular methods for CM effects, pertinent for economic applications.
+        $\to$ Noted problems in the most popular methods for CM, pertinent for economic applications.
         \item Connect CM with labour theory $+$ selection-into-treatment $+$ MTEs \\
         $\to$ Valid CM identification in these settings.
     \end{enumerate}
@@ -1148,7 +1160,7 @@
             (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i\big)
             + \eqhighlight{yellow}{\rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big)}.
     \end{align*}
-    Intercepts, $\alpha, (\alpha + \beta)$, and relevance parameters $\rho_0, \rho_1$ are not separately identified from the CFs $\lambda_0(.), \lambda_1(.)$.
+    Intercepts, $\alpha, (\alpha + \beta)$, and relevance parameters $\rho_0, \rho_1$ are not separately identified from the CFs $\lambda_0(.), \lambda_1(.)$ so CF extrapolation term\\ $(\rho_1 - \rho_0) \Gamma \big(\pi(0; \vec X_i), \, \pi(1; \vec X_i) \big)$ is not directly identified or estimable.
 
     \par\noindent\rule{\textwidth}{0.4pt}    
     These problems can be avoided by estimating the AIE using its relation to the ATE, $\hat{\text{AIE}}^{\text{CF}} =$

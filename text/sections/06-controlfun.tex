@@ -103,7 +103,7 @@ The linear parameters (including a linear approximation $\vec \varphi'$ of nuisa
 An attractive option is a series estimator, such as a spline specification, as this estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
 
 The ADE is estimated by this approach as follows.
-Take $\hat \gamma$, the $D_i = 0$ subsample estimate of $\gamma$, and $(\hat{\gamma + \delta})$, the $D_i = 1$ subsample estimate of $(\gamma + \delta)$, to give
+Take $\hat \gamma$, the $D_i = 0$ subsample estimate of $\E \gamma$, and $(\hat{\gamma + \delta})$, the $D_i = 1$ subsample estimate of $\E{\gamma + \delta}$, to give
 \[ \hat{\text{ADE}}^{\text{CF}}
     = (1 - \bar D) \, \hat \gamma + \bar D \, (\hat{\gamma + \delta}). \]
 
@@ -114,7 +114,7 @@ As such, it is not possible to directly use $\hat \lambda_0, \hat \lambda_1$ in 
 
 These problems can be avoided by estimating the AIE using its relation to the ATE.
 Write $\hat{\text{ATE}}$ for the point-estimate of the ATE, and 
-$\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\delta$, to give the following estimator,
+$\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\E \delta$, to give the following estimator,
 \[ \hat{\text{AIE}}^{\text{CF}}
     = \hat{\text{ATE}}
     - (1 - \bar Z) \, \left( 
@@ -182,13 +182,13 @@ This gives an ATE value of 2.60, ADE 1.38, and AIE 1.22, respectively.\footnote{
         \centering
         \caption{$\hat{\text{ADE}} - \text{ADE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/uniform-direct-dist.png}
+            sections/figures/uniform-direct-dist.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{$\hat{\text{AIE}} - \text{AIE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/uniform-indirect-dist.png}
+            sections/figures/uniform-indirect-dist.png}
     \end{subfigure}
     \label{fig:cm-uniform-dist}
     \justify
@@ -217,13 +217,13 @@ The semi-parametric approach is centred exactly around the truth, with a slightl
         \centering
         \caption{ADE.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/rho-directeffect-bias.png}
+            sections/figures/rho-directeffect-bias.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{AIE.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/rho-indirecteffect-bias.png}
+            sections/figures/rho-indirecteffect-bias.png}
     \end{subfigure}
     \label{fig:rho-bias}
     \justify

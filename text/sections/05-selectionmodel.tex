@@ -134,6 +134,16 @@ If we do not know want to assume a specific distribution, then $\lambda_0, \lamb
     This comes at the cost of $\alpha$ and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$ --- ultimately, however, this does not jeopardise identification and estimation of the ADE and AIE (see \autoref{sec:semiparametric-cf}).
 }
 
+This identification strategy is a Marginal Treatment Effect approach (MTE, \citealt{bjorklund1987estimation,heckman2005structural}) applied to a CM setting.
+One can see this by noting the connection to the marginal effect of the mediator,
+\begin{align*}
+    & \Egiven{Y_i(z', 1) - Y_i(z', 0)}{Z_i = z', \vec X_i, U_i = p'} \\
+    &= \beta + \delta z' + \Egiven{U_{1,i} - U_{0,i}}{\vec X_i, U_i = p'},
+    \;\;\;\; \text{ for } p' \in (0,1).
+\end{align*}
+The marginal effect of the mediator is identified under the \ref{thm:cf-identification} assumptions, thanks to instrumental variation in $\vec X_i^{\text{IV}}$.
+The final step uses the corresponding CFs to extrapolate from $\vec X_i^{\text{IV}}$ compliers to mediator compliers, and thus identify the ADE and AIE.
+
 \newtheorem{theoremCF}{Theorem}
 \renewcommand\thetheoremCF{CF}
 \begin{theoremCF}
@@ -165,23 +175,19 @@ The ADE is straightforward to calculate as an average of the direct effect param
 Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
 The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
 
-This identification strategy is essentially a Marginal Treatment Effect approach (MTE, \citealt{bjorklund1987estimation,heckman2005structural}) applied to a CM setting.
-Just as the local IV approach uses variation in instruments to identify MTEs across the distribution of unobserved treatment take-up costs, this CF approach identifies CM effects across the distribution of unobserved mediator take-up costs.
-This connection to MTEs provides a conceptual bridge between the literature on structural IV for causal effects and CM.
-
 \begin{figure}[!h]
     \caption{The CF Adjustment Addresses Persistent Bias in Conventional CM Estimates.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{$\hat{\text{ADE}} - \text{ADE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/normal-direct-dist.png}
+            sections/figures/normal-direct-dist.png}
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{$\hat{\text{AIE}} - \text{AIE}$.}
         \includegraphics[width=\textwidth]{
-            ../programs/simulations/sim-output/normal-indirect-dist.png}
+            sections/figures/normal-indirect-dist.png}
     \end{subfigure}
     \label{fig:cm-normal-dist}
     \justify
