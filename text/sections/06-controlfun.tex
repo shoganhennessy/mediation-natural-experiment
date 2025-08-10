@@ -52,12 +52,12 @@ The resulting ADE and AIE estimates are composed from sample estimates of the te
     = \hat{\bar\pi}\; \Big(
         \hat{\beta} + \hat{\delta}\,\bar Z
         + \big(\hat \rho_1 - \hat \rho_0 \big)
-        \frac1N \sum_{i=1}^N \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i)\big) \Big) \]
-where $\bar D = \frac1N \sum_{i=1}^N D_i$, $\bar Z = \frac1N \sum_{i=1}^N Z_i$,
-$\hat{\bar\pi}$ is the estimate of the mean compliance rate, and $\frac1N \sum_{i=1}^N \Gamma(.,.)$ is the average of the complier adjustment term as a function of $\lambda_1$ with $\hat\pi \big(0; \vec X_i \big), \hat\pi \big(1; \vec X_i \big)$ values plugged in.
+        \frac1n \sum_{i=1}^n \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i)\big) \Big) \]
+where $\bar D = \frac1n \sum_{i=1}^n D_i$, $\bar Z = \frac1n \sum_{i=1}^n Z_i$,
+$\hat{\bar\pi}$ is the estimate of the mean compliance rate, and $\frac1n \sum_{i=1}^n \Gamma(.,.)$ is the average of the complier adjustment term as a function of $\lambda_1$ with $\hat\pi \big(0; \vec X_i \big), \hat\pi \big(1; \vec X_i \big)$ values plugged in.
 
 The standard errors for estimates can be computed using the delta method.
-Specifically, accounting for both the sampling variability in the first-stage estimates of the mediator propensity score as well as the second-stage sampling variability.
+Specifically, accounting for sampling variability in both first-stage mediator propensity score estimation and second-stage causal effects estimation.
 This approach yields $\sqrt{n}$-consistent estimates when the underlying error terms follow a bivariate normal distribution --- i.e., when $\pi(Z_i; \vec X_i)$ is correctly modelled by the probit first-stage.
 Errors can also be estimated by the bootstrap, by including estimation of both the first and second-stage within each bootstrap iteration.
 % \aref{appendix:implement} further describes the implementation of this approach in the R language \citep{R2023}, with a linear probit first-stage and second-stage estimated by OLS.
@@ -118,10 +118,10 @@ $\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\
 \[ \hat{\text{AIE}}^{\text{CF}}
     = \hat{\text{ATE}}
     - (1 - \bar Z) \, \left( 
-        \frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i) \right)
+        \frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i) \right)
     - \bar Z \, \left(
-        \frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
-where $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 0$, $\E{\gamma + \delta D_i(0)}$, and $\frac 1N \sum_{i = 1}^N \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i)$ estimates the ADE conditional on $Z_i = 1$, $\E{\gamma + \delta D_i(1)}$.
+        \frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
+where $\frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 0$, $\E{\gamma + \delta D_i(0)}$, and $\frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i)$ estimates the ADE conditional on $Z_i = 1$, $\E{\gamma + \delta D_i(1)}$.
 \aref{appendix:semi-parametric} describes the reasoning for this estimator of the AIE, relative to estimates of the ATE and ADE, in further detail.
 % \aref{appendix:implement} describes in further detail the implementation of this approach in the R language \citep{R2023}, with a \cite{klein1993efficient} first-stage and splines in the second-stage CF estimation.
 

@@ -133,7 +133,7 @@
         22 August 2025
         %Meeting of the European Economic Association \\
         %Bordeaux Sciences \'Economiques \\
-        %25 August 2025
+        %27 August 2025
     \end{center}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -467,7 +467,7 @@
 \begin{frame}
     \frametitle{2. Selection Bias}
     In observational setting, 
-    must have an additional credible research design for \textbf{Mediator Ignorability} to believe this assumption.
+    must have an additional credible research design for \textbf{Mediator Ignorability (MI)} to believe this assumption.
     \vskip-0.5cm
     \begin{figure}[h!]
         \centering
@@ -482,7 +482,7 @@
             \centering
             \caption{People choosing healthcare
                 $\to$ \textbf{MI} not.}
-            \includegraphics[width=0.965\textwidth]{presentation-files/figures/health-differences.jpg}
+            \includegraphics[width=0.965\textwidth]{presentation-files/figures/health-differences.png}
         \end{subfigure}
     \end{figure}
 \end{frame}
@@ -500,8 +500,8 @@
     \vskip0.25cm
     Estimating $D_i \to Y_i$, if $D_i$ not ignorable:
     \begin{align*}
-        \Egiven{ Y_i}{D_i =1} &- \Egiven{ Y_i}{D_i =0}
-        = \text{ATE} \\
+        &\Egiven{ Y_i}{D_i =1} - \Egiven{ Y_i}{D_i =0} \\
+        &= \text{ATE} \\
         &\;\;\;\; + \underbrace{\Big(
             \Egiven{ Y_i(., 0)}{D_i =1} - \Egiven{ Y_i(.,0)}{D_i =0} \Big)}_{
                 \text{\textcolor{red}{Selection Bias}}} \\
@@ -594,7 +594,7 @@
 
     \par\noindent\rule{\textwidth}{0.4pt}
     \begin{enumerate}
-        \item Counter to accepted intuitive reasoning in applied economics, which oftens controls for plausible mediators
+        \item Counter to accepted intuitive reasoning in applied economics, which often controls for plausible mediators
         \item Invalidates conclusions in fields that uncritically apply CM methods with no case for mediator ignorability (common in some fields of epidemiology, psychology, medicine, and sociology)
         \item Warning sign for economists to avoid picking up this practice, and stop using it as a robustness check.
     \end{enumerate}
@@ -765,7 +765,7 @@
         $\Cov{U_i, \, U_{0,i}}, \; \Cov{U_i, \, U_{1,i}} \neq 0$
         \[ \implies \text{First-stage take-up informs second-stage confounding.} \]
         \item There is an IV for the mediator, $\vec X_i^{\text{IV}}$ among control variables $\vec X_i$.
-        \[ \implies \pi(Z_i \vec X_i) = \Probgiven{D_i = 1}{Z_i,\vec X_i} 
+        \[ \implies \pi(Z_i ; \vec X_i) = \Probgiven{D_i = 1}{Z_i,\vec X_i} 
         \text{ is separately identified.} \]
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
