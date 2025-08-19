@@ -311,7 +311,7 @@ rho_directeffect_bias.plot <- rho.data %>%
     geom_line(aes(y = (ols_direct_effect_up)), alpha = 0.5,
         colour = colour.list[1], linetype = "dashed") +
     annotate("text", colour = colour.list[1],
-        x = 0.25, y = 0.25,
+        x = 0.125, y = 0.25,
         fontface = "bold",
         label = ("Conventional CM"),
         size = 4.25, hjust = 0.5, vjust = 0) +

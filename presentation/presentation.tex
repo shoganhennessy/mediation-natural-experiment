@@ -240,9 +240,10 @@
     \end{figure}
     \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{Mediator Ignorability} (\textbf{MI}, Imai Keele Yamamoto 2010):
+    Assumption:
+    \textbf{Mediator Ignorability} (\textbf{MI}, Imai Keele Yamamoto 2010)
     \vskip0.125cm
-    Assume \textcolor{ForestGreen}{mediator $D_i$} is \textit{also} ignorable, conditional on $\vec X_i$ and \textcolor{blue}{$Z_i$ realisation}
+    \textcolor{ForestGreen}{mediator $D_i$} is \textit{also} ignorable, conditional on $\vec X_i$ and \textcolor{blue}{$Z_i$ realisation}.
     
     \par\noindent\rule{\textwidth}{0.4pt}
     Average Direct Effect (ADE) and Average Indirect Effect (AIE) are identified by two-stage regression
@@ -264,9 +265,10 @@
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{1. Selection Bias}
-    \textbf{Mediator ignorability} (\textbf{MI}, Imai Keele Yamamoto 2010):
+    Assumption:
+    \textbf{Mediator ignorability} (\textbf{MI}, Imai Keele Yamamoto 2010)
     \vskip0.125cm
-    Assume \textcolor{ForestGreen}{mediator $D_i$} is \textbf{\textit{also} ignorable}, conditional on $\vec X_i$, \textcolor{blue}{$Z_i$ realisation}
+    \textcolor{ForestGreen}{mediator $D_i$} is \textbf{\textit{also} ignorable}, conditional on $\vec X_i$, \textcolor{blue}{$Z_i$ realisation}
     %\[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
     %    \text{ for } z', d' = 0, 1. \]
     %\vskip-0.25cm
@@ -293,15 +295,15 @@
     \begin{enumerate}
         \item Treatment is as-good-as random (2008 Oregon wait-list lottery).
         \item \colorbox{yellow}{Healthcare is quasi-random, conditional on lottery realisation $Z_i$} \\
-        \colorbox{yellow}{and demographic controls $\vec X_i$ (no natural experiment...).}
+        \colorbox{yellow}{and demographic controls $\vec X_i$.}
     \end{enumerate}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{1. Selection Bias}
-    \textbf{Mediator ignorability} (\textbf{MI}, Imai Keele Yamamoto 2010):
+    Assumption: \textbf{Mediator ignorability} (\textbf{MI}, Imai Keele Yamamoto 2010)
     \vskip0.125cm
-    Assume \textcolor{ForestGreen}{mediator $D_i$} is \textbf{\textit{also} ignorable}, conditional on $\vec X_i$, \textcolor{blue}{$Z_i$ realisation}
+    \textcolor{ForestGreen}{mediator $D_i$} is \textbf{\textit{also} ignorable}, conditional on $\vec X_i$, \textcolor{blue}{$Z_i$ realisation}
     %\[ D_i \indep Y_i(z', d') \;\; | \;\; \vec X_i, Z_i = z',
     %    \text{ for } z', d' = 0, 1. \]
     %\vskip-0.25cm
@@ -324,6 +326,7 @@
             \path[->, thick] (treatment) edge (mediator);
             \path[->, thick] (mediator) edge (outcome);
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            \pause
             \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
                 above=0.5cm of outcome] {$\vec U_i$};
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
@@ -332,12 +335,12 @@
         \end{tikzpicture}
     \end{figure}
     \textbf{Theorem:}
-    If choice to attend healthcare is based on costs and benefits (Roy model) $\implies$ MI does not hold, unobserved confounding.
+    If choice to attend healthcare is unconstrained, based on costs and benefits (Roy model) and demographics do not explain all benefits $\implies$ \textbf{MI} does not hold, unobserved confounding.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{1. Selection Bias}
-    In observational setting, must have an additional credible research design for \textbf{Mediator Ignorability (MI)} to hold.
+    In an observational setting, need an additional credible research design for \textbf{Mediator Ignorability (MI)} to be credible.
     \vskip-0.5cm
     \begin{figure}[h!]
         \centering
@@ -360,7 +363,7 @@
 \begin{frame}
     \frametitle{1. Selection Bias}
     \label{main:selection-bias}
-    In observational setting, must have an additional credible research design for \textbf{Mediator Ignorability (MI)} to hold.
+    In an observational setting, need an additional credible research design for \textbf{Mediator Ignorability (MI)} to be credible.
     \vskip-0.5cm
     \begin{figure}
         \begin{tikzpicture}
@@ -383,19 +386,19 @@
     \end{figure}
     \vskip-0.5cm
     \par\noindent\rule{\textwidth}{0.4pt}
-    If not, then CM effects are contaminated by bias terms.
+    If not, then CM effects are contaminated by bias terms, similar to classical selection bias \textcolor{gray}{(e.g., Heckman Ichimura Smith Todd 1998)}.
     %\hyperlink{cm-model}{\beamergotobutton{Model}}
     \begin{itemize}
         \item ADE:
-        \[ \text{\textcolor{purple}{CM Estimand}}
+        $ \;\;\ \text{\textcolor{purple}{CM Estimand}}
         = \text{\textcolor{blue}{ADE}}
             + \Big(\text{\textcolor{red}{Selection Bias}}
-            + \text{\textcolor{orange}{Group difference bias}}\Big) \]
+            + \text{\textcolor{orange}{Group difference bias}}\Big) $
         \item AIE:
-        \[ \text{\textcolor{purple}{CM Estimand}}
+        $ \;\;\;\; \text{\textcolor{purple}{CM Estimand}}
             = \text{\textcolor{ForestGreen}{AIE}}
             + \Big(\text{\textcolor{red}{Selection Bias}}
-            + \text{\textcolor{orange}{Group difference bias}}\Big) \]
+            + \text{\textcolor{orange}{Group difference bias}}\Big) $
         \hyperlink{group-diff-ade}{\beamergotobutton{ADE biases}}
         \hfill
         \hyperlink{group-diff-aie}{\beamergotobutton{AIE biases}}
@@ -404,7 +407,7 @@
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{1. Selection Bias}
-    In a simulation with Roy selection-into-$\textcolor{ForestGreen}{D_i}$, CM effects are biased.
+    In a simulation with Roy selection-into-$\textcolor{ForestGreen}{D_i}$, CM estimates are biased.
 
     \makebox[\textwidth]{\parbox{1.25\textwidth}{
         \begin{figure}
@@ -477,13 +480,22 @@
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{2. CM with Selection --- Identification}
-    \textbf{MTE assumptions}:
-    \begin{enumerate}
-        \item Mediator monotonicity
-        \item Selection on mediator benefits
-        \item There is an IV for mediator cost of take-up.
-    \end{enumerate}
-    
+    \begin{columns}[T]
+        \begin{column}{0.3\textwidth}
+            \textbf{MTE assumptions}:
+        \end{column}
+        % Column 2    
+        \begin{column}{0.6\textwidth}
+            \vskip-0.25cm
+            \begin{enumerate}
+                \item Mediator monotonicity
+                \item Selection on mediator benefits
+                \item IV for mediator take-up cost.
+            \end{enumerate}
+        \end{column}
+    \end{columns}
+    \vskip0.25cm
+
     \par\noindent\rule{\textwidth}{0.4pt}
     Causal model:
 
@@ -503,18 +515,17 @@
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
             \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
                 above=0.5cm of outcome] {$\vec U_i$};
-            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
-            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
             % Label direct and indirect effects
             %\node[color=orange] [above right=-0.3cm and 0.75cm of mediator] {Indirect};
             %\node[color=orange] [below=0.75cm of mediator] {Direct Effect};
             \pause
-            \node[align=left] [above left=-0.15cm and 0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $> 0$}};
+            \node[align=left] [above left=-0.15cm and 0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
             \pause
             \node [above right=0.5cm and 0.75cm of mediator] {\textbf{2.}};
-            \path[->,thick,dashed,color=white] (confounderU) edge (mediator);
-            \pause
+            %\path[->,thick,dashed,color=white] (confounderU) edge (mediator);
+            %\path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
             \pause
             \node[state,thick,RoyalPurple] (instrument) [above=0.5cm of mediator] {IV};
             \path[->,thick,color=RoyalPurple] (instrument) edge (mediator);
@@ -527,16 +538,31 @@
 
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{Proposition:}
-    Under MTE assumptions the mediator MTE is identified.
-    %\vfill
-    %\textbf{Theorem:}
-    %Average second-stage effects, $\textcolor{blue}{Z_i}, \textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ and thus the ADE $+$ AIE, are identified with corresponding Control Function (CF) adjustments.
+    Under MTE assumptions, the mediator MTE is identified.
+    \vskip0.5cm
+
+    \pause
+    \textbf{Theorem}:
+    Mediation second-stage effects, $\textcolor{blue}{Z_i}, \textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$, are identified by the MTE associated Control Functions (CFs).
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{2. CM with Selection --- Identification}
-    \textbf{Theorem}:
-    Under MTE assumptions, mediation second-stage effects,\\ $\textcolor{blue}{Z_i}, \textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$, are identified by the MTE associated Control Functions (CFs).
+    \begin{columns}[T]
+        \begin{column}{0.3\textwidth}
+            \textbf{MTE assumptions}:
+        \end{column}
+        % Column 2    
+        \begin{column}{0.6\textwidth}
+            \vskip-0.25cm
+            \begin{enumerate}
+                \item Mediator monotonicity
+                \item Selection on mediator benefits
+                \item IV for mediator take-up cost.
+            \end{enumerate}
+        \end{column}
+    \end{columns}
+    \vskip0.25cm
 
     \par\noindent\rule{\textwidth}{0.4pt}
     Causal model:
@@ -557,24 +583,33 @@
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
             \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
                 above=0.5cm of outcome] {$\vec U_i$};
-            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
-            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
             % Label direct and indirect effects
             %\node[color=orange] [above right=-0.3cm and 0.75cm of mediator] {Indirect};
             %\node[color=orange] [below=0.75cm of mediator] {Direct Effect};
-            \node[align=left] [above left=-0.15cm and 0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $> 0$}};
+            \node[align=left] [above left=-0.15cm and 0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
             \node [above right=0.5cm and 0.75cm of mediator] {\textbf{2.}};
-            \path[->,thick,dashed,color=white] (confounderU) edge (mediator);
+            %\path[->,thick,dashed,color=white] (confounderU) edge (mediator);
+            %\path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
             \node[state,thick,RoyalPurple] (instrument) [above=0.5cm of mediator] {IV};
             \path[->,thick,color=RoyalPurple] (instrument) edge (mediator);
             \node [left=0.125cm of instrument] {\textbf{3.}};
         \end{tikzpicture}
     \end{figure}
 
-    \vfill
+    
+    \vskip-0.75cm
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{Proposition:}
+    Under MTE assumptions, the mediator MTE is identified.
+    \vskip0.5cm
+
+    \pause
     \textbf{Intuition:}
-    Identifies ADE $+$ AIE by extrapolating from IV compliers to mediatior compliers (MTE extrapolation e.g., Mogstad Torgovitsky 2018).
+    Identifies ADE $+$ AIE by extrapolating from IV compliers to mediator compliers
+    \textcolor{gray}{(MTE extrapolation e.g., Mogstad Torgovitsky 2018)}.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -590,9 +625,9 @@
     \end{enumerate}
 
     \vskip0.5cm
-    \textbf{Semi-parametric CF Estimation Recipe:}
-
-    Same as before, but replace \textbf{2.} with semi-parametric CFs.
+    \textcolor{gray!25}{
+    \textbf{Semi-parametric CF Estimation Recipe:} \\
+    Same as before, but replace \textbf{2.} with semi-parametric CFs.}
 
     \vfill
 
@@ -623,6 +658,30 @@
             \end{subfigure}
         \end{figure}
     }}
+\end{frame}
+
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{2. CM with Selection --- Estimation}
+    In practice, this means two-stage CM estimation, with CF in second-stage.
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{Parametric CF Estimation Recipe:}
+    \begin{enumerate}
+        \item Estimate mediation first-stage with probit, including the IV.
+        \item Estimate mediation second-stage by OLS, with Mills ratio CF terms (Heckman 1979).
+        \item Compose CM estimates from two-stage plug-in estimates.
+    \end{enumerate}
+
+    \vskip0.5cm
+    \onslide<2->{
+    \textbf{Semi-parametric CF Estimation Recipe:} \\
+    Same as before, but replace \textbf{2.} with semi-parametric CFs.}
+
+    \vfill
+    \onslide<1->{
+    \par\noindent\rule{\textwidth}{0.4pt}
+    $\to$ Same as conventional CM estimates (two-stages), with CFs added.}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -683,7 +742,7 @@
     \frametitle{Conclusion}
     \textbf{Overview:}
     \begin{enumerate}
-        \item Alternative to practice of suggestive evidence for mechanisms.
+        \item CM as alternative to ``suggestive evidence for mechanisms.''
         \item Selection bias in conventional CM analyses with no case for mediator ignorability \\
         $\to$ Noted problems in the most popular methods for CM, pertinent for economic applications.
         \item Connect CM with labour theory $+$ selection-into-treatment $+$ MTEs \\
