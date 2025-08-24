@@ -129,11 +129,9 @@
         %\vspace{0.5cm}
         \vskip0pt plus 1filll
         \par\noindent\rule{\textwidth}{0.4pt}
-        Econometric Society World Congress, Seoul \\
-        22 August 2025
-        %Meeting of the European Economic Association \\
-        %Bordeaux Sciences \'Economiques \\
-        %27 August 2025
+        European Economic Association,
+        Bordeaux Sciences \'Economiques \\
+        27 August 2025
     \end{center}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -216,6 +214,56 @@
     Consider ignorable \textcolor{blue}{treatment $Z_i = 0, 1$},
     binary \textcolor{ForestGreen}{mediator $D_i = 0, 1$},
     and continuous \textcolor{red}{outcome $Y_i$}.
+    \vskip-0.5cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node (mediator) at (0,0) {};
+            \node[state, thick,blue] (treatment) [left=2cm of mediator] {$Z_i$};
+            \node[state, thick,red] (outcome) [right=2cm of mediator] {$Y_i$};
+            % Label Z, D, Y
+            \node[color=blue] [left=0.1cm of treatment] {Treatment};
+            \node[text width=0.1cm, color=red] [right=-0.01cm of outcome] {Outcome};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (outcome);
+            % Label direct and indirect effect
+            \node[color=orange] [above=-0.125cm of mediator] {Treatment Effect (ATE)};
+        \end{tikzpicture}
+    \end{figure}
+    
+    \vskip0.5cm
+    
+    \par\noindent\rule{\textwidth}{0.4pt}
+    
+    \textcolor{gray!25}{
+    Assumption:
+    \textbf{Mediator Ignorability} (\textbf{MI}, Imai Keele Yamamoto 2010)
+    \vskip0.125cm
+    mediator $D_i$ is \textit{also} ignorable, conditional on $\vec X_i$ and $Z_i$ realisation.}
+    
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textcolor{gray!25}{
+    Average Direct Effect (ADE) and Average Indirect Effect (AIE) are identified by two-stage regression}
+    %\[ \text{Average Direct Effect (ADE)}: \;\;\;
+    %    \E{Y_i\left(\eqhighlight{blue}{1}, D_i(Z_i) \right)
+    %        - Y_i\left(\eqhighlight{blue}{0}, D_i(Z_i) \right)} \]
+    %\vskip-0.35cm
+    \begin{itemize}
+        \item \textcolor{gray!25}{ADE is causal effect $Z_i \to Y_i$, blocking the indirect $D_i$ path}
+        \item \textcolor{gray!25}{AIE is causal effect of $D_i(Z_i) \to Y_i$, blocking the direct $Z_i$ path.}
+    \end{itemize}
+    %\[ \text{Average Indirect Effect (AIE):} \;\;\;
+    %\E{Y_i\left(Z_i, \eqhighlight{ForestGreen}{D_i(1)} \right)
+    %    - Y_i\left(Z_i, \eqhighlight{ForestGreen}{D_i(0)} \right)} \]
+    %\vskip-0.25cm
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Introduction -- CM}
+    Consider ignorable \textcolor{blue}{treatment $Z_i = 0, 1$},
+    binary \textcolor{ForestGreen}{mediator $D_i = 0, 1$},
+    and continuous \textcolor{red}{outcome $Y_i$}.
     \vskip-0.75cm
     \begin{figure}
         \centering
@@ -238,6 +286,7 @@
             \node[color=orange] [below=0.5cm of mediator] {Direct Effect};
         \end{tikzpicture}
     \end{figure}
+    \pause
     \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
     Assumption:
