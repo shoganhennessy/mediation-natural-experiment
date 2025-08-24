@@ -138,7 +138,9 @@ This identification strategy is a Marginal Treatment Effect approach (MTE, \cite
 One can see this by noting the connection to the marginal effect of the mediator,
 \begin{align*}
     & \Egiven{Y_i(z', 1) - Y_i(z', 0)}{Z_i = z', \vec X_i, U_i = p'} \\
-    &= \beta + \delta z' + \Egiven{U_{1,i} - U_{0,i}}{\vec X_i, U_i = p'},
+    &= \beta + \delta z' +
+    \underbrace{\Egiven{U_{1,i} - U_{0,i}}}{\vec X_i, U_i = p'}_{
+        = \rho_1\lambda_1(p') - \rho_0\lambda_0(p')},
     \;\;\;\; \text{ for } p' \in (0,1).
 \end{align*}
 The marginal effect of the mediator is identified under the \ref{thm:cf-identification} assumptions, thanks to instrumental variation in $\vec X_i^{\text{IV}}$.
