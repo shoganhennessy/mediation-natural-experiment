@@ -1,0 +1,397 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> #!/usr/bin/R
+> ## Senan Hogan-Hennessy, 14 June 2025.
+> ## Script to to extract relevant data from Oregon Health Insurance rep package.
+> print(Sys.time())
+[1] "2025-09-01 18:04:52 BST"
+> set.seed(47)
+> 
+> ## Packages:
+> # functions for data manipulation and visualisation
+> library(tidyverse)
+── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.2     ✔ tibble    3.2.1
+✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+✔ purrr     1.0.4     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+> # Functions for bootstrapping.
+> library(boot)
+> # Library for better colour choice.
+> library(ggthemes)
+> # Library for equations in plots
+> library(latex2exp)
+> 
+> 
+> # Define folder paths (1) input data (2) clean data.
+> data.folder <- file.path("..", "..", "data", "oregon-lottery-icspr")
+> figures.folder <- file.path("..", "..", "text", "sections", "figures")
+> tables.folder <- file.path("..", "..", "text", "sections", "tables")
+> presentation.folder <- file.path("..", "..", "presentation",
++     "presentation-files", "figures")
+> # Size of figures.
+> fig.width <- 15
+> fig.height <- (2 / 3) * fig.width
+> # List of 3 default colours.
+> colour.list <- c(
++     "#1f77b4", # Blue
++     "#2ca02c", # Green
++     "#d62728") # Red
+> 
+> 
+> ################################################################################
+> ## Load the Oregon Health Insurance Experiment replication data.
+> 
+> # Load the pre-cleaned Oregon Health data.
+> analysis.data <- data.folder %>%
++     file.path("cleaned-oregon-data.csv") %>%
++     read_csv()
+Rows: 11126 Columns: 17
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+dbl (17): lottery_iv, hh_size, any_insurance, any_healthcare, usual_health_l...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+> 
+> # Factorise the relevant variables.
+> analysis.data$hh_size <- factor(analysis.data$hh_size)
+> analysis.data$usual_health_location <- factor(
++     analysis.data$usual_health_location)
+> 
+> 
+> ################################################################################
+> ## Validate the lottery encouragement instrument for having health insurance.
+> 
+> # Show lottery IV -> insurance is strong.
+> iv_firststage.reg <- lm(any_insurance ~ 1 + lottery_iv,
++     weights = survey_weight,
++     data = analysis.data)
+> print(summary(iv_firststage.reg))
+
+Call:
+lm(formula = any_insurance ~ 1 + lottery_iv, data = analysis.data, 
+    weights = survey_weight)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.9758 -0.3656 -0.3656  0.4193  1.0661 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) 0.365581   0.006630   55.14   <2e-16 ***
+lottery_iv  0.215136   0.009255   23.25   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4898 on 11116 degrees of freedom
+Multiple R-squared:  0.04636,	Adjusted R-squared:  0.04627 
+F-statistic: 540.4 on 1 and 11116 DF,  p-value: < 2.2e-16
+
+> 
+> # Show lottery IV -> insurance is strong, conditional on household size.
+> iv_firststage.reg <- lm(any_insurance ~ 1 + lottery_iv * factor(hh_size),
++     weights = survey_weight,
++     data = analysis.data)
+> print(summary(iv_firststage.reg))
+
+Call:
+lm(formula = any_insurance ~ 1 + lottery_iv * factor(hh_size), 
+    data = analysis.data, weights = survey_weight)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-1.0247 -0.3739 -0.3628  0.4748  1.0708 
+
+Coefficients:
+                            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                  0.36278    0.00768  47.239  < 2e-16 ***
+lottery_iv                   0.24701    0.01105  22.346  < 2e-16 ***
+factor(hh_size)2             0.01116    0.01515   0.737    0.461    
+factor(hh_size)3            -0.36278    0.48911  -0.742    0.458    
+lottery_iv:factor(hh_size)2 -0.09579    0.02038  -4.701 2.62e-06 ***
+lottery_iv:factor(hh_size)3  0.25299    0.50257   0.503    0.615    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.489 on 11112 degrees of freedom
+Multiple R-squared:  0.04979,	Adjusted R-squared:  0.04937 
+F-statistic: 116.5 on 5 and 11112 DF,  p-value: < 2.2e-16
+
+> 
+> # Calculate Pr(Z_iv = 1 | household size), the known instrument prop score.
+> iv_prop.reg <- lm(lottery_iv ~ 0 + factor(hh_size),
++     weights = survey_weight,
++     data = analysis.data)
+> print(summary(iv_prop.reg))
+
+Call:
+lm(formula = lottery_iv ~ 0 + factor(hh_size), data = analysis.data, 
+    weights = survey_weight)
+
+Weighted Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.9784 -0.4827  0.4178  0.5173  0.8693 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+factor(hh_size)1 0.482682   0.005643  85.536   <2e-16 ***
+factor(hh_size)2 0.582209   0.008625  67.502   <2e-16 ***
+factor(hh_size)3 0.947368   0.114620   8.265   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4996 on 11115 degrees of freedom
+Multiple R-squared:  0.5179,	Adjusted R-squared:  0.5178 
+F-statistic:  3980 on 3 and 11115 DF,  p-value: < 2.2e-16
+
+> 
+> # Show mean rate of using healthcare
+> analysis.data %>% pull(any_healthcare) %>% mean(na.rm = TRUE)
+[1] 0.7538199
+> table(pull(analysis.data, usual_health_location), exclude = NULL) / NROW(analysis.data)
+
+         1          2          3          4          5          6          7 
+0.39996405 0.28500809 0.08026245 0.07783570 0.04458026 0.06300557 0.04934388 
+> # and it relates to usual location of care.
+> print(summary(lm(any_healthcare ~ 1 + usual_health_location,
++     data = analysis.data)))
+
+Call:
+lm(formula = any_healthcare ~ 1 + usual_health_location, data = analysis.data)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.8231  0.1769  0.1978  0.2144  0.7140 
+
+Coefficients:
+                        Estimate Std. Error t value Pr(>|t|)    
+(Intercept)             0.802247   0.006212 129.138   <2e-16 ***
+usual_health_location2 -0.016691   0.009631  -1.733   0.0831 .  
+usual_health_location3 -0.009414   0.015196  -0.620   0.5356    
+usual_health_location4 -0.126728   0.015392  -8.233   <2e-16 ***
+usual_health_location5 -0.199425   0.019617 -10.166   <2e-16 ***
+usual_health_location6  0.020863   0.016840   1.239   0.2154    
+usual_health_location7 -0.516273   0.018746 -27.540   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4144 on 11119 degrees of freedom
+Multiple R-squared:  0.07514,	Adjusted R-squared:  0.07464 
+F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
+
+> 
+> 
+> ################################################################################
+> ## Create a figure showing the happiness + subjective health effects.
+> 
+> # Use the Abadie (2003) kappa weights to get E[ Y(z') | lottery complier ]
+> abadie.late <- function(data, outcome, Z, Z_iv, control_iv,
++         indices = NULL){
++     # Bootstrap sample, if indices provided.
++     if (!is.null(indices)){
++         data <- data[indices,]
++     }
++     # Get the relevant variables.
++     outcome <- data[[outcome]]
++     Z          <- data[[Z]]
++     Z_iv       <- data[[Z_iv]]
++     control_iv <- data[[control_iv]]
++     # Estimate the kappa weighting
++     est_probZ_iv <- glm(Z_iv ~ 1 + control_iv)
++     hat_probZ_iv <- est_probZ_iv$fitted
++     kappa_0 <- (1 - Z) * (((1 - Z_iv) - (1 - hat_probZ_iv)) / 
++         ((1 - hat_probZ_iv) * hat_probZ_iv))
++     kappa_1 <- Z * ((Z_iv - hat_probZ_iv) / (
++         (1 - hat_probZ_iv) * hat_probZ_iv))
++     kappa <- kappa_0 * (1 - hat_probZ_iv) + kappa_1 * hat_probZ_iv
++     # Calculate the complier levels for z' = 0, 1, and resulting effect.
++     outcome_0_complier      <- mean(kappa_0 * outcome) / mean(kappa_0)
++     outcome_1_complier      <- mean(kappa_1 * outcome) / mean(kappa_1)
++     outcome_effect_complier <- outcome_1_complier - outcome_0_complier
++     return(c(outcome_0_complier, outcome_1_complier, outcome_effect_complier))
++ }
+> 
+> ## Estimate mean outcomes among lottery winners, with boot SEs
+> boot.samples <- 10^3
+> # Lottery effects (among entire population).
+> Z.late <- boot(statistic = abadie.late, R = boot.samples,
++     data = analysis.data,
++     outcome = "any_insurance", Z = "lottery_iv",
++     Z_iv = "lottery_iv", control_iv = "hh_size")
+> Z_0_complier      <- mean(Z.late$t[, 1], na.rm = TRUE)
+> Z_1_complier      <- mean(Z.late$t[, 2], na.rm = TRUE)
+> Z_effect_complier <- mean(Z.late$t[, 3], na.rm = TRUE)
+> Z_0_complier.se      <- sd(Z.late$t[, 1], na.rm = TRUE)
+> Z_1_complier.se      <- sd(Z.late$t[, 2], na.rm = TRUE)
+> Z_effect_complier.se <- sd(Z.late$t[, 3], na.rm = TRUE)
+> print(c(Z_effect_complier, Z_effect_complier.se))
+[1] 0.217108788 0.009528957
+> # Mediator: healthcare utilisation (among lottery compliers).
+> D.late <- boot(statistic = abadie.late, R = boot.samples,
++     data = analysis.data,
++     outcome = "any_healthcare", Z = "lottery_iv",
++     Z_iv = "lottery_iv", control_iv = "hh_size")
+> D_0_complier      <- mean(D.late$t[, 1], na.rm = TRUE)
+> D_1_complier      <- mean(D.late$t[, 2], na.rm = TRUE)
+> D_effect_complier <- mean(D.late$t[, 3], na.rm = TRUE)
+> D_0_complier.se      <- sd(D.late$t[, 1], na.rm = TRUE)
+> D_1_complier.se      <- sd(D.late$t[, 2], na.rm = TRUE)
+> D_effect_complier.se <- sd(D.late$t[, 3], na.rm = TRUE)
+> print(c(D_effect_complier, D_effect_complier.se))
+[1] 0.047829697 0.008253599
+> # Outcome: Health overall good? (among lottery compliers).
+> Y_health.late <- boot(statistic = abadie.late, R = boot.samples,
++     data = analysis.data,
++     outcome = "Y_health", Z = "lottery_iv",
++     Z_iv = "lottery_iv", control_iv = "hh_size")
+> Y_health_0_complier      <- mean(Y_health.late$t[, 1], na.rm = TRUE)
+> Y_health_1_complier      <- mean(Y_health.late$t[, 2], na.rm = TRUE)
+> Y_health_effect_complier <- mean(Y_health.late$t[, 3], na.rm = TRUE)
+> Y_health_0_complier.se      <- sd(Y_health.late$t[, 1], na.rm = TRUE)
+> Y_health_1_complier.se      <- sd(Y_health.late$t[, 2], na.rm = TRUE)
+> Y_health_effect_complier.se <- sd(Y_health.late$t[, 3], na.rm = TRUE)
+> print(c(Y_health_effect_complier, Y_health_effect_complier.se))
+[1] 0.059428477 0.009241851
+> # Outcome: Happy overall?  (among lottery compliers).
+> Y_happy.late <- boot(statistic = abadie.late, R = boot.samples,
++     data = analysis.data,
++     outcome = "Y_happy", Z = "lottery_iv",
++     Z_iv = "lottery_iv", control_iv = "hh_size")
+> Y_happy_0_complier      <- mean(Y_happy.late$t[, 1], na.rm = TRUE)
+> Y_happy_1_complier      <- mean(Y_happy.late$t[, 2], na.rm = TRUE)
+> Y_happy_effect_complier <- mean(Y_happy.late$t[, 3], na.rm = TRUE)
+> Y_happy_0_complier.se      <- sd(Y_happy.late$t[, 1], na.rm = TRUE)
+> Y_happy_1_complier.se      <- sd(Y_happy.late$t[, 2], na.rm = TRUE)
+> Y_happy_effect_complier.se <- sd(Y_happy.late$t[, 3], na.rm = TRUE)
+> print(c(Y_happy_effect_complier, Y_happy_effect_complier.se))
+[1] 0.053906221 0.009104269
+> 
+> 
+> ################################################################################
+> ## Bar chart of the health insurance effects
+> 
+> # Name of the outcome variables (in order)
+> outcome_name.list <- c(
++     "0               1\nHealth insured?",
++     "0               1\nAny use of healthcare?",
++     "0               1\nSurvey: \nHealth overall good?",
++     "0               1\nSurvey: \nHappy overall?")
+> 
+> # Get a dataframe of the relevant effects.
+> complier.data <- data.frame(
++     Z_iv = c("0", "1"),
++     outcome_value = c(
++         Z_0_complier, Z_1_complier,
++         D_0_complier, D_1_complier,
++         Y_health_0_complier, Y_health_1_complier,
++         Y_happy_0_complier, Y_happy_1_complier),
++     #ci_lower = c(
++     #    Z_0_lower, Z_1_lower,
++     #    D_0_lower, D_1_lower,
++     #    Y_health_0_lower, Y_health_1_lower, 
++     #    Y_happy_0_lower, Y_happy_1_lower),
++     #ci_upper = c(
++     #    Z_0_upper, Z_1_upper,
++     #    D_0_upper, D_1_upper,
++     #    Y_health_0_upper, Y_health_1_upper, 
++     #    Y_happy_0_upper, Y_happy_1_upper),
++     outcome_name = c(
++         rep(outcome_name.list[1], 2),
++         rep(outcome_name.list[2], 2),
++         rep(outcome_name.list[3], 2),
++         rep(outcome_name.list[4], 2)))
+> 
+> # Full barchart
+> complier.plot <- complier.data %>%
++     ggplot() +
++     geom_bar(aes(group = Z_iv,
++         fill = outcome_name, x = outcome_name, y = outcome_value),
++         colour = 1, position = "dodge", stat = "identity") +
++     theme_bw() +
++     scale_x_discrete(name = "", limits = outcome_name.list) +
++     scale_fill_manual("", values = colour.list[c(2, 1, 3, 3)]) +
++     scale_y_continuous(expand = c(0, 0),
++         name = "",
++         limits = c(0.275, 0.825), oob = scales::rescale_none,
++         breaks = seq(0, 1, by = 0.1)) +
++     ggtitle(TeX(r"(Mean Outcome, for each $z' =0,1$.)")) +
++     theme(legend.position = "none",
++         plot.title = element_text(hjust = 0, size = rel(1)),
++         plot.title.position = "plot",
++         plot.margin = unit(c(0, 0, -2.5, 0), "mm"))
+> # Annotate
+> complier.plot <- complier.plot +
++     # Label the effect sizes.
++     annotate("text", x = 0.8, y = 0.025 + Z_0_complier + Z_effect_complier / 2,
++         label = paste0("+ ", round(Z_effect_complier, 2),
++             "\n(", round(Z_effect_complier.se, 2), ")"),
++         size = 4, hjust = 0.5, vjust = 0.5,
++         fontface = "bold", colour = colour.list[1]) +
++     annotate("text", x = 1.8, y = 0.025 + D_0_complier + D_effect_complier / 2,
++         label = paste0("+ ", round(D_effect_complier, 2),
++             "\n(", round(D_effect_complier.se, 2), ")"),
++         size = 4, hjust = 0.5, vjust = 0.5,
++         fontface = "bold", colour = colour.list[2]) +
++     annotate("text", x = 2.8, y = 0.025 + Y_health_0_complier + Y_health_effect_complier / 2,
++         label = paste0("+ ", round(Y_health_effect_complier, 2),
++             "\n(", round(Y_health_effect_complier.se, 2), ")"),
++         size = 4, hjust = 0.5, vjust = 0.5,
++         fontface = "bold", colour = colour.list[3])  +
++     annotate("text", x = 3.8, y = 0.025 + Y_happy_0_complier + Y_happy_effect_complier / 2,
++         label = paste0("+ ", round(Y_happy_effect_complier, 2),
++             "\n(", round(Y_happy_effect_complier.se, 2), ")"),
++         size = 4, hjust = 0.5, vjust = 0.5,
++         fontface = "bold", colour = colour.list[3])
+> # Save this plot
+> ggsave(file.path(figures.folder, "insurance-effects.png"),
++     plot = complier.plot,
++     units = "cm", width = fig.width, height = fig.height)
+> 
+> # Label the effects.
+> # +
+> #    # Add a caliper noting the lottery effects
+> #    ggbrace::stat_brace(
+> #        data = data.frame(x = c(0.6, 1.4), y = c(0.8, 0.9)), aes(x, y),
+> #        linewidth = 1, colour = "black") +
+> #    annotate("text", x = 1, y = 0.98,
+> #        label = ("Lottery effect"),
+> #        linewidth = 4, hjust = 0.5, vjust = 0) +
+> #    # Add a caliper noting the health insurance effects (lottery compliers).
+> #    ggbrace::stat_brace(
+> #        data = data.frame(x = c(1.6, 4.4), y = c(0.775, 0.85)), aes(x, y),
+> #        linewidth = 1, colour = "black") +
+> #    annotate("text", x = 4.25, y = 0.98,
+> #        label = ("Health insurance effect (lottery compliers)"),
+> #        linewidth = 4, hjust = 1, vjust = 0) +
+> 
+> # Save this plot for the presentation (different size).
+> presentation.width <- 15
+> presentation.height <- (7 / 12) * presentation.width
+> ggsave(file.path(presentation.folder, "insurance-effects.png"),
++     plot = complier.plot,
++     units = "cm", width = presentation.width, height = presentation.height)
+> 
+> proc.time()
+   user  system elapsed 
+ 43.352   0.701  45.998 
