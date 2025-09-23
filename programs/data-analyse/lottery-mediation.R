@@ -451,23 +451,65 @@ print.summary.mediate.selection <- function(x, digits = 4, ...){
 ################################################################################
 ## Show the regular location is a strong IV for healthcare visits.
 
+# Note values in usual health location:
+usual_health_location.list <- c(
+    "1. Private clinic",
+    "2. Public clinic",
+    "3. Hospital clinic",
+    "4. Hospital A&E",
+    "5. Urgent care",
+    "6. Other clinic",
+    "7. No regular")
+
 # Show that the health location influences healthcare take-up
 location.data <- analysis.data %>%
-    group_by(usual_health_location) %>%
+    mutate(usual_health_location_name =
+        ifelse(usual_health_location == 1, usual_health_location.list[1],
+        ifelse(usual_health_location == 2, usual_health_location.list[2],
+        ifelse(usual_health_location == 3, usual_health_location.list[3],
+        ifelse(usual_health_location == 4, usual_health_location.list[4],
+        ifelse(usual_health_location == 5, usual_health_location.list[5],
+        ifelse(usual_health_location == 6, usual_health_location.list[6],
+        ifelse(usual_health_location == 7, usual_health_location.list[7],
+            "WARNING")))))))) %>%
+    group_by(usual_health_location_name) %>%
     summarise(
         any_healthcare_mean = mean(any_healthcare, na.rm = TRUE),
         any_healthcare_sd = sd(any_healthcare, na.rm = TRUE),
         count = n()) %>%
     ungroup() %>%
-    mutate(any_healthcare_se = any_healthcare_sd / (count^(0.5)))
-# Note values in usual health location:
-# 1 private clinic
-# 2 public clinic
-# 3 hospital-based clinic
-# 4 hospital ER
-# 5 urgent care clinic
-# 6 other place
-# 7 don't have usual place
+    mutate(any_healthcare_se = any_healthcare_sd / (count^(0.5)),
+        any_healthcare_mean_lower = any_healthcare_mean - 1.96 * any_healthcare_se,
+        any_healthcare_mean_upper = any_healthcare_mean + 1.96 * any_healthcare_se)
+
+# Draw the horizontal bar chart
+location.plot <- location.data %>%
+    ggplot(aes(x = usual_health_location_name)) +
+    # Bars of the mean
+    geom_bar(aes(y = any_healthcare_mean, fill = usual_health_location_name),
+        colour = "black", stat = "identity") +
+    # Error bars
+    geom_errorbar(
+        aes(ymin = any_healthcare_mean_lower, ymax = any_healthcare_mean_upper),
+        width = 0.2, position = position_dodge(0.9)) +
+    # Make horizontal and format.
+    coord_flip() +
+    theme_bw() +
+    scale_x_discrete(name = "", limits = usual_health_location.list[7:1]) +
+    scale_y_continuous(expand = c(0, 0),
+        name = TeX(r"(Visited healthcare in last 12 months, $\Pr( \,D_i = 1 \, | \, X^{IV}_i \,)$)"),
+        limits = c(0, 1.025), oob = scales::rescale_none,
+        breaks = seq(0, 1, by = 0.1)) +
+    ggtitle("Usual Healthcare Location") +
+    theme(legend.position = "none",
+        axis.text.y = element_text(hjust = 0),
+        plot.title = element_text(hjust = 0, size = rel(1)),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0, 2, 0, 0), "mm"))
+# Save the plot.
+ggsave(file.path(figures.folder, "location-effects.png"),
+    plot = location.plot,
+    units = "cm", width = fig.width, height = fig.height)
 
 
 #TODO: code this as a simple a figure, justifying the instrument.
@@ -479,7 +521,7 @@ location.data <- analysis.data %>%
 ## Estimate the CM effects with my methods.
 
 # State how many bootstrap replications are needed.
-boot.reps <- 10^3
+boot.reps <- 10^4
 control.formula <- paste0("hh_size + dia_diagnosis +",
     "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
     "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis")

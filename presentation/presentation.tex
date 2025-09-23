@@ -129,9 +129,8 @@
         %\vspace{0.5cm}
         \vskip0pt plus 1filll
         \par\noindent\rule{\textwidth}{0.4pt}
-        European Economic Association,
-        Bordeaux Sciences \'Economiques \\
-        27 August 2025
+        Cornell Placement Week \\
+        29 September 2025
     \end{center}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -384,7 +383,7 @@
         \end{tikzpicture}
     \end{figure}
     \textbf{Theorem:}
-    If choice to attend healthcare is unconstrained, based on costs and benefits (Roy model) and demographics do not explain all benefits $\implies$ \textbf{MI} does not hold, unobserved confounding.
+    If choice to attend healthcare is unconstrained, based on costs and benefits (Roy model) and demographics do not explain all benefits $\implies$ \textbf{MI} does not hold, there is unobserved confounding.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -485,7 +484,7 @@
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{2. CM with Selection}
-    Conventional CM methods do not identify ADE $+$ AIE in a natural experiment setting, but can we make adjustments? 
+    Conventional CM methods do not identify ADE $+$ AIE in a natural experiment setting, but can we build a credible structural model? 
 
     \par\noindent\rule{\textwidth}{0.4pt}
     Suppose $\textcolor{blue}{Z_i}$ is ignorable, but $\textcolor{ForestGreen}{D_i}$ is not:
@@ -670,18 +669,20 @@
     \begin{enumerate}
         \item Estimate mediation first-stage with probit, including the IV.
         \item Estimate mediation second-stage by OLS, with Mills ratio CF terms (Heckman 1979).
-        \item Compose CM estimates from two-stage plug-in estimates.
+        \item Compose CM estimates from two-stage plug-in estimates
+        \\(same as parametric MTEs, Bj{\"o}rklund Moffitt 1987).
     \end{enumerate}
 
     \vskip0.5cm
     \textcolor{gray!25}{
-    \textbf{Semi-parametric CF Estimation Recipe:} \\
-    Same as before, but replace \textbf{2.} with semi-parametric CFs.}
+        \textbf{Semi-parametric CF Estimation Recipe:} \\
+        Replace \textbf{2.} with semi-parametric CFs
+        (same estimation as MTEs).}
 
     \vfill
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    $\to$ Same as conventional CM estimates (two-stages), with CFs added.
+    $\implies$ Conventional CM estimates (two-stages) $+$ IV-guided CF adjustment.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -760,29 +761,29 @@
     }}
 \end{frame}
 %-------------------------------------------------------------------------------
+\section{3. Oregon}
+%-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{2. CM with Selection --- Estimation}
-    \vskip-0.25cm
-    \makebox[\textwidth]{\parbox{1.25\textwidth}{
-        \begin{figure}
-            \caption{CF Adjusted Estimates Work with Different Error Term Parameters.}
-            \vskip-0.25cm
-            \begin{subfigure}[c]{0.525\textwidth}
-                \centering
-                \caption{ADE.}
-                \vskip-0.25cm
-                \includegraphics[width=\textwidth]{
-                    ../text/sections/figures/rho-directeffect-bias.png}
-            \end{subfigure}
-            \begin{subfigure}[c]{0.525\textwidth}
-                \centering
-                \caption{AIE.}
-                \vskip-0.25cm
-                \includegraphics[width=\textwidth]{
-                    ../text/sections/figures/rho-indirecteffect-bias.png}
-            \end{subfigure}
-        \end{figure}
-    }}
+    \frametitle{3. Returning to Oregon}
+    Re-introduce the OHIE, with the SCM.
+
+    Label it with the effect sizes.
+
+    Show the correlational CM estimates, where $D_i \to Y_i$ is thought to be zero.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{3. Returning to Oregon}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\textwidth]{
+            ../text/sections/figures/location-effects.png}
+    \end{figure}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{3. Returning to Oregon}
+    Show the $D_i \to Y_i$ effect estimate is now non-zero, and restore the CM estimates by my method.
 \end{frame}
 %-------------------------------------------------------------------------------
 \section{Conclusion}
@@ -795,7 +796,7 @@
         \item Selection bias in conventional CM analyses with no case for mediator ignorability \\
         $\to$ Noted problems in the most popular methods for CM, pertinent for economic applications.
         \item Connect CM with labour theory $+$ selection-into-treatment $+$ MTEs \\
-        $\to$ Valid CM identification in these settings.
+        $\to$ Valid CM identification where structural model appropriate.
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
     \small
@@ -1314,4 +1315,29 @@
                     \Gamma \big(\hat\pi(0; \vec X_i), \, \hat\pi(1; \vec X_i) \big)\Big) \Bigg] \]
     }}
 \end{frame}%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Appenidx: CM with Selection --- Estimation}
+    \vskip-0.25cm
+    \makebox[\textwidth]{\parbox{1.25\textwidth}{
+        \begin{figure}
+            \caption{CF Adjusted Estimates Work with Different Error Term Parameters.}
+            \vskip-0.25cm
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{ADE.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/rho-directeffect-bias.png}
+            \end{subfigure}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{AIE.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/rho-indirecteffect-bias.png}
+            \end{subfigure}
+        \end{figure}
+    }}
+\end{frame}
+%-------------------------------------------------------------------------------
 \end{document}
