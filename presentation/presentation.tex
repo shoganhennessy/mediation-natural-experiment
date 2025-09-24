@@ -181,7 +181,7 @@
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{Inconsistencies in suggestive evidence of mechanisms:}
     \begin{itemize}
-        \item Is $D_i \to Y_i$ small, large, or even existent?
+        \item Is $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ small, large, or even existent?
         \item Where else do we accept assumed causal effects without evidence?
     \end{itemize}
 \end{frame}
@@ -720,18 +720,20 @@
     \begin{enumerate}
         \item Estimate mediation first-stage with probit, including the IV.
         \item Estimate mediation second-stage by OLS, with Mills ratio CF terms (Heckman 1979).
-        \item Compose CM estimates from two-stage plug-in estimates.
+        \item Compose CM estimates from two-stage plug-in estimates
+        \\(same as parametric MTEs, Bj{\"o}rklund Moffitt 1987).
     \end{enumerate}
 
     \vskip0.5cm
     \onslide<2->{
-    \textbf{Semi-parametric CF Estimation Recipe:} \\
-    Same as before, but replace \textbf{2.} with semi-parametric CFs.}
+        \textbf{Semi-parametric CF Estimation Recipe:} \\
+        Replace \textbf{2.} with semi-parametric CFs
+        (same estimation as MTEs).}
 
     \vfill
     \onslide<1->{
     \par\noindent\rule{\textwidth}{0.4pt}
-    $\to$ Same as conventional CM estimates (two-stages), with CFs added.}
+    $\implies$ Conventional CM estimates (two-stages) $+$ IV-guided CF adjustment.}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -765,25 +767,117 @@
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{3. Returning to Oregon}
-    Re-introduce the OHIE, with the SCM.
-
-    Label it with the effect sizes.
-
-    Show the correlational CM estimates, where $D_i \to Y_i$ is thought to be zero.
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}
-    \frametitle{3. Returning to Oregon}
+    Winning access to Medicaid increases healthcare usage, and self-reported health \& well-being:
+    \vskip-0.375cm
     \begin{figure}
-        \centering
-        \includegraphics[width=0.9\textwidth]{
-            ../text/sections/figures/location-effects.png}
+        %\caption{Oregon Health Insurance Experiment (OHIE) Suggestive Mechanism.}
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2cm of mediator] {$Y_i$};
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Healthcare};
+            \node[color=blue] [left=0.1cm of treatment] {Wait-list lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Health \& \\ Happiness};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label the effect sizes.
+            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            \node[color=blue] [above=-0.15cm of firststage] {+4.8pp (0.8)};
+            \node[color=red] [below=0.7cm of mediator] {+5.9pp (0.9) \textcolor{black}{and} +5.4pp (0.9)};
+        \end{tikzpicture}
     \end{figure}
+    \vskip-0.25cm
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \pause
+    \textbf{CM} is quantitatively estimating the entire system:
+    \begin{itemize}
+        \item Use correlational estimate of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$
+        \item Does \textcolor{ForestGreen}{visiting healthcare} at least once increase self-reported \textcolor{red}{health \& happiness} 12 months later?
+        \item OLS is \textcolor{ForestGreen}{-1.9pp (1.0)} and \textcolor{ForestGreen}{+3.3 (1.1)} for health \& happiness, respectively.
+    \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{3. Returning to Oregon}
-    Show the $D_i \to Y_i$ effect estimate is now non-zero, and restore the CM estimates by my method.
+    Conventional CM estimates lottery effects as mostly direct, $\approx 0$ healthcare.
+    \vskip0.25cm
+    
+    \makebox[\textwidth]{\parbox{1.25\textwidth}{
+        \begin{figure}
+            %\caption{CM Estimates in the Oregon Health Insurance Experiment.}
+            %\vskip-0.25cm
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/mediation-health-placeholder.png}
+            \end{subfigure}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/mediation-happy-placeholder.png}
+            \end{subfigure}
+        \end{figure}
+    }}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{3. Returning to Oregon}
+    Winning access to Medicaid increases healthcare usage, and self-reported health \& well-being:
+    \vskip-0.375cm
+    \begin{figure}
+        %\caption{Oregon Health Insurance Experiment (OHIE) Suggestive Mechanism.}
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2cm of mediator] {$Y_i$};
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.1cm of mediator] {Healthcare};
+            \node[color=blue] [left=0.1cm of treatment] {Wait-list lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Health \& \\ Happiness};
+            % Draw the causal arrows
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label the effect sizes.
+            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            \node[color=blue] [above=-0.15cm of firststage] {+4.8pp (0.8)};
+            \node[color=red] [below=0.7cm of mediator] {+5.9pp (0.9) \textcolor{black}{and} +5.4pp (0.9)};
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.25cm
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \pause
+    My approach to \textbf{CM} is modelling selection-into-$\textcolor{ForestGreen}{D_i}$ via mediator MTE:
+    \begin{itemize}
+        \item Uses an estimate of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ (plus complier extrapolation)
+        \item Regular healthcare location pre-lottery serves as an excluded IV \hyperlink{ohie-iv}{\beamergotobutton{IV}}.
+        \item IV estimate of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ is \textcolor{ForestGreen}{+34.2pp (4.4)} and \textcolor{ForestGreen}{+47.2pp (4.5)} for health \& happiness, respectively.
+    \end{itemize}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{3. Returning to Oregon}
+    Using my approach, with regular healthcare location as an excluded IV, restores indirect effect through increasing healthcare visitation.
+    
+    \makebox[\textwidth]{\parbox{1.25\textwidth}{
+        \begin{figure}
+            %\caption{CM Estimates in the Oregon Health Insurance Experiment.}
+            %\vskip-0.25cm
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/mediation-health.png}
+            \end{subfigure}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/mediation-happy.png}
+            \end{subfigure}
+        \end{figure}
+    }}
 \end{frame}
 %-------------------------------------------------------------------------------
 \section{Conclusion}
@@ -807,21 +901,6 @@
         \item \hl{\textbf{Credible} CM analyses are hard in practice.}
     \end{itemize}
 \end{frame}
-%-------------------------------------------------------------------------------
-%\begin{frame}
-%    \frametitle{Conclusion. Selection Bias}
-%    $\implies$ Unless mediator $D_i$ is also randomly assigned, then controlling for it does not lead to CM effects (or causal effects in general).
-%    \vskip0.25cm
-%
-%    \par\noindent\rule{\textwidth}{0.4pt}
-%    \begin{enumerate}
-%        \item Counter to accepted intuitive reasoning in applied economics, which often controls for plausible mediators
-%        \item Warning sign for economists to avoid picking up this practice, and stop using it as a robustness check.
-%    \end{enumerate}
-%    \vfill
-%    \par\noindent\rule{\textwidth}{0.4pt}
-%    Rest of this presentation $\to$ one way to study mechanisms/CM.
-%\end{frame}
 %-------------------------------------------------------------------------------
 \section{Appendix}
 %-------------------------------------------------------------------------------
@@ -878,7 +957,7 @@
         - Y_i\left(Z_i, \eqhighlight{ForestGreen}{D_i(0)} \right)} \]
     \vskip-0.25cm
     \begin{itemize}
-        \item AIE is causal effect of $D(Z) \to Y$, blocking the direct $Z_i$ path.
+        \item AIE is causal effect of $D_i(Z_i) \to Y_i$, blocking the direct $Z_i$ path.
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -1338,6 +1417,16 @@
             \end{subfigure}
         \end{figure}
     }}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}[noframenumbering]
+    \frametitle{Appenidx: OHIE IV}
+    \label{ohie-iv}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\textwidth]{
+            ../text/sections/figures/location-effects.png}
+    \end{figure}
 \end{frame}
 %-------------------------------------------------------------------------------
 \end{document}
