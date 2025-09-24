@@ -544,7 +544,7 @@ print(summary(happy.iv))
 ## Estimate the CM effects with my methods.
 
 # State how many bootstrap replications are needed.
-boot.reps <- 10^2
+boot.reps <- 5 * 10^3
 control.formula <- paste0("hh_size + dia_diagnosis +",
     "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
     "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis")

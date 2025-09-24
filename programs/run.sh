@@ -16,6 +16,7 @@ cd ..
 cd data-analyse
 R CMD BATCH --no-save lottery-effect.R
 R CMD BATCH --no-save lottery-mediation.R
+# R CMD BATCH --no-save lottery-mediation.R & disown ; watch tail --lines=52 lottery-mediation.Rout
 cd ..
 
 ## Enact simulation evidence, and figures.

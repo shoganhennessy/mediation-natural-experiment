@@ -117,6 +117,23 @@
 % Justify text through-out.
 \raggedright
 %-------------------------------------------------------------------------------
+% Name slide
+\begin{frame}[noframenumbering]
+    \frametitle{Senan Hogan-Hennessy}
+    \begin{itemize}
+        \item Graduate field:
+        \hfill Labour economics, applied econometrics
+        \item Research interests:
+        \hfill Education, socio-genetics, applied causal inference
+        \item Committee:
+        \hfill Douglas Miller, Zhuan Pei, Evan Riehl
+        \item Job interests:
+        \hfill Research
+        \item Geographic location preferred:
+        \hfill Europe. 
+    \end{itemize}
+\end{frame}
+%-------------------------------------------------------------------------------
 %% Title page
 \begin{frame}[noframenumbering, plain]
     % Print the title page as the first slide
@@ -854,7 +871,7 @@
     \begin{itemize}
         \item Uses an estimate of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ (plus complier extrapolation)
         \item Regular healthcare location pre-lottery serves as an excluded IV \hyperlink{ohie-iv}{\beamergotobutton{IV}}.
-        \item IV estimate of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ is \textcolor{ForestGreen}{+34.2pp (4.4)} and \textcolor{ForestGreen}{+47.2pp (4.5)} for health \& happiness, respectively.
+        \item IV $+$ CF extrapolation estimates of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ are larger $\implies$ larger ADE estimates.
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -1427,6 +1444,7 @@
         \includegraphics[width=0.9\textwidth]{
             ../text/sections/figures/location-effects.png}
     \end{figure}
+    IV $+$ CF extrapolation estimates of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ is \textcolor{ForestGreen}{+34.2pp (4.4)} and \textcolor{ForestGreen}{+47.2pp (4.5)} for health \& happiness, respectively.
 \end{frame}
 %-------------------------------------------------------------------------------
 \end{document}
