@@ -803,6 +803,8 @@
             \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
             \node[color=blue] [above=-0.15cm of firststage] {+4.8pp (0.8)};
             \node[color=red] [below=0.7cm of mediator] {+5.9pp (0.9) \textcolor{black}{and} +5.4pp (0.9)};
+            \pause
+            \path[->, very thick, color=ForestGreen] (mediator) edge (outcome);
         \end{tikzpicture}
     \end{figure}
     \vskip-0.25cm
@@ -871,7 +873,7 @@
     \begin{itemize}
         \item Uses an estimate of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ (plus complier extrapolation)
         \item Regular healthcare location pre-lottery serves as an excluded IV \hyperlink{ohie-iv}{\beamergotobutton{IV}}.
-        \item IV $+$ CF extrapolation estimates of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ are larger $\implies$ larger ADE estimates.
+        \item IV $+$ CF extrapolation estimates of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ are larger $\implies$ smaller ADE estimates.
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
