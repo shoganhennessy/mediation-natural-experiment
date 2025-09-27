@@ -30,8 +30,8 @@ presentation.folder <- file.path("..", "..", "presentation",
 # Size of figures.
 fig.width <- 15
 fig.height <- (2 / 3) * fig.width
-presentation.width <- 10
-presentation.height <- presentation.width
+presentation.width <- 15
+presentation.height <- (7 / 12) * presentation.width
 # Number of digits to round to.
 digits.no <- 2
 # List of 3 default colours.
@@ -544,7 +544,7 @@ print(summary(happy.iv))
 ## Estimate the CM effects with my methods.
 
 # State how many bootstrap replications are needed.
-boot.reps <- 5 * 10^3
+boot.reps <- 10^3
 control.formula <- paste0("hh_size + dia_diagnosis +",
     "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
     "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis")
@@ -646,19 +646,19 @@ panelA.table$model <- c(
 panelA.table <- panelA.table[c(6, 1:5)]
 
 # Save the LaTeX table
-panelA.table %>%
-    xtable() %>%
-    print(
-        digits = digits.no,
-        sanitize.colnames.function = identity,
-        sanitize.text.function = identity,
-        NA.string = " ",
-        include.colnames = FALSE,
-        include.rownames = FALSE,
-        only.contents = TRUE,
-        hline.after = NULL,
-        format.args = list(big.mark = ","),
-        file = file.path(tables.folder, "cm-oregon-health.tex"))
+#panelA.table %>%
+#    xtable() %>%
+#    print(
+#        digits = digits.no,
+#        sanitize.colnames.function = identity,
+#        sanitize.text.function = identity,
+#        NA.string = " ",
+#        include.colnames = FALSE,
+#        include.rownames = FALSE,
+#        only.contents = TRUE,
+#        hline.after = NULL,
+#        format.args = list(big.mark = ","),
+#        file = file.path(tables.folder, "cm-oregon-health.tex"))
 
 
 ## Panel B: Self-reported happiness.
@@ -725,19 +725,19 @@ panelB.table$model <- c(
 panelB.table <- panelB.table[c(6, 1:5)]
 
 # Save the LaTeX table
-panelB.table %>%
-    xtable() %>%
-    print(
-        digits = digits.no,
-        sanitize.colnames.function = identity,
-        sanitize.text.function = identity,
-        NA.string = " ",
-        include.colnames = FALSE,
-        include.rownames = FALSE,
-        only.contents = TRUE,
-        hline.after = NULL,
-        format.args = list(big.mark = ","),
-        file = file.path(tables.folder, "cm-oregon-happy.tex"))
+#panelB.table %>%
+#    xtable() %>%
+#    print(
+#        digits = digits.no,
+#        sanitize.colnames.function = identity,
+#        sanitize.text.function = identity,
+#        NA.string = " ",
+#        include.colnames = FALSE,
+#        include.rownames = FALSE,
+#        only.contents = TRUE,
+#        hline.after = NULL,
+#        format.args = list(big.mark = ","),
+#        file = file.path(tables.folder, "cm-oregon-happy.tex"))
 
 
 ################################################################################
@@ -767,7 +767,7 @@ health_mediation.plot <- Y_health.data %>%
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
-    ggtitle("Estimate, percent effect on self-reported health") +
+    ggtitle("Estimate, percent effect on subjective health") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
@@ -803,7 +803,7 @@ happy_mediation.plot <- Y_happy.data %>%
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
-    ggtitle("Estimate, percent effect on self-reported happiness") +
+    ggtitle("Estimate, percent effect on subjective happiness") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
@@ -849,7 +849,7 @@ health_mediation.placeholder <- Y_health.data %>%
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
-    ggtitle("Estimate, percent effect on self-reported health") +
+    ggtitle("Estimate, percent effect on subjective health") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
@@ -892,7 +892,7 @@ happy_mediation.placeholder <- Y_happy.data %>%
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
-    ggtitle("Estimate, percent effect on self-reported happiness") +
+    ggtitle("Estimate, percent effect on subjective happiness") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
@@ -904,4 +904,3 @@ ggsave(file.path(figures.folder, "mediation-happy-placeholder.png"),
     plot = happy_mediation.placeholder,
     units = "cm",
     width = presentation.width, height = presentation.height)
-

@@ -19,7 +19,7 @@ Type 'q()' to quit R.
 > ## Senan Hogan-Hennessy, 11 July 2025.
 > ## Script to to extract relevant data from Oregon Health Insurance rep package.
 > print(Sys.time())
-[1] "2025-09-24 16:38:56 EDT"
+[1] "2025-09-27 15:41:51 EDT"
 > set.seed(47)
 > 
 > ## Packages:
@@ -67,8 +67,8 @@ This is mgcv 1.9-1. For overview type 'help("mgcv-package")'.
 > # Size of figures.
 > fig.width <- 15
 > fig.height <- (2 / 3) * fig.width
-> presentation.width <- 10
-> presentation.height <- presentation.width
+> presentation.width <- 15
+> presentation.height <- (7 / 12) * presentation.width
 > # Number of digits to round to.
 > digits.no <- 2
 > # List of 3 default colours.
@@ -758,7 +758,7 @@ F-test (1st stage), any_healthcare: stat = 124.7, p < 2.2e-16, on 6 and 11,105 D
 > ## Estimate the CM effects with my methods.
 > 
 > # State how many bootstrap replications are needed.
-> boot.reps <- 5 * 10^3
+> boot.reps <- 10^3
 > control.formula <- paste0("hh_size + dia_diagnosis +",
 +     "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
 +     "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis")
@@ -771,39 +771,39 @@ F-test (1st stage), any_healthcare: stat = 124.7, p < 2.2e-16, on 6 and 11,105 D
 +     type = "unadjusted",
 +     data = analysis.data,
 +     boot.reps = boot.reps)
-250 out of 5000, 5% done.
-500 out of 5000, 10% done.
-750 out of 5000, 15% done.
-1000 out of 5000, 20% done.
-1250 out of 5000, 25% done.
-1500 out of 5000, 30% done.
-1750 out of 5000, 35% done.
-2000 out of 5000, 40% done.
-2250 out of 5000, 45% done.
-2500 out of 5000, 50% done.
-2750 out of 5000, 55% done.
-3000 out of 5000, 60% done.
-3250 out of 5000, 65% done.
-3500 out of 5000, 70% done.
-3750 out of 5000, 75% done.
-4000 out of 5000, 80% done.
-4250 out of 5000, 85% done.
-4500 out of 5000, 90% done.
-4750 out of 5000, 95% done.
-5000 out of 5000, 100% done.
+50 out of 1000, 5% done.
+100 out of 1000, 10% done.
+150 out of 1000, 15% done.
+200 out of 1000, 20% done.
+250 out of 1000, 25% done.
+300 out of 1000, 30% done.
+350 out of 1000, 35% done.
+400 out of 1000, 40% done.
+450 out of 1000, 45% done.
+500 out of 1000, 50% done.
+550 out of 1000, 55% done.
+600 out of 1000, 60% done.
+650 out of 1000, 65% done.
+700 out of 1000, 70% done.
+750 out of 1000, 75% done.
+800 out of 1000, 80% done.
+850 out of 1000, 85% done.
+900 out of 1000, 90% done.
+950 out of 1000, 95% done.
+1000 out of 1000, 100% done.
 There were 50 or more warnings (use warnings() to see the first 50)
 > print(unadjusted.est)
 Treatment, Mediator, Outcome: 
 lottery_iv, any_healthcare, Y_health
 
-unadjusted Estimates, With SEs from 5000 bootstrap replications.
+unadjusted Estimates, With SEs from 1000 bootstrap replications.
 
                       Coefficients SE       
-First-stage            4.139740     0.769786
-ATE                    5.271893     0.878212
-ADE                    5.373716     0.880528
-AIE                   -0.080487     0.046575
-Proportion, AIE / ATE -0.015267     0.009712
+First-stage            4.139740     0.807011
+ATE                    5.271893     0.844152
+ADE                    5.373716     0.846739
+AIE                   -0.080487     0.046014
+Proportion, AIE / ATE -0.015267     0.009472
 > # Parametric CF
 > parametric.est <- mediate.selection(
 +     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
@@ -811,519 +811,21 @@ Proportion, AIE / ATE -0.015267     0.009712
 +     type = "parametric",
 +     data = analysis.data,
 +     boot.reps = boot.reps)
-250 out of 5000, 5% done.
-500 out of 5000, 10% done.
-750 out of 5000, 15% done.
-1000 out of 5000, 20% done.
-1250 out of 5000, 25% done.
-1500 out of 5000, 30% done.
-1750 out of 5000, 35% done.
-2000 out of 5000, 40% done.
-2250 out of 5000, 45% done.
-2500 out of 5000, 50% done.
-2750 out of 5000, 55% done.
-3000 out of 5000, 60% done.
-3250 out of 5000, 65% done.
-3500 out of 5000, 70% done.
-3750 out of 5000, 75% done.
-4000 out of 5000, 80% done.
-4250 out of 5000, 85% done.
-4500 out of 5000, 90% done.
-4750 out of 5000, 95% done.
-5000 out of 5000, 100% done.
+50 out of 1000, 5% done.
+100 out of 1000, 10% done.
+150 out of 1000, 15% done.
+200 out of 1000, 20% done.
+250 out of 1000, 25% done.
+300 out of 1000, 30% done.
+350 out of 1000, 35% done.
+400 out of 1000, 40% done.
+450 out of 1000, 45% done.
+500 out of 1000, 50% done.
+550 out of 1000, 55% done.
+600 out of 1000, 60% done.
+650 out of 1000, 65% done.
+700 out of 1000, 70% done.
+750 out of 1000, 75% done.
+
 There were 50 or more warnings (use warnings() to see the first 50)
-> print(parametric.est)
-Treatment, Mediator, Outcome: 
-lottery_iv, any_healthcare, Y_health
-
-parametric Estimates, With SEs from 5000 bootstrap replications.
-
-                      Coefficients SE     
-First-stage           4.17203      0.76798
-ATE                   5.27189      0.87171
-ADE                   3.55323      0.95683
-AIE                   1.37534      0.34446
-Proportion, AIE / ATE 0.26088      0.08443
-> # Semi-parametric CF
-> semiparametric.est <- mediate.selection(
-+     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-+     X_iv = "usual_health_location", X_minus = control.formula,
-+     type = "semi-parametric",
-+     data = analysis.data,
-+     boot.reps = boot.reps)
-250 out of 5000, 5% done.
-500 out of 5000, 10% done.
-750 out of 5000, 15% done.
-1000 out of 5000, 20% done.
-1250 out of 5000, 25% done.
-1500 out of 5000, 30% done.
-1750 out of 5000, 35% done.
-2000 out of 5000, 40% done.
-2250 out of 5000, 45% done.
-2500 out of 5000, 50% done.
-2750 out of 5000, 55% done.
-3000 out of 5000, 60% done.
-3250 out of 5000, 65% done.
-3500 out of 5000, 70% done.
-3750 out of 5000, 75% done.
-4000 out of 5000, 80% done.
-4250 out of 5000, 85% done.
-4500 out of 5000, 90% done.
-4750 out of 5000, 95% done.
-5000 out of 5000, 100% done.
-There were 50 or more warnings (use warnings() to see the first 50)
-> print(semiparametric.est)
-Treatment, Mediator, Outcome: 
-lottery_iv, any_healthcare, Y_health
-
-semi-parametric Estimates, With SEs from 5000 bootstrap replications.
-
-                      Coefficients SE    
-First-stage           4.1720       0.7680
-ATE                   5.2719       0.8893
-ADE                   1.8189       1.1974
-AIE                   3.4530       0.7818
-Proportion, AIE / ATE 0.6550       0.1989
-> 
-> # Show the inferred controlled indirect effect.
-> print(100 * (coef(summary(unadjusted.est))["AIE", "Estimate"] / 100) /
-+     (coef(summary(unadjusted.est))["First-stage", "Estimate"] / 100))
-[1] -1.944248
-> print(100 * (coef(summary(parametric.est))["AIE", "Estimate"] / 100) /
-+     (coef(summary(parametric.est))["First-stage", "Estimate"] / 100))
-[1] 32.96584
-> print(100 * (coef(summary(semiparametric.est))["AIE", "Estimate"] / 100) /
-+     (coef(summary(semiparametric.est))["First-stage", "Estimate"] / 100))
-[1] 82.76631
-> 
-> # Extract the relevant estimates.
-> panelA.data <- data.frame(
-+     unadjusted_point = coef(summary(unadjusted.est))[, "Estimate"],
-+     unadjusted_se = coef(summary(unadjusted.est))[, "SE"],
-+     parametric_point = coef(summary(parametric.est))[, "Estimate"],
-+     parametric_se = coef(summary(parametric.est))[, "SE"],
-+     semiparametric_point = coef(summary(semiparametric.est))[, "Estimate"],
-+     semiparametric_se = coef(summary(semiparametric.est))[, "SE"])
-> 
-> # Save the estimates in data.
-> effects.extract <- function(mediate.est, model.name){
-+     #mediate.est <- semiparametric.est
-+     #model.name <- "Conventional"
-+     # Compile the mediation regression results.
-+     reg.summary <- summary(mediate.est)
-+     # Get the total effect estimates.
-+     total.est      <- coeftable(reg.summary)["ATE", "Estimate"]
-+     total.ci.upper <- total.est + 1.96 * coeftable(reg.summary)["ATE", "SE"]
-+     total.ci.lower <- total.est - 1.96 * coeftable(reg.summary)["ATE", "SE"]
-+     # Get the direct effect estimates.
-+     direct.est       <- coeftable(reg.summary)["ADE", "Estimate"]
-+     direct.ci.upper  <- direct.est + 1.96 * coeftable(reg.summary)["ADE", "SE"]
-+     direct.ci.lower  <- direct.est - 1.96 * coeftable(reg.summary)["ADE", "SE"]
-+     # Get the indirect effect estimates.
-+     indirect.est       <- coeftable(reg.summary)["AIE", "Estimate"]
-+     indirect.ci.upper  <- indirect.est + 1.96 * coeftable(reg.summary)["AIE", "SE"]
-+     indirect.ci.lower  <- indirect.est - 1.96 * coeftable(reg.summary)["AIE", "SE"]
-+     # Get the percent mediated estimates.
-+     permediated.est      <- coeftable(reg.summary)["Proportion, AIE / ATE", "Estimate"]
-+     permediated.ci.upper <- permediated.est + 1.96 * coeftable(reg.summary)["Proportion, AIE / ATE", "SE"]
-+     permediated.ci.lower <- permediated.est - 1.96 * coeftable(reg.summary)["Proportion, AIE / ATE", "SE"]
-+     # Put it all into a dataframe.
-+     data.return <- data.frame(
-+         effect = c("Total", "Direct", "Indirect", "Percent Mediated"),
-+         pointest = c(total.est, direct.est, indirect.est, permediated.est),
-+         upperest = c(total.ci.upper, direct.ci.upper, indirect.ci.upper, permediated.ci.upper),
-+         lowerest = c(total.ci.lower, direct.ci.lower, indirect.ci.lower, permediated.ci.lower))
-+     # Label it with the model name
-+     data.return <- data.return %>% mutate(model = model.name)
-+     return(data.return)
-+ }
-> 
-> # Collect estimates for plotting.
-> Y_health.data <- rbind(
-+     effects.extract(unadjusted.est,     "Conventional"),
-+     effects.extract(parametric.est,     "Parametric CF"),
-+     effects.extract(semiparametric.est, "Semi-parametric CF"))
-> 
-> # Clean up the data for a table.
-> panelA.table <- panelA.data %>%
-+     signif(digits.no) %>%
-+     format(scientific = FALSE)
-> 
-> panelA.table$unadjusted_se <- panelA.table$unadjusted_se %>% paste0("(", ., ")")
-> panelA.table$parametric_se <- panelA.table$parametric_se %>% paste0("(", ., ")")
-> panelA.table$semiparametric_se <- panelA.table$semiparametric_se %>% paste0("(", ., ")")
-> panelA.table <- data.frame(t(panelA.table))
-> # Add on the first column
-> panelA.table$model <- c(
-+     "Unadjusted", "", "Parametric CF", "", "Semi-parametric CF", "")
-> panelA.table <- panelA.table[c(6, 1:5)]
-> 
-> # Save the LaTeX table
-> panelA.table %>%
-+     xtable() %>%
-+     print(
-+         digits = digits.no,
-+         sanitize.colnames.function = identity,
-+         sanitize.text.function = identity,
-+         NA.string = " ",
-+         include.colnames = FALSE,
-+         include.rownames = FALSE,
-+         only.contents = TRUE,
-+         hline.after = NULL,
-+         format.args = list(big.mark = ","),
-+         file = file.path(tables.folder, "cm-oregon-health.tex"))
-> 
-> 
-> ## Panel B: Self-reported happiness.
-> # Naive selection-on-observables
-> unadjusted.est <- mediate.selection(
-+     Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
-+     X_iv = "usual_health_location", X_minus = control.formula,
-+     type = "unadjusted",
-+     data = analysis.data,
-+     boot.reps = boot.reps)
-250 out of 5000, 5% done.
-500 out of 5000, 10% done.
-750 out of 5000, 15% done.
-1000 out of 5000, 20% done.
-1250 out of 5000, 25% done.
-1500 out of 5000, 30% done.
-1750 out of 5000, 35% done.
-2000 out of 5000, 40% done.
-2250 out of 5000, 45% done.
-2500 out of 5000, 50% done.
-2750 out of 5000, 55% done.
-3000 out of 5000, 60% done.
-3250 out of 5000, 65% done.
-3500 out of 5000, 70% done.
-3750 out of 5000, 75% done.
-4000 out of 5000, 80% done.
-4250 out of 5000, 85% done.
-4500 out of 5000, 90% done.
-4750 out of 5000, 95% done.
-5000 out of 5000, 100% done.
-There were 50 or more warnings (use warnings() to see the first 50)
-> print(unadjusted.est)
-Treatment, Mediator, Outcome: 
-lottery_iv, any_healthcare, Y_happy
-
-unadjusted Estimates, With SEs from 5000 bootstrap replications.
-
-                      Coefficients SE     
-First-stage           4.13974      0.77197
-ATE                   4.97367      0.89501
-ADE                   4.80001      0.89496
-AIE                   0.13373      0.04941
-Proportion, AIE / ATE 0.02689      0.01173
-> # Parametric CF
-> parametric.est <- mediate.selection(
-+     Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
-+     X_iv = "usual_health_location", X_minus = control.formula,
-+     type = "parametric",
-+     data = analysis.data,
-+     boot.reps = boot.reps)
-250 out of 5000, 5% done.
-500 out of 5000, 10% done.
-750 out of 5000, 15% done.
-1000 out of 5000, 20% done.
-1250 out of 5000, 25% done.
-1500 out of 5000, 30% done.
-1750 out of 5000, 35% done.
-2000 out of 5000, 40% done.
-2250 out of 5000, 45% done.
-2500 out of 5000, 50% done.
-2750 out of 5000, 55% done.
-3000 out of 5000, 60% done.
-3250 out of 5000, 65% done.
-3500 out of 5000, 70% done.
-3750 out of 5000, 75% done.
-4000 out of 5000, 80% done.
-4250 out of 5000, 85% done.
-4500 out of 5000, 90% done.
-4750 out of 5000, 95% done.
-5000 out of 5000, 100% done.
-There were 50 or more warnings (use warnings() to see the first 50)
-> print(parametric.est)
-Treatment, Mediator, Outcome: 
-lottery_iv, any_healthcare, Y_happy
-
-parametric Estimates, With SEs from 5000 bootstrap replications.
-
-                      Coefficients SE    
-First-stage           4.1720       0.7693
-ATE                   4.9737       0.8764
-ADE                   2.2003       0.9922
-AIE                   2.0565       0.4591
-Proportion, AIE / ATE 0.4135       0.1253
-> # Semi-parametric CF
-> semiparametric.est <- mediate.selection(
-+     Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
-+     X_iv = "usual_health_location", X_minus = control.formula,
-+     type = "semi-parametric",
-+     data = analysis.data,
-+     boot.reps = boot.reps)
-250 out of 5000, 5% done.
-500 out of 5000, 10% done.
-750 out of 5000, 15% done.
-1000 out of 5000, 20% done.
-1250 out of 5000, 25% done.
-1500 out of 5000, 30% done.
-1750 out of 5000, 35% done.
-2000 out of 5000, 40% done.
-2250 out of 5000, 45% done.
-2500 out of 5000, 50% done.
-2750 out of 5000, 55% done.
-3000 out of 5000, 60% done.
-3250 out of 5000, 65% done.
-3500 out of 5000, 70% done.
-3750 out of 5000, 75% done.
-4000 out of 5000, 80% done.
-4250 out of 5000, 85% done.
-4500 out of 5000, 90% done.
-4750 out of 5000, 95% done.
-5000 out of 5000, 100% done.
-There were 50 or more warnings (use warnings() to see the first 50)
-> print(semiparametric.est)
-Treatment, Mediator, Outcome: 
-lottery_iv, any_healthcare, Y_happy
-
-semi-parametric Estimates, With SEs from 5000 bootstrap replications.
-
-                      Coefficients SE    
-First-stage           4.1720       0.7591
-ATE                   4.9737       0.8768
-ADE                   0.8551       1.2252
-AIE                   4.1151       0.8633
-Proportion, AIE / ATE 0.8274       0.2406
-> 
-> # Extract the relevant figures.
-> panelB.data <- data.frame(
-+     unadjusted_point = coef(summary(unadjusted.est))[, "Estimate"],
-+     unadjusted_se = coef(summary(unadjusted.est))[, "SE"],
-+     parametric_point = coef(summary(parametric.est))[, "Estimate"],
-+     parametric_se = coef(summary(parametric.est))[, "SE"],
-+     semiparametric_point = coef(summary(semiparametric.est))[, "Estimate"],
-+     semiparametric_se = coef(summary(semiparametric.est))[, "SE"])
-> 
-> # Save for a plot.
-> Y_happy.data <- rbind(
-+     effects.extract(unadjusted.est,     "Conventional"),
-+     effects.extract(parametric.est,     "Parametric CF"),
-+     effects.extract(semiparametric.est, "Semi-parametric CF"))
-> 
-> # Show the inferred controlled indirect effect.
-> print(100 * (coef(summary(unadjusted.est))["AIE", "Estimate"] / 100) /
-+     (coef(summary(unadjusted.est))["First-stage", "Estimate"] / 100))
-[1] 3.230294
-> print(100 * (coef(summary(parametric.est))["AIE", "Estimate"] / 100) /
-+     (coef(summary(parametric.est))["First-stage", "Estimate"] / 100))
-[1] 49.29154
-> print(100 * (coef(summary(semiparametric.est))["AIE", "Estimate"] / 100) /
-+     (coef(summary(semiparametric.est))["First-stage", "Estimate"] / 100))
-[1] 98.63643
-> 
-> # Clean up the data.
-> panelB.table <- panelB.data %>%
-+     signif(digits.no) %>%
-+     format(scientific = FALSE)
-> 
-> panelB.table$unadjusted_se <- panelB.table$unadjusted_se %>% paste0("(", ., ")")
-> panelB.table$parametric_se <- panelB.table$parametric_se %>% paste0("(", ., ")")
-> panelB.table$semiparametric_se <- panelB.table$semiparametric_se %>% paste0("(", ., ")")
-> panelB.table <- data.frame(t(panelB.table))
-> # Add on the first column
-> panelB.table$model <- c(
-+     "Unadjusted", "", "Parametric CF", "", "Semi-parametric CF", "")
-> panelB.table <- panelB.table[c(6, 1:5)]
-> 
-> # Save the LaTeX table
-> panelB.table %>%
-+     xtable() %>%
-+     print(
-+         digits = digits.no,
-+         sanitize.colnames.function = identity,
-+         sanitize.text.function = identity,
-+         NA.string = " ",
-+         include.colnames = FALSE,
-+         include.rownames = FALSE,
-+         only.contents = TRUE,
-+         hline.after = NULL,
-+         format.args = list(big.mark = ","),
-+         file = file.path(tables.folder, "cm-oregon-happy.tex"))
-> 
-> 
-> ################################################################################
-> ## Plot the results
-> 
-> # Plot health results in a bar chart.
-> health_mediation.plot <- Y_health.data %>%
-+     filter(effect != "Percent Mediated") %>%
-+     ggplot(aes(
-+         fill = factor(effect, levels = c("Total", "Direct", "Indirect")),
-+         x = model)) +
-+     geom_bar(aes(y = pointest),
-+         stat = "identity", position = "dodge", colour = "black") +
-+     geom_errorbar(aes(ymin = lowerest, ymax = upperest),
-+         size = 2 / 3,
-+         stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
-+     theme_bw() +
-+     geom_hline(yintercept = 0, linetype = "dashed") +
-+     scale_fill_discrete(
-+         name = "",
-+         limits = c("Total", "Direct", "Indirect"),
-+         type = colour.list[c(3, 1, 2)]) +
-+     scale_x_discrete(
-+         name = "",
-+         limits = c("Conventional", "Parametric CF", "Semi-parametric CF")) +
-+     scale_y_continuous(expand = c(0, 0, 0.01, 0),
-+         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
-+         oob = scales::rescale_none,
-+         name = "") +
-+     ggtitle("Estimate, percent effect on self-reported health") +
-+     theme(plot.title = element_text(size = rel(1), hjust = 0),
-+         plot.title.position = "plot",
-+         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
-+         legend.position = c(0.66, 0.9375),
-+         legend.direction = "horizontal")
-Warning messages:
-1: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-ℹ Please use `linewidth` instead. 
-2: A numeric `legend.position` argument in `theme()` was deprecated in ggplot2
-3.5.0.
-ℹ Please use the `legend.position.inside` argument of `theme()` instead. 
-> # Save this file
-> ggsave(file.path(figures.folder, "mediation-health.png"),
-+     plot = health_mediation.plot,
-+     units = "cm",
-+     width = presentation.width, height = presentation.height)
-> 
-> # Plot happiness results in a bar chart.
-> happy_mediation.plot <- Y_happy.data %>%
-+     filter(effect != "Percent Mediated") %>%
-+     ggplot(aes(
-+         fill = factor(effect, levels = c("Total", "Direct", "Indirect")),
-+         x = model)) +
-+     geom_bar(aes(y = pointest),
-+         stat = "identity", position = "dodge", colour = "black") +
-+     geom_errorbar(aes(ymin = lowerest, ymax = upperest),
-+         size = 2 / 3,
-+         stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
-+     theme_bw() +
-+     geom_hline(yintercept = 0, linetype = "dashed") +
-+     scale_fill_discrete(
-+         name = "",
-+         limits = c("Total", "Direct", "Indirect"),
-+         type = colour.list[c(3, 1, 2)]) +
-+     scale_x_discrete(
-+         name = "",
-+         limits = c("Conventional", "Parametric CF", "Semi-parametric CF")) +
-+     scale_y_continuous(expand = c(0, 0, 0.01, 0),
-+         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
-+         oob = scales::rescale_none,
-+         name = "") +
-+     ggtitle("Estimate, percent effect on self-reported happiness") +
-+     theme(plot.title = element_text(size = rel(1), hjust = 0),
-+         plot.title.position = "plot",
-+         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
-+         legend.position = c(0.66, 0.9375),
-+         legend.direction = "horizontal")
-> # Save this file
-> ggsave(file.path(figures.folder, "mediation-happy.png"),
-+     plot = happy_mediation.plot,
-+     units = "cm",
-+     width = presentation.width, height = presentation.height)
-> 
-> 
-> ################################################################################
-> ## Same plot, but with empty plots for the CF parts.
-> 
-> # Plot health results in a bar chart.
-> health_mediation.placeholder <- Y_health.data %>%
-+     filter(effect != "Percent Mediated") %>%
-+     mutate(
-+         pointest = ifelse(model == "Conventional", pointest, NA),
-+         lowerest = ifelse(model == "Conventional", lowerest, NA),
-+         upperest = ifelse(model == "Conventional", upperest, NA)) %>%
-+     ggplot(aes(
-+         fill = factor(effect, levels = c("Total", "Direct", "Indirect")),
-+         x = model)) +
-+     geom_bar(aes(y = pointest),
-+         stat = "identity", position = "dodge", colour = "black",
-+         na.rm = TRUE) +
-+     geom_errorbar(aes(ymin = lowerest, ymax = upperest),
-+         size = 2 / 3,
-+         stat = "identity", position = position_dodge(0.9), width = 1 / 3,
-+         na.rm = TRUE) +
-+     theme_bw() +
-+     geom_hline(yintercept = 0, linetype = "dashed") +
-+     scale_fill_discrete(
-+         name = "",
-+         limits = c("Total", "Direct", "Indirect"),
-+         type = colour.list[c(3, 1, 2)]) +
-+     scale_x_discrete(
-+         name = "",
-+         limits = c("Conventional", "Parametric CF", "Semi-parametric CF")) +
-+     scale_y_continuous(expand = c(0, 0, 0.01, 0),
-+         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
-+         oob = scales::rescale_none,
-+         name = "") +
-+     ggtitle("Estimate, percent effect on self-reported health") +
-+     theme(plot.title = element_text(size = rel(1), hjust = 0),
-+         plot.title.position = "plot",
-+         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
-+         legend.position = c(0.66, 0.9375),
-+         legend.direction = "horizontal")
-> 
-> # Save placeholder version
-> ggsave(file.path(figures.folder, "mediation-health-placeholder.png"),
-+     plot = health_mediation.placeholder,
-+     units = "cm",
-+     width = presentation.width, height = presentation.height)
-> 
-> # Plot happiness results in a bar chart.
-> happy_mediation.placeholder <- Y_happy.data %>%
-+     filter(effect != "Percent Mediated") %>%
-+     mutate(
-+         pointest = ifelse(model == "Conventional", pointest, NA),
-+         lowerest = ifelse(model == "Conventional", lowerest, NA),
-+         upperest = ifelse(model == "Conventional", upperest, NA)) %>%
-+     ggplot(aes(
-+         fill = factor(effect, levels = c("Total", "Direct", "Indirect")),
-+         x = model)) +
-+     geom_bar(aes(y = pointest),
-+         stat = "identity", position = "dodge", colour = "black",
-+         na.rm = TRUE) +
-+     geom_errorbar(aes(ymin = lowerest, ymax = upperest),
-+         size = 2 / 3,
-+         stat = "identity", position = position_dodge(0.9), width = 1 / 3,
-+         na.rm = TRUE) +
-+     theme_bw() +
-+     geom_hline(yintercept = 0, linetype = "dashed") +
-+     scale_fill_discrete(
-+         name = "",
-+         limits = c("Total", "Direct", "Indirect"),
-+         type = colour.list[c(3, 1, 2)]) +
-+     scale_x_discrete(
-+         name = "",
-+         limits = c("Conventional", "Parametric CF", "Semi-parametric CF")) +
-+     scale_y_continuous(expand = c(0, 0, 0.01, 0),
-+         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
-+         oob = scales::rescale_none,
-+         name = "") +
-+     ggtitle("Estimate, percent effect on self-reported happiness") +
-+     theme(plot.title = element_text(size = rel(1), hjust = 0),
-+         plot.title.position = "plot",
-+         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
-+         legend.position = c(0.66, 0.9375),
-+         legend.direction = "horizontal")
-> 
-> # Save placeholder version
-> ggsave(file.path(figures.folder, "mediation-happy-placeholder.png"),
-+     plot = happy_mediation.placeholder,
-+     units = "cm",
-+     width = presentation.width, height = presentation.height)
-> 
-> 
-> proc.time()
-    user   system  elapsed 
-8931.336   64.591 9085.559 
+Execution halted
