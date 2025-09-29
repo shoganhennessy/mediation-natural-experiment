@@ -124,13 +124,13 @@
         \item Graduate field:
         \hfill Labour economics, applied econometrics
         \item Research interests:
-        \hfill Education, socio-genetics, applied causal inference
+        \hfill Education, socio-genetics, \\ \hfill observational causal inference
         \item Committee:
         \hfill Douglas Miller, Zhuan Pei, Evan Riehl
         \item Job interests:
-        \hfill Research
+        \hfill Research (university, post-doc, etc.)
         \item Geographic location preferred:
-        \hfill Europe. 
+        \hfill Europe.
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -817,7 +817,7 @@
     \begin{itemize}
         \item Use correlational estimate of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$
         \item Does \textcolor{ForestGreen}{visiting healthcare} at least once increase \textcolor{red}{subjective health} 12 months later?
-        \item OLS is \textcolor{ForestGreen}{-1.9pp (1.0)} for healthcare $\to$ subjective health (not significant).
+        \item OLS is \textcolor{ForestGreen}{$\approx 0$} (not significant).
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -896,7 +896,7 @@
         \item Connect CM with labour theory $+$ selection-into-treatment $+$ MTEs.
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
-    \small
+
     \textbf{Caveats and points to remember:}
     \begin{itemize}
         \item Structural assumptions and IV for identification $+$ estimation (not ideal).
@@ -1425,12 +1425,14 @@
 \begin{frame}[noframenumbering]
     \frametitle{Appenidx: OHIE IV}
     \label{ohie-iv}
+    IV first-stage F stat. is 124, for all categories (minus base).
+    %\vskip-0.5cm
     \begin{figure}
         \centering
-        \includegraphics[width=0.9\textwidth]{
+        \includegraphics[height=0.7\textheight]{
             ../text/sections/figures/location-effects.png}
     \end{figure}
-    IV $+$ CF extrapolation estimates of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ is \textcolor{ForestGreen}{+34.2pp (4.4)} and \textcolor{ForestGreen}{+47.2pp (4.5)} for subjective health, respectively.
+    Structural estimate of mediator compliers' $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ is \textcolor{ForestGreen}{+34.2pp (4.4)}.
 \end{frame}
 %-------------------------------------------------------------------------------
 \end{document}

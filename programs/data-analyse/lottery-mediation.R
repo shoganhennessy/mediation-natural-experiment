@@ -539,6 +539,17 @@ happy.iv <- feols(Y_happy ~ 1 + hh_size * lottery_iv +
     data = analysis.data)
 print(summary(happy.iv))
 
+# Get the F statistic, for location -> D (healthcare.)
+library(car)
+location.reg <- lm(any_healthcare ~ 1 + factor(usual_health_location) +
+    hh_size * lottery_iv +
+    dia_diagnosis + ast_diagnosis + hbp_diagnosis + emp_diagnosis +
+    ami_diagnosis + chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis,
+    data = analysis.data)
+print(summary(location.reg))
+iv.list <- paste0("factor(usual_health_location)", 2:7)
+print(car::linearHypothesis(location.reg, test = "F", iv.list))
+
 
 ################################################################################
 ## Estimate the CM effects with my methods.
