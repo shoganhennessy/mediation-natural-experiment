@@ -443,7 +443,6 @@
             \path[->, thick] (treatment) edge (mediator);
             \path[->, thick] (mediator) edge (outcome);
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
-            \pause
             \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
                 above=0.5cm of outcome] {$\vec U_i$};
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
@@ -817,7 +816,7 @@
     \begin{itemize}
         \item Use correlational estimate of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$
         \item Does \textcolor{ForestGreen}{visiting healthcare} at least once increase \textcolor{red}{subjective health} 12 months later?
-        \item OLS is \textcolor{ForestGreen}{$\approx 0$} (not significant).
+        \item OLS for $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ is \textcolor{ForestGreen}{$\approx 0$} (not significant).
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -844,8 +843,8 @@
         %\caption{Oregon Health Insurance Experiment (OHIE) Suggestive Mechanism.}
         \begin{tikzpicture}
             \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
-            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
-            \node[state,thick,red] (outcome)   [right=2cm of mediator] {$Y_i$};
+            \node[state,thick,blue] (treatment) [left=2cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
             % Label Z_i, D, Y_i
             \node[color=ForestGreen] [above=0.1cm of mediator] {Healthcare};
             \node[color=blue] [left=0.1cm of treatment] {Wait-list lottery};
@@ -854,20 +853,22 @@
             \path[->, thick] (treatment) edge (mediator);
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
             % Label the effect sizes.
-            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
-            \node[color=blue] [above=-0.15cm of firststage] {+4.8pp (0.8)};
-            \node[color=red] [below=0.7cm of mediator] {+5.9pp (0.9)};
+            \pause
+            \path[->, very thick, color=orange] (mediator) edge (outcome);
+            \node[color=orange] (aie) at ($(mediator)!0.5!(outcome)$) {.};
+            \node[color=orange] [above=-0.15cm of aie] {Complier};
+            \node[color=orange] [below=-0.15cm of aie] {indirect};
         \end{tikzpicture}
     \end{figure}
     \vskip-0.25cm
 
     \par\noindent\rule{\textwidth}{0.4pt}
     \pause
-    My approach to \textbf{CM} is modelling selection-into-$\textcolor{ForestGreen}{D_i}$ via mediator MTE:
+    My approach to \textbf{CM} is modelling selection-into-$\textcolor{ForestGreen}{D_i}$ via \textcolor{orange}{mediator MTE}:
     \begin{itemize}
         \item Uses an estimate of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ (plus complier extrapolation)
         \item Regular healthcare location pre-lottery serves as first-stage IV \hyperlink{ohie-iv}{\beamergotobutton{IV}}.
-        \item IV $+$ CF extrapolation estimates of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ are larger $\implies$ smaller ADE estimates.
+        \item IV $+$ CF extrapolation estimates of $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ are larger \\$\implies$ smaller ADE estimates.
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -901,7 +902,7 @@
     \begin{itemize}
         \item Structural assumptions and IV for identification $+$ estimation (not ideal).
         \item Application to Oregon Health Insurance Experiment, showing subjective health $+$ well-being effects mediated by healthcare.
-        \item \hl{\textbf{Credible} CM analyses are hard in practice, wide confidence intervals show true uncertainty.}
+        \item \hl{\textbf{Credible} analyses of mechanisms are hard in practice, wide confidence intervals show true uncertainty.}
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -1432,7 +1433,7 @@
         \includegraphics[height=0.7\textheight]{
             ../text/sections/figures/location-effects.png}
     \end{figure}
-    Structural estimate of mediator compliers' $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ is \textcolor{ForestGreen}{+34.2pp (4.4)}.
+    Structural estimate of mediator compliers' $\textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$ is \textcolor{ForestGreen}{+32.9pp (4.4)}.
 \end{frame}
 %-------------------------------------------------------------------------------
 \end{document}

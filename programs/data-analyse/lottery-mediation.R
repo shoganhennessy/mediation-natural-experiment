@@ -386,15 +386,23 @@ mediate.selection <- function(Y, Z, D, X_iv, X_minus, data,
         point.boot <- mediate.bootstrap(
             Y = Y, Z = Z, D = D, X_minus = X_minus, X_iv = X_iv,
             data = data, type = type, boot.reps = boot.reps)
+        point.se <- as.matrix(c(
+            sd(100 * point.boot$"First-stage"),
+            sd(100 * point.boot$"ATE"),
+            sd(100 * point.boot$"ADE"),
+            sd(100 * point.boot$"AIE"),
+            sd(point.boot$"AIE" / point.boot$"ATE")))
+    }
+    else {
+        point.se <- as.matrix(c(
+            NA,
+            NA,
+            NA,
+            NA,
+            NA))
     }
     # Report output
     point.est <- as.matrix(c(100 * point.est[1:4], point.est[4] / point.est[2]))
-    point.se <- as.matrix(c(
-        sd(100 * point.boot$"First-stage"),
-        sd(100 * point.boot$"ATE"),
-        sd(100 * point.boot$"ADE"),
-        sd(100 * point.boot$"AIE"),
-        sd(point.boot$"AIE" / point.boot$"ATE")))
     tratio <- as.matrix(point.est / point.se)
     ptratio <- as.matrix(2 * pt(abs(tratio),
         df = nrow(data) - count.coef, lower.tail = FALSE))
@@ -538,6 +546,19 @@ happy.iv <- feols(Y_happy ~ 1 + hh_size * lottery_iv +
     | any_healthcare ~ factor(usual_health_location),
     data = analysis.data)
 print(summary(happy.iv))
+
+# Show the structural estimate for mediator complier's D -> Y effect.
+mediate.est <- mediate.selection(
+    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
+    X_iv = "usual_health_location",
+    X_minus = paste0("hh_size + dia_diagnosis +",
+        "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
+        "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
+    boot.reps = NULL,
+    type = "parametric",
+    data = analysis.data)
+print(coeftable(mediate.est)["AIE", "Estimate"] /
+    coeftable(mediate.est)["First-stage", "Estimate"])
 
 # Get the F statistic, for location -> D (healthcare.)
 library(car)
