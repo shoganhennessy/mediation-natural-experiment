@@ -160,7 +160,7 @@ Treatment $Z_i$ has a causal effect on outcome $Y_i$, and it operates partially 
 Outcome mean $\mu_{D_i}\left( Z_i; \vec X_i \right)$ contains an interaction term, $Z_i D_i$, so while $Z_i,D_i$ have constant partial effects, the ATE depends on how many $i$ choose to take the mediator and there is treatment effect heterogeneity.
 
 After $Z_i$ is assigned, $i$ chooses to take mediator $D_i$ by considering the costs and benefits --- which vary based on $Z_i$, demographic controls $\vec X_i$, and the (non-degenerate) unobserved error terms $U_{i,0}, U_{1,i}$.
-As a result, sequential ignorability does not hold; the mediator is not conditionally ignorable.
+As a result, sequential quasi-random assignment does not hold; the mediator is not conditionally ignorable.
 Thus, a conventional approach to CM does not give an estimate for how much of the ATE goes through mediator $D$, but is contaminated by selection bias thanks to the unobserved error terms.
 
 I simulate this data generating process 10,000 times, using $\mat\Sigma =

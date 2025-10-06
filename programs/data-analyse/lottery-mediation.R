@@ -835,7 +835,7 @@ happy_mediation.plot <- Y_happy.data %>%
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
-    ggtitle("Estimate, percent effect on subjective happiness") +
+    ggtitle("Estimate, percent effect on subjective well-being") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
@@ -924,7 +924,7 @@ happy_mediation.placeholder <- Y_happy.data %>%
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
-    ggtitle("Estimate, percent effect on subjective happiness") +
+    ggtitle("Estimate, percent effect on subjective well-being") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),

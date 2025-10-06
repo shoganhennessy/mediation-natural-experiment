@@ -32,7 +32,7 @@ or raised as an issue on the Github project,
 
 \subsection{Identification in Causal Mediation}
 \label{appendix:identification}
-\citet[Theorem~1]{imai2010identification} states that the ADE and AIE are identified under sequential ignorability, at each level of $Z_i = 0,1$.
+\citet[Theorem~1]{imai2010identification} states that the ADE and AIE are identified under sequential quasi-random assignment, at each level of $Z_i = 0,1$.
 For $z' = 0,1$: \\
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
 \begin{align*}
@@ -55,7 +55,7 @@ I focus on the averages, which are identified by consequence of the above.
     & = \E[Z_i]{\Egiven{ Y_i(z', D_i(1)) - Y_i(z', D_i(0))}{Z_i = z'}}
 \end{align*}
 My estimand for the ADE is a simple rearrangement of the above.
-The estimand for the AIE relies on a different sequence, relying on (1) sequential ignorability, (2) conditional monotonicity.
+The estimand for the AIE relies on a different sequence, relying on (1) sequential quasi-random assignment, (2) conditional monotonicity.
 These give (1) identification equivalence of AIE local to cpmpliers conditional on $\vec X_i$ and AIE conditional on $\vec X_i$, LAIE $=$ AIE, (2) identification of the complier score.
 %, $\Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}$ $= \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i}
 %- \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i}$.
@@ -258,7 +258,7 @@ Put $\pi(z'; \vec X) = \Egiven{D_i(z')}{\vec X}$, and $\eta_{z', i} = D_i(z') - 
     \implies \Egiven{D_i}{Z_i, \vec X_i}
         &= \theta + \bar \pi Z_i + \zeta(\vec X_i).
 \end{align*}
-Since the ignorability assumption gives $\Egiven{Z_i \eta_{z',i}}{\vec X_i} = \Egiven{Z_i}{\vec X_i} \Egiven{\eta_{z',i}}{\vec X_i} = 0$, for each $z' =0,1$.
+Since the quasi-random assignment assumption gives $\Egiven{Z_i \eta_{z',i}}{\vec X_i} = \Egiven{Z_i}{\vec X_i} \Egiven{\eta_{z',i}}{\vec X_i} = 0$, for each $z' =0,1$.
 By the same argument $Z_i$ is also assumed independent of potential outcomes $Y_i(.,.)$, so that $U_{0,i}, U_{1,i} \indep Z_i$.
 Thus, the reduced form regression $Z \to Y$ also leads to unbiased estimates for the ATE.
 
@@ -318,7 +318,7 @@ These equations have simpler expressions after assuming constant treatment effec
 I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
 
 These terms are conventionally estimated in a simultaneous regression \citep{imai2010identification}.
-If sequential ignorability does not hold, then the regression estimates from estimating the mediation equations (without adjusting for the contaminated bias term) suffer from omitted variables bias.
+If sequential quasi-random assignment does not hold, then the regression estimates from estimating the mediation equations (without adjusting for the contaminated bias term) suffer from omitted variables bias.
 
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
 \begin{align*}
@@ -343,7 +343,7 @@ If sequential ignorability does not hold, then the regression estimates from est
 And so the ADE and AIE estimates are contaminated by these bias terms.
 Additionally, the AIE estimates refers to gains from the mediator among $D(z)$ compliers (not the entire average), so will be biased when not accounting for $\tilde U_i$, too.
 
-\subsection{Roy Model and Sequential Ignorability}
+\subsection{Roy Model and Sequential quasi-random assignment}
 \label{appendix:roy-seq-ig}
 \textit{Proof of Proposition \ref{prop:roy-seq-ig}.}
 
@@ -720,7 +720,7 @@ A number of statistical packages, for the R language \citep{R2023}, made the sim
 \begin{itemize}
     \item \textit{Tidyverse} \citep{tidyverse} collected tools for data analysis in the R language.
     \item \textit{Mgcv} \citep{wood2016mgcv} allows semi-parametric estimation, using splines, in the R language.
-    \item \textit{Mediate} \citep{tingley2014mediation} automates the sequential-ignorability estimates of CM effects \citep{imai2010identification} in the R language.
+    \item \textit{Mediate} \citep{tingley2014mediation} automates the sequential quasi-random assignment estimates of CM effects \citep{imai2010identification} in the R language.
 \end{itemize}
 
 \begin{figure}[h!]

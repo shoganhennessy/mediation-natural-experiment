@@ -74,17 +74,17 @@ The ADE and AIE are averages of the random coefficients:
 The ADE is a simple sum of the coefficients, while the AIE includes a group differences term because it only refers to $D_i(Z_i)$ compliers.
 
 By construction, $\vec U_i \coloneqq \left(U_{0, i}, U_{1, i} \right)$ is an unobserved confounder.
-The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally ignorable: $D_i \indep  \vec U_{i} $.
+The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally quasi-randomly assigned: $D_i \indep  \vec U_{i} $.
 If not, then estimates of CM effects suffer from omitted variables bias from failing to adjust for the unobserved confounder, $\vec U_i$.
 
 \subsection{Selection on Costs and Benefits}
 CM is at risk of bias because $D_i \indep  \vec U_i$ %\left(U_{0, i}, U_{1, i} \right)$
 is unlikely to hold in applied settings.
-A separate identification strategy could disrupt the selection-into-$D_i$ based on unobserved factors, and lend credibility to the mediator ignorability assumption.
+A separate identification strategy could disrupt the selection-into-$D_i$ based on unobserved factors, and lend credibility to the mediator quasi-random assignment assumption.
 Without it, bias will persist, given how we conventionally think of selection-into-treatment.
 
 Consider a model where individual $i$ selects into a mediator based on costs and benefits (in terms of outcome $Y_i$), after $Z_i, \vec X_i$ have been assigned.
-In a natural experiment setting, an external factor has disrupted individuals selecting $Z_i$ by choice (thus $Z_i$ is ignorable), but it has not disrupted the choice to take mediator (thus $D_i$ is not ignorable).
+In a natural experiment setting, an external factor has disrupted individuals selecting $Z_i$ by choice (thus $Z_i$ is quasi-randomly assigned), but it has not disrupted the choice to take mediator (thus $D_i$ is not quasi-randomly assigned).
 In the Oregon Health Insurance Experiment, the treatment variation comes from the wait-list lottery, while healthcare usage was not subject to a similar lottery.
 Write $C_i$ for individual $i$'s costs of taking mediator $D_i$, and $\indicator{.}$ for the indicator function.
 The Roy model has $i$ taking the mediator if the benefits exceed the costs,
@@ -104,38 +104,34 @@ In the Oregon Health Insurance Experiment, this models choice to visit the docto
 }
 This makes the Roy model useful as a base case for CM, where selection-into-mediator may be driven by private information (unobserved by the researcher).
 
-By using the Roy model as a benchmark, I explore the practical limits of the mediator ignorability assumption.
-Decompose the costs into its mean and an error term, $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, to show Roy-selection in terms of unobserved and observed factors,
-\[ D_i(z') = \indicator{
-    U_{C,i} - \big(U_{1,i} - U_{0,i}\big) \leq
-        \mu_1(z'; \vec X_i) - \mu_0(z'; \vec X_i) - \mu_C(z'; \vec X_i)
-    }, \;\;\; \text{for } z' = 0, 1. \]
-If selection follows a Roy model, and the mediator is ignorable, then unobserved benefits can play no part in selection.
+By using the Roy model as a benchmark, I explore the practical limits of the mediator quasi-random assignment assumption.
+% Decompose the costs into its mean and an error term, $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, to show Roy-selection in terms of unobserved and observed factors,
+% \[ D_i(z') = \indicator{
+%     U_{C,i} - \big(U_{1,i} - U_{0,i}\big) \leq
+%         \mu_1(z'; \vec X_i) - \mu_0(z'; \vec X_i) - \mu_C(z'; \vec X_i)
+%     }, \;\;\; \text{for } z' = 0, 1. \]
+If selection follows a Roy model, and the mediator is quasi-randomly assigned, then unobserved benefits can play no part in selection.
 The only driver of selection are individuals' differences in costs (and not benefits).
-If there are any selection-into-$D_i$ benefits unobserved to the researcher, then mediator ignorability cannot hold.
+If there are any selection-into-$D_i$ benefits unobserved to the researcher, then mediator quasi-random assignment cannot hold.
 \newtheorem{proposition}{Proposition}
 \begin{proposition}
     \label{prop:roy-seq-ig}
     Suppose mediator selection follows a Roy model \eqref{eqn:roy-model}, and selection is not fully explained by costs and observed gains.
-    Then mediator ignorability does not hold.
+    Then mediator quasi-random assignment does not hold.
 \end{proposition}
 
-This is an equivalence statement: selection based on costs and benefits is only consistent with mediator ignorability if the researcher observed every single source of mediator benefits.
+This is an equivalence statement: selection based on costs and benefits is only consistent with mediator quasi-random assignment if the researcher observed every single source of mediator benefits.
 See \aref{appendix:roy-seq-ig} for the proof.
 This means than the vector of control variables $\vec X_i$ must be incredibly rich.
 Together, $\vec X_i$ and unobserved cost differences $U_{C,i}$ must explain selection-into-$D_i$ one hundred percent.
 In the Roy model framework, however, individuals make decisions about mediator take-up based on gains --- whether the researcher observes them or not.
 The unobserved gains are unlikely to be fully captured by an observed control set $\vec X_i$, except in very special cases.
 %\footnote{
-%    In a similar sense, \cite{huber2024testing} give a method to  test the implications of sequential ignorability (requiring an instrument).
+%    In a similar sense, \cite{huber2024testing} give a method to  test the implications of sequential quasi-random assignment (requiring an instrument).
 %}
 
-In practice, the only way to believe in the mediator ignorability assumption is to study a setting where the researcher has two causal research designs, one for treatment $Z_i$ and another for mediator $D_i$, at the same time.
-An unmotivated note saying 
-``we conduct an informal mechanism analysis by controlling for this variable''
-or
-``we assume the mediator satisfies selection-on-observables''
-does not cut it here, and will lead to biased inference in applied settings.
+In practice, the best setting to believe in the mediator quasi-random assignment assumption is to study a setting where the researcher has two causal research designs, one for treatment $Z_i$ and another for mediator $D_i$, at the same time.
+Absent this, mediator quasi-random assignment become hard to believe, and the corresponding conventional CM estimates are at risk of selection bias.
 
 % \subsection{Applied Settings}
 % 
