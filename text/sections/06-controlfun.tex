@@ -104,7 +104,7 @@ An attractive option is a series estimator, such as a spline specification, as t
 
 The ADE is estimated by this approach as follows.
 Take $\hat \gamma$, the $D_i = 0$ subsample estimate of $\E \gamma$, and $(\hat{\gamma + \delta})$, the $D_i = 1$ subsample estimate of $\E{\gamma + \delta}$, to give
-\[ \hat{\text{ADE}}^{\text{CF}}
+\[ \hat{\text{ADE}}^{\text{Semi}}
     = (1 - \bar D) \, \hat \gamma + \bar D \, (\hat{\gamma + \delta}). \]
 
 The AIE is less simple, for two reasons that differ from the parametric CF setting.
@@ -115,7 +115,7 @@ As such, it is not possible to directly use $\hat \lambda_0, \hat \lambda_1$ in 
 These problems can be avoided by estimating the AIE using its relation to the ATE.
 Write $\hat{\text{ATE}}$ for the point-estimate of the ATE, and 
 $\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\E \delta$, to give the following estimator,
-\[ \hat{\text{AIE}}^{\text{CF}}
+\[ \hat{\text{AIE}}^{\text{Semi}}
     = \hat{\text{ATE}}
     - (1 - \bar Z) \, \left( 
         \frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i) \right)
