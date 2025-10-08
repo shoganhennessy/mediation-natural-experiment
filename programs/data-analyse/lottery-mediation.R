@@ -10,7 +10,7 @@ library(tidyverse)
 # Functions for bootstrapping.
 library(boot)
 library(fixest)
-# Package forsemi-parametric CF by splines.
+# Package forsemi-parametric MTE by splines.
 library(mgcv)
 library(splines)
 # Library for better colour choice.
@@ -123,7 +123,7 @@ mediate.unadjusted <- function(Y, Z, D, X_iv, data,
     # 1. Regular first-stage (well identified).
     firststage.reg <- lm(firststage.formula, data = data)
     count.coef <- count.coef + length(firststage.reg$coefficients)
-    # 2. Estimate second-stage (naive case has no CFs).
+    # 2. Estimate second-stage (naive case has no MTEs).
     unadjusted_secondstage.reg <- lm(secondstage.formula, data = data)
     count.coef <- count.coef + length(unadjusted_secondstage.reg$coefficients)
     # Compile the estimates.
@@ -181,12 +181,12 @@ mediate.heckit <- function(Y, Z, D, X_iv, data,
         family = binomial(link = "probit"),
         data = data)
     count.coef <- count.coef + length(heckit_firststage.reg$coefficients)
-    # 2. Define the CFs --- for assumed N(0,1) dist.
+    # 2. Define the MTEs --- for assumed N(0,1) dist.
     pi.est <- predict(heckit_firststage.reg, type = "response")
     data$lambda_0 <- (1 - data$D) * lambda_1.fun(pi.est) * (
         - pi.est / (1 - pi.est))
     data$lambda_1 <- data$D * lambda_1.fun(pi.est)
-    # 3. Estimate second-stage, including the CFs.
+    # 3. Estimate second-stage, including the MTEs.
     heckit_secondstage.reg <- lm(secondstage.formula, data = data)
     count.coef <- count.coef + length(heckit_secondstage.reg$coefficients)
     # Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
@@ -226,7 +226,7 @@ mediate.est <- mediate.heckit(
     data = analysis.data %>% sample_frac(prop = 1, replace = TRUE))
 print(mediate.est)
 
-# Define a function to two-stage semi-parametric CF for CM effects.
+# Define a function to two-stage semi-parametric MTE for CM effects.
 mediate.semiparametric <- function(Y, Z, D, X_iv, data,
     X_minus = NULL, indices = NULL){
     # Bootstrap sample, if indices provided.
@@ -259,30 +259,30 @@ mediate.semiparametric <- function(Y, Z, D, X_iv, data,
             totaleffect.reg, newdata = input_Z0.data))
     count.coef <- count.coef + length(totaleffect.reg$coefficients)
     # 2. Semi-parametric first-stage
-    cf_firststage.reg <- glm(firststage.formula,
+    mte_firststage.reg <- glm(firststage.formula,
         family = binomial(link = "probit"),
         data = data)
-    data$pi.est <- predict(cf_firststage.reg, type = "response")
-    pi_0.est <- predict(cf_firststage.reg, newdata = input_Z0.data, type = "response")
-    pi_1.est <- predict(cf_firststage.reg, newdata = input_Z1.data, type = "response")
+    data$pi.est <- predict(mte_firststage.reg, type = "response")
+    pi_0.est <- predict(mte_firststage.reg, newdata = input_Z0.data, type = "response")
+    pi_1.est <- predict(mte_firststage.reg, newdata = input_Z1.data, type = "response")
     pi.bar <- mean(pi_1.est - pi_0.est)
-    count.coef <- count.coef + length(cf_firststage.reg$coefficients)
+    count.coef <- count.coef + length(mte_firststage.reg$coefficients)
     # Calculate the levels of pi, accounting for few values in the IV.
-    distinct_cf.values <- min(
+    distinct_mte.values <- min(
         length(unique(data$pi.est)) - 2, as.integer(nrow(data) / 2000))
     # 3. Semi-parametric series estimation of the second-stage.
-    cf_secondstage_D0.reg <- gam(secondstage.formula,
+    mte_secondstage_D0.reg <- gam(secondstage.formula,
         method = "REML", data = data, subset = (D == 0))
-    cf_secondstage_D1.reg <- gam(secondstage.formula,
+    mte_secondstage_D1.reg <- gam(secondstage.formula,
         method = "REML", data = data, subset = (D == 1))
-    count.coef <- count.coef + length(cf_secondstage_D0.reg$coefficients)
-    count.coef <- count.coef + length(cf_secondstage_D1.reg$coefficients)
+    count.coef <- count.coef + length(mte_secondstage_D0.reg$coefficients)
+    count.coef <- count.coef + length(mte_secondstage_D1.reg$coefficients)
     # 4. Compose the CM effects from this object.
     D_0 <- 1 - mean(data$D)
     D_1 <- 1 - D_0
-    # 4.1 ADE point estimate, from the CF model.
-    gammma.est <- coef(cf_secondstage_D0.reg)["Z"]
-    delta_plus.est <- coef(cf_secondstage_D1.reg)["Z"]
+    # 4.1 ADE point estimate, from the MTE model.
+    gammma.est <- coef(mte_secondstage_D0.reg)["Z"]
+    delta_plus.est <- coef(mte_secondstage_D1.reg)["Z"]
     ade.est <- as.numeric(D_0 * gammma.est + D_1 * delta_plus.est)
     # 4.2 AIE by using ADE estimate, relative to ATE.
     # (Avoiding semi-parametric extrapolation, see notes on ATE comparison)
@@ -590,7 +590,7 @@ unadjusted.est <- mediate.selection(
     data = analysis.data,
     boot.reps = boot.reps)
 print(unadjusted.est)
-# Parametric CF
+# Parametric MTE
 parametric.est <- mediate.selection(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
     X_iv = "usual_health_location", X_minus = control.formula,
@@ -598,7 +598,7 @@ parametric.est <- mediate.selection(
     data = analysis.data,
     boot.reps = boot.reps)
 print(parametric.est)
-# Semi-parametric CF
+# Semi-parametric MTE
 semiparametric.est <- mediate.selection(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
     X_iv = "usual_health_location", X_minus = control.formula,
@@ -660,8 +660,8 @@ effects.extract <- function(mediate.est, model.name){
 # Collect estimates for plotting.
 Y_health.data <- rbind(
     effects.extract(unadjusted.est,     "Conventional"),
-    effects.extract(parametric.est,     "Parametric CF"),
-    effects.extract(semiparametric.est, "Semi-parametric CF"))
+    effects.extract(parametric.est,     "Parametric MTE"),
+    effects.extract(semiparametric.est, "Semi-parametric MTE"))
 
 # Clean up the data for a table.
 panelA.table <- panelA.data %>%
@@ -674,7 +674,7 @@ panelA.table$semiparametric_se <- panelA.table$semiparametric_se %>% paste0("(",
 panelA.table <- data.frame(t(panelA.table))
 # Add on the first column
 panelA.table$model <- c(
-    "Unadjusted", "", "Parametric CF", "", "Semi-parametric CF", "")
+    "Unadjusted", "", "Parametric MTE", "", "Semi-parametric MTE", "")
 panelA.table <- panelA.table[c(6, 1:5)]
 
 # Save the LaTeX table
@@ -702,7 +702,7 @@ unadjusted.est <- mediate.selection(
     data = analysis.data,
     boot.reps = boot.reps)
 print(unadjusted.est)
-# Parametric CF
+# Parametric MTE
 parametric.est <- mediate.selection(
     Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
     X_iv = "usual_health_location", X_minus = control.formula,
@@ -710,7 +710,7 @@ parametric.est <- mediate.selection(
     data = analysis.data,
     boot.reps = boot.reps)
 print(parametric.est)
-# Semi-parametric CF
+# Semi-parametric MTE
 semiparametric.est <- mediate.selection(
     Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
     X_iv = "usual_health_location", X_minus = control.formula,
@@ -731,8 +731,8 @@ panelB.data <- data.frame(
 # Save for a plot.
 Y_happy.data <- rbind(
     effects.extract(unadjusted.est,     "Conventional"),
-    effects.extract(parametric.est,     "Parametric CF"),
-    effects.extract(semiparametric.est, "Semi-parametric CF"))
+    effects.extract(parametric.est,     "Parametric MTE"),
+    effects.extract(semiparametric.est, "Semi-parametric MTE"))
 
 # Show the inferred controlled indirect effect.
 print(100 * (coef(summary(unadjusted.est))["AIE", "Estimate"] / 100) /
@@ -753,7 +753,7 @@ panelB.table$semiparametric_se <- panelB.table$semiparametric_se %>% paste0("(",
 panelB.table <- data.frame(t(panelB.table))
 # Add on the first column
 panelB.table$model <- c(
-    "Unadjusted", "", "Parametric CF", "", "Semi-parametric CF", "")
+    "Unadjusted", "", "Parametric MTE", "", "Semi-parametric MTE", "")
 panelB.table <- panelB.table[c(6, 1:5)]
 
 # Save the LaTeX table
@@ -794,7 +794,7 @@ health_mediation.plot <- Y_health.data %>%
         type = colour.list[c(3, 1, 2)]) +
     scale_x_discrete(
         name = "",
-        limits = c("Conventional", "Parametric CF", "Semi-parametric CF")) +
+        limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
@@ -830,7 +830,7 @@ happy_mediation.plot <- Y_happy.data %>%
         type = colour.list[c(3, 1, 2)]) +
     scale_x_discrete(
         name = "",
-        limits = c("Conventional", "Parametric CF", "Semi-parametric CF")) +
+        limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
@@ -849,7 +849,7 @@ ggsave(file.path(figures.folder, "mediation-happy.png"),
 
 
 ################################################################################
-## Same plot, but with empty plots for the CF parts.
+## Same plot, but with empty plots for the MTE parts.
 
 # Plot health results in a bar chart.
 health_mediation.placeholder <- Y_health.data %>%
@@ -876,7 +876,7 @@ health_mediation.placeholder <- Y_health.data %>%
         type = colour.list[c(3, 1, 2)]) +
     scale_x_discrete(
         name = "",
-        limits = c("Conventional", "Parametric CF", "Semi-parametric CF")) +
+        limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
@@ -919,7 +919,7 @@ happy_mediation.placeholder <- Y_happy.data %>%
         type = colour.list[c(3, 1, 2)]) +
     scale_x_discrete(
         name = "",
-        limits = c("Conventional", "Parametric CF", "Semi-parametric CF")) +
+        limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
         limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,

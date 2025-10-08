@@ -1,9 +1,9 @@
-\section{Solving Identification with a Control Function (CF)}
+\section{Solving Identification via the Mediator MTE}
 \label{sec:selectionmodel}
 If your goal is to estimate CM effects, and you could control for unobserved selection terms $U_{0,i}, U_{1,i}$, then you would.
 This ideal (but infeasible) scenario would yield unbiased estimates for the ADE and AIE.
 % Alas, $U_i$ is by definition unobserved.
-A Control Function (CF) approach takes this insight seriously, providing conditions to model the implied confounding by $U_{0,i}, U_{1,i}$, and then controlling for it.
+Identification via the mediator Marginal Treatment Effect (MTE) takes this insight seriously, providing conditions to model the implied confounding by $U_{0,i}, U_{1,i}$, and then controlling for it.
 
 The main problem is that second-stage regression equation \eqref{eqn:parametric-secondstage} is not identified, because $U_{0,i},U_{1,i}$ are unobserved, and lead to omitted variables bias.
 \begin{align}
@@ -20,13 +20,13 @@ The main problem is that second-stage regression equation \eqref{eqn:parametric-
                     \text{Unobserved confounding.}}
 \end{align}
 
-The CF approach models the contaminating terms in \eqref{eqn:secondstage-reg}, avoiding the bias from omitting them in regression estimates.
-CF methods were first devised to correct for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem of the same form as \autoref{eqn:secondstage-reg} \citep{heckman1979sample}.
+My approach to identifying CM effects models the contaminating terms in \eqref{eqn:secondstage-reg} via the mediator MTE, avoiding the bias terms derived in \autoref{sec:mediation}.
+Thinking on MTEs began with corrections for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem of the same form as \autoref{eqn:secondstage-reg} in parametric settings \citep{heckman1979sample,bjorklund1987estimation} and a general case \citep{heckman2005structural}.
 The approach works in the following manner: (1) assume that the variable of interest follows a selection model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage; and (3) incorporate this information as control terms in the second-stage equation to adjust for selection-into-mediator.
-Identification in CF methods typically relies an external instrument or distributional assumptions; the identification strategy here focuses exclusively on the case that an instrument is available.
-By explicitly accounting for the information contained in the first-stage selection model, CF methods enable consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors \citep{florens2008identification}.
+Identification in MTE methods typically relies on identifying the corresponding Control Functions (CFs) with an external instrument or distributional assumptions; this paper focuses exclusively on the case that an instrument is available.
+By explicitly accounting for the information contained in the first-stage selection model, the MTE approach enables consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors.
 
-In the example of analysing health gains from the Oregon Health Insurance Experiment, a CF approach addresses the unobserved confounding by modelling unobserved effects of underlying health conditions.
+In the example of analysing health gains from the Oregon Health Insurance Experiment, the MTE-based approach addresses the unobserved confounding by modelling unobserved effects of underlying health conditions.
 It does so by assuming that unobserved selection-into-healthcare use is informative for underlying health conditions, assuming people with more severe underlying conditions visit the doctor more often than those without.
 Then it uses this information in the second-stage estimation of how much the effect goes through increased healthcare usage, estimating the ADE and AIE after controlling for this confounding.
 
@@ -34,19 +34,19 @@ Then it uses this information in the second-stage estimation of how much the eff
 The following assumptions are sufficient to model the correlated error terms, identifying $\beta, \gamma, \delta$ in the second-stage regression \eqref{eqn:parametric-secondstage}, and thus both the ADE and AIE.
 
 \theoremstyle{definition}
-\newtheorem{assumptionCF}{Assumption}
-\renewcommand\theassumptionCF{CF--\arabic{assumptionCF}}
-\begin{assumptionCF}
-    \label{cf:monotonicity}
+\newtheorem{assumptionMTE}{Assumption}
+\renewcommand\theassumptionMTE{MTE--\arabic{assumptionMTE}}
+\begin{assumptionMTE}
+    \label{mte:monotonicity}
     Mediator monotonicity, conditional on $\vec X_i$.
     \[ \Probgiven{ D_i(0) \leq D_i(1) }{\vec X_i} = 1. \]
-\end{assumptionCF}
+\end{assumptionMTE}
 \noindent
-Assumption \ref{cf:monotonicity} is the monotonicity condition first used in an IV context \citep{imbens1994identification}.
+Assumption \ref{mte:monotonicity} is the monotonicity condition first used in an IV context \citep{imbens1994identification}.
 Here, it is assuming that people respond to treatment, $Z_i$, by consistently taking or refusing the mediator $D_i$ (always or never-mediators), or taking the mediator $D_i$ if and only if assigned to the treatment $Z_i=1$ (mediator compliers).
 There are no mediator defiers.
 
-The main implication of Assumption \ref{cf:monotonicity} is that selection-into-mediator can be written as a selection model with ordered threshold crossing values that describe selection-into-$D_i$ \citep{vytlacil2002independence}.
+The main implication of Assumption \ref{mte:monotonicity} is that selection-into-mediator can be written as a selection model with ordered threshold crossing values that describe selection-into-$D_i$ \citep{vytlacil2002independence}.
 \[ D_i(z') = \indicator{V_i \leq \psi \big( z'; \vec X_i \big)},
     \;\text{ for } z'=0,1 \]
 where $V_i$ is a latent variable with continuous distribution and conditional cumulative density function $F_V(. \,|\vec X_i)$, and $\psi(. \,;\vec X_i)$ collects observed sources of mediator selection.
@@ -62,15 +62,15 @@ Note the maintained assumption that treatment $Z_i$ is quasi-randomly assigned c
 
 This selection model setup is equivalent to the monotonicity condition, and is importing a well-known equivalence result from the IV literature to the CM setting.
 The main conceptual difference is not assuming $Z_i$ is a valid instrument for identifying the $D_i$ on $Y_i$ effect among compliers; it is using the selection model representation to correct for selection bias.
-See \aref{appendix:cf-monotonicity} for a validation of the general \cite{vytlacil2002independence} equivalence result in a CM setting, with conditioning covariates $\vec X_i$.
+See \aref{appendix:mte-monotonicity} for a validation of the general \cite{vytlacil2002independence} equivalence result in a CM setting, with conditioning covariates $\vec X_i$.
 
-\begin{assumptionCF}
-    \label{cf:identification}
+\begin{assumptionMTE}
+    \label{mte:identification}
     Selection on mediator benefits.
     \[ \Cov{U_i, \, U_{0,i}}, \; \Cov{U_i, \, U_{1,i}} \neq 0. \]
-\end{assumptionCF}
+\end{assumptionMTE}
 \noindent
-Assumption \ref{cf:identification} is stating that unobserved selection in mediator take-up ($U_i$) informs second-stage confounding, when refusing or taking the mediator ($U_{0,i}$ and $U_{1,i}$).
+Assumption \ref{mte:identification} is stating that unobserved selection in mediator take-up ($U_i$) informs second-stage confounding, when refusing or taking the mediator ($U_{0,i}$ and $U_{1,i}$).
 If there is unobserved confounding in $Y_i$, then it can be measured in $D_i$.
 
 This is a strong assumption, and will not hold in all examples.
@@ -79,8 +79,8 @@ Individuals could be making decisions based on other outcomes, but as long as me
 
 For notation purposes, suppose the vector of control variables $\vec X_i$ has at least two entries;
 denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as the remaining.
-\begin{assumptionCF}
-    \label{cf:instrument}
+\begin{assumptionMTE}
+    \label{mte:instrument}
     Mediator take-up cost instrument.
     \[ \vec X_i^{\text{IV}} \textnormal{ satisfies } \;
     \partialdiff{\vec X_i^{\text{IV}}}\Big\{
@@ -89,9 +89,9 @@ denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as th
         \Big\{
             \Egiven{D_i(z')}{\vec X_i}\Big\},
         \textnormal{ for } z' = 0, 1. \]
-\end{assumptionCF}
+\end{assumptionMTE}
 \noindent
-Assumption \ref{cf:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an IV.
+Assumption \ref{mte:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an IV.
 It assumes an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu_1-\mu_0$), and has a non-zero influence on the mediator (i.e., strong IV first-stage).
 The exclusion restriction is untestable, and must be guided by domain-specific knowledge; IV first-stage strength is testable, and must be justified with data by methods common in the IV literature.
 
@@ -101,7 +101,7 @@ The most compelling example of a mediator IV is using data on the cost of mediat
 
 \begin{proposition}
     \label{proposition:secondstage}
-    If assumptions \ref{cf:monotonicity}, \ref{cf:identification}, \ref{cf:instrument} hold, then second-stage regression equation \eqref{eqn:parametric-secondstage} is identified with a CF adjustment.
+    If assumptions \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument} hold, then second-stage regression equation \eqref{eqn:parametric-secondstage} is identified via the MTE-associated CFs.
     \begin{align*}
         \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
             \alpha
@@ -111,10 +111,10 @@ The most compelling example of a mediator IV is using data on the cost of mediat
             + \varphi\big(\vec X_i^-\big) \\
             & \;\; + \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
                 + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big),
-            \label{eqn:cf-secondstage}
+            \label{eqn:mte-secondstage}
     \end{align*}
-    where $\lambda_0, \lambda_1$ are the Control Functions (CFs), $\rho_0, \rho_1$ are linear parameters, and mediator propensity score $\pi(z';\vec X_i)$ is separately identified in the first-stage \eqref{eqn:parametric-firststage}.
-    Proof: see \aref{appendix:cf-secondstage}.
+    where $\lambda_0, \lambda_1$ are the corresponding CFs, $\rho_0, \rho_1$ are linear parameters, and mediator propensity score $\pi(z';\vec X_i)$ is separately identified in the first-stage \eqref{eqn:parametric-firststage}.
+    Proof: see \aref{appendix:mte-secondstage}.
 \end{proposition}
 Again, this set-up required no linearity assumptions, and treatment effects vary, because $Z_i, D_i$ are categorical and  $\beta, \gamma, \delta , \varphi(\vec X_i)$ vary with $\vec X_i$.
 The CFs are functions which measure unobserved mediator gains, for those with unobserved mediator costs above or below a propensity score value.
@@ -131,10 +131,10 @@ All relevant parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.)$ --- are 
 In the case that the CFs have an assumed functional form, then identification is complete.
 For example, in the canonical Heckman selection model, the error terms follow a normal distribution, so that $\lambda_0, \lambda_1$ are the inverse Mills ratio.
 If we do not know want to assume a specific distribution, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.\footnote{
-    This comes at the cost of $\alpha$ and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$ --- ultimately, however, this does not jeopardise identification and estimation of the ADE and AIE (see \autoref{sec:semiparametric-cf}).
+    This comes at the cost of $\alpha$ and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$ --- ultimately, however, this does not jeopardise identification and estimation of the ADE and AIE (see \autoref{sec:semiparametric-mte}).
 }
 
-This identification strategy is a Marginal Treatment Effect approach (MTE, \citealt{bjorklund1987estimation,heckman2005structural}) applied to a CM setting.
+This identification strategy is an MTE approach \citep{bjorklund1987estimation,heckman2005structural} applied to a CM setting.
 One can see this by noting the connection to the marginal effect of the mediator,
 \begin{align*}
     & \Egiven{Y_i(z', 1) - Y_i(z', 0)}{Z_i = z', \vec X_i, U_i = p'} \\
@@ -143,14 +143,14 @@ One can see this by noting the connection to the marginal effect of the mediator
         = \rho_1\lambda_1(p') - \rho_0\lambda_0(p')},
     \;\;\;\; \text{ for } p' \in (0,1).
 \end{align*}
-The marginal effect of the mediator is identified under the \ref{thm:cf-identification} assumptions, thanks to instrumental variation in $\vec X_i^{\text{IV}}$.
+The marginal effect of the mediator is identified under the \ref{thm:mte-identification} assumptions, thanks to instrumental variation in $\vec X_i^{\text{IV}}$.
 The final step uses the corresponding CFs to extrapolate from $\vec X_i^{\text{IV}}$ compliers to mediator compliers, and thus identify the ADE and AIE.
 
-\newtheorem{theoremCF}{Theorem}
-\renewcommand\thetheoremCF{CF}
-\begin{theoremCF}
-    \label{thm:cf-identification}
-    If assumptions \ref{cf:monotonicity}, \ref{cf:identification}, \ref{cf:instrument} hold, the ADE and AIE are identified as a function of the parameters in Proposition \ref{proposition:secondstage}.
+\newtheorem{theoremMTE}{Theorem}
+\renewcommand\thetheoremMTE{MTE-Approach}
+\begin{theoremMTE}
+    \label{thm:mte-identification}
+    If assumptions \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument} hold, the ADE and AIE are identified as a function of the parameters in Proposition \ref{proposition:secondstage}.
     \begin{align*}
     \text{ADE}
     %= \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
@@ -168,17 +168,17 @@ The final step uses the corresponding CFs to extrapolate from $\vec X_i^{\text{I
     = \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p}$ is the average unobserved net gains for those with unobserved costs between $p < p'$,\footnote{
         The complier adjustment term was first written in this manner by \cite{kline2019heckits} for an IV setting.
     } and $\bar\pi = \pi(1; \vec X_i) - \pi(0; \vec X_i)$ is the mediator complier score.
-    Proof: see \aref{appendix:cf-ade-aie}.
-\end{theoremCF}
+    Proof: see \aref{appendix:mte-ade-aie}.
+\end{theoremMTE}
 
 This theorem provides a solution to the identification problem for CM effects when facing selection;
 rather than assuming away selection problems, it explicitly models them.
 The ADE is straightforward to calculate as an average of the direct effect parameters, while the AIE also includes an adjustment for unobserved complier gains to the mediator.
 Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
-The CFs allow us to measure both selection bias and complier differences, and thus purge persistent bias in identifying CM effects.
+The MTE approach measures both selection bias and complier differences, and thus purges these persistent bias terms to identify CM effects.
 
 \begin{figure}[!h]
-    \caption{The CF Adjustment Addresses Persistent Bias in Conventional CM Estimates.}
+    \caption{The MTE Approach Addresses Persistent Bias in Conventional CM Estimates.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{$\hat{\text{ADE}} - \text{ADE}$.}
@@ -207,9 +207,9 @@ In this case, the \cite{brinch2017beyond} restricted approach can be used --- ev
 This amounts to assuming a limited specification for the respective CFs, limiting the number of parameters used to approximate $\lambda_0, \lambda_1$ to the number of discrete values that $\pi(z'; \vec X_i)$ takes minus one.
 E.g., if there are no control variables and $\vec X_i^{\text{IV}}$ is binary, then $\lambda_0, \lambda_1$ can only be identified up to 3 parameters each.\footnote{
     The value of 3 comes from the cases that $Z_i, \vec X_i^{\text{IV}}$ each could take 2 values, so $\pi(z'; \vec X_i)$ has 4 possible values, giving the semi-parametric identification (and estimation) of each CF only 3 degrees of freedom to work with.
-    If the CFs are instead assumed to have a known distribution (i.e., parametric CF), then those concerns do not matter.
+    If the MTE-associated CFs are instead assumed to have a known distribution (i.e., parametric MTE), then those concerns do not matter.
 }
 Ultimately, this changes little to the identification strategy, and little to the estimation.
 
-In a simulation with Roy selection-into-mediator based on unobserved error terms, the CF adjustment pushes conventional CM estimates back to the true value. 
-\autoref{fig:cm-normal-dist} shows how a CF adjustment corrects unadjusted CM effect estimates.
+In a simulation with Roy selection-into-mediator based on unobserved error terms, the MTE approach pushes conventional CM estimates back to the true value. 
+\autoref{fig:cm-normal-dist} shows how the MTE-based approach corrects unadjusted CM effect estimates.

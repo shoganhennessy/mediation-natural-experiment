@@ -1,6 +1,6 @@
 #!/usr/bin/R
 ## Senan Hogan-Hennessy, 7 May 2025
-## Plot the estimates for indirect + direct effects, with semiparametric CF.
+## Plot the estimates for indirect + direct effects, with semiparametric MTE.
 # Show the date:
 print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 
@@ -134,14 +134,14 @@ direct_dist.plot <- normal.data %>%
         xend = -0.3, yend = 5.25,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
-    # Dist of CF estimates.
+    # Dist of MTE estimates.
     geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     annotate("text", colour = colour.list[2],
         x = 0.5, y = 2.5,
         fontface = "bold",
-        label = ("Parametric CF"),
+        label = ("Parametric MTE"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[2],
         x = 0.5, y = 2.375,
@@ -175,7 +175,7 @@ indirect_dist.plot <- normal.data %>%
     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
-    # Dist of CF estimates.
+    # Dist of MTE estimates.
     geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
         y = after_stat(density)), adjust = 2, adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
@@ -224,14 +224,14 @@ direct_dist.plot <- uniform.data %>%
     geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
-    # Dist of CF estimates.
+    # Dist of MTE estimates.
     geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[3], alpha = 0.75) +
     annotate("text", colour = colour.list[3],
         x = 0.4, y = 4,
         fontface = "bold",
-        label = ("Semi-parametric CF"),
+        label = ("Semi-parametric MTE"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[3],
         x = 0.5, y = 3.875,
@@ -266,11 +266,11 @@ indirect_dist.plot <- uniform.data %>%
     geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
-    # Dist of Heckit CF estimates.
+    # Dist of Heckit MTE estimates.
     geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
-    # Dist of semi-parametric CF estimates.
+    # Dist of semi-parametric MTE estimates.
     geom_density(aes(x = cf_indirect_effect - truth_indirect_effect,
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[3], alpha = 0.75) +
@@ -297,7 +297,7 @@ ggsave(file.path(output.folder, "uniform-indirect-dist.png"),
 
 
 ################################################################################
-## Plot the estimates, by OLS + CF, different rho = Corr(U_0, U_1) values.
+## Plot the estimates, by OLS + MTE, different rho = Corr(U_0, U_1) values.
 
 # Plot the bias in direct effect est vs rho
 rho_directeffect_bias.plot <- rho.data %>%
@@ -321,7 +321,7 @@ rho_directeffect_bias.plot <- rho.data %>%
         linewidth = 0.75,
         curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
-    # CF est + 95 % CI
+    # MTE est + 95 % CI
     geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
         fill = colour.list[3], alpha = 0.2) +
@@ -332,7 +332,7 @@ rho_directeffect_bias.plot <- rho.data %>%
     annotate("text", colour = colour.list[3],
         x = -0.5, y = 2.25,
         fontface = "bold",
-        label = ("Semi-parametric CF"),
+        label = ("Semi-parametric MTE"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[3],
         x = -0.65, y = 2.2,
@@ -385,7 +385,7 @@ rho_indirecteffect_bias.plot <- rho.data %>%
         colour = colour.list[1], linetype = "dashed") +
     geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
         colour = colour.list[1], linetype = "dashed") +
-    # CF est + 95 % CI
+    # MTE est + 95 % CI
     geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
         fill = colour.list[3], alpha = 0.2) +
@@ -419,7 +419,7 @@ ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
 
 
 ################################################################################
-## Plot the CF effect estimates, by OLS + CF, different $\sigma_1$ values.
+## Plot the MTE effect estimates, by OLS + MTE, different $\sigma_1$ values.
 
 # Plot the bias in direct effect est vs sigma_1
 sigma_1_directeffect_bias.plot <- sigma_1.data %>%
@@ -432,7 +432,7 @@ sigma_1_directeffect_bias.plot <- sigma_1.data %>%
         colour = colour.list[1], linetype = "dashed") +
     geom_line(aes(y = (ols_direct_effect_up)), alpha = 0.5,
         colour = colour.list[1], linetype = "dashed") +
-    # CF est + 95 % CI
+    # MTE est + 95 % CI
     geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
         fill = colour.list[3], alpha = 0.2) +
@@ -475,7 +475,7 @@ sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
         colour = colour.list[1], linetype = "dashed") +
     geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
         colour = colour.list[1], linetype = "dashed") +
-    # CF est + 95 % CI
+    # MTE est + 95 % CI
     geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
         fill = colour.list[3], alpha = 0.2) +

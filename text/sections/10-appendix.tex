@@ -383,12 +383,12 @@ Thus, a contraposition argument has that if selection-into-$D_i$ is non-degenera
 % Now we reach a contradiction, because $u, u'$ were defined in terms of the mean potential outcomes $\mu(z';.)$, and thus conditional mean depends on the potential outcomes.
 
 \subsection{Monotonicity $\implies$ Selection Model, in a CM Setting.}
-\label{appendix:cf-monotonicity}
+\label{appendix:mte-monotonicity}
 \textit{Proof that (conditional) monotonicity implies a selection model representation in a CM setting.
     This proof is an applied example of the \cite{vytlacil2002independence} equivalence result, now including conditioning covariates $\vec X_i$, and is presented merely as a validation exercise.
 }
 
-Assume condition monotonicity \ref{cf:monotonicity} holds, for any treatment values $z < z'$ and any covariate value $\vec X_i = \vec x$.
+Assume condition monotonicity \ref{mte:monotonicity} holds, for any treatment values $z < z'$ and any covariate value $\vec X_i = \vec x$.
 \[ \Probgiven{D_i(z') \geq D_i(z)}{\vec x} = 1. \]
 For each value of $\vec{X}_i = \vec{x}$ and any treatment values $z < z'$, we first define:
 \begin{itemize}
@@ -448,12 +448,12 @@ We can then equivalently represent the mediator choice as the transformed select
 \[ D_i(z') = \indicator{\pi(z'; \vec{X}_i) \geq U_i}, \;\;\; \text{for } z'=0,1 \]
 where $U_i \,| \,\vec{X}_i \sim \text{Uniform}(0,1)$ by the probability integral transformation.
 
-\subsection{Control Function (CF) Identification of the Second-stage}
-\label{appendix:cf-secondstage}
+\subsection{MTE Identification of the Second-stage}
+\label{appendix:mte-secondstage}
 \textit{Proof of Proposition \ref{proposition:secondstage}.
     This proof relies heavily on the notation and reasoning of \cite{kline2019heckits} for an IV setting.}
 
-By Assumption \ref{cf:monotonicity} (mediator monotonicity), selection-into-mediator can be represented as a threshold-crossing selection model.
+By Assumption \ref{mte:monotonicity} (mediator monotonicity), selection-into-mediator can be represented as a threshold-crossing selection model.
 \[ D_i(z') = \indicator{ \pi(z'; \vec X_i) \geq U_i }, \text{ for } z' = 0, 1 \]
 where $U_i = F_V\left( V_i \mid \vec{X}_i \right)$ follows a uniform distribution on $[0,1]$, and $\pi(z'; \vec X_i) = \Egiven{D_i}{Z_i = z', \vec X_i}$ is the mediator propensity score.
 
@@ -465,7 +465,7 @@ Since $Z_i$ is ignorable, we have:
 \[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i, Z_i, \vec X_i}
     = \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} \]
 
-Assumption \ref{cf:identification} has $\text{Cov}(U_i, U_{0,i}) \neq 0$.
+Assumption \ref{mte:identification} has $\text{Cov}(U_i, U_{0,i}) \neq 0$.
 This non-zero covariance implies statistical dependence between the selection error and outcome error.
 This dependence allows us to represent $U_{0,i}$ using a linear projection.
 We use $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$ rather than $U_i$ directly in the projection to allow for flexibility in how the selection error affects outcomes.
@@ -481,7 +481,7 @@ where
 The coefficient $\rho_0$ is the slope in the best linear predictor of $U_{0,i}$ given $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, and is chosen to ensure that the residual $\varepsilon_{0,i}$ is uncorrelated with $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$.
 This property is crucial for the identification strategy, as it isolates the component of $U_{i}$ that is related to selection-into-$D_i$.
 
-The non-zero covariance condition in \ref{cf:identification} ensures $\rho_0 \neq 0$, so is relevant.
+The non-zero covariance condition in \ref{mte:identification} ensures $\rho_0 \neq 0$, so is relevant.
 Since $U_i$ and $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$ are related by a monotonic transformation (the inverse cumulative density function), the covariance $\text{Cov}(U_i, U_{0,i}) \neq 0$ implies $\text{Cov}(F_V^{-1}\left( U_i \mid \vec{X}_i \right), U_{0,i}) \neq 0$.
 
 Given the linear projection of $U_{0,i}$ onto $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, we can compute the conditional expectation:
@@ -498,7 +498,7 @@ This gives us the control function representation:
 where $\lambda_0 \left(p'\right) = \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p' < U_i}$.
 The control function $\lambda_0\left(p'\right)$ captures the expected value of the transformed selection term, conditional on being above the threshold $p' \in (0,1)$.
 
-The same sequence of steps for mediator takers, $D_i = 1$, gives the other CF:
+The same sequence of steps for mediator takers, $D_i = 1$, gives the other mte:
 \[ \Egiven{U_{1,i}}{D_i=1, Z_i, \vec X_i} = \rho_1 \lambda_1\big(\pi(Z_i; \vec X_i)\big), \]
 where $\lambda_1 \left(p'\right) = \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p'}$ for $p' \in (0,1)$, and $\rho_1 = \frac{\Cov{U_{1,i}, F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}{\Var{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}$ is the corresponding projection coefficient.
 
@@ -506,7 +506,7 @@ The relationship between $\lambda_0(p')$ and $\lambda_1(p')$ can be derived as:
 \[ \lambda_1 \left(p'\right) = -\lambda_0 \left(p'\right) \left( \frac{1-p'}{p'} \right), \text{ for } p' \in (0,1). \]
 This relationship ensures consistency in the CF approach across the $D_i=0$ and $D_i= 1$ groups \citep{kline2019heckits}.
 
-Assumption \ref{cf:instrument} (mediator take-up cost instrument $\vec X_i^{\text{IV}}$) ensures identification of the propensity score function $\pi(z'; \vec X_i)$ in the first stage by providing valid instrumental variation.
+Assumption \ref{mte:instrument} (mediator take-up cost instrument $\vec X_i^{\text{IV}}$) ensures identification of the propensity score function $\pi(z'; \vec X_i)$ in the first stage by providing valid instrumental variation.
 This variation allows us to identify the propensity score, and consequently the control functions $\lambda_0$ and $\lambda_1$.
 
 Combining all elements, the conditional expectation of $Y_i$ given $Z_i, D_i, \vec X_i$ is
@@ -541,11 +541,11 @@ This gives the final result,
 All parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z';\vec X_i)$ identified separately in the first-stage.
 $\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse Mills ratio in \citealt{heckman1979sample}), or treated as non-parametric parameters to be estimated --- at cost of the constant and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$, see \aref{appendix:semi-parametric}.
 
-\subsection{Control Function (CF) Identification of the ADE and AIE}
-\label{appendix:cf-ade-aie}
-\textit{Proof of Theorem \ref{thm:cf-identification}.}
+\subsection{MTE-associated CF Identification of the ADE and AIE}
+\label{appendix:mte-ade-aie}
+\textit{Proof of Theorem \ref{thm:mte-identification}.}
 
-Assume \ref{cf:monotonicity}, \ref{cf:identification}, \ref{cf:instrument} hold.
+Assume \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument} hold.
 Then Proposition~\ref{proposition:secondstage} has $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ identified in a regression.
 The following composes the ADE and AIE from these parameters.
 
@@ -724,7 +724,7 @@ A number of statistical packages, for the R language \citep{R2023}, made the sim
 \end{itemize}
 
 \begin{figure}[h!]
-    \caption{OLS versus CF Estimates of CM Effects, varying $\Var{U_{1,i}}$ relative to $\Var{U_{0,i}} = 1$.}
+    \caption{OLS versus MTE-based Estimates of CM Effects, varying $\Var{U_{1,i}}$ relative to $\Var{U_{0,i}} = 1$.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{ADE.}
@@ -741,10 +741,10 @@ A number of statistical packages, for the R language \citep{R2023}, made the sim
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the OLS and control function estimates of the ADE and AIE, for $N = 5,000$ sample size.
+    These figures show the OLS and MTE-based estimates of the ADE and AIE, for $n = 5,000$ sample size.
     The black dashed line is the true value, points are points estimates from data simulated with a given $\text{Corr}\big(U_{0,i}, U_{1,i}\big) =0.5$, $\Var{U_{0,i}} = 1$, and $\Var{U_{1,i}}^{\frac12}$ varied across $[0, 2]$.
     Shaded regions are the 95\% confidence intervals;
-    orange are the OLS estimates, blue the control function approach.
+    orange are the OLS estimates, green the semi-parametric MTE-based approach.
 \end{figure}
 
 %\subsection{Further Information on the Oregon Health Insurance Experiment}

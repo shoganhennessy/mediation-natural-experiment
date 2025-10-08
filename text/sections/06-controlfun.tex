@@ -1,28 +1,28 @@
-\section{CF Estimation of CM Effects}
+\section{MTE-based Estimation of CM Effects}
 \label{sec:controlfun}
 A conventional approach to estimating CM effects involves a two-stage approach to estimating the ADE and the AIE: the first-stage ($Z_i$ on $D_i$), and the second-stage ($Z_i, D_i$ on $Y_i$).
-A CF approach is a simple and intuitive addition to this approach: including the CF terms $\lambda_0, \lambda_1$ in the second-stage regression to address selection-into-mediator.
+An MTE approach is a simple and intuitive addition to this approach: including the CF terms $\lambda_0, \lambda_1$ in the second-stage regression to address selection-into-mediator.
 
 This section presents two practical estimation strategies.
 First, I demonstrate how to estimate CM effects with an assumed distribution of error terms, focusing on the Heckman selection model as the leading case.
 Second, I consider a more flexible semi-parametric approach that avoids distributional assumptions --- at the cost of semi-parametrically estimating the corresponding CFs.
 While both methods effectively address the selection bias issues detailed in previous sections, they differ in their implementation complexity, efficiency, and underlying assumptions.
 
-\subsection{Parametric CF}
-A parametric CF solves the identification problem by assuming a distribution for the unobserved error terms in the first-stage selection model, and modelling selection based on this distribution.
+\subsection{Parametric MTE}
+A parametric approach to MTEs solves the identification problem by assuming a distribution for the unobserved error terms in the first-stage selection model, and modelling selection based on this distribution.
 The Heckman selection model is the most pertinent example, assuming the normal distribution for unobserved errors \citep{heckman1979sample}.
-A parametric CF using other distributions works in exactly the same manner, replacing the relevant density functions for an alternative distribution as needed.
+Assuming distributions other than the bivariate normal works in exactly the same manner, replacing the relevant density functions for those of an alternative distribution.
 As such, this section focuses exclusively on the Heckman selection model.
-This estimation approach is the same as in the parametric selection model approach to MTEs, in \cite{bjorklund1987estimation}.
+This estimation approach is the same as the original parametric selection model definition of MTEs, in \cite{bjorklund1987estimation}.
 
 The Heckman selection model assumes unobserved errors $V_i$ follow a normal distribution, so estimates the first-stage using a probit model.
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
     = \Phi \big( \theta + \bar\pi Z_i + \vec\zeta' \vec X_i \big), \]
 where $\Phi(.)$ is the cumulative density function for the standard normal distribution, and $\theta, \bar\pi, \vec\zeta$ are parameters estimated with maximum likelihood.
-In the parametric case, an excluded instrument ($\vec X_i^{\text{IV}}$) is not technically necessary in the first-stage equation --- though not including one exposes the method to indeterminacy if the errors are not normally distributed.
+In the parametric case, an excluded instrument ($\vec X_i^{\text{IV}}$) is not technically necessary in the first-stage equation --- though not including one exposes the method to bias from misspecification if the errors are not normally distributed.
 Thus, it is best practice to use this method with access to an instrument.
 
-From this probit first-stage, construct the inverse Mills ratio terms to serve as the CFs.
+From this probit first-stage, construct the inverse Mills ratio terms to serve as the MTE-associated CFs.
 These terms capture the correlation between unobserved factors influencing both mediator selection and outcomes, when the errors are normally distributed.
 \[ \lambda_0(p') =
         \frac{\phi( - \Phi^{-1}(p') )}{\Phi( -\Phi^{-1}(p') )}, \;\;\;\;
@@ -31,7 +31,7 @@ These terms capture the correlation between unobserved factors influencing both 
         \;\;\;\; \text{ for } p' \in (0,1) \]
 where $\phi(.)$ is the probability density function for the standard normal distribution.
 
-Lastly, the second-stage is estimated with OLS, including the CFs with plug in estimates of the mediator propensity score, and $\vec \varphi'$ a linear approximation of nuisance function $\varphi(.)$.
+Lastly, the second-stage is estimated with OLS, including the MTE-associated CFs with plug-in estimates of the mediator propensity score, and $\vec \varphi'$ a linear approximation of nuisance function $\varphi(.)$.
 \begin{align*}
     \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
         \alpha
@@ -45,7 +45,7 @@ Lastly, the second-stage is estimated with OLS, including the CFs with plug in e
 \end{align*}
 where $\hat\pi \big(z';\vec X_i \big)$ are the predictions from the probit first-stage.
 
-The resulting ADE and AIE estimates are composed from sample estimates of the terms in Theorem \ref{thm:cf-identification},
+The resulting ADE and AIE estimates are composed from sample estimates of the terms in Theorem \ref{thm:mte-identification},
 \[ \hat{\text{ADE}}
     = \hat{\gamma} + \hat{\delta}\,\bar D, \;\;\;\;
     \hat{\text{AIE}}
@@ -62,18 +62,18 @@ This approach yields $\sqrt{n}$-consistent estimates when the underlying error t
 Errors can also be estimated by the bootstrap, by including estimation of both the first and second-stage within each bootstrap iteration.
 % \aref{appendix:implement} further describes the implementation of this approach in the R language \citep{R2023}, with a linear probit first-stage and second-stage estimated by OLS.
 
-In practice, a parametric CF approach is simple to implement using standard statistical packages.
+In practice, a parametric MTE approach is simple to implement using standard statistical packages.
 The key advantage is computational simplicity and efficiency, particularly in moderate-sized samples.
 However, this comes at the cost of strong distributional assumptions.
 For example, if the error terms deviate substantially from joint normality, the estimates may be biased.\footnote{
     While this concern is immaterial in an IV setting estimating the LATE \citep{kline2019heckits}, it is pertinent in this setting as the CF extrapolates from IV compliers to mediator compliers.
 }
 
-\subsection{Semi-parametric CF}
-\label{sec:semiparametric-cf}
-For settings where researchers are not comfortable specifying a specific distribution for the error terms, a semi-parametric CF will nonetheless consistently estimate CM effects.
+\subsection{Semi-parametric MTE}
+\label{sec:semiparametric-mte}
+For settings where researchers are not comfortable specifying a specific distribution for the error terms, a semi-parametric MTE approach will nonetheless consistently estimate CM effects.
 This method maintains the same identification strategy but avoids assuming a specific error distribution.
-This estimation approach is used in the modern semi-parametric approach to estimating MTEs, for example in \cite{brinch2017beyond,heckman2007econometric}.
+This estimation approach is used in the modern semi-parametric approach to estimating the distribution of MTEs, for example in \cite{brinch2017beyond,heckman2007econometric}.
 
 The semi-parametric approach begins with flexible estimation of the first-stage, estimating the mediator propensity score,
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
@@ -108,7 +108,7 @@ Take $\hat \gamma$, the $D_i = 0$ subsample estimate of $\E \gamma$, and $(\hat{
     = (1 - \bar D) \, \hat \gamma + \bar D \, (\hat{\gamma + \delta}). \]
 
 The AIE is less simple, for two reasons that differ from the parametric CF setting.
-First, the intercepts for each subsample, $\alpha$ and $(\alpha + \beta)$, are not separately identified from the CFs if the $\lambda_0, \lambda_1$ functions are flexibly estimated.
+First, the intercepts for each subsample, $\alpha$ and $(\alpha + \beta)$, are not separately identified from the MTE-associated CFs if the $\lambda_0, \lambda_1$ functions are flexibly estimated.
 Second, a semi-parametric specification for the CFs mean $\rho_0$ and $\lambda_0$ are no longer separately identified from each other (and same for $\rho_1,\lambda_1$).
 As such, it is not possible to directly use $\hat \lambda_0, \hat \lambda_1$ in estimating the complier adjustment term (as is done in the parametric case).
 
@@ -140,7 +140,7 @@ $n = 5,000$ for this simulation.
     \;\; \left( U_{0,i}, U_{1,i}, U_{C,i} \right) \sim
     N\left( \vec 0, \mat \Sigma \right) \]
 $\mat \Sigma$ is the matrix of parameters which controls the level of confounding from unobserved costs and benefits.\footnote{
-    The correlation and relative standard deviations for $U_{0,i}, U_{1,i}$ affect how large selection bias in conventional CM estimates; correlation for these with unobserved costs $U_{C,i}$ does not particularly matter, though increased variance in unobserved costs makes estimates less precise for both OLS and CF methods.
+    The correlation and relative standard deviations for $U_{0,i}, U_{1,i}$ affect how large selection bias in conventional CM estimates; correlation for these with unobserved costs $U_{C,i}$ does not particularly matter, though increased variance in unobserved costs makes estimates less precise for both OLS and MTE methods.
 }
 
 Each $i$ chooses to take mediator $D_i$ by a Roy model, with following mean definitions for each $z', d' = 0, 1$
@@ -168,7 +168,7 @@ I simulate this data generating process 10,000 times, using $\mat\Sigma =
     This choice of parameters has $\Var{U_{0,i}} = 1, \Var{U_{1,i}} = 2.25, \text{Corr}\big(U_{0,i}, U_{1,i}\big) = 0.5$ so that unobserved errors meaningfully confound conventional CM methods, with notable heteroscedasticity.
     Unobserved costs are uncorrelated with $U_{0,i}, U_{1,i}$ (although non-zero correlation would not meaningfully change the results), and $\Var{U_{C,i}} = 0.25$ maintains uncertainty in unobserved costs.
 }
-and estimate CM effects with conventional CM methods (two-stage OLS) and the introduced CF methods.
+and estimate CM effects with conventional CM methods (two-stage OLS) and the introduced MTE methods.
 In this simulation $\Prob{D_i = 1} = 0.379$, and $65.77\%$ of the sample are mediator compliers (for whom $D_i(0)=0$ and $D_i(1)=1$).
 This gives an ATE value of 2.60, ADE 1.38, and AIE 1.22, respectively.\footnote{
     Note that ATE $=$ ADE $+$ AIE in this setting.
@@ -197,22 +197,22 @@ This gives an ATE value of 2.60, ADE 1.38, and AIE 1.22, respectively.\footnote{
     These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with correlated uniformly distributed error terms.
     The black dashed line is the true value;
     orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
-    and green estimates with a two-stage semi-parametric CF.
+    and green estimates with a two-stage semi-parametric MTE.
 \end{figure}
 
-\autoref{fig:cm-normal-dist} shows how these estimates perform, with a parametric CF approach, relative to the true value.
+\autoref{fig:cm-normal-dist} shows how these estimates perform, with a parametric MTE approach, relative to the true value.
 The OLS estimates' distribution do not overlap the true values for any standard level of significance; the distance between the OLS estimates and the true values are the underlying bias terms derived in \autoref{thm:selection-bias}.
-The parametric CF approach perfectly reproduces the true values, as the probit first-stage correctly models the normally distributed error terms.
+The parametric MTE approach perfectly reproduces the true values, as the probit first-stage correctly models the normally distributed error terms.
 The semi-parametric approach (not shown in \autoref{fig:cm-normal-dist}) performs similarly, with a wider distribution; this is to be expected comparing a correctly specified parametric model with a semi-parametric one.
 
-The parametric CF may not be appropriate in setting with non-normal error terms.
+The parametric MTE may not be appropriate in setting with non-normal error terms.
 I simulated the same data again, but transform $U_{0,i}, U_{1,i}$ to be correlated uniform errors (with the same standard deviations as previously).
 \autoref{fig:cm-uniform-dist} shows the resulting distribution of point-estimates, relative to the truth, for the parametric and semi-parametric approaches.
-The parametric CF is slightly off target, showing persistent bias from incorrectly specifying the error term distribution.
+The parametric MTE is slightly off target, showing persistent bias from incorrectly specifying the error term distribution.
 The semi-parametric approach is centred exactly around the truth, with a slightly higher variance (as is expected).
 
 \begin{figure}[h!]
-    \caption{CF Adjusted Estimates Work with Different Error Term Parameters.}
+    \caption{MTE-Based Estimates Work with Different Error Term Parameters.}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
         \caption{ADE.}
@@ -229,18 +229,18 @@ The semi-parametric approach is centred exactly around the truth, with a slightl
     \justify
     \footnotesize    
     \textbf{Note:}
-    These figures show the OLS and CF point estimates of the ADE and AIE, for $n = 5,000$ sample size, varying $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values with $\Var{U_{0,i}} = 1, \Var{U_{1,i}} = 1.5$ fixed.
+    These figures show the OLS and MTE-based point estimates of the ADE and AIE, for $n = 5,000$ sample size, varying $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ values with $\Var{U_{0,i}} = 1, \Var{U_{1,i}} = 1.5$ fixed.
     The black dashed line is the true value, coloured points are points estimates for the respective data generated, and shaded regions are the 95\% confidence intervals from 1,000 bootstraps each.
-    Orange represents OLS estimates, blue the CF approach.
+    Orange represents OLS estimates, blue the MTE-based approach.
 \end{figure}
 
 The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\text{Corr}\big(U_{0,i}, U_{1,i}\big) \in [-1, 1]$ and $\Var{U_{0,i}}, \Var{U_{1,i}} \geq 0$.
 The true AIE values vary, because $D_i(Z_i)$ compliers have higher average values of $U_{1,i} - U_{0,i}$ as $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ increases.
-\autoref{fig:rho-bias} shows CF estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstraps.
-The point estimates of the CF do not exactly equal the true values, as they are estimates from one simulation (not averages across many generated datasets, as in \autoref{fig:cm-uniform-dist}).
-The CF approach improves on OLS estimates by correcting for bias, with confidence regions overlapping the true values.\footnote{
+\autoref{fig:rho-bias} shows MTE-based estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstraps.
+The point estimates of the MTE-based do not exactly equal the true values, as they are estimates from one simulation (not averages across many generated datasets, as in \autoref{fig:cm-uniform-dist}).
+The MTE approach improves on OLS estimates by correcting for bias, with confidence regions overlapping the true values.\footnote{
     In the appendix, \autoref{fig:sigma-1-bias} shows the same simulation while varying $\Var{U_{1,i}}$, with fixed $\Var{U_{0,i}} = 1, \text{Corr}\big(U_{0,i}, U_{1,i}\big) = 0.5$.
     The conclusion is the same as for varying the correlation coefficient, $\rho$, in \autoref{fig:rho-bias}.
 }
-This correction did not come for free: the standard errors are significantly greater in a CF approach than OLS.
-In this manner, this simulation shows the pros and cons of using the CF approach to estimating CM effects in practice.
+This correction did not come for free: the standard errors are significantly greater in an MTE approach than conventional CM estimates (based on two-stage OLS).
+In this manner, this simulation shows the pros and cons of using the MTE approach to estimating CM effects in practice.
