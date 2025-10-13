@@ -11,21 +11,20 @@ This study of mechanisms behind causal effects broadens the economic understandi
 This paper shows that the conventional approach to estimating CM effects is inappropriate in a natural experiment setting, provides a theoretical framework for how bias operates, and develops an approach to correctly estimate CM effects under alternative assumptions.
 These methods contrast the current practice in applied economics of providing suggestive evidence of mechanisms, which gives necessary but not sufficient conditions for the mechanisms behind a treatment effect.
 
-In other disciplines --- particularly epidemiology, psychology, and medicine --- CM has become a standard empirical framework for decomposing causal effects into direct and indirect components 
-\citep{imai2010identification}.
+In other disciplines --- particularly epidemiology, psychology, and medicine --- CM has become a standard empirical framework for decomposing causal effects into direct and indirect components \citep{imai2010identification}.
 I refer to established approach as ``conventional CM,'' which assumes both the treatment and the mediator are (quasi-)randomly assigned.
-This approach has not taken off in applied economics in an understanding that mediator mechanisms --- such as schooling, labour supply, or healthcare use --- are choice variables shaped by costs and benefits, likely violating this assumption.
-As a result, applied economics has instead relied on suggestive analyses of mechanisms, which provide necessary (but not sufficient) evidence for mediating mechanisms behind causal effects.
+Applied economics has not typically adopted conventional CM in this formal sense, because mediators in economic applications --- such as schooling, labour supply, or healthcare use --- are choice variables shaped by costs and benefits, likely violating this assumption.
+Nevertheless, economists often pursue the same goal informally: they assess whether a treatment effect remains after controlling for a plausible mediator mechanism, or they present descriptive evidence on the channels through which effects operate.
+These analyses are effectively conventional CM conducted without acknowledging its identifying assumptions, which makes it important to understand how those assumptions break down in the economic settings where they are used.
 
 %\textbf{Question:}
-This paper starts by considering how conventional CM methods perform in a natural experiment setting.
+This paper starts by considering how conventional CM methods (whether applied explicitly or implicitly) perform in a natural experiment setting.
 Conventional CM methods rely on assuming the initial treatment, and the subsequent mediator mechanism, are both quasi-randomly assigned \citep{imai2010identification}.
 Assuming the mediator is as-good-as-randomly assigned requires either (1) selection is fully captured by observabed control variables, or (2) decisions are effectively random.
-The assumption can be plausible when a researcher has access to a very rich set of control variables, or a mediator is directly manipulated.
-In economic applications, however, unconstrained take-up reflects choices based on costs and benefits, which complicates the argument for mediator quasi-random assignment.
-For example, winners of the Oregon Health Insurance Experiment wait-list were randomly chosen by a lottery, but made the choice to visit healthcare of their own free will; this choice considered their own individual costs and benefits, and thus was not a random assignment.
-Without a clear argument for the mediator mechanism to be quasi-randomly assigned, conventional CM methods suffer from selection bias; I derive these selection bias terms, and providing simulation evidence that they can be large in settings that align with selection based on costs and benefits.
-This result gives explicit reasoning for why conventional CM methods have not become mainstream in applied economics. 
+While these assumptions can be plausible when a mediator is directly manipulated, or the data include extremely rich control variables, they are not credible in most economic applications; when take-up decisions reflect individual costs and benefits, mediator assignment is inherently non-random.
+For example, in the Oregon Health Insurance Experiment, those who got off the wait-list were randomly chosen by a lottery, but made the choice to visit healthcare in the following year of their own free will; this choice considered their own individual costs and benefits, and thus was not a random assignment.
+I formally derive the selection bias that arises from this non-random assignment, and show through simulations that these biases can be large in settings consistent with standard economic models of selection.
+This result explains why conventional CM methods can yield misleading conclusions in applied economics, and motivates the need for a framework consistent with quasi-experimental causal reasoning.
 
 Conventional CM's identifying assumptions are at odds with selection based on costs and benefits, so I import methods grounded in labour economic theory to solve the identification problem.
 This approach identifies CM effects via the Marginal Treatment Effect (MTE) of the mediator, and requires three main assumptions.
@@ -40,7 +39,7 @@ Access to valid instrumental variation is a strong condition, though is importan
 Applying the new methods to the Oregon Health Insurance Experiment shows that unobserved selection matters in an analysis of a real-world natural experiment.
 A substantial portion of the wait-list lottery's impact on subjective health and well-being is mediated indirectly through extra healthcare usage, after instrumenting for healthcare usage with respondents' usual provider.
 A conventional CM analysis would put this indirect mediated share at practically zero, so that my methods expose that negative selection into healthcare usage would be hiding evidence for this mechanism.
-These estimates replace claims on mechanisms with credible causal evidence that extra healthcare use mediates a sizeable share of the Medicaid-lottery's benefits, avoiding claims based only on suggestive conjecture.
+These estimates give sufficient evidence that extra healthcare use mediates a sizeable share of the Medicaid-lottery's benefits, though wider confidence intervals underscore the inherent uncertainty on the proportion of the effect operating through the single mediator mechanism of healthcare usage.
 
 The methods I propose for CM analyses are not perfect for every setting: the structural assumptions are strong, and are tailored to selection-into-mediator based on the economic principle of selection based on costs and benefits.
 Indeed, this approach provides no safe harbour for estimating CM effects if these structural assumptions do not hold true.
@@ -57,10 +56,10 @@ These include identifying CM effects with overlapping quasi-experimental researc
 I develop a framework showing exactly how selection bias contaminates conventional CM estimates when mediator choices are driven by unobserved gains --- settings where none of the existing econometric approaches to CM directly apply.
 The recent econometric literature has made important progress in adapting CM to observational settings;
 my work builds on this literature by addressing the common case in which the mediator is not quasi-randomly assigned, when selection into a mediator mechanism aligns with economic theory for selection.
-\cite{frolich2017direct} is the most similar paper to mine, though I extend the framework for thinking about CM from an economic perspective in multiple ways.
+\cite{frolich2017direct} is the most similar paper to mine, though I extend the framework for CM from an economic perspective in multiple ways.
 First, by linking CM to the MTE literature for a binary mediator, I identify average CM effects rather than complier-specific effects (and provide a different estimation approach).
 Second, I show formally how unobserved selection biases conventional CM estimates and propose an alternative identification strategy that retains the natural experiment structure while relaxing mediator ignorability.
-Last, this paper provides a rigorous warning to applied economists against uncritically importing conventional CM methods to avoid selection biases term derived, and clarifies the specific conditions under which CM analyses can avoid them.
+Last, this paper provides a rigorous warning to applied economists against uncritically importing conventional CM methods to avoid selection biases term derived, and clarifies the conditions and practices to avoid them.
 
 %\textbf{Road-map:}
 This paper proceeds as follows.
