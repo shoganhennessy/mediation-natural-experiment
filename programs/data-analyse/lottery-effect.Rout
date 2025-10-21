@@ -19,7 +19,7 @@ Type 'q()' to quit R.
 > ## Senan Hogan-Hennessy, 14 June 2025.
 > ## Script to to extract relevant data from Oregon Health Insurance rep package.
 > print(Sys.time())
-[1] "2025-09-01 18:04:52 BST"
+[1] "2025-10-20 16:34:55 EDT"
 > set.seed(47)
 > 
 > ## Packages:
@@ -37,8 +37,9 @@ Type 'q()' to quit R.
 ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 > # Functions for bootstrapping.
 > library(boot)
-> # Library for better colour choice.
+> # Library for better colour choice and additional graphing.
 > library(ggthemes)
+> library(ggpattern)
 > # Library for equations in plots
 > library(latex2exp)
 > 
@@ -66,18 +67,18 @@ Type 'q()' to quit R.
 > analysis.data <- data.folder %>%
 +     file.path("cleaned-oregon-data.csv") %>%
 +     read_csv()
-Rows: 11126 Columns: 17
+Rows: 9957 Columns: 14
 ── Column specification ────────────────────────────────────────────────────────
 Delimiter: ","
-dbl (17): lottery_iv, hh_size, any_insurance, any_healthcare, usual_health_l...
+dbl (14): lottery_iv, hh_size, any_insurance, any_healthcare, initial_health...
 
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 > 
 > # Factorise the relevant variables.
 > analysis.data$hh_size <- factor(analysis.data$hh_size)
-> analysis.data$usual_health_location <- factor(
-+     analysis.data$usual_health_location)
+> analysis.data$initial_health_location <- factor(
++     analysis.data$initial_health_location)
 > 
 > 
 > ################################################################################
@@ -95,18 +96,18 @@ lm(formula = any_insurance ~ 1 + lottery_iv, data = analysis.data,
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
--0.9758 -0.3656 -0.3656  0.4193  1.0661 
+-0.9690 -0.3604 -0.3427  0.4562  1.2626 
 
 Coefficients:
             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) 0.365581   0.006630   55.14   <2e-16 ***
-lottery_iv  0.215136   0.009255   23.25   <2e-16 ***
+(Intercept) 0.342750   0.006884   49.79   <2e-16 ***
+lottery_iv  0.201082   0.009756   20.61   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 0.4898 on 11116 degrees of freedom
-Multiple R-squared:  0.04636,	Adjusted R-squared:  0.04627 
-F-statistic: 540.4 on 1 and 11116 DF,  p-value: < 2.2e-16
+Residual standard error: 0.5248 on 9945 degrees of freedom
+Multiple R-squared:  0.04097,	Adjusted R-squared:  0.04087 
+F-statistic: 424.8 on 1 and 9945 DF,  p-value: < 2.2e-16
 
 > 
 > # Show lottery IV -> insurance is strong, conditional on household size.
@@ -121,22 +122,22 @@ lm(formula = any_insurance ~ 1 + lottery_iv * factor(hh_size),
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
--1.0247 -0.3739 -0.3628  0.4748  1.0708 
+-0.9757 -0.3568 -0.3394  0.5203  1.2421 
 
 Coefficients:
-                            Estimate Std. Error t value Pr(>|t|)    
-(Intercept)                  0.36278    0.00768  47.239  < 2e-16 ***
-lottery_iv                   0.24701    0.01105  22.346  < 2e-16 ***
-factor(hh_size)2             0.01116    0.01515   0.737    0.461    
-factor(hh_size)3            -0.36278    0.48911  -0.742    0.458    
-lottery_iv:factor(hh_size)2 -0.09579    0.02038  -4.701 2.62e-06 ***
-lottery_iv:factor(hh_size)3  0.25299    0.50257   0.503    0.615    
+                             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)                  0.339398   0.007899  42.966  < 2e-16 ***
+lottery_iv                   0.234393   0.011542  20.308  < 2e-16 ***
+factor(hh_size)2             0.014012   0.016012   0.875    0.382    
+factor(hh_size)3            -0.339398   0.523824  -0.648    0.517    
+lottery_iv:factor(hh_size)2 -0.108129   0.021775  -4.966 6.96e-07 ***
+lottery_iv:factor(hh_size)3  0.467371   0.534930   0.874    0.382    
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 0.489 on 11112 degrees of freedom
-Multiple R-squared:  0.04979,	Adjusted R-squared:  0.04937 
-F-statistic: 116.5 on 5 and 11112 DF,  p-value: < 2.2e-16
+Residual standard error: 0.5238 on 9941 degrees of freedom
+Multiple R-squared:  0.0452,	Adjusted R-squared:  0.04472 
+F-statistic: 94.11 on 5 and 9941 DF,  p-value: < 2.2e-16
 
 > 
 > # Calculate Pr(Z_iv = 1 | household size), the known instrument prop score.
@@ -151,54 +152,54 @@ lm(formula = lottery_iv ~ 0 + factor(hh_size), data = analysis.data,
 
 Weighted Residuals:
     Min      1Q  Median      3Q     Max 
--0.9784 -0.4827  0.4178  0.5173  0.8693 
+-1.1226 -0.4684 -0.4684  0.5316  0.9039 
 
 Coefficients:
                  Estimate Std. Error t value Pr(>|t|)    
-factor(hh_size)1 0.482682   0.005643  85.536   <2e-16 ***
-factor(hh_size)2 0.582209   0.008625  67.502   <2e-16 ***
-factor(hh_size)3 0.947368   0.114620   8.265   <2e-16 ***
+factor(hh_size)1 0.468419   0.005902   79.36   <2e-16 ***
+factor(hh_size)2 0.568985   0.009371   60.72   <2e-16 ***
+factor(hh_size)3 0.959136   0.108505    8.84   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 0.4996 on 11115 degrees of freedom
-Multiple R-squared:  0.5179,	Adjusted R-squared:  0.5178 
-F-statistic:  3980 on 3 and 11115 DF,  p-value: < 2.2e-16
+Residual standard error: 0.5368 on 9944 degrees of freedom
+Multiple R-squared:  0.503,	Adjusted R-squared:  0.5028 
+F-statistic:  3355 on 3 and 9944 DF,  p-value: < 2.2e-16
 
 > 
 > # Show mean rate of using healthcare
 > analysis.data %>% pull(any_healthcare) %>% mean(na.rm = TRUE)
-[1] 0.7538199
-> table(pull(analysis.data, usual_health_location), exclude = NULL) / NROW(analysis.data)
+[1] 0.7324495
+> table(pull(analysis.data, initial_health_location), exclude = NULL) / NROW(analysis.data)
 
          1          2          3          4          5          6          7 
-0.39996405 0.28500809 0.08026245 0.07783570 0.04458026 0.06300557 0.04934388 
+0.35352014 0.30320378 0.06598373 0.10173747 0.04870945 0.07200964 0.05483579 
 > # and it relates to usual location of care.
-> print(summary(lm(any_healthcare ~ 1 + usual_health_location,
+> print(summary(lm(any_healthcare ~ 1 + initial_health_location,
 +     data = analysis.data)))
 
 Call:
-lm(formula = any_healthcare ~ 1 + usual_health_location, data = analysis.data)
+lm(formula = any_healthcare ~ 1 + initial_health_location, data = analysis.data)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
--0.8231  0.1769  0.1978  0.2144  0.7140 
+-0.7741 -0.5037  0.2289  0.2503  0.4963 
 
 Coefficients:
-                        Estimate Std. Error t value Pr(>|t|)    
-(Intercept)             0.802247   0.006212 129.138   <2e-16 ***
-usual_health_location2 -0.016691   0.009631  -1.733   0.0831 .  
-usual_health_location3 -0.009414   0.015196  -0.620   0.5356    
-usual_health_location4 -0.126728   0.015392  -8.233   <2e-16 ***
-usual_health_location5 -0.199425   0.019617 -10.166   <2e-16 ***
-usual_health_location6  0.020863   0.016840   1.239   0.2154    
-usual_health_location7 -0.516273   0.018746 -27.540   <2e-16 ***
+                         Estimate Std. Error t value Pr(>|t|)    
+(Intercept)               0.74972    0.00738 101.586  < 2e-16 ***
+initial_health_location2  0.02140    0.01086   1.970   0.0488 *  
+initial_health_location3  0.01588    0.01861   0.854   0.3933    
+initial_health_location4 -0.07745    0.01561  -4.961 7.12e-07 ***
+initial_health_location5 -0.10642    0.02121  -5.018 5.32e-07 ***
+initial_health_location6  0.02434    0.01794   1.357   0.1749    
+initial_health_location7 -0.24605    0.02014 -12.217  < 2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
-Residual standard error: 0.4144 on 11119 degrees of freedom
-Multiple R-squared:  0.07514,	Adjusted R-squared:  0.07464 
-F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
+Residual standard error: 0.4379 on 9950 degrees of freedom
+Multiple R-squared:  0.02236,	Adjusted R-squared:  0.02177 
+F-statistic: 37.93 on 6 and 9950 DF,  p-value: < 2.2e-16
 
 > 
 > 
@@ -233,7 +234,7 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 + }
 > 
 > ## Estimate mean outcomes among lottery winners, with boot SEs
-> boot.samples <- 10^3
+> boot.samples <- 1 * 10^3
 > # Lottery effects (among entire population).
 > Z.late <- boot(statistic = abadie.late, R = boot.samples,
 +     data = analysis.data,
@@ -246,7 +247,7 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 > Z_1_complier.se      <- sd(Z.late$t[, 2], na.rm = TRUE)
 > Z_effect_complier.se <- sd(Z.late$t[, 3], na.rm = TRUE)
 > print(c(Z_effect_complier, Z_effect_complier.se))
-[1] 0.217108788 0.009528957
+[1] 0.217072348 0.009422776
 > # Mediator: healthcare utilisation (among lottery compliers).
 > D.late <- boot(statistic = abadie.late, R = boot.samples,
 +     data = analysis.data,
@@ -259,7 +260,7 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 > D_1_complier.se      <- sd(D.late$t[, 2], na.rm = TRUE)
 > D_effect_complier.se <- sd(D.late$t[, 3], na.rm = TRUE)
 > print(c(D_effect_complier, D_effect_complier.se))
-[1] 0.047829697 0.008253599
+[1] 0.042765016 0.008847816
 > # Outcome: Health overall good? (among lottery compliers).
 > Y_health.late <- boot(statistic = abadie.late, R = boot.samples,
 +     data = analysis.data,
@@ -272,7 +273,7 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 > Y_health_1_complier.se      <- sd(Y_health.late$t[, 2], na.rm = TRUE)
 > Y_health_effect_complier.se <- sd(Y_health.late$t[, 3], na.rm = TRUE)
 > print(c(Y_health_effect_complier, Y_health_effect_complier.se))
-[1] 0.059428477 0.009241851
+[1] 0.063078527 0.009934009
 > # Outcome: Happy overall?  (among lottery compliers).
 > Y_happy.late <- boot(statistic = abadie.late, R = boot.samples,
 +     data = analysis.data,
@@ -285,7 +286,7 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 > Y_happy_1_complier.se      <- sd(Y_happy.late$t[, 2], na.rm = TRUE)
 > Y_happy_effect_complier.se <- sd(Y_happy.late$t[, 3], na.rm = TRUE)
 > print(c(Y_happy_effect_complier, Y_happy_effect_complier.se))
-[1] 0.053906221 0.009104269
+[1] 0.081979498 0.009426907
 > 
 > 
 > ################################################################################
@@ -298,6 +299,7 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 +     "0               1\nSurvey: \nHealth overall good?",
 +     "0               1\nSurvey: \nHappy overall?")
 > 
+> alpha <- 0.05
 > # Get a dataframe of the relevant effects.
 > complier.data <- data.frame(
 +     Z_iv = c("0", "1"),
@@ -306,16 +308,24 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 +         D_0_complier, D_1_complier,
 +         Y_health_0_complier, Y_health_1_complier,
 +         Y_happy_0_complier, Y_happy_1_complier),
-+     #ci_lower = c(
-+     #    Z_0_lower, Z_1_lower,
-+     #    D_0_lower, D_1_lower,
-+     #    Y_health_0_lower, Y_health_1_lower, 
-+     #    Y_happy_0_lower, Y_happy_1_lower),
-+     #ci_upper = c(
-+     #    Z_0_upper, Z_1_upper,
-+     #    D_0_upper, D_1_upper,
-+     #    Y_health_0_upper, Y_health_1_upper, 
-+     #    Y_happy_0_upper, Y_happy_1_upper),
++     ci_lower = c(
++         quantile(Z.late$t[, 1], alpha / 2, na.rm = TRUE),
++         quantile(Z.late$t[, 2], alpha / 2, na.rm = TRUE),
++         quantile(D.late$t[, 1], alpha / 2, na.rm = TRUE),
++         quantile(D.late$t[, 2], alpha / 2, na.rm = TRUE),
++         quantile(Y_health.late$t[, 1], alpha / 2, na.rm = TRUE),
++         quantile(Y_health.late$t[, 2], alpha / 2, na.rm = TRUE),
++         quantile(Y_happy.late$t[, 1], alpha / 2, na.rm = TRUE),
++         quantile(Y_happy.late$t[, 2], alpha / 2, na.rm = TRUE)),
++     ci_upper = c(
++         quantile(Z.late$t[, 1], 1 - alpha / 2, na.rm = TRUE),
++         quantile(Z.late$t[, 2], 1 - alpha / 2, na.rm = TRUE),
++         quantile(D.late$t[, 1], 1 - alpha / 2, na.rm = TRUE),
++         quantile(D.late$t[, 2], 1 - alpha / 2, na.rm = TRUE),
++         quantile(Y_health.late$t[, 1], 1 - alpha / 2, na.rm = TRUE),
++         quantile(Y_health.late$t[, 2], 1 - alpha / 2, na.rm = TRUE),
++         quantile(Y_happy.late$t[, 1], 1 - alpha / 2, na.rm = TRUE),
++         quantile(Y_happy.late$t[, 2], 1 - alpha / 2, na.rm = TRUE)),
 +     outcome_name = c(
 +         rep(outcome_name.list[1], 2),
 +         rep(outcome_name.list[2], 2),
@@ -324,10 +334,21 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 > 
 > # Full barchart
 > complier.plot <- complier.data %>%
-+     ggplot() +
-+     geom_bar(aes(group = Z_iv,
-+         fill = outcome_name, x = outcome_name, y = outcome_value),
-+         colour = 1, position = "dodge", stat = "identity") +
++     ggplot(aes(x = outcome_name, group = Z_iv)) +
++     #geom_bar(aes(group = Z_iv,
++     #    fill = outcome_name, x = outcome_name, y = outcome_value),
++     #    colour = 1, position = "dodge", stat = "identity") +
++     geom_col_pattern(
++         aes(pattern = Z_iv, fill = outcome_name, y = outcome_value),
++         position = "dodge",
++         pattern_angle = 45,
++         pattern_density = 0.01,
++         pattern_spacing = 0.1,
++         pattern_fill = "black",
++         colour = "black") +
++     geom_errorbar(aes(x = outcome_name, ymin = ci_lower, ymax = ci_upper),
++         size = 0.5, alpha = 0.5,
++         stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
 +     theme_bw() +
 +     scale_x_discrete(name = "", limits = outcome_name.list) +
 +     scale_fill_manual("", values = colour.list[c(2, 1, 3, 3)]) +
@@ -340,25 +361,29 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 +         plot.title = element_text(hjust = 0, size = rel(1)),
 +         plot.title.position = "plot",
 +         plot.margin = unit(c(0, 0, -2.5, 0), "mm"))
+Warning message:
+Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead. 
 > # Annotate
+> offset.text <- 0.05
 > complier.plot <- complier.plot +
 +     # Label the effect sizes.
-+     annotate("text", x = 0.8, y = 0.025 + Z_0_complier + Z_effect_complier / 2,
++     annotate("text", x = 0.8, y = offset.text + Z_0_complier + Z_effect_complier / 2,
 +         label = paste0("+ ", round(Z_effect_complier, 2),
 +             "\n(", round(Z_effect_complier.se, 2), ")"),
 +         size = 4, hjust = 0.5, vjust = 0.5,
 +         fontface = "bold", colour = colour.list[1]) +
-+     annotate("text", x = 1.8, y = 0.025 + D_0_complier + D_effect_complier / 2,
++     annotate("text", x = 1.8, y = offset.text + D_0_complier + D_effect_complier / 2,
 +         label = paste0("+ ", round(D_effect_complier, 2),
 +             "\n(", round(D_effect_complier.se, 2), ")"),
 +         size = 4, hjust = 0.5, vjust = 0.5,
 +         fontface = "bold", colour = colour.list[2]) +
-+     annotate("text", x = 2.8, y = 0.025 + Y_health_0_complier + Y_health_effect_complier / 2,
++     annotate("text", x = 2.8, y = offset.text + Y_health_0_complier + Y_health_effect_complier / 2,
 +         label = paste0("+ ", round(Y_health_effect_complier, 2),
 +             "\n(", round(Y_health_effect_complier.se, 2), ")"),
 +         size = 4, hjust = 0.5, vjust = 0.5,
 +         fontface = "bold", colour = colour.list[3])  +
-+     annotate("text", x = 3.8, y = 0.025 + Y_happy_0_complier + Y_happy_effect_complier / 2,
++     annotate("text", x = 3.8, y = offset.text + Y_happy_0_complier + Y_happy_effect_complier / 2,
 +         label = paste0("+ ", round(Y_happy_effect_complier, 2),
 +             "\n(", round(Y_happy_effect_complier.se, 2), ")"),
 +         size = 4, hjust = 0.5, vjust = 0.5,
@@ -368,22 +393,53 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 +     plot = complier.plot,
 +     units = "cm", width = fig.width, height = fig.height)
 > 
-> # Label the effects.
-> # +
-> #    # Add a caliper noting the lottery effects
-> #    ggbrace::stat_brace(
-> #        data = data.frame(x = c(0.6, 1.4), y = c(0.8, 0.9)), aes(x, y),
-> #        linewidth = 1, colour = "black") +
-> #    annotate("text", x = 1, y = 0.98,
-> #        label = ("Lottery effect"),
-> #        linewidth = 4, hjust = 0.5, vjust = 0) +
-> #    # Add a caliper noting the health insurance effects (lottery compliers).
-> #    ggbrace::stat_brace(
-> #        data = data.frame(x = c(1.6, 4.4), y = c(0.775, 0.85)), aes(x, y),
-> #        linewidth = 1, colour = "black") +
-> #    annotate("text", x = 4.25, y = 0.98,
-> #        label = ("Health insurance effect (lottery compliers)"),
-> #        linewidth = 4, hjust = 1, vjust = 0) +
+> ################################################################################
+> ## Make the plot simpler for a presentation.
+> 
+> # Limited barchart
+> complier.plot <- complier.data %>%
++     filter(outcome_name != "0               1\nSurvey: \nHappy overall?") %>%
++     ggplot(aes(group = Z_iv,
++         fill = outcome_name, x = outcome_name, y = outcome_value)) +
++     geom_col_pattern(aes(pattern = Z_iv),
++         position = "dodge",
++         pattern_angle = 45,
++         pattern_density = .01,
++         pattern_spacing = .1,
++         pattern_fill = "black",
++         colour = "black") +
++     #geom_col_pattern(aes(colour = 1,
++     #    pattern = Z_iv, pattern_type = Z_iv)) + #, position = "dodge", stat = "identity") +
++     theme_bw() +
++     scale_x_discrete(name = "", limits = outcome_name.list[1:3]) +
++     scale_fill_manual("", values = colour.list[c(2, 1, 3)]) +
++     scale_y_continuous(expand = c(0, 0),
++         name = "",
++         limits = c(0.275, 0.825), oob = scales::rescale_none,
++         breaks = seq(0, 1, by = 0.1)) +
++     ggtitle(TeX(r"(Mean Outcome, for each $z' =0,1$.)")) +
++     theme(legend.position = "none",
++         plot.title = element_text(hjust = 0, size = rel(1)),
++         plot.title.position = "plot",
++         plot.margin = unit(c(0, 0, -2.5, 0), "mm"))
+> # Annotate
+> complier.plot <- complier.plot +
++     # Label the effect sizes.
++     annotate("text", x = 0.8, y = offset.text + Z_0_complier + Z_effect_complier / 2,
++         label = paste0("+ ", round(Z_effect_complier, 2),
++             "\n(", round(Z_effect_complier.se, 2), ")"),
++         size = 4, hjust = 0.5, vjust = 0.5,
++         fontface = "bold", colour = colour.list[1]) +
++     annotate("text", x = 1.8, y = offset.text + D_0_complier + D_effect_complier / 2,
++         label = paste0("+ ", round(D_effect_complier, 2),
++             "\n(", round(D_effect_complier.se, 2), ")"),
++         size = 4, hjust = 0.5, vjust = 0.5,
++         fontface = "bold", colour = colour.list[2]) +
++     annotate("text", x = 2.8, y = offset.text + Y_health_0_complier + Y_health_effect_complier / 2,
++         label = paste0("+ ", round(Y_health_effect_complier, 2),
++             "\n(", round(Y_health_effect_complier.se, 2), ")"),
++         size = 4, hjust = 0.5, vjust = 0.5,
++         fontface = "bold", colour = colour.list[3])
 > 
 > # Save this plot for the presentation (different size).
 > presentation.width <- 15
@@ -394,4 +450,4 @@ F-statistic: 150.6 on 6 and 11119 DF,  p-value: < 2.2e-16
 > 
 > proc.time()
    user  system elapsed 
- 43.352   0.701  45.998 
+ 42.179   0.748  43.397 

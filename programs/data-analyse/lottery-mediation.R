@@ -51,8 +51,19 @@ analysis.data <- data.folder %>%
 
 # Factorise the relevant variables.
 analysis.data$hh_size <- factor(analysis.data$hh_size)
-analysis.data$usual_health_location <- factor(
-    analysis.data$usual_health_location)
+analysis.data$initial_health_location <- factor(
+    analysis.data$initial_health_location)
+
+# List all the observed control variables
+diagnosis.list <- c(
+    "initial_dia_diagnosis",
+    "initial_ast_diagnosis",
+    "initial_hbp_diagnosis",
+    "initial_emp_diagnosis",
+    "initial_chf_diagnosis",
+    "initial_dep_diagnosis")
+controls.list <- paste(c("hh_size", diagnosis.list), collapse = " + ")
+nocontrols.list <- "hh_size"
 
 
 ################################################################################
@@ -101,7 +112,7 @@ estimated.values <- function(firststage.reg, secondstage.reg, totaleffect.reg,
     return(output.list)
 }
 
-# Define a function to Heckman selection correct mediation est, in two-stages.
+# Define a function to estimate mediation, in two-stages (no adjustment).
 mediate.unadjusted <- function(Y, Z, D, X_iv, data,
     X_minus = NULL, control_iv = NULL, indices = NULL){
     # Bootstrap sample, if indices provided.
@@ -112,9 +123,9 @@ mediate.unadjusted <- function(Y, Z, D, X_iv, data,
     data$Y <- data[[Y]]
     data$Z <- data[[Z]]
     data$D <- data[[D]]
-    total.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus))
+    total.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus, " + ", X_iv))
     firststage.formula <- formula(paste0("D ~ 1 + Z * (", X_iv, ") +", X_minus))
-    secondstage.formula <- formula(paste0("Y ~ 1 + Z * D + ", X_minus))
+    secondstage.formula <- formula(paste0("Y ~ 1 + Z * D + ", X_minus, " + ", X_iv))
     # Start counting coefficients estimated.
     count.coef <- 0
     # 0. Total effect regression.
@@ -144,19 +155,18 @@ mediate.unadjusted <- function(Y, Z, D, X_iv, data,
 #! Test it out, with the specification I want.
 mediate.est <- mediate.unadjusted(
     Y = "Y_health", Z = "lottery_iv", D = "any_insurance",
-    X_iv = "usual_health_location",
-    X_minus = paste0("hh_size + dia_diagnosis +",
-        "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
-        "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
+    X_iv = "initial_health_location",
+    X_minus = controls.list,
     analysis.data)# %>% sample_frac(prop = 1, replace = TRUE))
 print(mediate.est)
 
-# Define a function to Heckman selection correct mediation est, in two-stages.
-lambda_1.fun <- function(pi.est){
-        # Inv Mills ratio, taking as input the estimated mediator propensity.
-        return(dnorm(qnorm(pi.est)) / pnorm(qnorm(pi.est)))
+## Define a function to Heckman selection correct mediation est, in two-stages.
+# First the Mills ratio selection correction term(s)
+mills.ratio <- function(pi.est){
+    # Inv Mills ratio, taking as input the estimated mediator propensity.
+    return(dnorm(qnorm(pi.est)) / pnorm(qnorm(pi.est)))
     }
-# THe actual function.
+# The two-stage mediation model.
 mediate.heckit <- function(Y, Z, D, X_iv, data,
     X_minus = NULL, indices = NULL){
     # Bootstrap sample, if indices provided.
@@ -183,9 +193,9 @@ mediate.heckit <- function(Y, Z, D, X_iv, data,
     count.coef <- count.coef + length(heckit_firststage.reg$coefficients)
     # 2. Define the MTEs --- for assumed N(0,1) dist.
     pi.est <- predict(heckit_firststage.reg, type = "response")
-    data$lambda_0 <- (1 - data$D) * lambda_1.fun(pi.est) * (
+    data$lambda_0 <- (1 - data$D) * mills.ratio(pi.est) * (
         - pi.est / (1 - pi.est))
-    data$lambda_1 <- data$D * lambda_1.fun(pi.est)
+    data$lambda_1 <- data$D * mills.ratio(pi.est)
     # 3. Estimate second-stage, including the MTEs.
     heckit_secondstage.reg <- lm(secondstage.formula, data = data)
     count.coef <- count.coef + length(heckit_secondstage.reg$coefficients)
@@ -196,8 +206,8 @@ mediate.heckit <- function(Y, Z, D, X_iv, data,
     input_Z1.data$Z <- 1
     pi_0.est <- predict(heckit_firststage.reg, newdata = input_Z0.data)
     pi_1.est <- predict(heckit_firststage.reg, newdata = input_Z1.data)
-    Gamma.big <-  (pi_1.est * lambda_1.fun(pi_1.est)
-        - pi_0.est * lambda_1.fun(pi_0.est)) / (pi_1.est - pi_0.est)
+    Gamma.big <-  (pi_1.est * mills.ratio(pi_1.est)
+        - pi_0.est * mills.ratio(pi_0.est)) / (pi_1.est - pi_0.est)
     rho_0 <- as.numeric(coef(heckit_secondstage.reg)["lambda_0"])
     rho_1 <- as.numeric(coef(heckit_secondstage.reg)["lambda_1"])
     complier.adjustment <- (rho_1 - rho_0) * Gamma.big
@@ -219,11 +229,9 @@ mediate.heckit <- function(Y, Z, D, X_iv, data,
 #! Test it out, with the specification I want.
 mediate.est <- mediate.heckit(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location",
-    X_minus = paste0("hh_size + dia_diagnosis +",
-        "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
-        "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
-    data = analysis.data %>% sample_frac(prop = 1, replace = TRUE))
+    X_iv = "initial_health_location",
+    X_minus = controls.list,
+    data = analysis.data)# %>% sample_frac(prop = 1, replace = TRUE))
 print(mediate.est)
 
 # Define a function to two-stage semi-parametric MTE for CM effects.
@@ -306,10 +314,8 @@ mediate.semiparametric <- function(Y, Z, D, X_iv, data,
 #! Test it out, with the specification I want.
 mediate.est <- mediate.semiparametric(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location",
-    X_minus = paste0("hh_size + dia_diagnosis +",
-        "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
-        "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
+    X_iv = "initial_health_location",
+    X_minus = controls.list,
     data = analysis.data)# %>% sample_frac(prop = 1, replace = TRUE))
 print(mediate.est)
 
@@ -352,10 +358,8 @@ mediate.bootstrap <- function(Y, Z, D, X_iv, data,
 #! Test it out.
 mediate.boot <- mediate.bootstrap(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location",
-    X_minus = paste0("hh_size + dia_diagnosis +",
-        "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
-        "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
+    X_iv = "initial_health_location",
+    X_minus = controls.list,
     data = analysis.data, type = "unadjusted", boot.reps = 10)
 print(mediate.boot)
 
@@ -461,7 +465,7 @@ print.summary.mediate.selection <- function(x, digits = 4, ...){
 ## Show the regular location is a strong IV for healthcare visits.
 
 # Note values in usual health location:
-usual_health_location.list <- c(
+initial_health_location.list <- c(
     "1. Private clinic",
     "2. Public clinic",
     "3. Hospital clinic",
@@ -472,16 +476,16 @@ usual_health_location.list <- c(
 
 # Show that the health location influences healthcare take-up
 location.data <- analysis.data %>%
-    mutate(usual_health_location_name =
-        ifelse(usual_health_location == 1, usual_health_location.list[1],
-        ifelse(usual_health_location == 2, usual_health_location.list[2],
-        ifelse(usual_health_location == 3, usual_health_location.list[3],
-        ifelse(usual_health_location == 4, usual_health_location.list[4],
-        ifelse(usual_health_location == 5, usual_health_location.list[5],
-        ifelse(usual_health_location == 6, usual_health_location.list[6],
-        ifelse(usual_health_location == 7, usual_health_location.list[7],
+    mutate(initial_health_location_name =
+        ifelse(initial_health_location == 1, initial_health_location.list[1],
+        ifelse(initial_health_location == 2, initial_health_location.list[2],
+        ifelse(initial_health_location == 3, initial_health_location.list[3],
+        ifelse(initial_health_location == 4, initial_health_location.list[4],
+        ifelse(initial_health_location == 5, initial_health_location.list[5],
+        ifelse(initial_health_location == 6, initial_health_location.list[6],
+        ifelse(initial_health_location == 7, initial_health_location.list[7],
             "WARNING")))))))) %>%
-    group_by(usual_health_location_name) %>%
+    group_by(initial_health_location_name) %>%
     summarise(
         any_healthcare_mean = mean(any_healthcare, na.rm = TRUE),
         any_healthcare_sd = sd(any_healthcare, na.rm = TRUE),
@@ -493,9 +497,9 @@ location.data <- analysis.data %>%
 
 # Draw the horizontal bar chart
 location.plot <- location.data %>%
-    ggplot(aes(x = usual_health_location_name)) +
+    ggplot(aes(x = initial_health_location_name)) +
     # Bars of the mean
-    geom_bar(aes(y = any_healthcare_mean, fill = usual_health_location_name),
+    geom_bar(aes(y = any_healthcare_mean, fill = initial_health_location_name),
         colour = "black", stat = "identity") +
     # Error bars
     geom_errorbar(
@@ -504,7 +508,7 @@ location.plot <- location.data %>%
     # Make horizontal and format.
     coord_flip() +
     theme_bw() +
-    scale_x_discrete(name = "", limits = usual_health_location.list[7:1]) +
+    scale_x_discrete(name = "", limits = initial_health_location.list[7:1]) +
     scale_y_continuous(expand = c(0, 0),
         name = TeX(r"(Visited healthcare in following 12 months, $\Pr( \,D_i = 1 \, | \, X^{IV}_i \,)$)"),
         limits = c(0, 1.025), oob = scales::rescale_none,
@@ -522,38 +526,32 @@ ggsave(file.path(figures.folder, "location-effects.png"),
 
 # Show the OLS correlation between D (mediator) and Y (outcome.)
 library(margins)
-health.reg <- lm(Y_health ~ 1 + any_healthcare + hh_size * lottery_iv +
-    dia_diagnosis + ast_diagnosis + hbp_diagnosis + emp_diagnosis +
-    ami_diagnosis + chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis,
+health.reg <- lm(
+    formula(paste0("Y_health ~ 1 + any_healthcare + ", nocontrols.list)),
     data = analysis.data)
 print(summary(health.reg))
-happy.reg <- lm(Y_happy ~ 1 + any_healthcare + hh_size * lottery_iv +
-    dia_diagnosis + ast_diagnosis + hbp_diagnosis + emp_diagnosis +
-    ami_diagnosis + chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis,
+happy.reg <- lm(
+    formula(paste0("Y_happy ~ 1 + any_healthcare + ", nocontrols.list)),
     data = analysis.data)
 print(summary(happy.reg))
 # Show the IV effect between D (mediator) and Y (outcome.)
 library(fixest)
-health.iv <- feols(Y_health ~ 1 + hh_size * lottery_iv +
-    dia_diagnosis + ast_diagnosis + hbp_diagnosis + emp_diagnosis +
-    ami_diagnosis + chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis
-    | any_healthcare ~ factor(usual_health_location),
+health.iv <- feols(
+    formula(paste0("Y_health ~ 1 + ", nocontrols.list,
+        "| any_healthcare ~ factor(initial_health_location)")),
     data = analysis.data)
 print(summary(health.iv))
-happy.iv <- feols(Y_happy ~ 1 + hh_size * lottery_iv +
-    dia_diagnosis + ast_diagnosis + hbp_diagnosis + emp_diagnosis +
-    ami_diagnosis + chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis
-    | any_healthcare ~ factor(usual_health_location),
+happy.iv <- feols(
+    formula(paste0("Y_happy ~ 1 + ", nocontrols.list,
+    "| any_healthcare ~ factor(initial_health_location)")),
     data = analysis.data)
 print(summary(happy.iv))
 
 # Show the structural estimate for mediator complier's D -> Y effect.
 mediate.est <- mediate.selection(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location",
-    X_minus = paste0("hh_size + dia_diagnosis +",
-        "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
-        "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis"),
+    X_iv = "initial_health_location",
+    X_minus = controls.list,
     boot.reps = NULL,
     type = "parametric",
     data = analysis.data)
@@ -562,13 +560,13 @@ print(coeftable(mediate.est)["AIE", "Estimate"] /
 
 # Get the F statistic, for location -> D (healthcare.)
 library(car)
-location.reg <- lm(any_healthcare ~ 1 + factor(usual_health_location) +
-    hh_size * lottery_iv +
-    dia_diagnosis + ast_diagnosis + hbp_diagnosis + emp_diagnosis +
-    ami_diagnosis + chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis,
+print(mean(analysis.data$any_healthcare, na.rm = TRUE))
+location.reg <- lm(
+    formula(paste0("any_healthcare ~ 1 + factor(initial_health_location)",
+        " + lottery_iv * ", nocontrols.list)),
     data = analysis.data)
 print(summary(location.reg))
-iv.list <- paste0("factor(usual_health_location)", 2:7)
+iv.list <- paste0("factor(initial_health_location)", 2:7)
 print(car::linearHypothesis(location.reg, test = "F", iv.list))
 
 
@@ -577,15 +575,12 @@ print(car::linearHypothesis(location.reg, test = "F", iv.list))
 
 # State how many bootstrap replications are needed.
 boot.reps <- 10^3
-control.formula <- paste0("hh_size + dia_diagnosis +",
-    "ast_diagnosis + hbp_diagnosis + emp_diagnosis + ami_diagnosis +",
-    "chf_diagnosis + dep_diagnosis + chl_diagnosis + kid_diagnosis")
 
 ## Panel A: Self-reported healthiness.
 # Naive selection-on-observables
 unadjusted.est <- mediate.selection(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location", X_minus = control.formula,
+    X_iv = "initial_health_location", X_minus = controls.list,
     type = "unadjusted",
     data = analysis.data,
     boot.reps = boot.reps)
@@ -593,7 +588,7 @@ print(unadjusted.est)
 # Parametric MTE
 parametric.est <- mediate.selection(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location", X_minus = control.formula,
+    X_iv = "initial_health_location", X_minus = controls.list,
     type = "parametric",
     data = analysis.data,
     boot.reps = boot.reps)
@@ -601,13 +596,13 @@ print(parametric.est)
 # Semi-parametric MTE
 semiparametric.est <- mediate.selection(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location", X_minus = control.formula,
+    X_iv = "initial_health_location", X_minus = controls.list,
     type = "semi-parametric",
     data = analysis.data,
     boot.reps = boot.reps)
 print(semiparametric.est)
 
-# Show the inferred controlled indirect effect.
+# Show the inferred indirect effect among mediator compliers.
 print(100 * (coef(summary(unadjusted.est))["AIE", "Estimate"] / 100) /
     (coef(summary(unadjusted.est))["First-stage", "Estimate"] / 100))
 print(100 * (coef(summary(parametric.est))["AIE", "Estimate"] / 100) /
@@ -626,8 +621,6 @@ panelA.data <- data.frame(
 
 # Save the estimates in data.
 effects.extract <- function(mediate.est, model.name){
-    #mediate.est <- semiparametric.est
-    #model.name <- "Conventional"
     # Compile the mediation regression results.
     reg.summary <- summary(mediate.est)
     # Get the total effect estimates.
@@ -678,26 +671,26 @@ panelA.table$model <- c(
 panelA.table <- panelA.table[c(6, 1:5)]
 
 # Save the LaTeX table
-#panelA.table %>%
-#    xtable() %>%
-#    print(
-#        digits = digits.no,
-#        sanitize.colnames.function = identity,
-#        sanitize.text.function = identity,
-#        NA.string = " ",
-#        include.colnames = FALSE,
-#        include.rownames = FALSE,
-#        only.contents = TRUE,
-#        hline.after = NULL,
-#        format.args = list(big.mark = ","),
-#        file = file.path(tables.folder, "cm-oregon-health.tex"))
+panelA.table %>%
+    xtable() %>%
+    print(
+        digits = digits.no,
+        sanitize.colnames.function = identity,
+        sanitize.text.function = identity,
+        NA.string = " ",
+        include.colnames = FALSE,
+        include.rownames = FALSE,
+        only.contents = TRUE,
+        hline.after = NULL,
+        format.args = list(big.mark = ","),
+        file = file.path(tables.folder, "cm-oregon-health.tex"))
 
 
 ## Panel B: Self-reported happiness.
 # Naive selection-on-observables
 unadjusted.est <- mediate.selection(
     Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location", X_minus = control.formula,
+    X_iv = "initial_health_location", X_minus = controls.list,
     type = "unadjusted",
     data = analysis.data,
     boot.reps = boot.reps)
@@ -705,7 +698,7 @@ print(unadjusted.est)
 # Parametric MTE
 parametric.est <- mediate.selection(
     Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location", X_minus = control.formula,
+    X_iv = "initial_health_location", X_minus = controls.list,
     type = "parametric",
     data = analysis.data,
     boot.reps = boot.reps)
@@ -713,7 +706,7 @@ print(parametric.est)
 # Semi-parametric MTE
 semiparametric.est <- mediate.selection(
     Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "usual_health_location", X_minus = control.formula,
+    X_iv = "initial_health_location", X_minus = controls.list,
     type = "semi-parametric",
     data = analysis.data,
     boot.reps = boot.reps)
@@ -757,19 +750,19 @@ panelB.table$model <- c(
 panelB.table <- panelB.table[c(6, 1:5)]
 
 # Save the LaTeX table
-#panelB.table %>%
-#    xtable() %>%
-#    print(
-#        digits = digits.no,
-#        sanitize.colnames.function = identity,
-#        sanitize.text.function = identity,
-#        NA.string = " ",
-#        include.colnames = FALSE,
-#        include.rownames = FALSE,
-#        only.contents = TRUE,
-#        hline.after = NULL,
-#        format.args = list(big.mark = ","),
-#        file = file.path(tables.folder, "cm-oregon-happy.tex"))
+panelB.table %>%
+    xtable() %>%
+    print(
+        digits = digits.no,
+        sanitize.colnames.function = identity,
+        sanitize.text.function = identity,
+        NA.string = " ",
+        include.colnames = FALSE,
+        include.rownames = FALSE,
+        only.contents = TRUE,
+        hline.after = NULL,
+        format.args = list(big.mark = ","),
+        file = file.path(tables.folder, "cm-oregon-happy.tex"))
 
 
 ################################################################################

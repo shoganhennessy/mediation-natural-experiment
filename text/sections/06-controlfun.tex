@@ -90,14 +90,14 @@ The second-stage is estimated with semi-parametric methods.
 Consider the subsamples of mediator refusers and takers separately,
 \begin{align*}
     \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} &=
-        \alpha + \gamma Z_i + \varphi\big( \vec X_i^- \big)
+        \alpha + \gamma Z_i + \varphi_0\big( \vec X_i^- \big)
         + \rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big), \\
     \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} &=
-        (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi\big( \vec X_i^- \big)
+        (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi_1\big( \vec X_i^- \big)
         + \rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big).
 \end{align*}
 The separated subsamples can be estimated, each individually, with semi-parametric methods.
-The linear parameters (including a linear approximation $\vec \varphi'$ of nuisance function $\varphi(.)$)\footnote{
+The linear parameters (including linear approximations $\vec \varphi'_{d'}$ of nuisance functions $\varphi_{d'}(.)$)\footnote{
     Appropriate interactions between $Z_i, D_i$ and $\vec X_i$ can also flexibly control for $\vec X_i$, again avoiding linearity assumptions.
 } can be estimated with OLS, while $\rho_0 \lambda_0$ and $\rho_1 \lambda_1$ take a flexible semi-parametric specification with first-stage estimates $\hat \pi(Z_i; \vec X_i)$ plugged in.
 An attractive option is a series estimator, such as a spline specification, as this estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
@@ -107,7 +107,7 @@ Take $\hat \gamma$, the $D_i = 0$ subsample estimate of $\E \gamma$, and $(\hat{
 \[ \hat{\text{ADE}}^{\text{Semi}}
     = (1 - \bar D) \, \hat \gamma + \bar D \, (\hat{\gamma + \delta}). \]
 
-The AIE is less simple, for two reasons that differ from the parametric CF setting.
+The AIE is less simple, for two reasons that differ from the parametric MTE setting.
 First, the intercepts for each subsample, $\alpha$ and $(\alpha + \beta)$, are not separately identified from the MTE-associated CFs if the $\lambda_0, \lambda_1$ functions are flexibly estimated.
 Second, a semi-parametric specification for the CFs mean $\rho_0$ and $\lambda_0$ are no longer separately identified from each other (and same for $\rho_1,\lambda_1$).
 As such, it is not possible to directly use $\hat \lambda_0, \hat \lambda_1$ in estimating the complier adjustment term (as is done in the parametric case).

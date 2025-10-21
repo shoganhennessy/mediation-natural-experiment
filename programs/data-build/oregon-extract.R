@@ -23,6 +23,12 @@ descriptive.data <- data.folder %>%
     file.path("DS0001", "34314-0001-Data.dta") %>%
     haven::read_dta()
 
+# DS0003 0 Month initial Mail Survey
+# -> Contains info for >20k survey respondents, some useful outcomes.
+survey_0m.data <- data.folder %>%
+    file.path("DS0003", "34314-0003-Data.dta") %>%
+    haven::read_dta()
+
 # DS0005 Twelve Month Mail Survey
 # -> Contains info for >20k survey respondents, some useful outcomes.
 survey_12m.data <- data.folder %>%
@@ -50,6 +56,23 @@ descriptive.data <- descriptive.data %>%
     mutate(hh_size = n()) %>%
     ungroup()
 
+# Restrict the initial data to relevant variables.
+survey_0m.data <- survey_0m.data %>%
+    # Restrict to only those in the 0 month sample
+    filter(sample_0m == 1 & returned_0m == 1) %>%
+    # Get the relevant variables.
+    transmute(person_id = person_id,
+        initial_birthyear = birthyear_0m,
+        ## Controls for prior health care provider.
+        initial_health_location = usual_care_0m,
+        ## Controls for prior health conditions.
+        initial_dia_diagnosis = dia_dx_0m, # Ever been told by a health professional that you have: Diabetes/Sugar diabetes
+        initial_ast_diagnosis = ast_dx_0m, # Ever been told by a health professional that you have: Asthma
+        initial_hbp_diagnosis = hbp_dx_0m, # Ever been told by a health professional that you have: High blood pressure
+        initial_emp_diagnosis = emp_dx_0m, # Ever been told by a health professional that you have: COP
+        initial_chf_diagnosis = chf_dx_0m, # Ever been told by a health professional that you have: Congestive Heart Failure
+        initial_dep_diagnosis = dep_dx_0m) # Ever been told by a health professional that you have: Depression or Anxiety
+
 # Restrict the follow-up data to relevant variables.
 survey_12m.data <- survey_12m.data %>%
     # Restrict to only those in the 12 month sample
@@ -70,7 +93,7 @@ survey_12m.data <- survey_12m.data %>%
         days_bad_health_survey = baddays_phys_12m, # Number of days (out of past 30) when physical health not goo
         days_bad_mentalhealth_survey = baddays_ment_12m, # Number of days (out of past 30) when mental health not good
         health_limits_work = health_work_12m, # Physical, mental or emotional problem currently limits ability to work
-        ## Controls for prior health conditions.
+        ## Controls for health conditions.
         dia_diagnosis = dia_dx_12m, # Ever been told by a health professional that you have: Diabetes/Sugar diabetes
         ast_diagnosis = ast_dx_12m, # Ever been told by a health professional that you have: Asthma
         hbp_diagnosis = hbp_dx_12m, # Ever been told by a health professional that you have: High blood pressure
@@ -83,10 +106,13 @@ survey_12m.data <- survey_12m.data %>%
 
 # Join the relevant data files
 oregon.data <- descriptive.data %>%
+    left_join(survey_0m.data, by = "person_id") %>%
     left_join(survey_12m.data, by = "person_id")
 
 # Show the merging rates.
-oregon.data %>% pull(health_needs_met) %>% table(exclude = NULL)
+oregon.data %>%
+    filter(!is.na(any_doc_visits) | !is.na(any_hospital_visits)) %>%
+    filter(!is.na(initial_health_location))
 
 
 ################################################################################
@@ -101,22 +127,19 @@ analysis.data <- oregon.data %>%
         any_insurance,
         any_doc_visits,
         any_hospital_visits,
-        usual_health_location,
+        initial_health_location,
         hh_size,
         survey_weight,
-        dia_diagnosis,
-        ast_diagnosis,
-        hbp_diagnosis,
-        emp_diagnosis,
-        ami_diagnosis,
-        chf_diagnosis,
-        dep_diagnosis,
-        chl_diagnosis,
-        kid_diagnosis) %>%
+        initial_dia_diagnosis,
+        initial_ast_diagnosis,
+        initial_hbp_diagnosis,
+        initial_emp_diagnosis,
+        initial_chf_diagnosis,
+        initial_dep_diagnosis) %>%
     drop_na()
 
 # Note values in usual health location:
-analysis.data %>% select(usual_health_location) %>% table() %>% print()
+analysis.data %>% select(initial_health_location) %>% table() %>% print()
 # 1 private clinic
 # 2 public clinic
 # 3 hospital-based clinic
@@ -151,18 +174,16 @@ analysis.data <- analysis.data %>%
         hh_size,
         any_insurance,
         any_healthcare,
-        usual_health_location,
+        initial_health_location,
         Y_health,
         Y_happy,
-        survey_weight,dia_diagnosis,
-        ast_diagnosis,
-        hbp_diagnosis,
-        emp_diagnosis,
-        ami_diagnosis,
-        chf_diagnosis,
-        dep_diagnosis,
-        chl_diagnosis,
-        kid_diagnosis)
+        survey_weight,
+        initial_dia_diagnosis,
+        initial_ast_diagnosis,
+        initial_hbp_diagnosis,
+        initial_emp_diagnosis,
+        initial_chf_diagnosis,
+        initial_dep_diagnosis)
 
 
 ################################################################################

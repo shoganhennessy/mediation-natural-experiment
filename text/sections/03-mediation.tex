@@ -83,7 +83,7 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
     \textbf{Note}:
     This figure shows the structural causal model behind CM.
     The Complier AIE refers to the AIE local to $D_i(Z_i)$ compliers, so that AIE $=$ Average First-stage $\times$ Complier AIE.
-    $\vec U_i$ represents this paper's focus on the case that $D_i$ is not quasi-randomly assigned by showing an unobserved confounder.
+    $\vec U_i$ represents an unobserved confounding variable for the causal effect $D_i \to Y_i$, representing this paper's focus on the case that $D_i$ is not quasi-randomly assigned.
     \autoref{sec:regression} defines $\vec U_i$ in an applied setting.
 \end{figure}
 
@@ -146,14 +146,14 @@ This approach leads to estimates at risk of bias, contaminating inference on dir
 
 \begin{theorem}
     \label{thm:selection-bias}
-    Absent an identification strategy for the mediator, CM estimates are at risk of selection bias.
-    If \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} holds, and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} does not, then CM estimands are contaminated by selection bias and group differences.
+    Absent an identification strategy for the mediator, conventional CM estimates are at risk of selection bias.
+    If \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} holds, and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} does not, then conventional CM estimands are contaminated by selection bias and group differences.
     Proof: see \aref{appendix:mediation-bias}.
 \end{theorem}
 Below I present the relevant selection bias and group difference terms, omitting the conditional on $\vec X_i$ notation for brevity.
 
 \noindent
-For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differences.\footnote{
+For the direct effect: conventional CM estimand $=$ ADE $+$ selection bias $+$ group differences.\footnote{
     The bias terms here mirror those in \cite{heckman1998characterizing,angrist2009mostly} for a single $D_i$ on $Y_i$ treatment effect, when $D_i$ is not quasi-randomly assigned:
     \vspace{-0.25cm}
     \[ \Egiven{ Y_i}{D_i =1} - \Egiven{ Y_i}{D_i =0}
@@ -181,7 +181,7 @@ For the direct effect: CM estimand $=$ ADE $+$ selection bias $+$ group differen
 \end{align*}
 
 \noindent
-For the indirect effect: CM estimand $=$ AIE $+$ selection bias $+$ group differences.
+For the indirect effect: conventional CM estimand $=$ AIE $+$ selection bias $+$ group differences.
 \begin{align*}
     &\E[Z_i]{
         \Big( \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0} \Big) \times

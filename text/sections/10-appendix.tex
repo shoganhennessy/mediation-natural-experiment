@@ -662,10 +662,10 @@ The semi-parametric AIE estimate then uses this representation, avoiding directl
 \[ \hat{\text{AIE}}^{\text{CF}}
     = \hat{\text{ATE}}
     - (1 - \bar Z) \, \left( \hat\gamma +
-        \frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(1; \vec X_i) \right)
+        \frac 1n \sum_{i = 1}^N \hat \delta \, \hat\pi(1; \vec X_i) \right)
     - \bar Z \, \left(\hat\gamma +
-        \frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
-where $\frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(0)}$, and $\frac 1N \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(1)}$.
+        \frac 1n \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
+where $\frac 1n \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(0)}$, and $\frac 1n \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(1)}$.
 Everything involved is a standard point estimate, so their composition will converge to a normal distribution, too.
 Standard error computation can be achieved by a bootstrap procedure.
 

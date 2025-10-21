@@ -9,8 +9,9 @@ set.seed(47)
 library(tidyverse)
 # Functions for bootstrapping.
 library(boot)
-# Library for better colour choice.
+# Library for better colour choice and additional graphing.
 library(ggthemes)
+library(ggpattern)
 # Library for equations in plots
 library(latex2exp)
 
@@ -41,8 +42,8 @@ analysis.data <- data.folder %>%
 
 # Factorise the relevant variables.
 analysis.data$hh_size <- factor(analysis.data$hh_size)
-analysis.data$usual_health_location <- factor(
-    analysis.data$usual_health_location)
+analysis.data$initial_health_location <- factor(
+    analysis.data$initial_health_location)
 
 
 ################################################################################
@@ -68,9 +69,9 @@ print(summary(iv_prop.reg))
 
 # Show mean rate of using healthcare
 analysis.data %>% pull(any_healthcare) %>% mean(na.rm = TRUE)
-table(pull(analysis.data, usual_health_location), exclude = NULL) / NROW(analysis.data)
+table(pull(analysis.data, initial_health_location), exclude = NULL) / NROW(analysis.data)
 # and it relates to usual location of care.
-print(summary(lm(any_healthcare ~ 1 + usual_health_location,
+print(summary(lm(any_healthcare ~ 1 + initial_health_location,
     data = analysis.data)))
 
 
@@ -105,7 +106,7 @@ abadie.late <- function(data, outcome, Z, Z_iv, control_iv,
 }
 
 ## Estimate mean outcomes among lottery winners, with boot SEs
-boot.samples <- 10^3
+boot.samples <- 5 * 10^3
 # Lottery effects (among entire population).
 Z.late <- boot(statistic = abadie.late, R = boot.samples,
     data = analysis.data,
@@ -166,6 +167,7 @@ outcome_name.list <- c(
     "0               1\nSurvey: \nHealth overall good?",
     "0               1\nSurvey: \nHappy overall?")
 
+alpha <- 0.05
 # Get a dataframe of the relevant effects.
 complier.data <- data.frame(
     Z_iv = c("0", "1"),
@@ -174,16 +176,24 @@ complier.data <- data.frame(
         D_0_complier, D_1_complier,
         Y_health_0_complier, Y_health_1_complier,
         Y_happy_0_complier, Y_happy_1_complier),
-    #ci_lower = c(
-    #    Z_0_lower, Z_1_lower,
-    #    D_0_lower, D_1_lower,
-    #    Y_health_0_lower, Y_health_1_lower, 
-    #    Y_happy_0_lower, Y_happy_1_lower),
-    #ci_upper = c(
-    #    Z_0_upper, Z_1_upper,
-    #    D_0_upper, D_1_upper,
-    #    Y_health_0_upper, Y_health_1_upper, 
-    #    Y_happy_0_upper, Y_happy_1_upper),
+    ci_lower = c(
+        quantile(Z.late$t[, 1], alpha / 2, na.rm = TRUE),
+        quantile(Z.late$t[, 2], alpha / 2, na.rm = TRUE),
+        quantile(D.late$t[, 1], alpha / 2, na.rm = TRUE),
+        quantile(D.late$t[, 2], alpha / 2, na.rm = TRUE),
+        quantile(Y_health.late$t[, 1], alpha / 2, na.rm = TRUE),
+        quantile(Y_health.late$t[, 2], alpha / 2, na.rm = TRUE),
+        quantile(Y_happy.late$t[, 1], alpha / 2, na.rm = TRUE),
+        quantile(Y_happy.late$t[, 2], alpha / 2, na.rm = TRUE)),
+    ci_upper = c(
+        quantile(Z.late$t[, 1], 1 - alpha / 2, na.rm = TRUE),
+        quantile(Z.late$t[, 2], 1 - alpha / 2, na.rm = TRUE),
+        quantile(D.late$t[, 1], 1 - alpha / 2, na.rm = TRUE),
+        quantile(D.late$t[, 2], 1 - alpha / 2, na.rm = TRUE),
+        quantile(Y_health.late$t[, 1], 1 - alpha / 2, na.rm = TRUE),
+        quantile(Y_health.late$t[, 2], 1 - alpha / 2, na.rm = TRUE),
+        quantile(Y_happy.late$t[, 1], 1 - alpha / 2, na.rm = TRUE),
+        quantile(Y_happy.late$t[, 2], 1 - alpha / 2, na.rm = TRUE)),
     outcome_name = c(
         rep(outcome_name.list[1], 2),
         rep(outcome_name.list[2], 2),
@@ -192,10 +202,21 @@ complier.data <- data.frame(
 
 # Full barchart
 complier.plot <- complier.data %>%
-    ggplot() +
-    geom_bar(aes(group = Z_iv,
-        fill = outcome_name, x = outcome_name, y = outcome_value),
-        colour = 1, position = "dodge", stat = "identity") +
+    ggplot(aes(x = outcome_name, group = Z_iv)) +
+    #geom_bar(aes(group = Z_iv,
+    #    fill = outcome_name, x = outcome_name, y = outcome_value),
+    #    colour = 1, position = "dodge", stat = "identity") +
+    geom_col_pattern(
+        aes(pattern = Z_iv, fill = outcome_name, y = outcome_value),
+        position = "dodge",
+        pattern_angle = 45,
+        pattern_density = 0.01,
+        pattern_spacing = 0.1,
+        pattern_fill = "black",
+        colour = "black") +
+    geom_errorbar(aes(x = outcome_name, ymin = ci_lower, ymax = ci_upper),
+        size = 0.5, alpha = 0.5,
+        stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
     theme_bw() +
     scale_x_discrete(name = "", limits = outcome_name.list) +
     scale_fill_manual("", values = colour.list[c(2, 1, 3, 3)]) +
@@ -209,24 +230,25 @@ complier.plot <- complier.data %>%
         plot.title.position = "plot",
         plot.margin = unit(c(0, 0, -2.5, 0), "mm"))
 # Annotate
+offset.text <- 0.05
 complier.plot <- complier.plot +
     # Label the effect sizes.
-    annotate("text", x = 0.8, y = 0.025 + Z_0_complier + Z_effect_complier / 2,
+    annotate("text", x = 0.8, y = offset.text + Z_0_complier + Z_effect_complier / 2,
         label = paste0("+ ", round(Z_effect_complier, 2),
             "\n(", round(Z_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[1]) +
-    annotate("text", x = 1.8, y = 0.025 + D_0_complier + D_effect_complier / 2,
+    annotate("text", x = 1.8, y = offset.text + D_0_complier + D_effect_complier / 2,
         label = paste0("+ ", round(D_effect_complier, 2),
             "\n(", round(D_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[2]) +
-    annotate("text", x = 2.8, y = 0.025 + Y_health_0_complier + Y_health_effect_complier / 2,
+    annotate("text", x = 2.8, y = offset.text + Y_health_0_complier + Y_health_effect_complier / 2,
         label = paste0("+ ", round(Y_health_effect_complier, 2),
             "\n(", round(Y_health_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[3])  +
-    annotate("text", x = 3.8, y = 0.025 + Y_happy_0_complier + Y_happy_effect_complier / 2,
+    annotate("text", x = 3.8, y = offset.text + Y_happy_0_complier + Y_happy_effect_complier / 2,
         label = paste0("+ ", round(Y_happy_effect_complier, 2),
             "\n(", round(Y_happy_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
@@ -239,7 +261,6 @@ ggsave(file.path(figures.folder, "insurance-effects.png"),
 ################################################################################
 ## Make the plot simpler for a presentation.
 
-library(ggpattern)
 # Limited barchart
 complier.plot <- complier.data %>%
     filter(outcome_name != "0               1\nSurvey: \nHappy overall?") %>%
@@ -269,17 +290,17 @@ complier.plot <- complier.data %>%
 # Annotate
 complier.plot <- complier.plot +
     # Label the effect sizes.
-    annotate("text", x = 0.8, y = 0.025 + Z_0_complier + Z_effect_complier / 2,
+    annotate("text", x = 0.8, y = offset.text + Z_0_complier + Z_effect_complier / 2,
         label = paste0("+ ", round(Z_effect_complier, 2),
             "\n(", round(Z_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[1]) +
-    annotate("text", x = 1.8, y = 0.025 + D_0_complier + D_effect_complier / 2,
+    annotate("text", x = 1.8, y = offset.text + D_0_complier + D_effect_complier / 2,
         label = paste0("+ ", round(D_effect_complier, 2),
             "\n(", round(D_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[2]) +
-    annotate("text", x = 2.8, y = 0.025 + Y_health_0_complier + Y_health_effect_complier / 2,
+    annotate("text", x = 2.8, y = offset.text + Y_health_0_complier + Y_health_effect_complier / 2,
         label = paste0("+ ", round(Y_health_effect_complier, 2),
             "\n(", round(Y_health_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
