@@ -12,17 +12,18 @@ This paper shows that the conventional approach to estimating CM effects is inap
 These methods contrast the current practice in applied economics of providing suggestive evidence of mechanisms, which gives necessary but not sufficient conditions for the mechanisms behind a treatment effect.
 
 In other disciplines --- particularly epidemiology, psychology, and medicine --- CM has become a standard empirical framework for decomposing causal effects into direct and indirect components \citep{imai2010identification}.
-I refer to established approach as ``conventional CM,'' which assumes both the treatment and the mediator are (quasi-)randomly assigned.
-Applied economics has not typically adopted conventional CM in this formal sense, because mediators in economic applications --- such as schooling, labour supply, or healthcare use --- are choice variables shaped by costs and benefits, likely violating this assumption.
-Nevertheless, economists often pursue the same goal informally: they assess whether a treatment effect remains after controlling for a plausible mediator mechanism, or they present descriptive evidence on the channels through which effects operate.
-These analyses are effectively conventional CM conducted without acknowledging its identifying assumptions, which makes it important to understand how those assumptions break down in the economic settings where they are used.
+I refer to this established approach as ``conventional CM,'' which assumes both the treatment and the mediator mechanism are (quasi-)randomly assigned.
+Applied economics has not typically adopted conventional CM, because mediators in economic applications --- such as schooling, labour supply, or healthcare use --- are choice variables decided by individuals' costs and benefits, likely violating this assumption.
+Nevertheless, economists often pursue the same goal informally: 
+they present descriptive and suggestive evidence on plausible mediating mechanisms, or occasionally test whether a treatment effect remains after controlling for a plausible mediator mechanism.
+The first approach gives necessary not sufficient evidence on the mediating mechanisms, and the second is a conventional CM analysis --- despite rarely being named as such by economists.
 
 %\textbf{Question:}
 This paper starts by considering how conventional CM methods (whether applied explicitly or implicitly) perform in a natural experiment setting.
 Conventional CM methods rely on assuming the initial treatment, and the subsequent mediator mechanism, are both quasi-randomly assigned \citep{imai2010identification}.
-Assuming the mediator is as-good-as-randomly assigned requires either (1) selection is fully captured by observabed control variables, or (2) decisions are effectively random.
-While these assumptions can be plausible when a mediator is directly manipulated, or the data include extremely rich control variables, they are not credible in most economic applications; when take-up decisions reflect individual costs and benefits, mediator assignment is inherently non-random.
-For example, in the Oregon Health Insurance Experiment, those who got off the wait-list were randomly chosen by a lottery, but made the choice to visit healthcare in the following year of their own free will; this choice considered their own individual costs and benefits, and thus was not a random assignment.
+Assuming the mediator is as-good-as-randomly assigned requires either (1) selection is fully captured by observed control variables, or (2) decisions are effectively random.
+While these assumptions can be plausible when a mediator is directly manipulated, or the data include extremely rich control variables, they are not credible in most economic applications; when take-up decisions reflect unobserved costs and benefits, mediator assignment is likely not random.
+For example, in the Oregon Health Insurance Experiment, those who got off the wait-list were randomly chosen by a lottery, but made the choice to visit healthcare in the following year of their own free will; this choice considered their own individual costs and benefits, and thus was not a random choice.
 I formally derive the selection bias that arises from this non-random assignment, and show through simulations that these biases can be large in settings consistent with standard economic models of selection.
 This result explains why conventional CM methods can yield misleading conclusions in applied economics, and motivates the need for a framework consistent with quasi-experimental causal reasoning.
 

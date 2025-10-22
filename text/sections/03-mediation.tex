@@ -83,7 +83,7 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
     \textbf{Note}:
     This figure shows the structural causal model behind CM.
     The Complier AIE refers to the AIE local to $D_i(Z_i)$ compliers, so that AIE $=$ Average First-stage $\times$ Complier AIE.
-    $\vec U_i$ represents an unobserved confounding variable for the causal effect $D_i \to Y_i$, representing this paper's focus on the case that $D_i$ is not quasi-randomly assigned.
+    $\vec U_i$ shows an unobserved confounding variable for the causal effect $D_i \to Y_i$, representing this paper's focus on the case that $D_i$ is not quasi-randomly assigned.
     \autoref{sec:regression} defines $\vec U_i$ in an applied setting.
 \end{figure}
 
@@ -224,5 +224,5 @@ The AIE group differences term is longer, because the indirect effect is compris
 It is important to acknowledge the mediator compliers here, because the AIE is the treatment effect going through the $D_i(Z_i)$ channel, thus only refers to individuals pushed into mediator $D_i$ by initial treatment $Z_i$.
 If we had been using a population average effect for $D_i$ on $Y_i$, then this is losing focus on the definition of the AIE; it is not about the causal effect $D_i$ on $Y_i$, it is about the causal effect $D_i(Z_i)$ on $Y_i$.
 
-The group difference bias term arises because the convention approach to CM (selection-on-observables) assumes the complier average effect is equal to the population average effect, which does not hold true if the mediator is not quasi-randomly assigned.
+The group difference bias term arises because the convention approach to CM assumes the complier average effect is equal to the population average effect, which does not hold true if the mediator is not quasi-randomly assigned.
 % This distinction between average effects and complier average effects in the AIE is skipped over by the ``controlled indirect effect'' definition of \cite{pearl2003direct}.
