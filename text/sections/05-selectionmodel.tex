@@ -130,8 +130,9 @@ Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F_V^{-1}\l
 All relevant parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.)$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z';\vec X_i)$ identified separately in the first-stage thanks to the instrument(s) $\vec X_i^{\text{IV}}$.
 In the case that the CFs have an assumed functional form, then identification is complete.
 For example, in the canonical Heckman selection model, the error terms follow a normal distribution, so that $\lambda_0, \lambda_1$ are the inverse Mills ratio.
-If we do not know want to assume a specific distribution, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.\footnote{
-    This comes at the cost of $\alpha$ and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$ --- ultimately, however, this does not jeopardise identification and estimation of the ADE and AIE (see \autoref{sec:semiparametric-mte}).
+If we do not know the distribution of $\big(U_{0,i}, U_{1,i}\big)$, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.\footnote{
+    This comes at the cost of $\alpha$ and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$.
+    However, this does not jeopardise identification and estimation of the ADE and AIE --- see \autoref{sec:semiparametric-mte}.
 }
 
 This identification strategy is an MTE approach \citep{bjorklund1987estimation,heckman2005structural} applied to a CM setting.
@@ -147,7 +148,7 @@ The marginal effect of the mediator is identified under the \ref{thm:mte-identif
 The final step uses the corresponding CFs to extrapolate from $\vec X_i^{\text{IV}}$ compliers to mediator compliers, and thus identify the ADE and AIE.
 
 \newtheorem{theoremMTE}{Theorem}
-\renewcommand\thetheoremMTE{MTE-Approach}
+\renewcommand\thetheoremMTE{MTE Approach}
 \begin{theoremMTE}
     \label{thm:mte-identification}
     If assumptions \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument} hold, the ADE and AIE are identified as a function of the parameters in Proposition \ref{proposition:secondstage}.

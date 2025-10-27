@@ -164,8 +164,8 @@ print(c(Y_happy_effect_complier, Y_happy_effect_complier.se))
 outcome_name.list <- c(
     "0               1\nHealth insured?",
     "0               1\nAny use of healthcare?",
-    "0               1\nSurvey: \nHealth overall good?",
-    "0               1\nSurvey: \nHappy overall?")
+    "0               1\nHealth overall good?",
+    "0               1\nHappy overall?")
 
 alpha <- 0.05
 # Get a dataframe of the relevant effects.
@@ -218,13 +218,14 @@ complier.plot <- complier.data %>%
         size = 0.5, alpha = 0.5,
         stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
     theme_bw() +
-    scale_x_discrete(name = "", limits = outcome_name.list) +
+    scale_x_discrete(name = "Survey Question, asked 12 months later",
+        limits = outcome_name.list) +
     scale_fill_manual("", values = colour.list[c(2, 1, 3, 3)]) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
         limits = c(0.275, 0.825), oob = scales::rescale_none,
         breaks = seq(0, 1, by = 0.1)) +
-    ggtitle(TeX(r"(Mean Outcome, for each $z' =0,1$.)")) +
+    ggtitle(TeX(r"(Mean Outcome, winning or losing the wait-list lottery.)")) +
     theme(legend.position = "none",
         plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
@@ -263,7 +264,7 @@ ggsave(file.path(figures.folder, "insurance-effects.png"),
 
 # Limited barchart
 complier.plot <- complier.data %>%
-    filter(outcome_name != "0               1\nSurvey: \nHappy overall?") %>%
+    filter(outcome_name != "0               1\nHappy overall?") %>%
     ggplot(aes(group = Z_iv,
         fill = outcome_name, x = outcome_name, y = outcome_value)) +
     geom_col_pattern(aes(pattern = Z_iv),
@@ -276,13 +277,14 @@ complier.plot <- complier.data %>%
     #geom_col_pattern(aes(colour = 1,
     #    pattern = Z_iv, pattern_type = Z_iv)) + #, position = "dodge", stat = "identity") +
     theme_bw() +
-    scale_x_discrete(name = "", limits = outcome_name.list[1:3]) +
+    scale_x_discrete(name = "Survey Question, asked 12 months later",
+        limits = outcome_name.list[1:3]) +
     scale_fill_manual("", values = colour.list[c(2, 1, 3)]) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
         limits = c(0.275, 0.825), oob = scales::rescale_none,
         breaks = seq(0, 1, by = 0.1)) +
-    ggtitle(TeX(r"(Mean Outcome, for each $z' =0,1$.)")) +
+    ggtitle(TeX(r"(Mean Outcome, winning or losing the wait-list lottery.)")) +
     theme(legend.position = "none",
         plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",

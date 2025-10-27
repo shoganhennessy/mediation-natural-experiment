@@ -11,7 +11,7 @@ print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 library(tidyverse)
 # Package for distributions to sample from.
 library(MASS)
-# Package forsemi-parametric CF by splines, and one for semi-p MTEs.
+# Package for semi-parametric CF by splines, and one for semi-p MTEs.
 library(mgcv)
 library(ivmte)
 # Semi-parametric binary choice model (for mediator first-stage).
