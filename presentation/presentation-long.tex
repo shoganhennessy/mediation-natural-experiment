@@ -173,7 +173,9 @@
         \item Apply these methods to Oregon, showing how these methods work in practice (suggestive, conventional CM, then my MTE approach).
     \end{itemize}
     For this part, no model and no maths notation, just vibes.
-
+\end{frame}
+\begin{frame}
+\frametitle{Presentation Plan}
     \textbf{1. Oregon} \\
     Second ten-minutes, the model and suggestive evidence in the OHIE.
     \begin{itemize}
@@ -181,7 +183,9 @@
         \item Show suggestive evidence
         \item Question whether suggestive evidence is enough, when $D_i \to Y_i$ correlation is zero. 
     \end{itemize}
-
+\end{frame}
+\begin{frame}
+\frametitle{Presentation Plan}
     \textbf{2. Causal Mediation} \\
     15-minutes, the CM framework. 
     \begin{itemize}
@@ -189,7 +193,9 @@
         \item Explain why this does not hold (e.g., Roy model), and get selection bias (figure of simulation)
         \item Show the figure of conventional CM (i.e., assume the mechanism) estimate for OHIE.  Explain why MI would not hold for Oregon
     \end{itemize}
-
+\end{frame}
+\begin{frame}
+\frametitle{Presentation Plan}
     \textbf{3. CM with Selection}
     15-minutes, My approach to CM.
     \begin{itemize}
@@ -197,7 +203,9 @@
         \item Use my 3 assumption approach to identify the mediator mechanism MTE, then ADE $+$ AIE (write equations, and short guide, but be careful)
         \item Explain estimation with my simulation figures.
     \end{itemize}
-
+\end{frame}
+\begin{frame}
+\frametitle{Presentation Plan}
     \textbf{4. Return to Oregon}
     10-minutes, my application of CM.
     \begin{itemize}
@@ -208,185 +216,188 @@
     Finding notes: very different CM effects from conventional, noting direct (psychological) effects of socialised healthcare access.
     Agreed with suggestive evidence, giving clear uncertainty on the proportion of the mechanism.
     Note $\to$ apply the Kitagawa (2015) Kwon Roth (2024) test to these data rejects null (there are direct effects). 
-
+\end{frame}
+\begin{frame}
+\frametitle{Presentation Plan}
     \textbf{Conclusion}
     Bullet-point overview of everything that has happened..
-    
 \end{frame}
-%-------------------------------------------------------------------------------
-\section{Introduction}
-\begin{frame}
-    \frametitle{Causal Mediation in Natural Experiments}
-    Natural experiments gives credible estimates of causal effects
-    \begin{itemize}
-        \item Little information on the \textcolor{ForestGreen}{mechanisms} through which they operate
-        \item Limits understanding of the decisions and underlying economic system
-        \item  
-    \end{itemize}
-
-    School meals $\to$ adult income, because increased education 
-    (Lundborg Rooth Alex-Petersen 2022).
-
-    \textbf{Senan note:} unsure how to start the presentation with 5 minutes that grab attention.
-    Just start section 1, introducing the data succinctly.
-\end{frame}
-%-------------------------------------------------------------------------------
-\section{1. Oregon}
-\begin{frame}
-    \frametitle{Oregon Health Insurance Experiment}
-    In the USA, healthcare is not provided directly by the government. 
-
-    \vfill
-    Further introduce this setting.
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}
-    \frametitle{Oregon Health Insurance Experiment}
-    In 2008, Oregon gave access to socialised health insurance by wait-list lottery (Finkelstein et al, 2012).
-
-    \vskip-0.25cm
-    \begin{figure}
-        \centering
-        \singlespacing
-        \includegraphics[width=0.825\textwidth]{
-            ../text/sections/figures/insurance-effects.png}
-    \end{figure}
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}
-    \frametitle{Oregon Health Insurance Experiment}
-    Frame describing why direct and indirect effects, maybe how a suggestive analysis works. (can do with dots and arrows, and labelled effects)
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}
-    \frametitle{Oregon: Suggestive Evidence}
-    Two average causal effects are identified:
-    \begin{enumerate}
-        \item Average first-stage \hfill
-        $\Egiven{\textcolor{ForestGreen}{D_i}}{\textcolor{blue}{Z_i} = 1}
-        - \Egiven{\textcolor{ForestGreen}{D_i}}{\textcolor{blue}{Z_i} = 0}$.
-        \item Average Treatment Effect (ATE) \hfill
-        $\Egiven{\textcolor{red}{Y_i}}{\textcolor{blue}{Z_i} = 1}
-        - \Egiven{\textcolor{red}{Y_i}}{\textcolor{blue}{Z_i} = 0}$.
-    \end{enumerate}
-    
-    \vfill
-    \begin{figure}
-        %\caption{Model for Suggestive Evidence of a Mechanism.}
-        \begin{tikzpicture}
-            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
-            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
-            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
-            % Label Z_i, D, Y_i
-            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
-            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
-            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
-            % Draw the causal arrows
-            \path[->, thick] (treatment) edge (mediator);
-            %\path[->, dashed,color=gray] (mediator) edge (outcome);
-            \path[->, thick] (treatment) edge[bend right=30] (outcome);
-            % Label the effect sizes.
-            \pause
-            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
-            \node[color=ForestGreen] [above=-0.15cm of firststage] {+4.3pp (0.9)};
-            \node[color=red] [below=0.7cm of mediator] {+6.3pp (1.0) and +8.2pp (0.9)};
-        \end{tikzpicture}
-    \end{figure}
-    \par\noindent\rule{\textwidth}{0.4pt}
-    \vskip-0.125cm
-    \pause
-    \begin{itemize}
-        \item If the first-stage $\neq 0$, then \textcolor{ForestGreen}{healthcare} may be a mediating mechanism
-        \item This gives \textbf{suggestive evidence for a mechanism}.
-    \end{itemize}
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}
-    \frametitle{Oregon: Suggestive Evidence}
-    \textbf{Suggestive evidence} is primarily how economists investigate mechanisms.
-
-    \begin{block}{Abstract --- Lundborg Rooth Alex-Petersen (2022, ReStud).} 
-        ``\textellipsis Exposure to the [free school meals] programme also had substantial effects on \colorbox{yellow}{educational attainment and health}, which can \colorbox{yellow}{explain a large part of the effect} of the programme on lifetime income.''
-    \end{block}
-
-    \begin{block}{Abstract --- Bloom Mahajan McKenzie Roberts (2013, QJE).} 
-        ``\textellipsis We find that adopting these
-        management practices had three main effects. First, it raised average productivity by 11\% through improved 
-        \colorbox{yellow}{quality and efficiency and reduced inventory}[\textellipsis].''
-    \end{block}
-
-    \begin{block}{Abstract --- Carvhalo (2025, JPE Micro).} 
-        ``\textellipsis \colorbox{yellow}{Evidence suggests fluid intelligence and self-control partly mediate} the relationship between the [education polygenic index] and education.''
-    \end{block}
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}
-    \frametitle{Oregon: Suggestive Evidence}
-    Two average causal effects are identified:
-    \begin{enumerate}
-        \item Average first-stage \hfill
-        $\Egiven{\textcolor{ForestGreen}{D_i}}{\textcolor{blue}{Z_i} = 1}
-        - \Egiven{\textcolor{ForestGreen}{D_i}}{\textcolor{blue}{Z_i} = 0}$.
-        \item Average Treatment Effect (ATE) \hfill
-        $\Egiven{\textcolor{red}{Y_i}}{\textcolor{blue}{Z_i} = 1}
-        - \Egiven{\textcolor{red}{Y_i}}{\textcolor{blue}{Z_i} = 0}$.
-    \end{enumerate}
-    
-    \vfill
-    \begin{figure}
-        %\caption{Model for Suggestive Evidence of a Mechanism.}
-        \begin{tikzpicture}
-            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
-            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
-            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
-            % Label Z_i, D, Y_i
-            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
-            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
-            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
-            % Draw the causal arrows
-            \path[->, thick] (treatment) edge (mediator);
-            %\path[->, dashed,color=gray] (mediator) edge (outcome);
-            \path[->, thick] (treatment) edge[bend right=30] (outcome);
-            % Label the effect sizes.
-            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
-            \node[color=ForestGreen] [above=-0.15cm of firststage] {+4.3pp (0.9)};
-            \node[color=red] [below=0.7cm of mediator] {+6.3pp (1.0) and +8.2pp (0.9)};
-            % Label the problem.
-            \pause
-            \node[color=RoyalPurple] [right=0.875cm of mediator] {?};
-        \end{tikzpicture}
-    \end{figure}
-    \vskip-0.25cm
-    \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
-    There is one missing piece to make a \textbf{definitive conclusion}:
-    \[ \text{Size of causal effect }
-    \textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i} \hdots \]
-    \vskip-0.125cm
-    \begin{itemize}
-        \item If large, then \textcolor{ForestGreen}{healthcare} explains all the lottery effects
-        \item If small/zero then, then all \textcolor{blue}{direct} (e.g., psychological) effects.
-    \end{itemize}
-\end{frame}
-%-------------------------------------------------------------------------------
-\section{2. Causal Mediation (CM)}
-\begin{frame}
-    \frametitle{Causal Mediation (CM)}
-\end{frame}
-%-------------------------------------------------------------------------------
-\section{3. CM with Selection}
-\begin{frame}
-    \frametitle{CM with Selection}
-\end{frame}
-%-------------------------------------------------------------------------------
-\section{4. Return to Oregon}
-\begin{frame}
-    \frametitle{Oregon Health Insurance Experiment}
-\end{frame}
-%-------------------------------------------------------------------------------
-\section{Conclusion}
-\begin{frame}
-    \frametitle{Conclusion}
-\end{frame}
-%-------------------------------------------------------------------------------
 \end{document}
+%%-------------------------------------------------------------------------------
+%\section{Introduction}
+%\begin{frame}
+%    \frametitle{Causal Mediation in Natural Experiments}
+%    Natural experiments gives credible estimates of causal effects
+%    \begin{itemize}
+%        \item Little information on the \textcolor{ForestGreen}{mechanisms} through which they operate
+%        \item Limits understanding of the decisions and underlying economic system
+%        \item  
+%    \end{itemize}
+%
+%    School meals $\to$ adult income, because increased education 
+%    (Lundborg Rooth Alex-Petersen 2022).
+%
+%    \textbf{Senan note:} unsure how to start the presentation with 5 minutes that grab attention.
+%    Just start section 1, introducing the data succinctly.
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\section{1. Oregon}
+%\begin{frame}
+%    \frametitle{Oregon Health Insurance Experiment}
+%    In the USA, healthcare is not provided directly by the government. 
+%
+%    \vfill
+%    Further introduce this setting.
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\begin{frame}
+%    \frametitle{Oregon Health Insurance Experiment}
+%    In 2008, Oregon gave access to socialised health insurance by wait-list lottery (Finkelstein et al, 2012).
+%
+%    \vskip-0.25cm
+%    \begin{figure}
+%        \centering
+%        \singlespacing
+%        \includegraphics[width=0.825\textwidth]{
+%            ../text/sections/figures/insurance-effects.png}
+%    \end{figure}
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\begin{frame}
+%    \frametitle{Oregon Health Insurance Experiment}
+%    Frame describing why direct and indirect effects, maybe how a suggestive analysis works. (can do with dots and arrows, and labelled effects)
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\begin{frame}
+%    \frametitle{Oregon: Suggestive Evidence}
+%    Two average causal effects are identified:
+%    \begin{enumerate}
+%        \item Average first-stage \hfill
+%        $\Egiven{\textcolor{ForestGreen}{D_i}}{\textcolor{blue}{Z_i} = 1}
+%        - \Egiven{\textcolor{ForestGreen}{D_i}}{\textcolor{blue}{Z_i} = 0}$.
+%        \item Average Treatment Effect (ATE) \hfill
+%        $\Egiven{\textcolor{red}{Y_i}}{\textcolor{blue}{Z_i} = 1}
+%        - \Egiven{\textcolor{red}{Y_i}}{\textcolor{blue}{Z_i} = 0}$.
+%    \end{enumerate}
+%    
+%    \vfill
+%    \begin{figure}
+%        %\caption{Model for Suggestive Evidence of a Mechanism.}
+%        \begin{tikzpicture}
+%            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+%            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+%            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
+%            % Label Z_i, D, Y_i
+%            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+%            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+%            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+%            % Draw the causal arrows
+%            \path[->, thick] (treatment) edge (mediator);
+%            %\path[->, dashed,color=gray] (mediator) edge (outcome);
+%            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+%            % Label the effect sizes.
+%            \pause
+%            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+%            \node[color=ForestGreen] [above=-0.15cm of firststage] {+4.3pp (0.9)};
+%            \node[color=red] [below=0.7cm of mediator] {+6.3pp (1.0) and +8.2pp (0.9)};
+%        \end{tikzpicture}
+%    \end{figure}
+%    \par\noindent\rule{\textwidth}{0.4pt}
+%    \vskip-0.125cm
+%    \pause
+%    \begin{itemize}
+%        \item If the first-stage $\neq 0$, then \textcolor{ForestGreen}{healthcare} may be a mediating mechanism
+%        \item This gives \textbf{suggestive evidence for a mechanism}.
+%    \end{itemize}
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\begin{frame}
+%    \frametitle{Oregon: Suggestive Evidence}
+%    \textbf{Suggestive evidence} is primarily how economists investigate mechanisms.
+%
+%    \begin{block}{Abstract --- Lundborg Rooth Alex-Petersen (2022, ReStud).} 
+%        ``\textellipsis Exposure to the [free school meals] programme also had substantial effects on \colorbox{yellow}{educational attainment and health}, which can \colorbox{yellow}{explain a large part of the effect} of the programme on lifetime income.''
+%    \end{block}
+%
+%    \begin{block}{Abstract --- Bloom Mahajan McKenzie Roberts (2013, QJE).} 
+%        ``\textellipsis We find that adopting these
+%        management practices had three main effects. First, it raised average productivity by 11\% through improved 
+%        \colorbox{yellow}{quality and efficiency and reduced inventory}[\textellipsis].''
+%    \end{block}
+%
+%    \begin{block}{Abstract --- Carvhalo (2025, JPE Micro).} 
+%        ``\textellipsis \colorbox{yellow}{Evidence suggests fluid intelligence and self-control partly mediate} the relationship between the [education polygenic index] and education.''
+%    \end{block}
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\begin{frame}
+%    \frametitle{Oregon: Suggestive Evidence}
+%    Two average causal effects are identified:
+%    \begin{enumerate}
+%        \item Average first-stage \hfill
+%        $\Egiven{\textcolor{ForestGreen}{D_i}}{\textcolor{blue}{Z_i} = 1}
+%        - \Egiven{\textcolor{ForestGreen}{D_i}}{\textcolor{blue}{Z_i} = 0}$.
+%        \item Average Treatment Effect (ATE) \hfill
+%        $\Egiven{\textcolor{red}{Y_i}}{\textcolor{blue}{Z_i} = 1}
+%        - \Egiven{\textcolor{red}{Y_i}}{\textcolor{blue}{Z_i} = 0}$.
+%    \end{enumerate}
+%    
+%    \vfill
+%    \begin{figure}
+%        %\caption{Model for Suggestive Evidence of a Mechanism.}
+%        \begin{tikzpicture}
+%            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+%            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+%            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
+%            % Label Z_i, D, Y_i
+%            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+%            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+%            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+%            % Draw the causal arrows
+%            \path[->, thick] (treatment) edge (mediator);
+%            %\path[->, dashed,color=gray] (mediator) edge (outcome);
+%            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+%            % Label the effect sizes.
+%            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+%            \node[color=ForestGreen] [above=-0.15cm of firststage] {+4.3pp (0.9)};
+%            \node[color=red] [below=0.7cm of mediator] {+6.3pp (1.0) and +8.2pp (0.9)};
+%            % Label the problem.
+%            \pause
+%            \node[color=RoyalPurple] [right=0.875cm of mediator] {?};
+%        \end{tikzpicture}
+%    \end{figure}
+%    \vskip-0.25cm
+%    \par\noindent\rule{\textwidth}{0.4pt}
+%    \pause
+%    There is one missing piece to make a \textbf{definitive conclusion}:
+%    \[ \text{Size of causal effect }
+%    \textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i} \hdots \]
+%    \vskip-0.125cm
+%    \begin{itemize}
+%        \item If large, then \textcolor{ForestGreen}{healthcare} explains all the lottery effects
+%        \item If small/zero then, then all \textcolor{blue}{direct} (e.g., psychological) effects.
+%    \end{itemize}
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\section{2. Causal Mediation (CM)}
+%\begin{frame}
+%    \frametitle{Causal Mediation (CM)}
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\section{3. CM with Selection}
+%\begin{frame}
+%    \frametitle{CM with Selection}
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\section{4. Return to Oregon}
+%\begin{frame}
+%    \frametitle{Oregon Health Insurance Experiment}
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\section{Conclusion}
+%\begin{frame}
+%    \frametitle{Conclusion}
+%\end{frame}
+%%-------------------------------------------------------------------------------
+%\end{document}
+%
