@@ -19,7 +19,7 @@ Type 'q()' to quit R.
 > ## Senan Hogan-Hennessy, 14 June 2025.
 > ## Script to to extract relevant data from Oregon Health Insurance rep package.
 > print(Sys.time())
-[1] "2025-10-20 16:34:55 EDT"
+[1] "2025-10-28 15:16:11 EDT"
 > set.seed(47)
 > 
 > ## Packages:
@@ -234,7 +234,7 @@ F-statistic: 37.93 on 6 and 9950 DF,  p-value: < 2.2e-16
 + }
 > 
 > ## Estimate mean outcomes among lottery winners, with boot SEs
-> boot.samples <- 1 * 10^3
+> boot.samples <- 5 * 10^3
 > # Lottery effects (among entire population).
 > Z.late <- boot(statistic = abadie.late, R = boot.samples,
 +     data = analysis.data,
@@ -247,7 +247,7 @@ F-statistic: 37.93 on 6 and 9950 DF,  p-value: < 2.2e-16
 > Z_1_complier.se      <- sd(Z.late$t[, 2], na.rm = TRUE)
 > Z_effect_complier.se <- sd(Z.late$t[, 3], na.rm = TRUE)
 > print(c(Z_effect_complier, Z_effect_complier.se))
-[1] 0.217072348 0.009422776
+[1] 0.216839296 0.009735353
 > # Mediator: healthcare utilisation (among lottery compliers).
 > D.late <- boot(statistic = abadie.late, R = boot.samples,
 +     data = analysis.data,
@@ -260,7 +260,7 @@ F-statistic: 37.93 on 6 and 9950 DF,  p-value: < 2.2e-16
 > D_1_complier.se      <- sd(D.late$t[, 2], na.rm = TRUE)
 > D_effect_complier.se <- sd(D.late$t[, 3], na.rm = TRUE)
 > print(c(D_effect_complier, D_effect_complier.se))
-[1] 0.042765016 0.008847816
+[1] 0.042544331 0.008919367
 > # Outcome: Health overall good? (among lottery compliers).
 > Y_health.late <- boot(statistic = abadie.late, R = boot.samples,
 +     data = analysis.data,
@@ -273,7 +273,7 @@ F-statistic: 37.93 on 6 and 9950 DF,  p-value: < 2.2e-16
 > Y_health_1_complier.se      <- sd(Y_health.late$t[, 2], na.rm = TRUE)
 > Y_health_effect_complier.se <- sd(Y_health.late$t[, 3], na.rm = TRUE)
 > print(c(Y_health_effect_complier, Y_health_effect_complier.se))
-[1] 0.063078527 0.009934009
+[1] 0.062656391 0.009952526
 > # Outcome: Happy overall?  (among lottery compliers).
 > Y_happy.late <- boot(statistic = abadie.late, R = boot.samples,
 +     data = analysis.data,
@@ -286,7 +286,7 @@ F-statistic: 37.93 on 6 and 9950 DF,  p-value: < 2.2e-16
 > Y_happy_1_complier.se      <- sd(Y_happy.late$t[, 2], na.rm = TRUE)
 > Y_happy_effect_complier.se <- sd(Y_happy.late$t[, 3], na.rm = TRUE)
 > print(c(Y_happy_effect_complier, Y_happy_effect_complier.se))
-[1] 0.081979498 0.009426907
+[1] 0.08259280 0.00974133
 > 
 > 
 > ################################################################################
@@ -296,8 +296,8 @@ F-statistic: 37.93 on 6 and 9950 DF,  p-value: < 2.2e-16
 > outcome_name.list <- c(
 +     "0               1\nHealth insured?",
 +     "0               1\nAny use of healthcare?",
-+     "0               1\nSurvey: \nHealth overall good?",
-+     "0               1\nSurvey: \nHappy overall?")
++     "0               1\nHealth overall good?",
++     "0               1\nHappy overall?")
 > 
 > alpha <- 0.05
 > # Get a dataframe of the relevant effects.
@@ -350,13 +350,14 @@ F-statistic: 37.93 on 6 and 9950 DF,  p-value: < 2.2e-16
 +         size = 0.5, alpha = 0.5,
 +         stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
 +     theme_bw() +
-+     scale_x_discrete(name = "", limits = outcome_name.list) +
++     scale_x_discrete(name = "Survey Question, asked 12 months later",
++         limits = outcome_name.list) +
 +     scale_fill_manual("", values = colour.list[c(2, 1, 3, 3)]) +
 +     scale_y_continuous(expand = c(0, 0),
 +         name = "",
 +         limits = c(0.275, 0.825), oob = scales::rescale_none,
 +         breaks = seq(0, 1, by = 0.1)) +
-+     ggtitle(TeX(r"(Mean Outcome, for each $z' =0,1$.)")) +
++     ggtitle(TeX(r"(Mean Outcome, winning or losing the wait-list lottery.)")) +
 +     theme(legend.position = "none",
 +         plot.title = element_text(hjust = 0, size = rel(1)),
 +         plot.title.position = "plot",
@@ -398,7 +399,7 @@ Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
 > 
 > # Limited barchart
 > complier.plot <- complier.data %>%
-+     filter(outcome_name != "0               1\nSurvey: \nHappy overall?") %>%
++     filter(outcome_name != "0               1\nHappy overall?") %>%
 +     ggplot(aes(group = Z_iv,
 +         fill = outcome_name, x = outcome_name, y = outcome_value)) +
 +     geom_col_pattern(aes(pattern = Z_iv),
@@ -411,13 +412,14 @@ Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
 +     #geom_col_pattern(aes(colour = 1,
 +     #    pattern = Z_iv, pattern_type = Z_iv)) + #, position = "dodge", stat = "identity") +
 +     theme_bw() +
-+     scale_x_discrete(name = "", limits = outcome_name.list[1:3]) +
++     scale_x_discrete(name = "Survey Question, asked 12 months later",
++         limits = outcome_name.list[1:3]) +
 +     scale_fill_manual("", values = colour.list[c(2, 1, 3)]) +
 +     scale_y_continuous(expand = c(0, 0),
 +         name = "",
 +         limits = c(0.275, 0.825), oob = scales::rescale_none,
 +         breaks = seq(0, 1, by = 0.1)) +
-+     ggtitle(TeX(r"(Mean Outcome, for each $z' =0,1$.)")) +
++     ggtitle(TeX(r"(Mean Outcome, winning or losing the wait-list lottery.)")) +
 +     theme(legend.position = "none",
 +         plot.title = element_text(hjust = 0, size = rel(1)),
 +         plot.title.position = "plot",
@@ -450,4 +452,4 @@ Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
 > 
 > proc.time()
    user  system elapsed 
- 42.179   0.748  43.397 
+179.735   3.346 192.070 

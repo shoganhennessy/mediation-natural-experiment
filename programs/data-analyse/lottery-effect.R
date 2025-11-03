@@ -218,9 +218,9 @@ complier.plot <- complier.data %>%
         size = 0.5, alpha = 0.5,
         stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
     theme_bw() +
-    scale_x_discrete(name = "Survey Question, asked 12 months later",
+    scale_x_discrete(name = "Survey Question, asked 12 months later.",
         limits = outcome_name.list) +
-    scale_fill_manual("", values = colour.list[c(2, 1, 3, 3)]) +
+    scale_fill_manual("", values = colour.list[c(2, 3, 1, 3)]) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
         limits = c(0.275, 0.825), oob = scales::rescale_none,
@@ -229,7 +229,7 @@ complier.plot <- complier.data %>%
     theme(legend.position = "none",
         plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
-        plot.margin = unit(c(0, 0, -2.5, 0), "mm"))
+        plot.margin = unit(c(0, 0, 0, 0), "mm"))
 # Annotate
 offset.text <- 0.05
 complier.plot <- complier.plot +
@@ -259,6 +259,7 @@ ggsave(file.path(figures.folder, "insurance-effects.png"),
     plot = complier.plot,
     units = "cm", width = fig.width, height = fig.height)
 
+
 ################################################################################
 ## Make the plot simpler for a presentation.
 
@@ -276,6 +277,9 @@ complier.plot <- complier.data %>%
         colour = "black") +
     #geom_col_pattern(aes(colour = 1,
     #    pattern = Z_iv, pattern_type = Z_iv)) + #, position = "dodge", stat = "identity") +
+    geom_errorbar(aes(x = outcome_name, ymin = ci_lower, ymax = ci_upper),
+        size = 0.5, alpha = 0.5,
+        stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
     theme_bw() +
     scale_x_discrete(name = "Survey Question, asked 12 months later",
         limits = outcome_name.list[1:3]) +
@@ -288,7 +292,7 @@ complier.plot <- complier.data %>%
     theme(legend.position = "none",
         plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
-        plot.margin = unit(c(0, 0, -2.5, 0), "mm"))
+        plot.margin = unit(c(0, 0, -3.5, 0), "mm"))
 # Annotate
 complier.plot <- complier.plot +
     # Label the effect sizes.
@@ -309,7 +313,7 @@ complier.plot <- complier.plot +
         fontface = "bold", colour = colour.list[3])
 
 # Save this plot for the presentation (different size).
-presentation.width <- 15
+presentation.width <- 13
 presentation.height <- (7 / 12) * presentation.width
 ggsave(file.path(presentation.folder, "insurance-effects.png"),
     plot = complier.plot,
