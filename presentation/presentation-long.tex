@@ -241,28 +241,117 @@
 \section{1. Oregon}
 \begin{frame}
     \frametitle{Oregon Health Insurance Experiment}
-    In the USA, healthcare is not provided directly by the government. 
+    In the USA, healthcare is only provided by the government in special cases
 
-    \vfill
-    Further introduce this setting.
-\end{frame}
-%-------------------------------------------------------------------------------
-\begin{frame}
-    \frametitle{Oregon Health Insurance Experiment}
-    In 2008, Oregon gave access to socialised health insurance by wait-list lottery (Finkelstein et al, 2012).
-
-    \vskip-0.25cm
+    $\to$ Medicaid is the government programme which provides health insurance for those close to the poverty line.
+    \vskip-0.5cm
     \begin{figure}
         \centering
         \singlespacing
-        \includegraphics[width=0.825\textwidth]{
-            ../text/sections/figures/insurance-effects.png}
+        \includegraphics[width=0.75\textwidth]{figures/medicaid-nyt.png}
     \end{figure}
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Oregon Health Insurance Experiment}
-    Frame describing why direct and indirect effects, maybe how a suggestive analysis works. (can do with dots and arrows, and labelled effects)
+    In the USA, healthcare is only provided by the government in special cases
+
+    $\to$ Medicaid is the government programme which provides health insurance for those close to the poverty line.
+    \begin{figure}
+        \centering
+        \begin{tikzpicture}[
+            node distance=5mm,
+            every node/.style={rectangle, draw, rounded corners, align=center, font=\small, minimum width=4cm, minimum height=1cm},
+            arrow/.style={->, thick}]
+            % Nodes
+            \node (freeze) {2004: Oregon Medicaid enrolment frozen};
+            \node (reopen) [below=of freeze] {2008: Enrolment reopens\dots \\ 90,000 sign up (far exceeding funding allocated)};
+            \pause
+            \node (lottery) [below=of reopen] {Wait-list Lottery:};
+            \node (treat) [below left=7.5mm and -7.5mm of lottery] {35,000 Won \\ (Treatment)};
+            \node (control) [below right=7.5mm and -7.5mm of lottery] {55,000 Lost \\(Control)};
+            % Arrows
+            \draw[arrow] (freeze) -- (reopen);
+            \draw[arrow] (reopen) -- (lottery);
+            \draw[arrow] (lottery) -- (treat);
+            \draw[arrow] (lottery) -- (control);
+        \end{tikzpicture}
+    \end{figure}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Oregon Health Insurance Experiment}
+    Winning this wait-list lottery significantly increased healthcare usage, plus subjective health and well-being (Finkelstein et al, 2012).
+    \vskip-0.25cm
+    \begin{figure}
+        \centering
+        \singlespacing
+        \includegraphics[width=0.8\textwidth]{
+            ../text/sections/figures/insurance-effects.png}
+    \end{figure}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Oregon --- Suggestive Evidence}
+    Winning this wait-list lottery significantly increased healthcare usage, plus subjective health and well-being (Finkelstein et al, 2012).
+    \begin{figure}
+        %\caption{Model for Suggestive Evidence of a Mechanism.}
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+            % Label the effect sizes.
+            \pause
+            \path[->, thick] (treatment) edge (mediator);
+            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            \node[color=ForestGreen] [above=-0.15cm of firststage] {+4pp};
+            \pause
+            \node[color=red] [below=0.7cm of mediator] {+6pp and +8pp};
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip-0.125cm
+    \pause
+    \begin{itemize}
+        \item If first-stage $\neq 0$, then \textcolor{ForestGreen}{healthcare} may be a mediating mechanism
+        \item This gives \textbf{suggestive evidence for \textcolor{ForestGreen}{healthcare} as mediating mechanism}.
+    \end{itemize}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{Oregon --- Suggestive Evidence}
+    Winning this wait-list lottery significantly increased healthcare usage, plus subjective health and well-being (Finkelstein et al, 2012).
+    \begin{figure}
+        %\caption{Model for Suggestive Evidence of a Mechanism.}
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+            % Label the effect sizes.
+            \pause
+            \path[->, thick] (treatment) edge (mediator);
+            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            \node[color=ForestGreen] [above=-0.15cm of firststage] {+4pp};
+            \pause
+            \node[color=red] [below=0.7cm of mediator] {+6pp and +8pp};
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip-0.125cm
+    \pause
+    Explain direct EFFECTS HERE.  STRESS.  PSYCH GAINS.
+
+    HOW LARGE THESE DIRECT EFFECTS ARE (AND SMALL/LARGE ETC) AFFECT HOW MUCH HEALTHCARE OPERATES THIS EFFECT.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -304,7 +393,7 @@
     \pause
     \begin{itemize}
         \item If the first-stage $\neq 0$, then \textcolor{ForestGreen}{healthcare} may be a mediating mechanism
-        \item This gives \textbf{suggestive evidence for a mechanism}.
+        \item This gives \textbf{suggestive evidence for healthcare as mediating mechanism}.
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
