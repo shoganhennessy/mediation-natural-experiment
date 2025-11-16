@@ -816,11 +816,201 @@
 \section{3. CM with Selection}
 \begin{frame}
     \frametitle{CM with Selection}
+    Conventional CM methods do not identify ADE $+$ AIE in settings, so I build a structural model for natural experiment settings.
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    Take as given that $\textcolor{blue}{Z_i}$ is quasi-randomly assigned, but $\textcolor{ForestGreen}{D_i}$ is not:
+
+    \vskip-0.5cm
+    \begin{figure}
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
+            % Causal effects
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator)  edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+            % Label the effect sizes.
+            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            \node[color=orange] [above=-0.15cm of firststage] {First-stage};
+            \node[color=orange] [below=0.7cm of mediator] {Direct effect};
+            \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
+                above=0.5cm of outcome] {$\vec U_i$};
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.25cm
+    \begin{enumerate}
+        \item Average first-stage, $\textcolor{blue}{Z_i} \to \textcolor{ForestGreen}{D_i}$, is identified
+        \item Average second-stage, $\textcolor{blue}{Z_i}, \textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i}$, is not --- represented by $\textcolor{RoyalBlue}{\vec U_i}$.
+    \end{enumerate}
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{Intuition}:
+    model $\textcolor{RoyalBlue}{\vec U_i}$ via mediator MTE to identify ADE $+$ AIE.
 \end{frame}
 %-------------------------------------------------------------------------------
-\section{4. Return to Oregon}
 \begin{frame}
-    \frametitle{Oregon Health Insurance Experiment}
+    \frametitle{CM with Selection}
+    Conventional CM methods do not identify ADE $+$ AIE in settings, so I build a structural model for natural experiment settings.
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    Write potential outcomes as mean $+$ unobserved, in choosing to \textcolor{ForestGreen}{visit healthcare} or not, \textcolor{ForestGreen}{$D_i=0,1$}:
+    \[ \textcolor{red}{Y_i}(z', 0)
+        = \Egiven{\textcolor{red}{Y_i}(z', 0)}{\vec X_i}
+            + \textcolor{RoyalBlue}{U_{0, i}},
+    \;\;\;
+    \textcolor{red}{Y_i}(z', 1)
+        = \Egiven{\textcolor{red}{Y_i}(z', 1)}{\vec X_i}
+            + \textcolor{RoyalBlue}{U_{1, i}}. \]
+    \par\noindent\rule{\textwidth}{0.4pt}
+    CM has two-stage regression equations:
+    \begin{align*}
+        \textcolor{ForestGreen}{D_i} &= \phi + \bar\pi \textcolor{blue}{Z_i} + \varphi(\vec X_i) + V_i  \\
+        \textcolor{red}{Y_i} &= \alpha + \beta \textcolor{ForestGreen}{D_i} + \gamma \textcolor{blue}{Z_i} + \delta \textcolor{blue}{Z_i} \textcolor{ForestGreen}{D_i}
+        + \zeta(\vec X_i)
+        + \underbrace{\eqhighlight{yellow}{
+            \left(1 - D_i \right)\textcolor{RoyalBlue}{U_{0,i}} + D_i \textcolor{RoyalBlue}{U_{1,i}}}}_{
+            \text{Correlated error term}}
+    \end{align*}
+    \vskip-0.25cm
+    \begin{enumerate}
+        \item $\bar \pi$ is average first-stage, effect $\textcolor{blue}{Z_i} \to \textcolor{ForestGreen}{D_i}$
+        \item $\beta, \gamma, \delta$ are separated effects of $\textcolor{blue}{Z_i}, \textcolor{ForestGreen}{D_i}$.
+    \end{enumerate}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{CM with Selection}
+    Conventional CM methods do not identify ADE $+$ AIE in settings, so I build a structural model for natural experiment settings.
+    \vskip-0.5cm
+    \begin{figure}
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
+            % Causal effects
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator)  edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=45] (outcome);
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+            % Label the effect sizes.
+            \node[color=gray!25] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            \node[color=gray!25] [above=-0.15cm of firststage] {{First-stage}, $\bar \pi$};
+            \node [below=1.15cm of mediator] {\textcolor{orange}{Direct effect}, $\gamma + \delta \textcolor{ForestGreen}{D_i}$};
+            \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
+                above=0.5cm of outcome] {$\vec U_i$};
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            \node[color=black] (indirect) at ($(mediator)!0.5!(outcome)$) {.};
+            \node[color=gray!25] [above=-0.15cm of indirect] {{Indirect}};
+            \node[color=gray!25] [below=-0.15cm of indirect] {
+            $\beta + \delta Z_i + \tilde U_i$};
+        \end{tikzpicture}
+    \end{figure}
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textcolor{blue}{ADE} composes effects of $\textcolor{blue}{Z_i}$, holding $\textcolor{ForestGreen}{D_i}$ constant:
+    \[ \textcolor{blue}{\text{ADE}}
+        = \E{ \gamma + \delta \textcolor{ForestGreen}{D_i}}. \]
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{CM with Selection}
+    Conventional CM methods do not identify ADE $+$ AIE in settings, so I build a structural model for natural experiment settings.
+    \vskip-0.5cm
+    \begin{figure}
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
+            % Causal effects
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator)  edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=45] (outcome);
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+            % Label the effect sizes.
+            \node (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            \node [above=-0.15cm of firststage] {\textcolor{orange}{First-stage}, $\bar \pi$};
+            \node[color=gray!25] [below=1.15cm of mediator] {{Direct effect}, $\gamma + \delta D_i$};
+            \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
+                above=0.5cm of outcome] {$\vec U_i$};
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            \node[color=black] (indirect) at ($(mediator)!0.5!(outcome)$) {.};
+            \node[color=orange] [above=-0.15cm of indirect] {\;\;\;Indirect, };
+            \node [below=-0.15cm of indirect] {
+            $\beta + \delta \textcolor{blue}{Z_i} + \textcolor{RoyalBlue}{\tilde U_i}$};
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.5cm
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textcolor{ForestGreen}{AIE} composes effects of $\textcolor{ForestGreen}{D_i}$, holding $\textcolor{blue}{Z_i}$ constant:
+    \[ \textcolor{ForestGreen}{\text{AIE}}
+        = \E{ \bar\pi \left(\beta + \delta \textcolor{blue}{Z_i} + \textcolor{RoyalBlue}{\tilde U_i}\right)},  \]
+    where $\textcolor{RoyalBlue}{\tilde U_i} = \Egiven{\textcolor{RoyalBlue}{U_{1,i} - U_{0,i}}}{\vec X_i , D_i(0) \neq D_i(1)}$ unobserved complier gains.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{CM with Selection}
+    Conventional CM methods do not identify ADE $+$ AIE in settings, so I build a structural model for natural experiment settings.
+    \vskip-0.5cm
+    \begin{figure}
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.5cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.5cm of mediator] {$Y_i$};
+            % Causal effects
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator)  edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=45] (outcome);
+            % Label Z_i, D, Y_i
+            \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+            % Label the effect sizes.
+            \node (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            \node [above=-0.15cm of firststage] {\textcolor{orange}{First-stage}, $\bar \pi$};
+            \node [below=1.15cm of mediator] {\textcolor{orange}{Direct effect}, $\gamma + \delta \textcolor{ForestGreen}{D_i}$};
+            \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
+                above=0.5cm of outcome] {$\vec U_i$};
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            \node[color=black] (indirect) at ($(mediator)!0.5!(outcome)$) {.};
+            \node[color=orange] [above=-0.15cm of indirect] {\;\;\;Indirect, };
+            \node [below=-0.15cm of indirect] {
+            $\beta + \delta \textcolor{blue}{Z_i} + \textcolor{RoyalBlue}{\tilde U_i}$};
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.5cm
+    \par\noindent\rule{\textwidth}{0.4pt}
+    Structural model must solve the following issues:
+    \begin{enumerate}
+        \item $\beta, \gamma, \delta$ are not identified (see: selection bias)
+        \item $\textcolor{RoyalBlue}{\tilde U_i}$ is also not known (unobserved complier \textcolor{ForestGreen}{healthcare} gains).
+    \end{enumerate} 
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{CM with Selection --- MTE Model}
+    Explain in the applied example --- build in the motivation of the health location cost IV.
+
+    \vfill
+    Note why this fits so conceptually well for CM, connecting selection in the first-stage to causal effects in the second-stage.
 \end{frame}
 %-------------------------------------------------------------------------------
 \section{Conclusion}
