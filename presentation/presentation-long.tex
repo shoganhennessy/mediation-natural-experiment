@@ -599,7 +599,7 @@
 \end{frame}%-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Causal Mediation (CM)}
-    CM effects (ADE $+$ AIE) are not identified without further assumptions.
+    ADE $+$ AIE are not separately identified without further assumptions.
     \vskip-0.5cm
     \begin{figure}
         \centering
@@ -624,10 +624,10 @@
     \end{figure}
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    Conventional CM relies on two identifying assumptions for ADE $+$ AIE,
+    Conventional CM relies on two identifying assumptions,
     \begin{enumerate}
         \item \textcolor{blue}{Treatment $Z_i$} is (quasi-)randomly assigned
-        \item \textcolor{ForestGreen}{Mediator $D_i$} is (quasi-)randomly assigned, conditional on $Z_i$ realisation (and covariates $\vec X_i$).
+        \item \textcolor{ForestGreen}{Mediator $D_i$} is (quasi-)randomly assigned, conditional on \textcolor{blue}{$Z_i$} realisation (and covariates $\vec X_i$).
     \end{enumerate}
 \end{frame}%%-------------------------------------------------------------------------------
 \begin{frame}
@@ -1035,12 +1035,12 @@
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
             % Draw the stuctural model.
-            %\node[align=left] [above left=0.05cm and -0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
-            \node[align=left] [above=-0.05cm of firststage] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
+            %\node[align=left] [above left=0.05cm and -0.1cm of mediator] {\textbf{(1)} \textcolor{orange}{First-stage $\geq 0$}};
+            \node[align=left] [above=-0.05cm of firststage] {\textbf{(1)} \textcolor{orange}{First-stage $\geq 0$}};
             \node[state,thick,RoyalPurple] (instrument) [above=0.5cm of mediator] {IV};
             \path[->,thick,color=RoyalPurple] (instrument) edge (mediator);
-            \node [left=0.2cm of instrument] {\textbf{2.}};
-            \node [left=0.25cm of confounderU] {\textbf{3.}};
+            \node [left=0.2cm of instrument] {\textbf{(2)}};
+            \node [left=0.25cm of confounderU] {\textbf{(3)}};
             %\path[->,thick,dashed,color=white] (confounderU) edge (mediator);
             %\path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
@@ -1050,7 +1050,7 @@
     \vskip-0.5cm
     
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{1.} First-stage monotonicity,
+    \textbf{(1)} First-stage monotonicity,
     \[ \Prob{\textcolor{ForestGreen}{D_i}(0) \leq \textcolor{ForestGreen}{D_i}(1)} = 1. \]
     %2. Mediator take-up cost IV
     %\[ \text{Requires IV, } \textcolor{RoyalPurple}{\vec X_i^{\text{IV}}}, \text{ affects } \textcolor{red}{Y_i} \text{ only via } \textcolor{ForestGreen}{D_i}. \]
@@ -1091,12 +1091,12 @@
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
             % Draw the stuctural model.
-            %\node[align=left] [above left=0.05cm and -0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
-            \node[align=left] [above=-0.05cm of firststage] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
+            %\node[align=left] [above left=0.05cm and -0.1cm of mediator] {\textbf{(1)} \textcolor{orange}{First-stage $\geq 0$}};
+            \node[align=left] [above=-0.05cm of firststage] {\textbf{(1)} \textcolor{orange}{First-stage $\geq 0$}};
             \node[state,thick,RoyalPurple] (instrument) [above=0.5cm of mediator] {IV};
             \path[->,thick,color=RoyalPurple] (instrument) edge (mediator);
-            \node [left=0.2cm of instrument] {\textbf{2.}};
-            \node [left=0.25cm of confounderU] {\textbf{3.}};
+            \node [left=0.2cm of instrument] {\textbf{(2)}};
+            \node [left=0.25cm of confounderU] {\textbf{(3)}};
             %\path[->,thick,dashed,color=white] (confounderU) edge (mediator);
             %\path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
@@ -1106,9 +1106,9 @@
     \vskip-0.75cm
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{2.} Mediator take-up cost IV
+    \textbf{(2)} Mediator take-up cost IV
     \[ \text{Requires an \textcolor{RoyalPurple}{IV},  which affects } \textcolor{red}{Y_i} \text{ only via } \textcolor{ForestGreen}{D_i}. \]
-    % \textbf{3.} Selection on benefits --- unobserved selection is relevant
+    % \textbf{(3)} Selection on benefits --- unobserved selection is relevant
     %\[ \Cov{V_i, \textcolor{RoyalBlue}{U_{0,i}}}, \;
     %    \Cov{V_i, \textcolor{RoyalBlue}{U_{1,i}}} \neq 0. \]
     \vfill
@@ -1146,12 +1146,12 @@
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
             % Draw the stuctural model.
-            %\node[align=left] [above left=0.05cm and -0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
-            \node[align=left] [above=-0.05cm of firststage] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
+            %\node[align=left] [above left=0.05cm and -0.1cm of mediator] {\textbf{(1)} \textcolor{orange}{First-stage $\geq 0$}};
+            \node[align=left] [above=-0.05cm of firststage] {\textbf{(1)} \textcolor{orange}{First-stage $\geq 0$}};
             \node[state,thick,RoyalPurple] (instrument) [above=0.5cm of mediator] {IV};
             \path[->,thick,color=RoyalPurple] (instrument) edge (mediator);
-            \node [left=0.2cm of instrument] {\textbf{2.}};
-            \node [left=0.25cm of confounderU] {\textbf{3.}};
+            \node [left=0.2cm of instrument] {\textbf{(2)}};
+            \node [left=0.25cm of confounderU] {\textbf{(3)}};
             %\path[->,thick,dashed,color=white] (confounderU) edge (mediator);
             %\path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
@@ -1161,23 +1161,139 @@
     \vskip-0.75cm
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{2.} Mediator take-up cost IV
-    \[ \text{Requires an \textcolor{RoyalPurple}{IV},  which affects } \textcolor{red}{Y_i} \text{ only via } \textcolor{ForestGreen}{D_i}. \]
-    % \textbf{3.} Selection on benefits --- unobserved selection is relevant
-    %\[ \Cov{V_i, \textcolor{RoyalBlue}{U_{0,i}}}, \;
-    %    \Cov{V_i, \textcolor{RoyalBlue}{U_{1,i}}} \neq 0. \]
+    \textbf{(3)} Selection on benefits --- unobserved selection is relevant
+    \[ \Cov{V_i, \textcolor{RoyalBlue}{U_{0,i}}}, \;
+        \Cov{V_i, \textcolor{RoyalBlue}{U_{1,i}}} \neq 0. \]
     \vfill
     \textbf{Key example:}
-    Cost-shifting IV --- random variation in \textcolor{ForestGreen}{healthcare take-up} (not gains), e.g. type of
-    \textcolor{RoyalPurple}{healthcare providers} charge different prices.
+    Roy model, people choose to take \textcolor{ForestGreen}{healthcare} if internal \textcolor{red}{subjective gains} exceed costs.
 \end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{MTE Model --- Identification}
+    \textbf{Proposition:}
+    Under assumptions \textbf{(1)}, \textbf{(2)}, \textbf{(3)} \textcolor{ForestGreen}{mediator MTE} is identified
+    \begin{align*}
+        \textcolor{ForestGreen}{\text{MTE}}
+        &= \Egiven{
+            \textcolor{red}{Y_i}\left(z', \eqhighlight{ForestGreen}{1} \right)
+            - \textcolor{red}{Y_i}\left(z', \eqhighlight{ForestGreen}{0} \right) }{
+                \textcolor{blue}{Z_i} = z', \vec X_i, V_i = p'} \\
+        &= \beta + \delta z' +
+        \underbrace{\Egiven{U_{1,i} - U_{0,i}}{\vec X_i, V_i = p'}}_{
+            = \rho_1\lambda_1(p') - \rho_0\lambda_0(p')},
+        \;\;\;\; \text{ for } p' \in (0,1).
+    \end{align*}
+    \textcolor{ForestGreen}{Mediator MTE} is the causal effect of \textcolor{ForestGreen}{healthcare}, relative to likelihood of visiting healthcare, $\Probgiven{\textcolor{ForestGreen}{D_i} = 1}{\vec X_i, \textcolor{blue}{Z_i}}$.
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{Outline:} \\
+    \textbf{(1)} Gives a selection model by Vycatil (2002) \\
+    \textbf{(2)} \textcolor{RoyalPurple}{IV} separates first-stage identification from second \\ 
+    \textbf{(3)} Correlated errors connect $\textcolor{ForestGreen}{D_i}$ take-up with unobserved selection.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{MTE Model --- Identification}
+    \textbf{Theorem:}
+    Under assumptions \textbf{(1)}, \textbf{(2)}, \textbf{(3)} \textcolor{blue}{ADE} $+$ \textcolor{ForestGreen}{AIE} are identified.
+    \begin{align*}
+        \textcolor{blue}{\text{ADE}}
+            &= \E{ \gamma + \delta \textcolor{ForestGreen}{D_i}}, \\
+        \textcolor{ForestGreen}{\text{AIE}}
+            &= \E{ \bar\pi \Big(\beta + \delta \textcolor{blue}{Z_i}
+                + \underbrace{ (\rho_1 - \rho_0) \,
+                    \Gamma \big(\pi(0; \vec X_i), \, \pi(1; \vec X_i) \big)}_{
+                        = \textcolor{RoyalBlue}{\tilde U_i}, \text{ Mediator compliers}}
+            \Big)}.
+    \end{align*}
+    where $\pi(z'; \vec X_i) = \Probgiven{\textcolor{ForestGreen}{D_i} = 1}{\vec X_i, \textcolor{blue}{Z_i} = z'}$ and $\Gamma(.,.)$ is a function that depends on the \textcolor{ForestGreen}{Mediator MTE}.
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{ADE Intuition:} \\
+    Control for unobserved confounding via \textcolor{ForestGreen}{Mediator MTE}.
+    
+    \vfill
+    \textbf{AIE Intuition:} \\
+    Extrapolate indirect effects across \textcolor{ForestGreen}{Mediator MTE}.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{MTE Model --- Estimation}
+    \vskip-0.25cm
+    \makebox[\textwidth]{\parbox{1.25\textwidth}{
+        \begin{figure}
+            \caption{CM Estimates from 10,000 DGPs with \textbf{Normal} Errors.}
+            \vskip-0.25cm
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{$\hat{\text{ADE}} - \text{ADE}$.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/normal-direct-dist.png}
+            \end{subfigure}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{$\hat{\text{AIE}} - \text{AIE}$.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/normal-indirect-dist.png}
+            \end{subfigure}
+        \end{figure}
+    }}
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{MTE Model --- Estimation}
+    \vskip-0.25cm
+    \makebox[\textwidth]{\parbox{1.25\textwidth}{
+        \begin{figure}
+            \caption{CM Estimates from 10,000 DGPs with \textbf{Uniform} Errors.}
+            \vskip-0.25cm
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{$\hat{\text{ADE}} - \text{ADE}$.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/uniform-direct-dist.png}
+                    %../programs/simulations/sim-output/uniform-direct-dist.png}
+            \end{subfigure}
+            \begin{subfigure}[c]{0.525\textwidth}
+                \centering
+                \caption{$\hat{\text{AIE}} - \text{AIE}$.}
+                \vskip-0.25cm
+                \includegraphics[width=\textwidth]{
+                    ../text/sections/figures/uniform-indirect-dist.png}
+                    %../programs/simulations/sim-output/uniform-indirect-dist.png}
+            \end{subfigure}
+        \end{figure}
+    }}
+\end{frame}
+%-------------------------------------------------------------------------------
+\section{4. Return to Oregon}
+\begin{frame}
+    \frametitle{Return to Oregon}
+    Brief reminder of the Oregon health insurance experiment
+    \begin{enumerate}
+        \item Draw the figure.
+        \item Explain the set of controls
+        \item Show the correlational effect $D\to Y$, then conventional CM analysis
+        \item Explain unobserved confounding, people with undiagnosed conditions, and explain negative selection bias.  Also mention the hypothesis test rejecting zero direct effects.
+        \item Then start using my MTE model. Briefly mention (1) + (3), but focus 2-3 slides on cost-shifting IV, and its larger effects of subjective health \& well-being.
+        \item Then show my CM results, with larger effects.
+    \end{enumerate}
+
+    \vfill
+    Note why this fits so conceptually well for CM, connecting selection in the first-stage to causal effects in the second-stage.
+\end{frame}
+
+
 %-------------------------------------------------------------------------------
 \section{Conclusion}
 \begin{frame}
     \frametitle{Conclusion}
     Explain in the applied example --- build in the motivation of the health location cost IV.
     \vfill
-    Note why this fits so conceptually well for CM, connecting selection in the first-stage to causal effects in the second-stage.
+    Note why the MTE model fits so conceptually well for CM, connecting selection in the first-stage to causal effects in the second-stage.
 \end{frame}
 %-------------------------------------------------------------------------------
 \end{document}
