@@ -967,7 +967,8 @@
 \begin{frame}
     \frametitle{CM with Selection}
     Conventional CM methods do not identify ADE $+$ AIE in settings, so I build a structural model for natural experiment settings.
-    \vskip-0.5cm
+    \vskip-0.75cm
+    
     \begin{figure}
         \singlespacing
         \begin{tikzpicture}
@@ -1006,16 +1007,177 @@
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
-    \frametitle{CM with Selection --- MTE Model}
-    Explain in the applied example --- build in the motivation of the health location cost IV.
+    \frametitle{MTE Model}
+    The structural model is based on 3 assumptions.
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip-0.75cm
 
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.75cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.75cm of mediator] {$Y_i$};
+            % Causal effects
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator)  edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label Z_i, D, Y_i
+            %\node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+            % Label the effect sizes.
+            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            %\node[color=orange] [below=0.7cm of mediator] {Direct effect};
+            \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
+                above=0.5cm of outcome] {$\vec U_i$};
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            % Draw the stuctural model.
+            %\node[align=left] [above left=0.05cm and -0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
+            \node[align=left] [above=-0.05cm of firststage] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
+            \node[state,thick,RoyalPurple] (instrument) [above=0.5cm of mediator] {IV};
+            \path[->,thick,color=RoyalPurple] (instrument) edge (mediator);
+            \node [left=0.2cm of instrument] {\textbf{2.}};
+            \node [left=0.25cm of confounderU] {\textbf{3.}};
+            %\path[->,thick,dashed,color=white] (confounderU) edge (mediator);
+            %\path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.5cm
+    
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{1.} First-stage monotonicity,
+    \[ \Prob{\textcolor{ForestGreen}{D_i}(0) \leq \textcolor{ForestGreen}{D_i}(1)} = 1. \]
+    %2. Mediator take-up cost IV
+    %\[ \text{Requires IV, } \textcolor{RoyalPurple}{\vec X_i^{\text{IV}}}, \text{ affects } \textcolor{red}{Y_i} \text{ only via } \textcolor{ForestGreen}{D_i}. \]
+    %3. Selection on benefits --- unobserved selection is relevant
+    %\[ \Cov{V_i, \textcolor{RoyalBlue}{U_{0,i}}}, \;
+    %    \Cov{V_i, \textcolor{RoyalBlue}{U_{1,i}}} \neq 0. \]
     \vfill
-    Note why this fits so conceptually well for CM, connecting selection in the first-stage to causal effects in the second-stage.
+    \textbf{Intuition:}
+    No defiers --- no one visits \textcolor{ForestGreen}{healthcare} less if winning \textcolor{blue}{wait-list lottery}, relative to losing.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{MTE Model}
+    The structural model is based on 3 assumptions.
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip-0.75cm
+
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.75cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.75cm of mediator] {$Y_i$};
+            % Causal effects
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator)  edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label Z_i, D, Y_i
+            %\node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+            % Label the effect sizes.
+            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            %\node[color=orange] [below=0.7cm of mediator] {Direct effect};
+            \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
+                above=0.5cm of outcome] {$\vec U_i$};
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            % Draw the stuctural model.
+            %\node[align=left] [above left=0.05cm and -0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
+            \node[align=left] [above=-0.05cm of firststage] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
+            \node[state,thick,RoyalPurple] (instrument) [above=0.5cm of mediator] {IV};
+            \path[->,thick,color=RoyalPurple] (instrument) edge (mediator);
+            \node [left=0.2cm of instrument] {\textbf{2.}};
+            \node [left=0.25cm of confounderU] {\textbf{3.}};
+            %\path[->,thick,dashed,color=white] (confounderU) edge (mediator);
+            %\path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.75cm
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{2.} Mediator take-up cost IV
+    \[ \text{Requires an \textcolor{RoyalPurple}{IV},  which affects } \textcolor{red}{Y_i} \text{ only via } \textcolor{ForestGreen}{D_i}. \]
+    % \textbf{3.} Selection on benefits --- unobserved selection is relevant
+    %\[ \Cov{V_i, \textcolor{RoyalBlue}{U_{0,i}}}, \;
+    %    \Cov{V_i, \textcolor{RoyalBlue}{U_{1,i}}} \neq 0. \]
+    \vfill
+    \textbf{Key example:}
+    Cost-shifting IV --- random variation in \textcolor{ForestGreen}{healthcare take-up} (not gains), e.g. type of
+    \textcolor{RoyalPurple}{healthcare providers} charge different prices.
+\end{frame}
+%-------------------------------------------------------------------------------
+\begin{frame}
+    \frametitle{MTE Model}
+    The structural model is based on 3 assumptions.
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \vskip-0.75cm
+
+    \begin{figure}
+        \centering
+        \singlespacing
+        \begin{tikzpicture}
+            \node[state,thick,ForestGreen] (mediator) at (0,0) {$D_i$};
+            \node[state,thick,blue] (treatment) [left=2.75cm of mediator] {$Z_i$};
+            \node[state,thick,red] (outcome)   [right=2.75cm of mediator] {$Y_i$};
+            % Causal effects
+            \path[->, thick] (treatment) edge (mediator);
+            \path[->, thick] (mediator)  edge (outcome);
+            \path[->, thick] (treatment) edge[bend right=30] (outcome);
+            % Label Z_i, D, Y_i
+            %\node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
+            \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
+            \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\ health \& \\ well-being};
+            % Label the effect sizes.
+            \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
+            %\node[color=orange] [below=0.7cm of mediator] {Direct effect};
+            \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
+                above=0.5cm of outcome] {$\vec U_i$};
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+            % Draw the stuctural model.
+            %\node[align=left] [above left=0.05cm and -0.1cm of mediator] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
+            \node[align=left] [above=-0.05cm of firststage] {\textbf{1.} \textcolor{orange}{First-stage $\geq 0$}};
+            \node[state,thick,RoyalPurple] (instrument) [above=0.5cm of mediator] {IV};
+            \path[->,thick,color=RoyalPurple] (instrument) edge (mediator);
+            \node [left=0.2cm of instrument] {\textbf{2.}};
+            \node [left=0.25cm of confounderU] {\textbf{3.}};
+            %\path[->,thick,dashed,color=white] (confounderU) edge (mediator);
+            %\path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
+            \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
+        \end{tikzpicture}
+    \end{figure}
+    \vskip-0.75cm
+
+    \par\noindent\rule{\textwidth}{0.4pt}
+    \textbf{2.} Mediator take-up cost IV
+    \[ \text{Requires an \textcolor{RoyalPurple}{IV},  which affects } \textcolor{red}{Y_i} \text{ only via } \textcolor{ForestGreen}{D_i}. \]
+    % \textbf{3.} Selection on benefits --- unobserved selection is relevant
+    %\[ \Cov{V_i, \textcolor{RoyalBlue}{U_{0,i}}}, \;
+    %    \Cov{V_i, \textcolor{RoyalBlue}{U_{1,i}}} \neq 0. \]
+    \vfill
+    \textbf{Key example:}
+    Cost-shifting IV --- random variation in \textcolor{ForestGreen}{healthcare take-up} (not gains), e.g. type of
+    \textcolor{RoyalPurple}{healthcare providers} charge different prices.
 \end{frame}
 %-------------------------------------------------------------------------------
 \section{Conclusion}
 \begin{frame}
     \frametitle{Conclusion}
+    Explain in the applied example --- build in the motivation of the health location cost IV.
+    \vfill
+    Note why this fits so conceptually well for CM, connecting selection in the first-stage to causal effects in the second-stage.
 \end{frame}
 %-------------------------------------------------------------------------------
 \end{document}
