@@ -524,6 +524,67 @@ ggsave(file.path(figures.folder, "location-effects.png"),
     plot = location.plot,
     units = "cm", width = fig.width, height = fig.height)
 
+
+################################################################################
+## Examine the reported effects of healthcare on subjective health + well-being.
+
+# Library for better colour choice and additional graphing.
+library(ggthemes)
+library(ggpattern)
+
+# SHow a figure of the OLS correlation of healthcare on outcomes.
+outcome_name.list <- "0               1\n" %>%
+    paste0(c("Health overall good?", "Happy overall?"))
+healthcare.data <- analysis.data %>%
+    group_by(any_healthcare) %>%
+    summarise(
+        health_mean = mean(Y_health),
+        health_se   = sd(Y_health) / sqrt(n() - 1),
+        happy_mean  = mean(Y_happy),
+        happy_se    = sd(Y_happy) / sqrt(n() - 1)) %>%
+    ungroup() %>%
+    pivot_longer(cols = c(health_mean, health_se, happy_mean, happy_se),
+        names_to = c("outcome_name", ".value"),
+        names_pattern = "(.*)_(mean|se)") %>%
+    mutate(ci_lower = mean - 1.96 * se, ci_upper = mean + 1.96 * se) %>%
+    mutate(outcome_name =
+        ifelse(outcome_name == "health", outcome_name.list[1],
+            ifelse(outcome_name == "happy", outcome_name.list[2], "")))
+
+# Plot it.
+healthcare.plot <- healthcare.data %>%
+    ggplot(aes(x = outcome_name, group = any_healthcare)) +
+    #geom_bar(aes(group = Z_iv,
+    #    fill = outcome_name, x = outcome_name, y = outcome_value),
+    #    colour = 1, position = "dodge", stat = "identity") +
+    geom_col_pattern(
+        aes(pattern = any_healthcare, fill = outcome_name, y = mean),
+        position = "dodge",
+        pattern_angle = 45,
+        pattern_density = 0.01,
+        pattern_spacing = 0.1,
+        pattern_fill = "black",
+        colour = "black") +
+    geom_errorbar(aes(x = outcome_name, ymin = ci_lower, ymax = ci_upper),
+        size = 0.5, alpha = 0.5,
+        stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
+    theme_bw() +
+    scale_x_discrete(name = "Outcome, attending healthcare or not.", limits = outcome_name.list) +
+    scale_fill_manual("", values = colour.list[c(2, 2)]) +
+    scale_y_continuous(expand = c(0, 0),
+        name = "",
+        limits = c(0.275, 0.825), oob = scales::rescale_none,
+        breaks = seq(0, 1, by = 0.1)) +
+    theme(legend.position = "none",
+        plot.title = element_text(hjust = 0, size = rel(1)),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0, 0, 0, 0), "mm"))
+
+# Save this plot for the presentation.
+ggsave(file.path(figures.folder, "healthcare-ols.png"),
+    plot = healthcare.plot,
+    units = "cm", width = 0.8 * fig.width, height = 0.65 * fig.height)
+
 # Show the OLS correlation between D (mediator) and Y (outcome.)
 library(margins)
 health.reg <- lm(
@@ -534,6 +595,17 @@ happy.reg <- lm(
     formula(paste0("Y_happy ~ 1 + any_healthcare + ", nocontrols.list)),
     data = analysis.data)
 print(summary(happy.reg))
+
+# And add controls 
+health_controls.reg <- lm(
+    formula(paste0("Y_health ~ 1 + any_healthcare + ", controls.list)),
+    data = analysis.data)
+print(summary(health_controls.reg))
+happy_controls.reg <- lm(
+    formula(paste0("Y_happy ~ 1 + any_healthcare + ", controls.list)),
+    data = analysis.data)
+print(summary(happy_controls.reg))
+
 # Show the IV effect between D (mediator) and Y (outcome.)
 library(fixest)
 health.iv <- feols(
@@ -551,9 +623,18 @@ print(summary(happy.iv))
 mediate.est <- mediate.selection(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
     X_iv = "initial_health_location",
-    X_minus = controls.list,
+    X_minus = nocontrols.list,
     boot.reps = NULL,
-    type = "parametric",
+    type = "semi-parametric",
+    data = analysis.data)
+print(coeftable(mediate.est)["AIE", "Estimate"] /
+    coeftable(mediate.est)["First-stage", "Estimate"])
+mediate.est <- mediate.selection(
+    Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
+    X_iv = "initial_health_location",
+    X_minus = nocontrols.list,
+    boot.reps = NULL,
+    type = "semi-parametric",
     data = analysis.data)
 print(coeftable(mediate.est)["AIE", "Estimate"] /
     coeftable(mediate.est)["First-stage", "Estimate"])
@@ -568,6 +649,9 @@ location.reg <- lm(
 print(summary(location.reg))
 iv.list <- paste0("factor(initial_health_location)", 2:7)
 print(car::linearHypothesis(location.reg, test = "F", iv.list))
+
+# Show the rates of people in each category.
+print(100 * table(analysis.data$initial_health_location, exclude = NULL) / NROW(analysis.data))
 
 
 ################################################################################
@@ -789,14 +873,14 @@ health_mediation.plot <- Y_health.data %>%
         name = "",
         limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
-        limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
+        limits = c(-0.5, 9.75), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
     ggtitle("Estimate, percent effect on subjective health") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
-        legend.position = c(0.66, 0.9375),
+        legend.position = c(0.8, 1.025),
         legend.direction = "horizontal")
 # Save this file
 ggsave(file.path(figures.folder, "mediation-health.png"),
@@ -825,14 +909,14 @@ happy_mediation.plot <- Y_happy.data %>%
         name = "",
         limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
-        limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
+        limits = c(-0.5, 9.75), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
     ggtitle("Estimate, percent effect on subjective well-being") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
-        legend.position = c(0.66, 0.9375),
+        legend.position = c(0.8, 1.025),
         legend.direction = "horizontal")
 # Save this file
 ggsave(file.path(figures.folder, "mediation-happy.png"),
@@ -871,14 +955,14 @@ health_mediation.placeholder <- Y_health.data %>%
         name = "",
         limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
-        limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
+        limits = c(-0.5, 9.75), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
     ggtitle("Estimate, percent effect on subjective health") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
-        legend.position = c(0.66, 0.9375),
+        legend.position = c(0.8, 1.025),
         legend.direction = "horizontal")
 
 # Save placeholder version
@@ -914,14 +998,14 @@ happy_mediation.placeholder <- Y_happy.data %>%
         name = "",
         limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
-        limits = c(-0.1, 8), breaks = seq(-10, 10, by = 1),
+        limits = c(-0.5, 9.75), breaks = seq(-10, 10, by = 1),
         oob = scales::rescale_none,
         name = "") +
     ggtitle("Estimate, percent effect on subjective well-being") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
-        legend.position = c(0.66, 0.9375),
+        legend.position = c(0.8, 1.025),
         legend.direction = "horizontal")
 
 # Save placeholder version
