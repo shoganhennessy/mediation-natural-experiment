@@ -265,7 +265,8 @@ ggsave(file.path(figures.folder, "insurance-effects.png"),
 
 # Limited barchart
 complier.plot <- complier.data %>%
-    filter(outcome_name != "0               1\nHappy overall?") %>%
+    #filter(outcome_name != "0               1\nHappy overall?") %>%
+    filter(outcome_name != "0               1\nHealth overall good?") %>%
     ggplot(aes(group = Z_iv,
         fill = outcome_name, x = outcome_name, y = outcome_value)) +
     geom_col_pattern(aes(pattern = Z_iv),
@@ -282,8 +283,8 @@ complier.plot <- complier.data %>%
         stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
     theme_bw() +
     scale_x_discrete(name = "Survey Question, asked 12 months later",
-        limits = outcome_name.list[1:3]) +
-    scale_fill_manual("", values = colour.list[c(2, 1, 3)]) +
+        limits = outcome_name.list[c(1,2,4)]) +
+    scale_fill_manual("", values = colour.list[c(1, 3, 2)]) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
         limits = c(0.275, 0.825), oob = scales::rescale_none,
@@ -300,21 +301,24 @@ complier.plot <- complier.plot +
         label = paste0("+ ", round(Z_effect_complier, 2),
             "\n(", round(Z_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
-        fontface = "bold", colour = colour.list[1]) +
+        fontface = "bold", colour = colour.list[2]) +
     annotate("text", x = 1.8, y = offset.text + D_0_complier + D_effect_complier / 2,
         label = paste0("+ ", round(D_effect_complier, 2),
             "\n(", round(D_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
-        fontface = "bold", colour = colour.list[2]) +
-    annotate("text", x = 2.8, y = offset.text + Y_health_0_complier + Y_health_effect_complier / 2,
-        label = paste0("+ ", round(Y_health_effect_complier, 2),
-            "\n(", round(Y_health_effect_complier.se, 2), ")"),
+        fontface = "bold", colour = colour.list[1]) +
+    #annotate("text", x = 2.8, y = offset.text + Y_health_0_complier + Y_health_effect_complier / 2,
+    #    label = paste0("+ ", round(Y_health_effect_complier, 2),
+    #        "\n(", round(Y_health_effect_complier.se, 2), ")"),
+    #    size = 4, hjust = 0.5, vjust = 0.5,
+    #    fontface = "bold", colour = colour.list[3])  +
+    annotate("text", x = 2.8, y = offset.text + Y_happy_0_complier + Y_happy_effect_complier / 2,
+        label = paste0("+ ", round(Y_happy_effect_complier, 2),
+            "\n(", round(Y_happy_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[3])
 
 # Save this plot for the presentation (different size).
-presentation.width <- 13
-presentation.height <- (7 / 12) * presentation.width
-ggsave(file.path(presentation.folder, "insurance-effects.png"),
+ggsave(file.path(figures.folder, "insurance-effects-presentation.png"),
     plot = complier.plot,
-    units = "cm", width = presentation.width, height = presentation.height)
+    units = "cm", width = fig.width, height = fig.height)

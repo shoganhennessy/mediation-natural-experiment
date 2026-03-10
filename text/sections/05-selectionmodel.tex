@@ -95,6 +95,23 @@ Assumption \ref{mte:instrument} is requiring at least one control variable guide
 It assumes an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu_1-\mu_0$), and has a non-zero influence on the mediator (i.e., strong IV first-stage).
 The exclusion restriction is untestable, and must be guided by domain-specific knowledge; IV first-stage strength is testable, and must be justified with data by methods common in the IV literature.
 
+The ideal instrument $\vec X_i^{\text{IV}}$ for identification is continuous, and varies $\pi(z'; \vec X_i)$ between 0 and 1 for every possible value of $z', \vec X_i^-$ (identification at infinity).
+In practice, it is unlikely to find IV(s) that satisfy this condition.
+In this case, the \cite{brinch2017beyond} restricted approach can be used --- even with a categorical instrument and no control variables.
+This amounts to assuming a limited specification for the respective CFs, limiting the number of parameters used to approximate $\lambda_0, \lambda_1$ to the number of discrete values that $\pi(z'; \vec X_i)$ takes minus one.
+E.g., if there are no control variables and $\vec X_i^{\text{IV}}$ is binary, then $\lambda_0, \lambda_1$ can only be identified up to 3 parameters each.\footnote{
+    The value of 3 comes from the cases that $Z_i, \vec X_i^{\text{IV}}$ each could take 2 values, so $\pi(z'; \vec X_i)$ has 4 possible values, giving the semi-parametric identification (and estimation) of each CF only 3 degrees of freedom to work with.
+    If the MTE-associated CFs are instead assumed to have a known distribution (i.e., parametric MTE), then those concerns do not matter.
+}
+Ultimately, this changes little to the identification strategy, and little to the estimation.
+
+\textbf{Senan note:} Beef up this description of the MTE IV caveats, with a details laden appendix section.
+Suppose $\vec X_i^{\text{IV}}$ takes $K$ distinct values, then identify MTE up to $K-1$ parameters.
+In addition, estimation requires separability of $U_i$ and $\vec X_i$.
+Also extrapolation from $\vec X_i^{\text{IV}}$ compliers to $D_i(z')$ compliers is more credible if it is internal:
+\[ \min \pi(z'; \vec X_i) \leq \E{\pi(0; \vec X_i)} \leq \E{\pi(1; \vec X_i)} \leq \max \pi(z'; \vec X_i). \]
+
+
 This assumption identifies the mediator propensity score separately from the direct and indirect effects, avoiding indeterminacy in the second-stage outcome equation.
 While not technically required for identification, it avoids relying entirely on an assumed distribution for unobserved error terms (and bias from inevitably breaking this assumption).
 The most compelling example of a mediator IV is using data on the cost of mediator take-up as a first-stage IV, if it varies between individuals for unrelated reasons and is strong in explaining mediator take-up.
@@ -201,16 +218,6 @@ The MTE approach measures both selection bias and complier differences, and thus
     orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
     and blue estimates with a two-stage Heckman selection adjustment.
 \end{figure}
-
-The ideal instrument $\vec X_i^{\text{IV}}$ for identification is continuous, and varies $\pi(z'; \vec X_i)$ between 0 and 1 for every possible value of $z', \vec X_i^-$ (identification at infinity).
-In practice, it is unlikely to find IV(s) that satisfy this condition.
-In this case, the \cite{brinch2017beyond} restricted approach can be used --- even with a categorical instrument and no control variables.
-This amounts to assuming a limited specification for the respective CFs, limiting the number of parameters used to approximate $\lambda_0, \lambda_1$ to the number of discrete values that $\pi(z'; \vec X_i)$ takes minus one.
-E.g., if there are no control variables and $\vec X_i^{\text{IV}}$ is binary, then $\lambda_0, \lambda_1$ can only be identified up to 3 parameters each.\footnote{
-    The value of 3 comes from the cases that $Z_i, \vec X_i^{\text{IV}}$ each could take 2 values, so $\pi(z'; \vec X_i)$ has 4 possible values, giving the semi-parametric identification (and estimation) of each CF only 3 degrees of freedom to work with.
-    If the MTE-associated CFs are instead assumed to have a known distribution (i.e., parametric MTE), then those concerns do not matter.
-}
-Ultimately, this changes little to the identification strategy, and little to the estimation.
 
 In a simulation with Roy selection-into-mediator based on unobserved error terms, the MTE approach pushes conventional CM estimates back to the true value. 
 \autoref{fig:cm-normal-dist} shows how the MTE-based approach corrects unadjusted CM effect estimates.

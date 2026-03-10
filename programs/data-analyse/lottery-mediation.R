@@ -585,6 +585,40 @@ ggsave(file.path(figures.folder, "healthcare-ols.png"),
     plot = healthcare.plot,
     units = "cm", width = 0.8 * fig.width, height = 0.65 * fig.height)
 
+healthcare.plot <- healthcare.data %>%
+    filter(outcome_name != "0               1\nHealth overall good?") %>%
+    ggplot(aes(x = outcome_name, group = any_healthcare)) +
+    #geom_bar(aes(group = Z_iv,
+    #    fill = outcome_name, x = outcome_name, y = outcome_value),
+    #    colour = 1, position = "dodge", stat = "identity") +
+    geom_col_pattern(
+        aes(pattern = any_healthcare, fill = outcome_name, y = mean),
+        position = "dodge",
+        pattern_angle = 45,
+        pattern_density = 0.01,
+        pattern_spacing = 0.1,
+        pattern_fill = "black",
+        colour = "black") +
+    geom_errorbar(aes(x = outcome_name, ymin = ci_lower, ymax = ci_upper),
+        size = 0.5, alpha = 0.5,
+        stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
+    theme_bw() +
+    scale_x_discrete(name = "Outcome, attending healthcare or not.") +
+    scale_fill_manual("", values = colour.list[c(2, 2)]) +
+    scale_y_continuous(expand = c(0, 0),
+        name = "",
+        limits = c(0.275, 0.825), oob = scales::rescale_none,
+        breaks = seq(0, 1, by = 0.1)) +
+    theme(legend.position = "none",
+        plot.title = element_text(hjust = 0, size = rel(1)),
+        plot.title.position = "plot",
+        plot.margin = unit(c(0, 0, 0, 0), "mm"))
+
+# Save this plot for the presentation.
+ggsave(file.path(figures.folder, "healthcare-ols-presentation.png"),
+    plot = healthcare.plot,
+    units = "cm", width = 0.5 * fig.width, height = 0.65 * fig.height)
+
 # Show the OLS correlation between D (mediator) and Y (outcome.)
 library(margins)
 health.reg <- lm(

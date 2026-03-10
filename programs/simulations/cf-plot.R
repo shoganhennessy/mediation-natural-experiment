@@ -84,7 +84,7 @@ direct_dist.plot <- normal.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "ols-direct-dist.png"),
     plot = direct_dist.plot,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width = fig.width, height = fig.height)
 
 # AIE estimates, by type.
 indirect_dist.plot <- normal.data %>%
@@ -111,7 +111,7 @@ indirect_dist.plot <- normal.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "ols-indirect-dist.png"),
     plot = indirect_dist.plot,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 
 ################################################################################
@@ -166,7 +166,7 @@ direct_dist.plot <- normal.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "normal-direct-dist.png"),
     plot = direct_dist.plot,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 # AIE estimates, by type.
 indirect_dist.plot <- normal.data %>%
@@ -197,7 +197,7 @@ indirect_dist.plot <- normal.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "normal-indirect-dist.png"),
     plot = indirect_dist.plot,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 
 ################################################################################
@@ -257,7 +257,7 @@ direct_dist.plot <- uniform.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "uniform-direct-dist.png"),
     plot = direct_dist.plot,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 # AIE estimates, by type.
 indirect_dist.plot <- uniform.data %>%
@@ -293,7 +293,7 @@ indirect_dist.plot <- uniform.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "uniform-indirect-dist.png"),
     plot = indirect_dist.plot,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 
 ################################################################################
@@ -372,7 +372,7 @@ rho_directeffect_bias.plot <- rho.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
     plot = rho_directeffect_bias.plot, dpi = 300,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 # Plot the bias in indirect effect est vs rho
 rho_indirecteffect_bias.plot <- rho.data %>%
@@ -415,7 +415,7 @@ rho_indirecteffect_bias.plot <- rho.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
     plot = rho_indirecteffect_bias.plot, dpi = 300,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 
 ################################################################################
@@ -462,7 +462,7 @@ sigma_1_directeffect_bias.plot <- sigma_1.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "sigma1-directeffect-bias.png"),
     plot = sigma_1_directeffect_bias.plot, dpi = 300,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 # Plot the bias in indirect effect est vs sigma_1
 sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
@@ -505,4 +505,4 @@ sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
 # Save this plot
 ggsave(file.path(output.folder, "sigma1-indirecteffect-bias.png"),
     plot = sigma_1_indirecteffect_bias.plot, dpi = 300,
-    units = "cm", width = fig.width, height = fig.height)
+    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
