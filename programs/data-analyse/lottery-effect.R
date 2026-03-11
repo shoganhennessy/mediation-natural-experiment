@@ -254,6 +254,7 @@ complier.plot <- complier.plot +
             "\n(", round(Y_happy_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[3])
+complier.plot
 # Save this plot
 ggsave(file.path(figures.folder, "insurance-effects.png"),
     plot = complier.plot,
@@ -284,7 +285,7 @@ complier.plot <- complier.data %>%
     theme_bw() +
     scale_x_discrete(name = "Survey Question, asked 12 months later",
         limits = outcome_name.list[c(1,2,4)]) +
-    scale_fill_manual("", values = colour.list[c(1, 3, 2)]) +
+    scale_fill_manual("", values = colour.list[c(2, 3, 1)]) +
     scale_y_continuous(expand = c(0, 0),
         name = "",
         limits = c(0.275, 0.825), oob = scales::rescale_none,
@@ -301,12 +302,12 @@ complier.plot <- complier.plot +
         label = paste0("+ ", round(Z_effect_complier, 2),
             "\n(", round(Z_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
-        fontface = "bold", colour = colour.list[2]) +
+        fontface = "bold", colour = colour.list[1]) +
     annotate("text", x = 1.8, y = offset.text + D_0_complier + D_effect_complier / 2,
         label = paste0("+ ", round(D_effect_complier, 2),
             "\n(", round(D_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
-        fontface = "bold", colour = colour.list[1]) +
+        fontface = "bold", colour = colour.list[2]) +
     #annotate("text", x = 2.8, y = offset.text + Y_health_0_complier + Y_health_effect_complier / 2,
     #    label = paste0("+ ", round(Y_health_effect_complier, 2),
     #        "\n(", round(Y_health_effect_complier.se, 2), ")"),

@@ -148,7 +148,7 @@
         }
     \end{figure}
     \begin{itemize}
-        \item Additional research studying education polygenic index, and mediation of its causal effect through education.
+        \item Other applied research studying education polygenic index, and mediation of its causal effect through education.
     \end{itemize}
 \end{frame}
 %-------------------------------------------------------------------------------
@@ -482,7 +482,7 @@
 \end{frame}%-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Causal Mediation (CM)}
-    ADE $+$ AIE are not separately identified without further assumptions.
+    Identification of the ADE $+$ AIE needs further assumptions.
     \par\noindent\rule{\textwidth}{0.4pt}
     \vskip-0.5cm
     \begin{figure}
@@ -528,7 +528,7 @@
         \item \textcolor{blue}{Treatment $Z_i$} is (quasi-)randomly assigned
         \item \textcolor{ForestGreen}{Mediator $D_i$} is (quasi-)randomly assigned, conditional on $Z_i$ realisation (and covariates $\vec X_i$).
     \end{enumerate}
-    \colorbox{yellow}{Translation: Healthcare is a quasi-random choice, conditional on wait-list lottery} \\\colorbox{yellow}{realisation and demographic controls.}
+    \colorbox{yellow}{\textbf{Translation:} Healthcare is a quasi-random choice, conditional on wait-list} \\\colorbox{yellow}{lottery realisation and demographic controls.}
     \par\noindent\rule{\textwidth}{0.4pt}
     Would this be plausible in settings economists study?
 \end{frame}
@@ -668,7 +668,7 @@
     \end{figure}
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{Intuition}:
-    model $\textcolor{RoyalBlue}{\vec U_i}$ via mediator MTE to identify ADE $+$ AIE.
+    model $\textcolor{RoyalBlue}{\vec U_i}$ via \textcolor{ForestGreen}{healthcare} MTE to identify ADE $+$ AIE.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -885,11 +885,11 @@
 
     \vfill \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{ADE Intuition:}
-    Control for unobserved confounding via \textcolor{ForestGreen}{Mediator MTE}.
+    Control for unobserved confounding via \textcolor{ForestGreen}{healthcare MTE}.
     
     \vskip0.2cm
     \textbf{AIE Intuition:}
-    Extrapolate indirect effects across \textcolor{ForestGreen}{Mediator MTE}.
+    Extrapolate indirect effects across \textcolor{ForestGreen}{healthcare MTE}.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -1176,7 +1176,7 @@
     \textbf{Caveats and points to remember:}
     \begin{itemize}
         \item Structural assumptions and IV for identification $+$ estimation (not ideal)
-        \item Application to Oregon Health Insurance Experiment, showing \textcolor{red}{subjective health $+$ well-being} effects mediated by \textcolor{ForestGreen}{healthcare take-up}
+        \item Application to Oregon Health Insurance Experiment, showing \textcolor{red}{subjective well-being} effects mediated by \textcolor{ForestGreen}{healthcare take-up}
         \item \hl{\textbf{Credible} analyses of mechanisms are hard in practice, and wide confidence intervals show true uncertainty.}
     \end{itemize}
 \end{frame}
