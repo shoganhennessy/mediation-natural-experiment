@@ -47,16 +47,16 @@ Here, it is assuming that people respond to treatment, $Z_i$, by consistently ta
 There are no mediator defiers.
 
 The main implication of Assumption \ref{mte:monotonicity} is that selection-into-mediator can be written as a selection model with ordered threshold crossing values that describe selection-into-$D_i$ \citep{vytlacil2002independence}.
-\[ D_i(z') = \indicator{V_i \leq \psi \big( z'; \vec X_i \big)},
-    \;\text{ for } z'=0,1 \]
+\[ D_i(z) = \indicator{V_i \leq \psi \big( z; \vec X_i \big)},
+    \;\text{ for } z=0,1 \]
 where $V_i$ is a latent variable with continuous distribution and conditional cumulative density function $F_V(. \,|\vec X_i)$, and $\psi(. \,;\vec X_i)$ collects observed sources of mediator selection.
 $V_i$ could be assumed to follow a known distribution; the canonical Heckman selection model assumes $V_i$ is normally distributed (a ``Heckit'' model).
 The identification strategy here applies to the general case that the distribution of $V_i$ is unknown, without parametric restrictions.
 
 I focus on the equivalent transformed model of \cite{heckman2005structural},
-\[ D_i(z') = \indicator{U_i \leq \pi(z'; \vec X_i)},
-    \;\;\; \text{for } z'=0,1 \]
-where $U_i \coloneqq F_V\left( V_i \mid \vec X_i \right)$ follows a uniform distribution, and $\pi(z'; \vec X_i) = F_V\big(\psi(z'; \vec X_i)\big) = \Probgiven{D_i = 1}{Z_i = z', \vec X_i}$ is the mediator propensity score.
+\[ D_i(z) = \indicator{U_i \leq \pi(z; \vec X_i)},
+    \;\;\; \text{for } z=0,1 \]
+where $U_i \coloneqq F_V\left( V_i \mid \vec X_i \right)$ follows a uniform distribution, and $\pi(z; \vec X_i) = F_V\big(\psi(z; \vec X_i)\big) = \Probgiven{D_i = 1}{Z_i = z, \vec X_i}$ is the mediator propensity score.
 $U_i$ are the unobserved mediator take-up costs.
 Note the maintained assumption that treatment $Z_i$ is quasi-randomly assigned conditional on $\vec X_i$ implies $Z_i \indep U_i$ conditional on $\vec X_i$.
 
@@ -67,15 +67,19 @@ See \aref{appendix:mte-monotonicity} for a validation of the general \cite{vytla
 \begin{assumptionMTE}
     \label{mte:identification}
     Selection on mediator benefits.
-    \[ \Cov{U_i, \, U_{0,i}}, \; \Cov{U_i, \, U_{1,i}} \neq 0. \]
+    \[ \Egiven{U_{0,i}}{U_i, \vec X_i} \neq 0, \;\;\;\;
+        \Egiven{U_{1,i}}{U_i, \vec X_i} \neq 0. \]
 \end{assumptionMTE}
 \noindent
-Assumption \ref{mte:identification} is stating that unobserved selection in mediator take-up ($U_i$) informs second-stage confounding, when refusing or taking the mediator ($U_{0,i}$ and $U_{1,i}$).
-If there is unobserved confounding in $Y_i$, then it can be measured in $D_i$.
+Assumption~\ref{mte:identification} is a relevance condition;
+if there is unobserved confounding in $Y_i$, then it can be measured in $D_i$.
+It states that that unobserved selection in mediator take-up ($U_i$) informs second-stage confounding, when taking or refusing the mediator ($U_{0,i}$ or $U_{1,i}$, respectively).
 
-This is a relevance assumption for the MTE model.
-If people had been deciding to take $D_i$ by a Roy model, then this assumption holds because $V_i = U_{C,i} - \big( U_{1,i} - U_{0,i} \big)$.
-Individuals could be making decisions based on other outcomes, but as long as mediator benefits guide at least part of this decision (i.e., bounded away from zero), then this assumption will hold.
+This is a relevance condition for the MTE model, analogously to instrument relevance in IV estimation.
+Just as a weak instrument provides no identifying variation in the first-stage, a violation of Assumption~\ref{mte:identification} implies that the control functions $\lambda_0, \lambda_1$
+enter the second-stage regression but fail to absorb any selection bias.
+If individuals select into $D_i$ according to a Roy model, then this assumption holds because $V_i = U_{C,i} - \big( U_{1,i} - U_{0,i} \big)$.
+Individuals may make decisions based on other outcomes, but as long as mediator benefits guide at least part of the decision (i.e., the dependence is bounded away from zero), then this assumption will hold.
 
 For notation purposes, suppose the vector of control variables $\vec X_i$ has at least two entries;
 denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as the remaining.
@@ -84,33 +88,32 @@ denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as th
     Mediator take-up cost instrument.
     \[ \vec X_i^{\text{IV}} \textnormal{ satisfies } \;
     \partialdiff{\vec X_i^{\text{IV}}}\Big\{
-        \mu_{d'}(z', \vec X_i) \Big\} = 0
+        \mu_{d}(z, \vec X_i) \Big\} = 0
         < \partialdiff{\vec X_i^{\text{IV}}}
         \Big\{
-            \Egiven{D_i(z')}{\vec X_i}\Big\},
-        \textnormal{ for } z', d' = 0, 1. \]
+            \Egiven{D_i(z)}{\vec X_i}\Big\},
+        \textnormal{ for } z, d = 0, 1. \]
 \end{assumptionMTE}
 \noindent
 Assumption \ref{mte:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an IV.
 It assumes an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu_1-\mu_0$), and has a non-zero influence on the mediator (i.e., strong IV first-stage).
 The exclusion restriction is untestable, and must be guided by domain-specific knowledge; IV first-stage strength is testable, and must be justified with data by methods common in the IV literature.
 
-The ideal instrument $\vec X_i^{\text{IV}}$ for identification is continuous, and varies $\pi(z'; \vec X_i)$ between 0 and 1 for every possible value of $z', \vec X_i^-$ (identification at infinity).
+The ideal instrument $\vec X_i^{\text{IV}}$ for identification is continuous, and varies $\pi(z; \vec X_i)$ between 0 and 1 for every possible value of $z, \vec X_i^-$ (identification at infinity).
 In practice, it is unlikely to find IV(s) that satisfy this condition.
 In this case, the \cite{brinch2017beyond} restricted approach can be used --- even with a categorical instrument and no control variables.
-This amounts to assuming a limited specification for the respective CFs, limiting the number of parameters used to approximate $\lambda_0, \lambda_1$ to the number of discrete values that $\pi(z'; \vec X_i)$ takes minus one.
+This amounts to assuming a limited specification for the respective CFs, limiting the number of parameters used to approximate $\lambda_0, \lambda_1$ to the number of discrete values that $\pi(z; \vec X_i)$ takes minus one.
 E.g., if there are no control variables and $\vec X_i^{\text{IV}}$ is binary, then $\lambda_0, \lambda_1$ can only be identified up to 3 parameters each.\footnote{
-    The value of 3 comes from the cases that $Z_i, \vec X_i^{\text{IV}}$ each could take 2 values, so $\pi(z'; \vec X_i)$ has 4 possible values, giving the semi-parametric identification (and estimation) of each CF only 3 degrees of freedom to work with.
+    The value of 3 comes from the cases that $Z_i, \vec X_i^{\text{IV}}$ each could take 2 values, so $\pi(z; \vec X_i)$ has 4 possible values, giving the semi-parametric identification (and estimation) of each CF only 3 degrees of freedom to work with.
     If the MTE-associated CFs are instead assumed to have a known distribution (i.e., parametric MTE), then those concerns do not matter.
 }
 Ultimately, this changes little to the identification strategy, and little to the estimation.
 
-\textbf{Senan note:} Beef up this description of the MTE IV caveats, with a details laden appendix section.
-Suppose $\vec X_i^{\text{IV}}$ takes $K$ distinct values, then identify MTE up to $K-1$ parameters.
-In addition, estimation requires separability of $U_i$ and $\vec X_i$.
-Also extrapolation from $\vec X_i^{\text{IV}}$ compliers to $D_i(z')$ compliers is more credible if it is internal:
-\[ \min \pi(z'; \vec X_i) \leq \E{\pi(0; \vec X_i)} \leq \E{\pi(1; \vec X_i)} \leq \max \pi(z'; \vec X_i). \]
-
+%\textbf{Senan note:} Beef up this description of the MTE IV caveats, with a details laden appendix section.
+%Suppose $\vec X_i^{\text{IV}}$ takes $K$ distinct values, then identify MTE up to $K-1$ parameters.
+%In addition, estimation requires separability of $U_i$ and $\vec X_i$.
+%Also extrapolation from $\vec X_i^{\text{IV}}$ compliers to $D_i(z)$ compliers is more credible if it is internal:
+%\[ \min \pi(z; \vec X_i) \leq \E{\pi(0; \vec X_i)} \leq \E{\pi(1; \vec X_i)} \leq \max \pi(z; \vec X_i). \]
 
 This assumption identifies the mediator propensity score separately from the direct and indirect effects, avoiding indeterminacy in the second-stage outcome equation.
 While not technically required for identification, it avoids relying entirely on an assumed distribution for unobserved error terms (and bias from inevitably breaking this assumption).
@@ -130,21 +133,21 @@ The most compelling example of a mediator IV is using data on the cost of mediat
                 + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big),
             \label{eqn:mte-secondstage}
     \end{align*}
-    where $\lambda_0, \lambda_1$ are the corresponding CFs, $\rho_0, \rho_1$ are linear parameters, and mediator propensity score $\pi(z';\vec X_i)$ is separately identified in the first-stage \eqref{eqn:parametric-firststage}.
+    where $\lambda_0, \lambda_1$ are the corresponding CFs, $\rho_0, \rho_1$ are linear parameters, and mediator propensity score $\pi(z;\vec X_i)$ is separately identified in the first-stage \eqref{eqn:parametric-firststage}.
     Proof: see \aref{appendix:mte-secondstage}.
 \end{proposition}
 Again, this set-up required no linearity assumptions, and treatment effects vary, because $Z_i, D_i$ are categorical and  $\beta, \gamma, \delta , \varphi(\vec X_i)$ vary with $\vec X_i$.
 The CFs are functions which measure unobserved mediator gains, for those with unobserved mediator costs above or below a propensity score value.
 Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}$, to give the following representation for the CFs:
 \begin{align*}
-    \lambda_0\big(p'\big) &=
-        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p' < U_i}, \\
-    \lambda_1\big(p'\big) &=
-        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p'} = 
-            -\lambda_0\big( p' \big) \left(\frac{1-p'}{p'}\right), \text{ for } p' \in (0,1).
+    \lambda_0\big(p\big) &=
+        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i}, \\
+    \lambda_1\big(p\big) &=
+        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p} = 
+            -\lambda_0\big( p \big) \left(\frac{1-p}{p}\right), \text{ for } p \in (0,1).
 \end{align*}
 
-All relevant parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.)$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z';\vec X_i)$ identified separately in the first-stage thanks to the instrument(s) $\vec X_i^{\text{IV}}$.
+All relevant parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.)$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z;\vec X_i)$ identified separately in the first-stage thanks to the instrument(s) $\vec X_i^{\text{IV}}$.
 In the case that the CFs have an assumed functional form, then identification is complete.
 For example, in the canonical Heckman selection model, the error terms follow a normal distribution, so that $\lambda_0, \lambda_1$ are the inverse Mills ratio.
 If we do not know the distribution of $\big(U_{0,i}, U_{1,i}\big)$, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.\footnote{
@@ -155,11 +158,11 @@ If we do not know the distribution of $\big(U_{0,i}, U_{1,i}\big)$, then $\lambd
 This identification strategy is an MTE approach \citep{bjorklund1987estimation,heckman2005structural} applied to a CM setting.
 One can see this by noting the connection to the marginal effect of the mediator,
 \begin{align*}
-    & \Egiven{Y_i(z', 1) - Y_i(z', 0)}{Z_i = z', \vec X_i, U_i = p'} \\
-    &= \beta + \delta z' +
-    \underbrace{\Egiven{U_{1,i} - U_{0,i}}{\vec X_i, U_i = p'}}_{
-        = \rho_1\lambda_1(p') - \rho_0\lambda_0(p')},
-    \;\;\;\; \text{ for } p' \in (0,1).
+    & \Egiven{Y_i(z, 1) - Y_i(z, 0)}{Z_i = z, \vec X_i, U_i = p} \\
+    &= \beta + \delta z +
+    \underbrace{\Egiven{U_{1,i} - U_{0,i}}{\vec X_i, U_i = p}}_{
+        = \rho_1\lambda_1(p) - \rho_0\lambda_0(p)},
+    \;\;\;\; \text{ for } p \in (0,1).
 \end{align*}
 The marginal effect of the mediator is identified under the \ref{thm:mte-identification} assumptions, thanks to instrumental variation in $\vec X_i^{\text{IV}}$.
 The final step uses the corresponding CFs to extrapolate from $\vec X_i^{\text{IV}}$ compliers to mediator compliers, and thus identify the ADE and AIE.
@@ -181,9 +184,9 @@ The final step uses the corresponding CFs to extrapolate from $\vec X_i^{\text{I
                 \Gamma \big(\pi(0; \vec X_i), \, \pi(1; \vec X_i) \big)}_{
                     \text{Mediator compliers adjustment}} \Big) \Bigg]
     \end{align*}
-    where $\Gamma\left(p,p'\right) 
-    = \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i \leq p'}
-    = \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p}$ is the average unobserved net gains for those with unobserved costs between $p < p'$,\footnote{
+    where $\Gamma\left(p,p\right) 
+    = \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i \leq p}
+    = \frac{p\lambda_1\left(p\right) - p\lambda_1\left(p\right)}{p - p}$ is the average unobserved net gains for those with unobserved costs between $p < p$,\footnote{
         The complier adjustment term was first written in this manner by \cite{kline2019heckits} for an IV setting.
     } and $\bar\pi = \pi(1; \vec X_i) - \pi(0; \vec X_i)$ is the mediator complier score.
     Proof: see \aref{appendix:mte-ade-aie}.
@@ -194,30 +197,6 @@ rather than assuming away selection problems, it explicitly models them.
 The ADE is straightforward to calculate as an average of the direct effect parameters, while the AIE also includes an adjustment for unobserved complier gains to the mediator.
 Again, this is because the AIE only refers to individuals who were induced by treatment $Z_i$ into taking mediator $D_i$ (mediator compliers).
 The MTE approach measures both selection bias and complier differences, and thus purges these persistent bias terms to identify CM effects.
-
-\begin{figure}[!h]
-    \caption{The MTE Approach Addresses Persistent Bias in Conventional CM Estimates.}
-    \begin{subfigure}[c]{0.475\textwidth}
-        \centering
-        \caption{$\hat{\text{ADE}} - \text{ADE}$.}
-        \includegraphics[width=\textwidth]{
-            sections/figures/normal-direct-dist.png}
-    \end{subfigure}
-    \begin{subfigure}[c]{0.475\textwidth}
-        \centering
-        \caption{$\hat{\text{AIE}} - \text{AIE}$.}
-        \includegraphics[width=\textwidth]{
-            sections/figures/normal-indirect-dist.png}
-    \end{subfigure}
-    \label{fig:cm-normal-dist}
-    \justify
-    \footnotesize
-    \textbf{Note:}
-    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with normally distributed error terms (with both correlation and heteroscedasticity, further described in \autoref{sec:simulations}).
-    The black dashed line is the true value;
-    orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
-    and blue estimates with a two-stage Heckman selection adjustment.
-\end{figure}
 
 In a simulation with Roy selection-into-mediator based on unobserved error terms, the MTE approach pushes conventional CM estimates back to the true value. 
 \autoref{fig:cm-normal-dist} shows how the MTE-based approach corrects unadjusted CM effect estimates.

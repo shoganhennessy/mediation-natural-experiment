@@ -24,11 +24,11 @@ Thus, it is best practice to use this method with access to an instrument.
 
 From this probit first-stage, construct the inverse Mills ratio terms to serve as the MTE-associated CFs.
 These terms capture the correlation between unobserved factors influencing both mediator selection and outcomes, when the errors are normally distributed.
-\[ \lambda_0(p') =
-        \frac{\phi( - \Phi^{-1}(p') )}{\Phi( -\Phi^{-1}(p') )}, \;\;\;\;
-    \lambda_1(p') =
-        \frac{\phi( \Phi^{-1}(p') )}{\Phi( \Phi^{-1}(p') )},
-        \;\;\;\; \text{ for } p' \in (0,1) \]
+\[ \lambda_0(p) =
+        \frac{\phi( - \Phi^{-1}(p) )}{\Phi( -\Phi^{-1}(p) )}, \;\;\;\;
+    \lambda_1(p) =
+        \frac{\phi( \Phi^{-1}(p) )}{\Phi( \Phi^{-1}(p) )},
+        \;\;\;\; \text{ for } p \in (0,1) \]
 where $\phi(.)$ is the probability density function for the standard normal distribution.
 
 Lastly, the second-stage is estimated with OLS, including the MTE-associated CFs with plug-in estimates of the mediator propensity score, and $\vec \varphi'$ a linear approximation of nuisance function $\varphi(.)$.
@@ -43,7 +43,7 @@ Lastly, the second-stage is estimated with OLS, including the MTE-associated CFs
     + \rho_1 D_i \lambda_1\big( \hat \pi(Z_i; \vec X_i) \big)
     + \varepsilon_i,
 \end{align*}
-where $\hat\pi \big(z';\vec X_i \big)$ are the predictions from the probit first-stage.
+where $\hat\pi \big(z;\vec X_i \big)$ are the predictions from the probit first-stage.
 
 The resulting ADE and AIE estimates are composed from sample estimates of the terms in Theorem \ref{thm:mte-identification},
 \[ \hat{\text{ADE}}
@@ -61,6 +61,30 @@ Specifically, accounting for sampling variability in both first-stage mediator p
 This approach yields $\sqrt{n}$-consistent estimates when the underlying error terms follow a bivariate normal distribution --- i.e., when $\pi(Z_i; \vec X_i)$ is correctly modelled by the probit first-stage.
 Errors can also be estimated by the bootstrap, by including estimation of both the first and second-stage within each bootstrap iteration.
 % \aref{appendix:implement} further describes the implementation of this approach in the R language \citep{R2023}, with a linear probit first-stage and second-stage estimated by OLS.
+
+\begin{figure}[!h]
+    \caption{The MTE Approach Addresses Persistent Bias in Conventional CM Estimates.}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{$\hat{\text{ADE}} - \text{ADE}$.}
+        \includegraphics[width=\textwidth]{
+            sections/figures/normal-direct-dist.png}
+    \end{subfigure}
+    \begin{subfigure}[c]{0.475\textwidth}
+        \centering
+        \caption{$\hat{\text{AIE}} - \text{AIE}$.}
+        \includegraphics[width=\textwidth]{
+            sections/figures/normal-indirect-dist.png}
+    \end{subfigure}
+    \label{fig:cm-normal-dist}
+    \justify
+    \footnotesize
+    \textbf{Note:}
+    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with normally distributed error terms (with both correlation and heteroscedasticity, further described in \autoref{sec:simulations}).
+    The black dashed line is the true value;
+    orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
+    and blue estimates with a two-stage Heckman selection adjustment.
+\end{figure}
 
 In practice, a parametric MTE approach is simple to implement using standard statistical packages.
 The key advantage is computational simplicity and efficiency, particularly in moderate-sized samples.
@@ -97,7 +121,7 @@ Consider the subsamples of mediator refusers and takers separately,
         + \rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big).
 \end{align*}
 The separated subsamples can be estimated, each individually, with semi-parametric methods.
-The linear parameters (including linear approximations $\vec \varphi'_{d'}$ of nuisance functions $\varphi_{d'}(.)$)\footnote{
+The linear parameters (including linear approximations $\vec \varphi'_{d}$ of nuisance functions $\varphi_{d}(.)$)\footnote{
     Appropriate interactions between $Z_i, D_i$ and $\vec X_i$ can also flexibly control for $\vec X_i$, again avoiding linearity assumptions.
 } can be estimated with OLS, while $\rho_0 \lambda_0$ and $\rho_1 \lambda_1$ take a flexible semi-parametric specification with first-stage estimates $\hat \pi(Z_i; \vec X_i)$ plugged in.
 An attractive option is a series estimator, such as a spline specification, as this estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
@@ -143,11 +167,11 @@ $\mat \Sigma$ is the matrix of parameters which controls the level of confoundin
     The correlation and relative standard deviations for $U_{0,i}, U_{1,i}$ affect how large selection bias in conventional CM estimates; correlation for these with unobserved costs $U_{C,i}$ does not particularly matter, though increased variance in unobserved costs makes estimates less precise for both OLS and MTE methods.
 }
 
-Each $i$ chooses to take mediator $D_i$ by a Roy model, with following mean definitions for each $z', d' = 0, 1$
+Each $i$ chooses to take mediator $D_i$ by a Roy model, with following mean definitions for each $z, d = 0, 1$
 \begin{align*}
-    D_i(z') &= \indicator{C_i \leq Y_i(z', 1) - Y_i(z', 0)},  \\
-    \mu_{d'}\left(z' ; \vec X_i \right) &= \left( z' + d' + z' d' \right) + \vec X_i^-,
-    \;\; \mu_{C}\left(z' ; \vec X_i \right) = 3z' + \vec X_i^- - \vec X_i^{\text{IV}}.
+    D_i(z) &= \indicator{C_i \leq Y_i(z, 1) - Y_i(z, 0)},  \\
+    \mu_{d}\left(z ; \vec X_i \right) &= \left( z + d + z d \right) + \vec X_i^-,
+    \;\; \mu_{C}\left(z ; \vec X_i \right) = 3z + \vec X_i^- - \vec X_i^{\text{IV}}.
 \end{align*}
 Following \autoref{sec:regression}, these data have the following first and second-stage equations:
 \begin{align*}

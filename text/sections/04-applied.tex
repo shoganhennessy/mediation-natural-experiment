@@ -20,7 +20,7 @@ Second, I show how selection bias operates in a basic model for selection-into-m
 Inference for CM effects can be written in a regression framework with random coefficients, showing how correlation between unobserved error terms and the mediator disrupts identification.
 
 Start by writing potential outcomes $Y_i(., .)$ as a sum of observed and unobserved factors, following the notation of \cite{heckman2005structural}.
-For each $z',d' = 0,1$, put $\mu_{d'}(z'; \vec X_i) = \Egiven{Y_i(z', d')}{\vec X_i}$ and the corresponding error terms, $U_{d', i} = Y_i(z', d') - \mu_{d'}(z'; \vec X_i)$, so we have the following expressions:
+For each $z,d = 0,1$, put $\mu_{d}(z; \vec X_i) = \Egiven{Y_i(z, d)}{\vec X_i}$ and the corresponding error terms, $U_{d, i} = Y_i(z, d) - \mu_{d}(z; \vec X_i)$, so we have the following expressions:
 \[ Y_i(Z_i, 0)  = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
     Y_i(Z_i, 1) = \mu_{1}(Z_i; \vec X_i) + U_{1,i}. \]
 %In these terms, the ADE and AIE are represented as follows,
@@ -90,11 +90,11 @@ Write $C_i$ for individual $i$'s costs of taking mediator $D_i$, and $\indicator
 The Roy model has $i$ taking the mediator if the benefits exceed the costs,
 \begin{equation}
     \label{eqn:roy-model}
-    D_i \left( z' \right) = \indicator{ \;
+    D_i \left( z \right) = \indicator{ \;
     \underbrace{C_i}_{\text{Costs}} \;\; \leq \;\;
         \underbrace{
-            Y_i\left( z', 1 \right) - Y_i\left( z', 0 \right)}_{\text{Benefits}}
-    \;}, \;\;\; \text{for } z'=0,1.
+            Y_i\left( z, 1 \right) - Y_i\left( z, 0 \right)}_{\text{Benefits}}
+    \;}, \;\;\; \text{for } z=0,1.
 \end{equation}
 
 The Roy model provides an intuitive framework for analysing selection mechanisms because it captures the fundamental economic principle of decision-making based on costs and benefits in terms of the outcome under study \citep{roy1951some,heckman1990empirical}.
@@ -106,10 +106,10 @@ This makes the Roy model useful as a base case for CM, where selection-into-medi
 
 By using the Roy model as a benchmark, I explore the practical limits of the mediator quasi-random assignment assumption.
 % Decompose the costs into its mean and an error term, $C_i(Z_i) = \mu_{C}(Z_i; \vec X_i) + U_{C,i}$, to show Roy-selection in terms of unobserved and observed factors,
-% \[ D_i(z') = \indicator{
+% \[ D_i(z) = \indicator{
 %     U_{C,i} - \big(U_{1,i} - U_{0,i}\big) \leq
-%         \mu_1(z'; \vec X_i) - \mu_0(z'; \vec X_i) - \mu_C(z'; \vec X_i)
-%     }, \;\;\; \text{for } z' = 0, 1. \]
+%         \mu_1(z; \vec X_i) - \mu_0(z; \vec X_i) - \mu_C(z; \vec X_i)
+%     }, \;\;\; \text{for } z = 0, 1. \]
 If selection follows a Roy model, and the mediator is quasi-randomly assigned, then unobserved benefits can play no part in selection.
 The only driver of selection are individuals' differences in costs (and not benefits).
 If there are any selection-into-$D_i$ benefits unobserved to the researcher, then mediator quasi-random assignment cannot hold.
