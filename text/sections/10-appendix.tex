@@ -57,15 +57,15 @@ I focus on the averages, which are identified by consequence of the above.
 My estimand for the ADE is a simple rearrangement of the above.
 The estimand for the AIE relies on a different sequence, relying on (1) sequential quasi-random assignment, (2) conditional monotonicity.
 These give (1) identification equivalence of AIE local to mediator compliers conditional on $\vec X_i$ and AIE conditional on $\vec X_i$, LAIE $=$ AIE, (2) identification of the complier score.
-%, $\Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}$ $= \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i}
+%, $\Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}$ $= \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i}
 %- \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i}$.
 \begin{align*}
     & \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{\vec X_i} \\
-    & = \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}
-        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i} \\
-    & = \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}
+    & = \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}
+        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) \neq D_i(1), \vec X_i} \\
+    & = \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}
         \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{\vec X_i} \\
-    & = \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}
+    & = \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}
         \; \Big( \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i}
             - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big) \\
     & = \Big( \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}
@@ -153,11 +153,11 @@ To show that the conventional approach to mediation gives an estimate for the AI
 This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$.
 \begin{align*}
     &\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{\vec X_i} \\
-    =& \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}
-        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i}
+    =& \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}
+        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) \neq D_i(1), \vec X_i}
 \end{align*}
 When $D_i$ is not ignorable, the bias comes from estimating the second term,
-\\ $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i}$, the indirect effect among mediator compliers.
+\\ $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) \neq D_i(1), \vec X_i}$, the indirect effect among mediator compliers.
 
 Let $z \in \{ 0, 1 \}$.
 Again, note the mean outcomes in terms of average potential outcomes,
@@ -178,7 +178,7 @@ Compose the selection bias term, as follows.
 \end{align*}
 The final term is a sum of the AIE, among the treated group $D_i = 1$, and a selection bias term --- difference in baseline potential outcomes between the groups for whom $D_i = 1$ and $D_i = 0$.
 
-The AIE is the indirect effect among compliers times the size of the complier group, so we need to compensate for the difference between the treated group $D_i = 1$ and complier group $D_i(0) = 0, D_i(1) = 1$.
+The AIE is the indirect effect among compliers times the size of the complier group, so we need to compensate for the difference between the treated group $D_i = 1$ and complier group $D_i(0) \neq D_i(1)$.
 
 Start with the difference between treated groups average and overall average.
 \begin{align*}
@@ -192,10 +192,10 @@ Start with the difference between treated groups average and overall average.
 \end{align*}
 Then the difference between the compliers' average and the overall average.
 \begin{align*}
-    & \Egiven{ Y_i(z, 1) - Y_i(z, 0)}{D_i(0) = 0, D_i(1) = 1, \vec X_i} \\
+    & \Egiven{ Y_i(z, 1) - Y_i(z, 0)}{D_i(0) \neq D_i(1), \vec X_i} \\
     =& \Egiven{Y_i(z, 1) - Y_i(z, 0)}{\vec X_i} \\
-    & + \frac{1 - \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i} }{
-        \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}}
+    & + \frac{1 - \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i} }{
+        \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}}
     \left( \begin{aligned}
         &\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(1) = 0 \text{ or } D_i(0)=1, \vec X_i} \\ 
         &  - \Egiven{Y_i(z, 1) - Y_i(z, 0)}{\vec X_i}
@@ -219,8 +219,8 @@ Collect everything together, as follows.
             &\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i = 1, \vec X_i} \\ 
             &  - \Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i = 0, \vec X_i}
         \end{aligned} \right) \\
-        &- \frac{1 - \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i} }{
-            \Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}} 
+        &- \frac{1 - \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i} }{
+            \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}} 
         \left( \begin{aligned}
             &\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(1) = 0 \text{ or } D_i(0)=1, \vec X_i} \\ 
             &  - \Egiven{Y_i(z, 1) - Y_i(z, 0)}{\vec X_i}
@@ -229,7 +229,7 @@ Collect everything together, as follows.
         \text{group difference-bias}}
 \end{align*}
 The proof is finally achieved by multiplying by the complier score, 
-$\Probgiven{D_i(0) = 0, D_i(1) = 1}{\vec X_i}$
+$\Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}$
 $= \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$,
 then applying the expectation across $Z_i = z$, and $\vec X_i$.
 
@@ -539,7 +539,157 @@ This gives the final result,
             + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big).
 \end{align*}
 All parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z;\vec X_i)$ identified separately in the first-stage.
-$\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse Mills ratio in \citealt{heckman1979sample}), or treated as non-parametric parameters to be estimated --- at cost of the constant and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$, see \aref{appendix:semi-parametric}.
+$\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse Mills ratio in \citealt{heckman1979sample}), or treated as semi-parametric parameters to be estimated --- at cost of the constant and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$, see \aref{appendix:semi-parametric}.
+
+
+\subsection{Restricted MTE-CF Condition}
+\label{appendix:mte-restricted}
+Proposition~\ref{proposition:secondstage} shows that the second-stage regression is identified once the MTE-associated CF terms
+$\rho_0\lambda_0\big(\pi(Z_i;\vec X_i)\big), \; \rho_1\lambda_1\big(\pi(Z_i;\vec X_i)\big)$ are identified.
+Assumption~\ref{mte:instrument} supplies excluded variation in the mediator propensity
+score, $\pi(z;\vec X_i)$.
+However, if the mediator IV has finite support, this excluded variation does not identify
+an unrestricted CF over the whole interval $p\in(0,1)$.
+This subsection states the restricted-CF condition used in the main text.
+
+The restricted-CF condition has two parts.
+First, after observed heterogeneity has been absorbed by the potential-outcome means
+$\mu_d(z;\vec X_i)$, the remaining dependence between mediator resistance $U_i$ and the
+outcome errors $U_{d,i}$ is assumed to be common across $\vec X_i^-$.
+For $d=0,1$, define
+\[
+    m_d(p;\vec x)
+    =
+    \Egiven{U_{d,i}}{U_i=p,\vec X_i=\vec x}.
+\]
+The separability restriction is
+\[
+    m_d(p;\vec x)
+    =
+    m_d(p),
+    \qquad d=0,1.
+    \label{eqn:mte-cf-separability}
+\]
+Equivalently, conditional on the observed components of the potential outcomes, the shape
+of selection on unobserved mediator resistance is common across values of $\vec X_i^-$.
+This is the analogue, in this CM setting, of the separable restricted-MTE structure used with
+finite-support instruments in \cite{brinch2017beyond}.
+It rules out unrestricted interactions between $\vec X_i^-$ and $U_i$ in the unobserved
+component of the mediator MTE.
+
+Fix the non-instrument controls at $\vec X_i^-=\vec x^-$, and define the set of distinct
+propensity-score values generated by $Z_i$ and the mediator IV:
+\[
+    \mathcal P(\vec x^-)
+    =
+    \left\{
+        \pi(z;x^{\textnormal{IV}},\vec x^-)
+        :
+        z\in\{0,1\},
+        x^{\textnormal{IV}}
+        \in
+        \operatorname{supp}\left[
+            \vec X_i^{\textnormal{IV}}\mid \vec X_i^-=\vec x^-
+        \right]
+    \right\}.
+\]
+\[\text{Let } \;\;\;\;
+    K(\vec x^-)
+    =
+    \left|\mathcal P(\vec x^-)\right|. \]
+$K(\vec x^-)$ counts the number of distinct values taken by the mediator propensity score $\pi(Z_i;\vec X_i)$, not the number of raw values taken by
+$\vec X_i^{\textnormal{IV}}$.
+For example, if there are no additional controls and both $Z_i$ and
+$\vec X_i^{\textnormal{IV}}$ are binary, then $\pi(Z_i;\vec X_i)$ may take up to four distinct values.
+
+The restricted-CF condition then assumes that, over the relevant support, the common CFs
+lie in a finite-dimensional class. Specifically, for $d=0,1$,
+\[
+    \rho_d\lambda_d(p)
+    =
+    c_d
+    +
+    \sum_{\ell=1}^{K(\vec x^-)-1}
+        a_{d\ell}\, b_\ell(p),
+    \qquad
+    p\in\mathcal P(\vec x^-),
+    \label{eqn:restricted-cf-basis}
+\]
+where $b_1,\ldots,b_{K(\vec x^-)-1}$ are known basis functions.
+The constant $c_d(\vec x^-)$ is absorbed by the corresponding intercept in the
+second-stage outcome equation, so the excluded variation identifies the non-constant
+components of the CF.
+The associated rank condition is
+\[
+    \operatorname{rank}
+    \begin{bmatrix}
+        b_1(p_1) & \cdots & b_{K(\vec x^-)-1}(p_1) \\
+        \vdots   & \ddots & \vdots \\
+        b_1(p_K) & \cdots & b_{K(\vec x^-)-1}(p_K)
+    \end{bmatrix}
+    =
+    K(\vec x^-)-1,
+    \qquad
+    \{p_1,\ldots,p_K\}=\mathcal P(\vec x^-).
+    \label{eqn:restricted-cf-rank}
+\]
+This condition is the finite-support analogue of identifying the CFs with a continuous
+instrument.
+When there are only two relevant propensity-score values, the restriction leaves one
+non-constant degree of freedom, equivalent to a linear CF over that support.
+With additional propensity-score values, richer restricted-MTE specifications can be used,
+following the logic of \cite{brinch2017beyond}.
+
+The support required for the AIE is narrower than the whole unit interval.
+By mediator monotonicity, individuals induced into the mediator by $Z_i$ are those with
+\[
+    \pi(0;\vec X_i)<U_i\leq \pi(1;\vec X_i).
+\]
+Thus, the AIE requires the CFs only at the propensity-score values that determine this
+mediator-complier interval.
+Equivalently, the relevant support is
+\[
+    \mathcal P_C
+    =
+    \left\{
+        p:
+        \pi(0;\vec x)\leq p\leq \pi(1;\vec x)
+        \textnormal{ for some } \vec x
+    \right\}.
+    \label{eqn:mediator-complier-support}
+\]
+Identification at infinity is a sufficient special case, because it identifies the CFs for all
+$p\in(0,1)$.
+The weaker requirement used here is that the restricted-CF specification in
+\eqref{eqn:restricted-cf-basis} identifies
+\[
+    \rho_0\lambda_0(p)
+    \quad\textnormal{and}\quad
+    \rho_1\lambda_1(p)
+    \qquad
+    \textnormal{for } p\in\mathcal P_C.
+    \label{eqn:restricted-cf-complier-support}
+\]
+
+This is enough for Theorem~\ref{thm:mte-identification}.
+The ADE uses the CF-adjusted second-stage parameters from
+Proposition~\ref{proposition:secondstage}.
+The AIE additionally uses the average unobserved gain among mediator compliers, which is
+pinned down by the CF values at the endpoints $\pi(0;\vec X_i)$ and $\pi(1;\vec X_i)$:
+\[
+    \Gamma\big(\pi(0;\vec X_i),\pi(1;\vec X_i)\big)
+    =
+    \frac{
+        \pi(1;\vec X_i)\lambda_1\big(\pi(1;\vec X_i)\big)
+        -
+        \pi(0;\vec X_i)\lambda_1\big(\pi(0;\vec X_i)\big)
+    }{
+        \pi(1;\vec X_i)-\pi(0;\vec X_i)
+    }.
+\]
+Therefore the theorem does not require pointwise identification of the full mediator MTE
+over $p\in(0,1)$.
+It requires only the restricted CFs on the support relevant for mediator compliers.
 
 \subsection{MTE Identification of the ADE and AIE}
 \label{appendix:mte-ade-aie}

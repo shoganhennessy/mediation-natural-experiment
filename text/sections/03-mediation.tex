@@ -21,15 +21,15 @@ Assume treatment $Z_i$ is quasi-randomly assigned,\footnote{
     This assumption can hold conditional on a covariate vector, $\vec X_i$.
     To simplify notation in this section, leave the conditional part unsaid, as it changes no part of the identification framework.
 }
-\[ Z_i \indep  D_i(z), Y_i(z, d), \text{ for } z, z, d = 0, 1. \]
+\[ Z_i \indep  D_i(z), Y_i(z', d), \text{ for } z, z', d = 0, 1. \]
 
 There are only two average effects which are identified without additional assumptions.
 \begin{enumerate}
     \item The average first-stage refers to the effect of the treatment on mediator, $Z_i$ on $D_i$:
     \[ \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0}
-        = \E{D_i(1) - D_i(0)}. \]
+        = \Prob{D_i(0) \neq D_i(1)}. \]
     It is common in the economics literature to assume that $Z_i$ influences $D_i$ in at most one direction, $\Prob{D_i(0) \leq D_i(1)} = 1$ --- monotonicity \citep{imbens1994identification}.
-    I assume mediator monotonicity (and its conditional variant) holds throughout to simplify notation.
+    %I assume mediator monotonicity (and its conditional variant) holds throughout to simplify notation.
     %\footnote{
     %    Assuming monotonicity also brings closer to the IV notation, and has other beneficial implications in this setting (see \autoref{sec:controlfun}).
     %}
@@ -67,7 +67,7 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
         \path[->, thick] (treatment) edge[bend right=37.5] (outcome);
         % Label direct and indirect effect
         \node[color=orange] [below left=-0.3cm and 0.5cm of mediator] {First-stage};
-        \node[color=orange] [below right=-0.3cm and 0.1cm of mediator] {Complier AIE};
+        \node[color=orange] [below right=-0.3cm and 0.1cm of mediator] {Switcher AIE};
         \node[color=orange] [below=1.125cm of mediator] {ADE};
         % Add in the confounders
         %\node[state,RoyalPurple] (confounderX) [above=1.5cm of mediator] {$\vec{X}$};
@@ -82,7 +82,7 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
     \footnotesize
     \textbf{Note}:
     This figure shows the structural causal model behind CM.
-    The Complier AIE refers to the AIE local to $D_i(Z_i)$ compliers, so that AIE $=$ Average First-stage $\times$ Complier AIE.
+    The Switcher AIE refers to the AIE local to $D_i(Z_i)$ switchers, the group with $D_i(0) \neq D_i(1)$, so that AIE $=$ Average First-stage $\times$ Switcher AIE.
     $\vec U_i$ shows an unobserved confounding variable for the causal effect $D_i \to Y_i$, representing this paper's focus on the case that $D_i$ is not quasi-randomly assigned.
     \autoref{sec:regression} defines $\vec U_i$ in an applied setting.
 \end{figure}
@@ -187,17 +187,17 @@ For the indirect effect: conventional CM estimand $=$ AIE $+$ selection bias $+$
         \Big( \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0} \Big) \times
         \Big( \Egiven{Y_i}{Z_i, D_i = 1} - \Egiven{Y_i}{Z_i, D_i = 0} \Big) } \\
     & = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
-    & \;\;\;\; + \Prob{D_i(1) = 1, D_i(0) = 0} \Big(
+    & \;\;\;\; + \Prob{D_i(0) \neq D_i(1)} \Big(
         \Egiven{Y_i(Z_i, 0)}{D_i = 1} - \Egiven{Y_i(Z_i, 0)}{D_i = 0} \Big) \\
-    & \;\;\;\; + \Prob{D_i(1) = 1, D_i(0) = 0} \times \\
+    & \;\;\;\; + \Prob{D_i(0) \neq D_i(1)} \times \\
     & \;\;\;\; \;\; \left[ \begin{aligned}
         &\Big( 1 - \Prob{D_i=1} \Big)
         \left( \begin{aligned}
             &\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i = 1} \\ 
             &  - \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i = 0}
         \end{aligned} \right) \\
-        &- \left( \frac{1 - \Prob{D_i(1) = 1, D_i(0) = 0} }{
-            \Prob{D_i(1) = 1, D_i(0) = 0}} \right)
+        &- \left( \frac{1 - \Prob{D_i(0) \neq D_i(1)} }{
+            \Prob{D_i(0) \neq D_i(1)}} \right)
         \left( \begin{aligned}
             &\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 0 \text{ or } D_i(0)=1} \\ 
             &  - \E{Y_i(Z_i, 1) - Y_i(Z_i, 0)}
@@ -212,17 +212,17 @@ In the Oregon Health Insurance Experiment, the wait-list gave random variation i
 The group differences represent the fact that a matching approach gives an average effect on the treated group, which is systematically different from the average effect if selection-on-observables does not hold.
 These terms are a non-parametric framing of the bias from controlling for intermediate outcomes, previously studied only in a linear setting (i.e., bad controls in \citealt{cinelli2024crash}, or M-bias in \citealt{ding2015adjust}).
 
-The AIE group differences term is longer, because the indirect effect is comprised of the effect of $D_i$ local to $D_i(Z_i)$ compliers.
+The AIE group differences term is longer, because the indirect effect is comprised of the effect of $D_i$ local to $D_i(Z_i)$ switchers.
 \begin{align*}
     \text{AIE}
     &= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
-    &= \E{D_i(1) - D_i(0)} \; 
-        \underbrace{\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0)=0, D_i(1)=1}}_{
-            \text{Average $D_i$ on $Y_i$ effect among $D_i(Z_i)$ compliers}
+    &= \Prob{D_i(0) \neq D_i(1)} \; 
+        \underbrace{\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) \neq D_i(1)}}_{
+            \text{Average $D_i$ on $Y_i$ effect among $D_i(Z_i)$ switchers}
         }
 \end{align*}
-It is important to acknowledge the mediator compliers here, because the AIE is the treatment effect going through the $D_i(Z_i)$ channel, thus only refers to individuals pushed into mediator $D_i$ by initial treatment $Z_i$.
+It is important to acknowledge the mediator switchers here, because the AIE is the treatment effect going through the $D_i(Z_i)$ channel, thus only refers to individuals pushed into mediator $D_i$ by initial treatment $Z_i$.
 If we had been using a population average effect for $D_i$ on $Y_i$, then this is losing focus on the definition of the AIE; it is not about the causal effect $D_i$ on $Y_i$, it is about the causal effect $D_i(Z_i)$ on $Y_i$.
 
-The group difference bias term arises because the convention approach to CM assumes the complier average effect is equal to the population average effect, which does not hold true if the mediator is not quasi-randomly assigned.
-% This distinction between average effects and complier average effects in the AIE is skipped over by the ``controlled indirect effect'' definition of \cite{pearl2003direct}.
+The group difference bias term arises because the convention approach to CM assumes the switcher average effect is equal to the population average effect, which does not hold true if the mediator is not quasi-randomly assigned.
+% This distinction between average effects and switcher average effects in the AIE is skipped over by the ``controlled indirect effect'' definition of \cite{pearl2003direct}.
