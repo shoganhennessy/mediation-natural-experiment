@@ -33,7 +33,7 @@ Additionally, individuals' choice of provider likely depend on neighbourhood-bas
     It uses a logit specification, controlling for household size and whether losing the lottery $\pi(0; \vec X_i)$, or winning the lottery $\pi(1; \vec X_i)$.
     Average utilisaition after having lost the lottery is roughly $\Egiven{D_i}{Z_i = 0} = \E{\pi(0; \vec X_i)} = 0.715$, and after winning $\Egiven{D_i}{Z_i = 1} = \E{\pi(1; \vec X_i)} = 0.750$.
     Panel B shows the estimated MTE, using the spline specification in \autoref{sec:semiparametric-mte}.
-    The shaded region refers to the AIE, where the average causal effect is calculated across the region of mediator compliers, with $\pi(0; \vec X_i) \leq U_u < \pi(1; \vec X_i)$ --- i.e., between 0.715 and 0.750, at the average covariate values.
+    The shaded region refers to the AIE, where the average causal effect is calculated by integrating across the region of mediator compliers, with $\pi(0; \vec X_i) \leq U_i < \pi(1; \vec X_i)$ --- i.e., between 0.715 and 0.750 at the average covariate values.
 \end{figure}
 
 Initial results with unadjusted CM estimates suggest almost no mediating role for healthcare usage; the unadjusted estimates of the AIE are close to zero for both outcomes, contradicting intuitive suggestive evidence.
