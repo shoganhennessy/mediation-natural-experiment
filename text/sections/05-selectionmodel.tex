@@ -112,7 +112,7 @@ They require the MTE-associated CFs only over the mediator-complier interval,
     \pi(0;\vec X_i) < U_i \leq \pi(1;\vec X_i).
 \]
 Thus, the identifying requirement is not full-support identification of the mediator MTE, but identification of the relevant CFs over the support between
-$\pi(0;\vec X_i)$ and $\pi(1;\vec X_i)$.
+the complier region between $\pi(0;\vec X_i)$ and $\pi(1;\vec X_i)$.
 
 With finite support, I instead impose a restricted-CF condition.
 Let $K$ denote the number of distinct values taken by the mediator propensity score $\pi(Z_i;\vec X_i)$ on the relevant support.
@@ -120,12 +120,11 @@ The CFs $\lambda_0(.), \lambda_1(.)$ are assumed to lie in a $K-1$ dimensional c
 After observed heterogeneity is absorbd by $\mu_d(z;\vec X_i)$, the remaining dependence between observed mediator take-up cost $U_i$ and outcome gains $U_{0,i},U_{1,i}$ is common across $\vec X_i$ and lied in a $K-1$ dimensional basis over the support of $\pi(Z_i;\vec X_i)$.
 Equivalently, the instrument identifies the CFs only up to the degrees of freedom supplied by relevant propensity-score support.
 For example, with only two relevant propensity-score values, this is a linear restriction on the CFs, corresponding to the restricted-MTE logic of \cite{brinch2017beyond}.
-This restricted support assumption is weaker than relying on identification at infinity, with testable implications.
-See \aref{appendix:mte-restricted}.
+This restricted support assumption is weaker than relying on identification at infinity, with testable implications --- described in \aref{appendix:mte-restricted}.
 
 \begin{proposition}
     \label{proposition:secondstage}
-    If assumptions \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument} hold, then second-stage regression equation \eqref{eqn:parametric-secondstage} is identified via the MTE-associated CFs.
+    If assumptions \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument}, and the restricted-CF support condition hold, then second-stage regression equation \eqref{eqn:parametric-secondstage} is identified via the MTE-associated CFs.
     \begin{align*}
         \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
             \alpha
@@ -176,7 +175,7 @@ The final step uses the corresponding CFs to extrapolate from $\vec X_i^{\text{I
 \renewcommand\thetheoremMTE{MTE Approach}
 \begin{theoremMTE}
     \label{thm:mte-identification}
-    If assumptions \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument}, and the restricted-CF support condition hold, the ADE and AIE are identified as a function of the parameters in Proposition \ref{proposition:secondstage}.
+    If assumptions \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument}, and the restricted-CF support condition hold, then the ADE and AIE are identified as a function of the parameters in Proposition \ref{proposition:secondstage}.
     \begin{align*}
     \text{ADE}
     %= \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
