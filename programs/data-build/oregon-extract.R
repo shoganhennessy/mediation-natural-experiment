@@ -5,6 +5,7 @@ print(Sys.time())
 set.seed(47)
 
 ## Packages:
+renv::load()
 # functions for data manipulation and visualisation
 library(tidyverse)
 
@@ -47,10 +48,12 @@ inperson_12m.data <- data.folder %>%
 
 # Restrict the basic descriptive data (for everyone in the entire data).
 descriptive.data <- descriptive.data %>%
-    transmute(person_id = person_id,
+    transmute(
+        person_id = person_id,
         household_id = household_id,
         # 0, 1 for the lottery
-        lottery_iv = treatment) %>%
+        lottery_iv = treatment,
+        survey_wave = as.integer(draw_lottery)) %>%
     # hh_size = how many people within each household.
     group_by(household_id) %>%
     mutate(hh_size = n()) %>%
@@ -129,6 +132,7 @@ analysis.data <- oregon.data %>%
         any_hospital_visits,
         initial_health_location,
         hh_size,
+        survey_wave,
         survey_weight,
         initial_dia_diagnosis,
         initial_ast_diagnosis,
@@ -178,6 +182,7 @@ analysis.data <- analysis.data %>%
         Y_health,
         Y_happy,
         survey_weight,
+        survey_wave,
         initial_dia_diagnosis,
         initial_ast_diagnosis,
         initial_hbp_diagnosis,

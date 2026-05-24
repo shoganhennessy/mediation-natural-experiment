@@ -62,7 +62,7 @@ Note the maintained assumption that treatment $Z_i$ is quasi-randomly assigned c
 
 This selection model setup is equivalent to the monotonicity condition, and is importing a well-known equivalence result from the IV literature to the CM setting.
 The main conceptual difference is not assuming $Z_i$ is a valid instrument for identifying the $D_i$ on $Y_i$ effect among compliers; it is using the selection model representation to correct for selection bias.
-See \aref{appendix:mte-monotonicity} for a validation of the general \cite{vytlacil2002independence} equivalence result in a CM setting, with conditioning covariates $\vec X_i$.
+See \appendixref{appendix:mte-monotonicity} for a validation of the general \cite{vytlacil2002independence} equivalence result in a CM setting, with conditioning covariates $\vec X_i$.
 
 \begin{assumptionMTE}
     \label{mte:identification}
@@ -120,7 +120,7 @@ The CFs $\lambda_0(.), \lambda_1(.)$ are assumed to lie in a $K-1$ dimensional c
 After observed heterogeneity is absorbd by $\mu_d(z;\vec X_i)$, the remaining dependence between observed mediator take-up cost $U_i$ and outcome gains $U_{0,i},U_{1,i}$ is common across $\vec X_i$ and lied in a $K-1$ dimensional basis over the support of $\pi(Z_i;\vec X_i)$.
 Equivalently, the instrument identifies the CFs only up to the degrees of freedom supplied by relevant propensity-score support.
 For example, with only two relevant propensity-score values, this is a linear restriction on the CFs, corresponding to the restricted-MTE logic of \cite{brinch2017beyond}.
-This restricted support assumption is weaker than relying on identification at infinity, with testable implications --- described in \aref{appendix:mte-restricted}.
+This restricted support assumption is weaker than relying on identification at infinity, with testable implications --- described in \appendixref{appendix:mte-restricted}.
 
 \begin{proposition}
     \label{proposition:secondstage}
@@ -137,7 +137,7 @@ This restricted support assumption is weaker than relying on identification at i
             \label{eqn:mte-secondstage}
     \end{align*}
     where $\lambda_0, \lambda_1$ are the corresponding CFs, $\rho_0, \rho_1$ are linear parameters, and mediator propensity score $\pi(z;\vec X_i)$ is separately identified in the first-stage \eqref{eqn:parametric-firststage}.
-    Proof: see \aref{appendix:mte-secondstage}.
+    Proof: see \appendixref{appendix:mte-secondstage}.
 \end{proposition}
 Again, this set-up required no linearity assumptions, and treatment effects vary, because $Z_i, D_i$ are categorical and  $\beta, \gamma, \delta , \varphi(\vec X_i)$ vary with $\vec X_i$.
 The CFs are functions which measure unobserved mediator gains, for those with unobserved mediator costs above or below a propensity score value.
@@ -193,7 +193,7 @@ The final step uses the corresponding CFs to extrapolate from $\vec X_i^{\text{I
     = \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p}$ is the average unobserved net gains for those with unobserved costs between $p < p'$,\footnote{
         The complier adjustment term was first written in this manner by \cite{kline2019heckits} for an IV setting.
     } and $\bar\pi = \pi(1; \vec X_i) - \pi(0; \vec X_i)$ is the mediator complier score.
-    Proof: see \aref{appendix:mte-ade-aie}.
+    Proof: see \appendixref{appendix:mte-ade-aie}.
 \end{theoremMTE}
 
 This theorem provides a solution to the identification problem for CM effects when facing selection;

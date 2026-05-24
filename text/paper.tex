@@ -58,7 +58,7 @@
 \renewcommand{\tilde}[1]{\widetilde{#1}}                                   % Make over tilde look better
 \newcommand{\indep}{\, \raisebox{0.05em}{\rotatebox[origin=c]{90}{$\models$}} \,}% Statistical independence symbol.
 \definecolor{ao(english)}{rgb}{0.0, 0.5, 0.0}                              % Define dark green colour 
-\newcommand{\aref}[1]{\hyperref[#1]{Appendix~\ref*{#1}}}
+\newcommand{\appendixref}[1]{\hyperref[#1]{Appendix~\ref*{#1}}}
 \renewcommand{\floatpagefraction}{0.8}
 % Citations
 \usepackage[longnamesfirst]{natbib}                                        % Citation package, see https://en.wikibooks.org/wiki/LaTeX/Bibliography_Management#Natbib
@@ -155,7 +155,25 @@
 \singlespacing
 \bibliographystyle{agsm}
 \bibliography{sections/09-bibliography-doi.bib}
+
 % Appendix
 \newpage
+\onehalfspacing
+\appendix
+\setcounter{table}{0}
+\renewcommand{\thetable}{A\arabic{table}}
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{A\arabic{figure}}
+
+% Start appendix
+\section{Supplementary Appendix}
+\label{appendix}
+This section is for supplementary information, and validation of presented propositions and theorems.
+It is not meant for publication.
+
+Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu}{\nolinkurl{seh325@cornell.edu}},
+or raised as an issue on the Github project,
+\url{https://github.com/shoganhennessy/mediation-natural-experiment}.
+
 \input{sections/10-appendix.tex}
 \end{document}

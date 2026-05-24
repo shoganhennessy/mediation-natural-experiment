@@ -1,23 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Appendix section
-% Set-up the section.
-%\newpage
-\onehalfspacing
-\appendix
-\setcounter{table}{0}
-\renewcommand{\thetable}{A\arabic{table}}
-\setcounter{figure}{0}
-\renewcommand{\thefigure}{A\arabic{figure}}
-
-% Start appendix
-\section{Supplementary Appendix}
-\label{appendix}
-This section is for supplementary information, and validation of presented propositions and theorems.
-It is not meant for publication.
-
-Any comments or suggestions may be sent to me at \href{mailto:seh325@cornell.edu}{\nolinkurl{seh325@cornell.edu}},
-or raised as an issue on the Github project,
-\url{https://github.com/shoganhennessy/mediation-natural-experiment}.
 
 %\subsection{Previous Literature}
 %\label{appendix:mediation-review}
@@ -688,7 +670,7 @@ This gives the final result,
             + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big).
 \end{align*}
 All parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z;\vec X_i)$ identified separately in the first-stage.
-$\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse Mills ratio in \citealt{heckman1979sample}), or treated as semi-parametric parameters to be estimated --- at cost of the constant and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$, see \aref{appendix:semi-parametric}.
+$\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse Mills ratio in \citealt{heckman1979sample}), or treated as semi-parametric parameters to be estimated --- at cost of the constant and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$, see \appendixref{appendix:semi-parametric}.
 
 \subsection{MTE Identification of the ADE and AIE}
 \label{appendix:mte-ade-aie}

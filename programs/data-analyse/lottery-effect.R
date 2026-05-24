@@ -10,6 +10,8 @@ renv::load()
 library(tidyverse)
 # Functions for bootstrapping.
 library(boot)
+# G-computation of causal effects (allows control interations)
+library(marginaleffects)
 # Library for better colour choice and additional graphing.
 library(ggthemes)
 library(ggpattern)
@@ -43,6 +45,7 @@ analysis.data <- data.folder %>%
 
 # Factorise the relevant variables.
 analysis.data$hh_size <- factor(analysis.data$hh_size)
+analysis.data$survey_wave <- factor(analysis.data$survey_wave)
 analysis.data$initial_health_location <- factor(
     analysis.data$initial_health_location)
 
@@ -57,13 +60,18 @@ iv_firststage.reg <- lm(any_insurance ~ 1 + lottery_iv,
 print(summary(iv_firststage.reg))
 
 # Show lottery IV -> insurance is strong, conditional on household size.
-iv_firststage.reg <- lm(any_insurance ~ 1 + lottery_iv * factor(hh_size),
+iv_firststage.reg <- lm(any_insurance ~ 1 + lottery_iv * hh_size * survey_wave,
     weights = survey_weight,
     data = analysis.data)
 print(summary(iv_firststage.reg))
+# Get implied returns to education.
+lottery.coef <- avg_slopes(iv_firststage.reg)#, hypothesis = "lottery_iv = 0")
+print(lottery.coef)
+#print(lottery.coef$estimate)
+#print(lottery.coef$std.error)
 
 # Calculate Pr(Z_iv = 1 | household size), the known instrument prop score.
-iv_prop.reg <- lm(lottery_iv ~ 0 + factor(hh_size),
+iv_prop.reg <- lm(lottery_iv ~ 0 + hh_size * survey_wave,
     weights = survey_weight,
     data = analysis.data)
 print(summary(iv_prop.reg))
@@ -324,3 +332,26 @@ complier.plot <- complier.plot +
 ggsave(file.path(figures.folder, "insurance-effects-presentation.png"),
     plot = complier.plot,
     units = "cm", width = fig.width, height = fig.height)
+
+
+################################################################################
+## Test if a direct effect exists.
+
+library(fixest)
+library(ivcheck)
+
+iv_firststage.reg <- lm(any_insurance ~ 1 + lottery_iv + hh_size * survey_wave,
+    #weights = survey_weight,
+    data = analysis.data)
+print(summary(iv_firststage.reg))
+
+iv_secondstage.reg <- feols(Y_happy ~ 1 + hh_size * survey_wave
+    | any_healthcare ~ lottery_iv,
+    #weights = survey_weight,
+    data = analysis.data)
+print(iv_secondstage.reg)
+
+# Test the exclusion restriction.
+N.boot <- 1000
+exclusion.test <- iv_check(iv_secondstage.reg, n_boot = N.boot)
+print(exclusion.test)

@@ -60,7 +60,7 @@ The standard errors for estimates can be computed using the delta method.
 Specifically, accounting for sampling variability in both first-stage mediator propensity score estimation and second-stage causal effects estimation.
 This approach yields $\sqrt{n}$-consistent estimates when the underlying error terms follow a bivariate normal distribution --- i.e., when $\pi(Z_i; \vec X_i)$ is correctly modelled by the probit first-stage.
 Errors can also be estimated by the bootstrap, by including estimation of both the first and second-stage within each bootstrap iteration.
-% \aref{appendix:implement} further describes the implementation of this approach in the R language \citep{R2023}, with a linear probit first-stage and second-stage estimated by OLS.
+% \appendixref{appendix:implement} further describes the implementation of this approach in the R language \citep{R2023}, with a linear probit first-stage and second-stage estimated by OLS.
 
 \begin{figure}[!h]
     \caption{The MTE Approach Addresses Persistent Bias in Conventional CM Estimates.}
@@ -146,8 +146,8 @@ $\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\
     - \bar Z \, \left(
         \frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
 where $\frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 0$, $\E{\gamma + \delta D_i(0)}$, and $\frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i)$ estimates the ADE conditional on $Z_i = 1$, $\E{\gamma + \delta D_i(1)}$.
-\aref{appendix:semi-parametric} describes the reasoning for this estimator of the AIE, relative to estimates of the ATE and ADE, in further detail.
-% \aref{appendix:implement} describes in further detail the implementation of this approach in the R language \citep{R2023}, with a \cite{klein1993efficient} first-stage and splines in the second-stage CF estimation.
+\appendixref{appendix:semi-parametric} describes the reasoning for this estimator of the AIE, relative to estimates of the ATE and ADE, in further detail.
+% \appendixref{appendix:implement} describes in further detail the implementation of this approach in the R language \citep{R2023}, with a \cite{klein1993efficient} first-stage and splines in the second-stage CF estimation.
 
 This semi-parametric approach achieves valid estimation of the CM effects, without specifying the distribution behind unobserved error terms, and achieves desirable properties as long as the first-stage correctly estimates the mediator propensity score, and the structural assumptions hold true.
 The standard errors for estimates can again be computed using the delta method, or estimated by the bootstrap --- again, across both first and second-stages within each bootstrap iteration.
@@ -197,7 +197,7 @@ In this simulation $\Prob{D_i = 1} = 0.379$, and $65.77\%$ of the sample are med
 This gives an ATE value of 2.60, ADE 1.38, and AIE 1.22, respectively.\footnote{
     Note that ATE $=$ ADE $+$ AIE in this setting.
     $\Prob{Z_i=1} = 0.5$ ensures this equality, but it is not guaranteed in general.
-    See \aref{appendix:semi-parametric}.
+    See \appendixref{appendix:semi-parametric}.
 }
 
 \begin{figure}[h!]
