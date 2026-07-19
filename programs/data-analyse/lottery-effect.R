@@ -64,7 +64,7 @@ iv_firststage.reg <- lm(any_insurance ~ 1 + lottery_iv * hh_size * survey_wave,
     weights = survey_weight,
     data = analysis.data)
 print(summary(iv_firststage.reg))
-# Get implied returns to education.
+# Get implied first-stage effect.
 lottery.coef <- avg_slopes(iv_firststage.reg)#, hypothesis = "lottery_iv = 0")
 print(lottery.coef)
 #print(lottery.coef$estimate)
@@ -263,7 +263,6 @@ complier.plot <- complier.plot +
             "\n(", round(Y_happy_effect_complier.se, 2), ")"),
         size = 4, hjust = 0.5, vjust = 0.5,
         fontface = "bold", colour = colour.list[3])
-complier.plot
 # Save this plot
 ggsave(file.path(figures.folder, "insurance-effects.png"),
     plot = complier.plot,
@@ -349,9 +348,40 @@ iv_secondstage.reg <- feols(Y_happy ~ 1 + hh_size * survey_wave
     | any_healthcare ~ lottery_iv,
     #weights = survey_weight,
     data = analysis.data)
-print(iv_secondstage.reg)
+print(summary(iv_secondstage.reg))
 
 # Test the exclusion restriction.
-N.boot <- 1000
+N.boot <- 10^3
 exclusion.test <- iv_check(iv_secondstage.reg, n_boot = N.boot)
 print(exclusion.test)
+
+# Code for weak IV inference:
+library(ivDiag)
+AR.out <- AR_test(
+    Z = "lottery_iv",
+    D = "any_healthcare",
+    Y = "Y_happy",
+    controls = c("hh_size", "survey_wave"),
+    data = analysis.data,
+    cl = c("hh_size", "survey_wave"), # Cluster
+    CI = TRUE)
+print(AR.out)
+
+data = rueda
+
+# 2. Ivmodel
+library(ivmodel)
+print(ivmodel(Z = analysis.data$lottery_iv,
+    D = analysis.data$any_healthcare,
+    Y = analysis.data$Y_happy,
+    X = analysis.data[, c("hh_size", "survey_wave")]))
+
+
+data(card.data)
+Y = card.data[,"lwage"]
+D = card.data[,"educ"]
+Z = card.data[, "nearc4"] * 10
+Xname = c("exper", "expersq", "black", "south","smsa")
+X = card.data[, Xname]
+cardfit = ivmodel(Y=Y, D=D, Z=Z, X=X)
+summary(cardfit)

@@ -80,7 +80,7 @@ Errors can also be estimated by the bootstrap, by including estimation of both t
     \justify
     \footnotesize
     \textbf{Note:}
-    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with normally distributed error terms (with both correlation and heteroscedasticity, further described in \autoref{sec:simulations}).
+    These figures show the empirical density of point estimates minus the true average effect, for 10,000 different datasets generated from a Roy model with normally distributed error terms (with both correlated error terms and heteroscedasticity, further described in \autoref{sec:simulations}).
     The black dashed line is the true value;
     orange is the distribution of conventional CM estimates from two-stage OLS \citep{imai2010identification},
     and blue estimates with a two-stage Heckman selection adjustment.
@@ -261,7 +261,7 @@ The semi-parametric approach is centred exactly around the truth, with a slightl
 The error terms determine the bias in OLS estimates of the ADE and AIE, so the bias varies for different values of the error-term parameters $\text{Corr}\big(U_{0,i}, U_{1,i}\big) \in [-1, 1]$ and $\Var{U_{0,i}}, \Var{U_{1,i}} \geq 0$.
 The true AIE values vary, because $D_i(Z_i)$ compliers have higher average values of $U_{1,i} - U_{0,i}$ as $\text{Corr}\big(U_{0,i}, U_{1,i}\big)$ increases.
 \autoref{fig:rho-bias} shows MTE-based estimates against estimates calculated by standard OLS, showing 95\% confidence intervals calculated from 1,000 bootstraps.
-The point estimates of the MTE-based do not exactly equal the true values, as they are estimates from one simulation (not averages across many generated datasets, as in \autoref{fig:cm-uniform-dist}).
+The point estimates of the MTE-based approach do not exactly equal the true values, as they are estimates from one simulation (not averages across many generated datasets, as in \autoref{fig:cm-uniform-dist}).
 The MTE approach improves on OLS estimates by correcting for bias, with confidence regions overlapping the true values.\footnote{
     In the appendix, \autoref{fig:sigma-1-bias} shows the same simulation while varying $\Var{U_{1,i}}$, with fixed $\Var{U_{0,i}} = 1, \text{Corr}\big(U_{0,i}, U_{1,i}\big) = 0.5$.
     The conclusion is the same as for varying the correlation coefficient, $\rho$, in \autoref{fig:rho-bias}.
