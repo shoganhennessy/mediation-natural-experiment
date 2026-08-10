@@ -29,10 +29,7 @@ There are only two average effects which are identified without additional assum
     \[ \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0}
         = \Prob{D_i(0) \neq D_i(1)}. \]
     It is common in the economics literature to assume that $Z_i$ influences $D_i$ in at most one direction, $\Prob{D_i(0) \leq D_i(1)} = 1$ --- monotonicity \citep{imbens1994identification}.
-    %I assume mediator monotonicity (and its conditional variant) holds throughout to simplify notation.
-    %\footnote{
-    %    Assuming monotonicity also brings closer to the IV notation, and has other beneficial implications in this setting (see \autoref{sec:controlfun}).
-    %}
+    I assume mediator monotonicity (and its conditional variant) holds throughout, to simplify notation.
     \item The Average Treatment Effect (ATE) refers to the effect of the treatment on outcome, $Z_i$ on $Y_i$, and is also known as the average total effect or intent-to-treat effect in social science settings, or reduced-form effect in the instrumental variables literature:
     \[ \Egiven{Y_i}{Z_i = 1} - \Egiven{Y_i}{Z_i = 0}
         = \E{Y_i(1, D_i(1)) - Y_i(0, D_i(0))}. \]
@@ -221,7 +218,10 @@ The AIE group differences term is longer, because the indirect effect is compris
             \text{Average $D_i$ on $Y_i$ effect among $D_i(Z_i)$ switchers}
         }
 \end{align*}
-It is important to acknowledge the mediator switchers here, because the AIE is the treatment effect going through the $D_i(Z_i)$ channel, thus only refers to individuals pushed into mediator $D_i$ by initial treatment $Z_i$.
+It is important to acknowledge the mediator switchers here, because the AIE is the treatment effect going through the $D_i(Z_i)$ channel, thus only refers to individuals pushed into mediator $D_i$ by initial treatment $Z_i$.\footnote{
+    This section has relied on mediator monotonicity, so that the mediator defier share is almost surely zero, $\Prob{D_i(0) = 1, D_i(1) = 0} = 0$.
+    \appendixref{appendix:aie-with-defiers} describes the AIE (and selection bias) without monotonicty.
+}
 If we had been using a population average effect for $D_i$ on $Y_i$, then this is losing focus on the definition of the AIE; it is not about the causal effect $D_i$ on $Y_i$, it is about the causal effect $D_i(Z_i)$ on $Y_i$.
 
 The group difference bias term arises because the convention approach to CM assumes the switcher average effect is equal to the population average effect, which does not hold true if the mediator is not quasi-randomly assigned.

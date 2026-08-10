@@ -215,6 +215,133 @@ $\Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}$
 $= \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$,
 then applying the expectation across $Z_i = z$, and $\vec X_i$.
 
+\subsection{The AIE Without Mediator Monotonicity}
+\label{appendx:aie-with-defiers}
+The main text maintains mediator monotonicity,
+\[
+    \Pr\bigl(D_i(0) \leq D_i(1) \mid \vec X_i\bigr) = 1.
+\]
+This assumption rules out mediator defiers and allows the mediator first-stage to be interpreted as the mediator complier share.
+This section relaxes mediator monotonicity and shows how the AIE decomposition changes when mediator defiers are present.
+
+For each value of \( \vec X_i\), define the mediator complier and defier shares as
+\[
+    \pi_C( \vec X_i)
+    :=
+    \Pr\bigl(D_i(0)=0,D_i(1)=1 \mid \vec X_i\bigr),
+\]
+and
+\[
+    \pi_D( \vec X_i)
+    :=
+    \Pr\bigl(D_i(0)=1,D_i(1)=0 \mid \vec X_i\bigr).
+\]
+The mediator first-stage is then
+\begin{align}
+    & \Egiven{D_i }{ Z_i=1, \vec X_i }
+    - \Egiven{D_i }{ Z_i=0, \vec X_i }
+    \notag\\
+    &\qquad
+    = \Egiven{D_i(1)-D_i(0)}{ \vec X_i }
+    \notag\\
+    &\qquad
+    =
+    \pi_C( \vec X_i)-\pi_D( \vec X_i).
+    \label{eq:first-stage-with-defiers}
+\end{align}
+Thus, absent monotonicity, the mediator first-stage identifies the net complier share rather than the mediator complier share.
+
+Because \(D_i(0)\) and \(D_i(1)\) are binary,
+\begin{align}
+    &Y_i\bigl(Z_i,D_i(1)\bigr)
+    -
+    Y_i\bigl(Z_i,D_i(0)\bigr)
+    \notag\\
+    &\qquad
+    =
+    \bigl[D_i(1)-D_i(0)\bigr]\bigl[Y_i(Z_i, 1) - Y_i(Z_i, 0)\bigr].
+    \label{eq:aie-binary-mediator-identity}
+\end{align}
+Always-takers and never-takers make no contribution to this expression because their mediator status does not respond to \(Z_i\).
+Compliers contribute positively, while defiers contribute negatively.
+
+Define the average effects of the mediator among compliers and defiers, respectively, as
+\[
+    \tau_C( \vec X_i)
+    :=
+    \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{ 
+        D_i(0)=0,D_i(1)=1, \vec X_i}
+\]
+\[
+    \tau_D( \vec X_i)
+    :=
+    \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{ 
+        D_i(0)=1,D_i(1)=0, \vec X_i}.
+\]
+The conditional AIE can therefore be written as
+\begin{align}
+    &\Egiven{
+        Y_i\bigl(Z_i,D_i(1)\bigr)
+        -
+        Y_i\bigl(Z_i,D_i(0)\bigr)}{ \vec X_i}
+    \notag\\
+    &\qquad
+    =
+    \pi_C( \vec X_i)\tau_C( \vec X_i)
+    -
+    \pi_D( \vec X_i)\tau_D( \vec X_i).
+    \label{eq:aie-with-defiers}
+\end{align}
+Applying the expectation across \( \vec X_i\) gives
+\begin{align}
+    \operatorname{AIE}
+    = \E{\pi_C( \vec X_i)\tau_C( \vec X_i)
+        - \pi_D( \vec X_i)\tau_D( \vec X_i) }.
+    \label{eq:unconditional-aie-with-defiers}
+\end{align}
+
+Using \autoref{eq:first-stage-with-defiers}, \autoref{eq:aie-with-defiers} can alternatively be written as
+\begin{align}
+    &\Egiven{
+        Y_i\bigl(Z_i,D_i(1)\bigr)
+        -
+        Y_i\bigl(Z_i,D_i(0)\bigr)}{ \vec X_i }
+    \notag\\
+    &\qquad
+    =
+    \Big(
+        \Egiven{D_i}{ Z_i=1, \vec X_i }
+        -
+        \Egiven{D_i}{ Z_i=0, \vec X_i }
+    \Big)
+    \tau_C( \vec X_i)
+    \notag\\
+    &\qquad\quad
+    +
+    \pi_D( \vec X_i)
+    \left[
+        \tau_C( \vec X_i)-\tau_D( \vec X_i)
+    \right].
+    \label{eq:aie-net-first-stage}
+\end{align}
+The first term is the net mediator first-stage multiplied by the average mediator effect among compliers.
+The second term adjusts for differences between the average mediator effects of compliers and defiers.
+
+Under mediator monotonicity, \(\pi_D( \vec X_i)=0\), and equation \eqref{eq:aie-net-first-stage} reduces to the complier-based decomposition used in the main text.
+The additional term also vanishes if compliers and defiers have the same average mediator effect, although this is a treatment-effect homogeneity restriction rather than monotonicity.
+Without either restriction, the mediator first-stage cannot be interpreted as the mediator complier share, and the AIE cannot be written as the mediator first-stage multiplied only by the average mediator effect among compliers.
+
+The presence of mediator defiers also changes the selection-bias decomposition for the conventional CM estimand. Absent mediator monotonicity, the conventional CM estimand for the AIE can be written as
+\begin{align}
+    &\E{ \Big( \Egiven{D_i}{Z_i=1,\vec X_i} - \Egiven{D_i}{Z_i=0,\vec X_i} \big) \Big() \Egiven{Y_i}{Z_i,D_i=1,\vec X_i} - \Egiven{Y_i}{Z_i,D_i=0,\vec X_i} \Big) } \notag\\
+    &\qquad = \underbrace{ \E{ Y_i\bigl(Z_i,D_i(1)\bigr) - Y_i\bigl(Z_i,D_i(0)\bigr) } }_{\text{AIE}}
+    \label{eq:aie-selection-bias-with-defiers}\\
+    &\qquad\quad + \underbrace{ \E{ \Big( \pi_C(\vec X_i)-\pi_D(\vec X_i) \Big) \Big( \Egiven{Y_i(Z_i,0)} {Z_i,D_i=1,\vec X_i} - \Egiven{Y_i(Z_i,0)} {Z_i,D_i=0,\vec X_i} \Big) } }_{\text{Selection bias}} \notag\\
+    &\qquad\quad + \underbrace{ \E{ \Big( \pi_C(\vec X_i)-\pi_D(\vec X_i) \Big) \Big( \Egiven{Y_i(Z_i,1)-Y_i(Z_i,0)} {Z_i,D_i=1,\vec X_i} - \tau_C(\vec X_i) \Big) } }_{\text{Group differences}} \notag\\ &\qquad\quad + \underbrace{ \E{ \pi_D(\vec X_i) \Big( \tau_D(\vec X_i)-\tau_C(\vec X_i) \Big) } }_{\text{Defier compensation}}. \notag
+\end{align}
+
+The second term is selection bias: differences in baseline potential outcomes between those who take and refuse the mediator. The third term is group-difference bias: the average mediator effect among those observed taking the mediator may differ from the average mediator effect among mediator compliers. Both terms are weighted by the net mediator first-stage, \(\pi_C(\vec X_i)-\pi_D(\vec X_i)\), rather than the mediator complier share alone. The final term is the additional defier-compensation term. It arises because the true AIE contains the negatively weighted mediator effect among defiers, while the conventional CM estimand weights its second-stage mediator contrast by the net mediator first-stage.
+
 \subsection{A Regression Framework for Direct and Indirect Effects}
 \label{appendix:regression-model}
 Put $\mu_{d}(z; \vec X) = \Egiven{Y_i(z, d)}{\vec X}$ and $U_{d, i} = Y_i(z, d) - \mu_{d}(z; \vec X)$ for each $z,d=0,1$, so we have the following expressions:
@@ -537,7 +664,7 @@ Thus, the AIE requires the CFs only at the propensity-score values that determin
 mediator-complier interval.
 Equivalently, the relevant support is
 \[
-    \mathcal P_C
+    \mathcal \pi_C
     =
     \left\{
         p:
@@ -555,7 +682,7 @@ The weaker requirement used here is that the restricted-CF specification in
     \quad\textnormal{and}\quad
     \rho_1\lambda_1(p)
     \qquad
-    \textnormal{for } p\in\mathcal P_C.
+    \textnormal{for } p\in\mathcal \pi_C.
     \label{eqn:restricted-cf-complier-support}
 \]
 

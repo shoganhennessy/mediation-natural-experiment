@@ -156,7 +156,7 @@ analysis.data %>% select(initial_health_location) %>% table() %>% print()
 analysis.data %>%
     nrow() %>%
     prettyNum(big.mark = ",", scientific = FALSE) %>%
-    writeLines(file.path(tables.folder, "oregon-obs-count.txt"))
+    writeLines(file.path(tables.folder, "oregon-obs-count.tex"))
 
 # Health survey outcome -> Overall health is good or better (2 is fair, 1 is poor).
 analysis.data$Y_health <- as.integer(analysis.data$health_level_survey >= 3)
