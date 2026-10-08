@@ -22,7 +22,7 @@ The main problem is that second-stage regression equation \eqref{eqn:parametric-
 
 My approach to identifying CM effects models the contaminating terms in \eqref{eqn:secondstage-reg} via the mediator MTE, avoiding the bias terms derived in \autoref{sec:mediation}.
 Thinking on MTEs began with corrections for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem of the same form as \autoref{eqn:secondstage-reg} in parametric settings \citep{heckman1979sample,bjorklund1987estimation} and a general case \citep{heckman2005structural}.
-The approach works in the following manner: (1) assume that the variable of interest follows a selection model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage; and (3) incorporate this information as control terms in the second-stage equation to adjust for selection-into-mediator.
+The approach works in the following manner: (1) assume that the variable of interest follows a threshold-crossing model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage; and (3) incorporate this information as control terms in the second-stage equation to adjust for selection-into-mediator.
 Identification in MTE methods typically relies on identifying the corresponding Control Functions (CFs) with an external instrument or distributional assumptions; this paper focuses exclusively on the case that an instrument is available.
 By explicitly accounting for the information contained in the first-stage selection model, the MTE approach enables consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors.
 
@@ -30,8 +30,8 @@ In the example of analysing health gains from the Oregon Health Insurance Experi
 It does so by assuming that unobserved selection-into-healthcare use is informative for underlying health conditions, assuming people with more severe underlying conditions visit the doctor more often than those without.
 Then it uses this information in the second-stage estimation of how much the effect goes through increased healthcare usage, estimating the ADE and AIE after controlling for this confounding.
 
-\subsection{Re-identification of CM Effects}
-The following assumptions are sufficient to model the correlated error terms, identifying $\beta, \gamma, \delta$ in the second-stage regression \eqref{eqn:parametric-secondstage}, and thus both the ADE and AIE.
+\subsection{MTE Model Set-up}
+The following assumptions identify the second-stage conditional mean \eqref{eqn:parametric-secondstage} and the combinations of its systematic and control-function components required to identify the mediator MTE, and thus both the ADE and AIE.
 
 \theoremstyle{definition}
 \newtheorem{assumptionMTE}{Assumption}
@@ -41,7 +41,6 @@ The following assumptions are sufficient to model the correlated error terms, id
     Mediator monotonicity, conditional on $\vec X_i$.
     \[ \Probgiven{ D_i(0) \leq D_i(1) }{\vec X_i} = 1. \]
 \end{assumptionMTE}
-\noindent
 Assumption \ref{mte:monotonicity} is the monotonicity condition first used in an IV context \citep{imbens1994identification}.
 Here, it is assuming that people respond to treatment, $Z_i$, by consistently taking or refusing the mediator $D_i$ (always or never-mediators), or taking the mediator $D_i$ if and only if assigned to the treatment $Z_i=1$ (mediator compliers).
 There are no mediator defiers, so that the mediator switcher group ($D_i(0) \neq D_i(1)$) is comprised entirely of mediator compliers ($D_i(0) =0$, $D_i(1)=1$).
@@ -56,7 +55,8 @@ The identification strategy here applies to the general case that the distributi
 I focus on the equivalent transformed model of \cite{heckman2005structural},
 \[ D_i(z) = \indicator{U_i \leq \pi(z; \vec X_i)},
     \;\;\; \text{for } z=0,1 \]
-where $U_i \coloneqq F_V\left( V_i \mid \vec X_i \right)$ follows a uniform distribution, and $\pi(z; \vec X_i) = F_V\big(\psi(z; \vec X_i)\big) = \Probgiven{D_i = 1}{Z_i = z, \vec X_i}$ is the mediator propensity score.
+where $U_i \coloneqq F_V\left( V_i \mid \vec X_i \right)$
+follows a uniform distribution, and $\pi(z; \vec X_i) = F_V\big(\psi(z; \vec X_i)\big) = \Probgiven{D_i = 1}{Z_i = z, \vec X_i}$ is the mediator propensity score.
 $U_i$ are the unobserved mediator take-up costs.
 Note the maintained assumption that treatment $Z_i$ is quasi-randomly assigned conditional on $\vec X_i$ implies $Z_i \indep U_i$ conditional on $\vec X_i$.
 
@@ -64,43 +64,53 @@ This selection model setup is equivalent to the monotonicity condition, and is i
 The main conceptual difference is not assuming $Z_i$ is a valid instrument for identifying the $D_i$ on $Y_i$ effect among compliers; it is using the selection model representation to correct for selection bias.
 See \appendixref{appendix:mte-monotonicity} for a validation of the general \cite{vytlacil2002independence} equivalence result in a CM setting, with conditioning covariates $\vec X_i$.
 
-\begin{assumptionMTE}
-    \label{mte:identification}
-    Selection on mediator benefits.
-    \[ \Egiven{U_{0,i}}{U_i, \vec X_i} \neq 0, \;\;\;\;
-        \Egiven{U_{1,i}}{U_i, \vec X_i} \neq 0. \]
-\end{assumptionMTE}
-\noindent
-Assumption~\ref{mte:identification} is a relevance condition;
-if there is unobserved confounding in $Y_i$, then it can be measured in $D_i$.
-It states that that unobserved selection in mediator take-up ($U_i$) informs second-stage confounding, when taking or refusing the mediator ($U_{0,i}$ or $U_{1,i}$, respectively).
-
-This is a relevance condition for the MTE model, analogously to instrument relevance in IV estimation.
-Just as a weak instrument provides no identifying variation in the first-stage, a violation of Assumption~\ref{mte:identification} implies that the control functions $\lambda_0, \lambda_1$
-enter the second-stage regression but fail to absorb any selection bias.
-If individuals select into $D_i$ according to a Roy model, then this assumption holds because $V_i = U_{C,i} - \big( U_{1,i} - U_{0,i} \big)$.
-Individuals may make decisions based on other outcomes, but as long as mediator benefits guide at least part of the decision (i.e., the dependence is bounded away from zero), then this assumption will hold.
-
 For notation purposes, suppose the vector of control variables $\vec X_i$ has at least two entries;
 denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as the remaining.
+For each $z = 0,1$ and each possible value of $\vec x_i^{\mathrm{IV}}$ in the support of $\vec X_i^{\mathrm{IV}}$, write the mediator propensity score as
+\[ \pi\big( z; \;\vec x^{\mathrm{IV}}, \vec x^- \big) = \Prob{D_i=1 \mid Z_i=z, \vec X_i^{\mathrm{IV}}=\vec x^{\mathrm{IV}}, \vec X_i^-=\vec x^-}. \] 
+
 \begin{assumptionMTE}
     \label{mte:instrument}
-    Mediator take-up cost instrument.
-    \[ \vec X_i^{\text{IV}} \textnormal{ satisfies } \;
-    \partialdiff{\vec X_i^{\text{IV}}}\Big\{
-        \mu_{d}(z, \vec X_i) \Big\} = 0
-        < \partialdiff{\vec X_i^{\text{IV}}}
-        \Big\{
-            \Egiven{D_i(z)}{\vec X_i}\Big\},
-        \textnormal{ for } z, d = 0, 1. \]
+    Mediator take-up cost instrument: $\vec X_i^{\mathrm{IV}}$ satisifes \emph{relevance}, \emph{exclusion}, and \emph{quasi-random assignment}.
+    \begin{enumerate}[label=\textbf{(\arabic*)}]
+        \item \emph{Relevance:} $\vec X_i^{\mathrm{IV}}$ changes the probability of mediator take-up.
+        \[ \pi\big( z; \vec x^{\mathrm{IV}}, \vec x^- \big) \text{ is nonconstant in } \vec x^{\mathrm{IV}}. \]
+        \item \emph{Exclusion:} $\vec X_i^{\mathrm{IV}}$ affects $Y_i$ only through mediator take-up.
+        \[ Y_i(z,d,\vec x^{\mathrm{IV}}) = Y_i(z,d), \;\; \text{ for all } z,d=0,1 \text{ and } \vec x^{\mathrm{IV}} \text{ in the } \vec X_i^{\mathrm{IV}} \text{ support}.\]
+        \item \emph{Quasi-random assignment:}
+        $\vec X_i^{\mathrm{IV}}$ is assigned independently of the relevant potential outcomes, and mediator potential choices
+        \[ \vec X_i^{\mathrm{IV}} \; \indep \;D_i(z), \;Y_i(z',d)
+        \;\; \big| \;\; \vec X_i^-, \;\; \text{ for } z,z',d = 0,1.\]
+    \end{enumerate}
 \end{assumptionMTE}
-\noindent
-Assumption \ref{mte:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an IV.
-It assumes an instrument exists, which satisfies an exclusion restriction (i.e., not impacting mediator gains $\mu_1-\mu_0$), and has a non-zero influence on the mediator (i.e., strong IV first-stage).
-The exclusion restriction is untestable, and must be guided by domain-specific knowledge; IV first-stage strength is testable, and must be justified with data by methods common in the IV literature.
+Assumption \ref{mte:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an Instrumental Variable (IV).
+Relevance provides variation in the mediator propensity score.
+Exclusion requires preceding healthcare access location to affect subsequent health and well-being only through healthcare take-up, after conditioning on $\vec X_i^-$ and $Z_i$.
+Quasi-random assignment requires this variation to be unrelated to latent mediator choices and mediator potential outcomes after conditioning on $\vec X_i^-$.
 
+The exclusion and assignment conditions are substantive assumptions that must be defended using institutional knowledge.
+The relevance condition has empirical implications that can be evaluated using the mediator first stage.
 The most compelling example of a mediator IV is using data on the cost of mediator take-up as a first-stage IV, if it varies between individuals for unrelated reasons and is strong in explaining mediator take-up.
 
+\begin{assumptionMTE}
+    \label{mte:joint-monotonicity}
+    Two-way monotonicity.
+    
+    \[ \pi(z; \vec x^{\mathrm{IV}}, \vec X_i^-) \leq \pi(z'; \vec x^{\mathrm{IV}\prime}, \vec X_i^-) 
+    \implies
+    D_i(z,\vec x^{\mathrm{IV}}) \leq D_i(z',\vec x^{\mathrm{IV}\prime}), \]
+    for any two values $(z,\vec x^{\mathrm{IV}})$ and $(z',\vec x^{\mathrm{IV}\prime})$ in the relevant support, almost surely conditional on $\vec X_i^-$.
+\end{assumptionMTE}
+Assumption~\ref{mte:joint-monotonicity} is a two-way no-defiers condition.
+It requires changes in the initial treatment $Z_i$ and the mediator instrument $\vec X_i^{\mathrm{IV}}$ to order individual mediator choices in the same direction as they order the population mediator propensity.
+Thus, whenever one combination of $Z_i$ and $\vec X_i^{\mathrm{IV}}$ produces weakly higher mediator take-up than another combination, moving to the higher-propensity state does not reduce mediator take-up for any individual. 
+The condition applies both to changes in either variable holding the other fixed and to comparisons across combinations of $Z_i$ and $\vec X_i^{\mathrm{IV}}$.
+
+In the OHIE, Assumption~\ref{mte:joint-monotonicity} requires lottery selection and preceding healthcare access location to shift healthcare take-up along a common ordering of individuals.
+If one combination of lottery status and preceding access location produces a higher probability of visiting a healthcare provider, then moving to that combination cannot cause any individual who would otherwise visit a provider not to do so.
+The assumption permits individuals to differ in their underlying resistance to healthcare take-up, but requires lottery selection and preceding access location to move the threshold on the same resistance ordering.
+
+\paragraph{Separability and Support of the MTE.}
 The ideal instrument $\vec X_i^{\text{IV}}$ for identification is continuous, and varies
 $\pi(z;\vec X_i)$ between 0 and 1 for every possible value of $z,\vec X_i^-$
 (identification at infinity).
@@ -109,22 +119,45 @@ The ADE and AIE do not require identifying the mediator MTE over every
 $p \in (0,1)$.
 They require the MTE-associated CFs only over the mediator-complier interval,
 \[
-    \pi(0;\vec X_i) < U_i \leq \pi(1;\vec X_i).
+    \pi(0; \,\vec X_i ^{\mathrm{IV}}, \vec X_i^-)
+    < U_i \leq
+    \pi(1; \, \vec X_i^{\mathrm{IV}}, \vec X_i^-).
 \]
 Thus, the identifying requirement is not full-support identification of the mediator MTE, but identification of the relevant CFs over the support between
-the complier region between $\pi(0;\vec X_i)$ and $\pi(1;\vec X_i)$.
+the complier region $\pi(0;\; \vec X_i^{\mathrm{IV}}, \vec X_i^-)$ to $\pi(1; \;\vec X_i^{\mathrm{IV}}, \vec X_i^-)$.
 
-With finite support, I instead impose a restricted-CF condition.
-Let $K$ denote the number of distinct values taken by the mediator propensity score $\pi(Z_i;\vec X_i)$ on the relevant support.
-The CFs $\lambda_0(.), \lambda_1(.)$ are assumed to lie in a $K-1$ dimensional class over this propensity-score support.
-After observed heterogeneity is absorbed by $\mu_d(z;\vec X_i)$, the remaining dependence between observed mediator take-up cost $U_i$ and outcome gains $U_{0,i},U_{1,i}$ is common across $\vec X_i$ and lied in a $K-1$ dimensional basis over the support of $\pi(Z_i;\vec X_i)$.
-Equivalently, the instrument identifies the CFs only up to the degrees of freedom supplied by relevant propensity-score support.
+For notation purposes, let $K$ denote the number of distinct values taken by the mediator propensity score $\pi(Z_i;\; \vec X_i^{\mathrm{IV}}, \vec X_i^-)$, and define the MTE-associated Control Functions (CFs) by\footnote{
+    Their formal connection to the mediator MTE is derived in \appendixref{appendix:mte-secondstage}.
+}
+\[  g_0(p, \vec X_i^-) = \Egiven{U_{0,i}}{p<U_i, \vec X_i^-},   \;\;\;\;
+    g_1(p, \vec X_i^-) = \Egiven{U_{1,i}}{U_i\leq p, \vec X_i^-}, \;\;\text{ for } p \in (0,1).  \]
+\theoremstyle{definition}
+\newtheorem{assumptionMTECF}{Assumption}
+\renewcommand\theassumptionMTECF{MTE--CF}
+\begin{assumptionMTECF}
+    \label{mte:restricted-cf}
+    Restricted and separable CFs.
+
+    CFs $g_0(.), g_1(.)$ belong to a $K-1$ dimensional class over the complier distribution, and are separable from control variables,
+    \begin{align*}
+        \Egiven{U_{0,i}}{p<U_i, \vec X_i^-}
+        &= \Egiven{U_{0,i}}{p<U_i} \eqqcolon g_0(p), \\
+        \Egiven{U_{1,i}}{U_i\leq p, \vec X_i^-}
+        &= \Egiven{U_{1,i}}{U_i\leq p} \eqqcolon g_1(p)
+        , \;\;\text{ for } p \in (0,1).
+    \end{align*}
+\end{assumptionMTECF}
+
+After observed heterogeneity is absorbed by $\mu_d(z;\vec X_i)$, the remaining dependence between observed mediator take-up cost $U_i$ and outcome gains $U_{0,i},U_{1,i}$ is common across $\vec X_i^-$ and lied in a $K-1$ dimensional basis in the complier region, $\pi(0;\; \vec X_i^{\mathrm{IV}}, \vec X_i^-)$ to $\pi(1; \;\vec X_i^{\mathrm{IV}}, \vec X_i^-)$.
+Equivalently, the instrument identifies the CFs only up to the degrees of freedom supplied by variation in the instrument .
 For example, with only two relevant propensity-score values, this is a linear restriction on the CFs, corresponding to the restricted-MTE logic of \cite{brinch2017beyond}.
-This restricted support assumption is weaker than relying on identification at infinity, with testable implications --- described in \appendixref{appendix:mte-restricted}.
+This restricted support assumption is weaker than relying on identification at infinity, with testable implications --- described further in \appendixref{appendix:mte-restricted}.
+
+\subsection{Re-identification of CM Effects}
 
 \begin{proposition}
     \label{proposition:secondstage}
-    If assumptions \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument}, and the restricted-CF support condition hold, then second-stage regression equation \eqref{eqn:parametric-secondstage} is identified via the MTE-associated CFs.
+    If assumptions \ref{mte:monotonicity}, \ref{mte:instrument} \ref{mte:joint-monotonicity}, and \ref{mte:restricted-cf}, then second-stage regression equation \eqref{eqn:parametric-secondstage} is identified via the MTE-associated CFs.
     \begin{align*}
         \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
             \alpha
@@ -132,67 +165,67 @@ This restricted support assumption is weaker than relying on identification at i
             + \gamma Z_i
             + \delta Z_i D_i
             + \varphi\big(\vec X_i^-\big) \\
-            & \;\; + \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
-                + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big),
+            & \;\; + \left( 1 - D_i \right) g_0 \big( \pi(Z_i ; \,\vec X_i ^{\mathrm{IV}}, \vec X_i^-) \big)
+                + D_i g_1 \big( \pi(Z_i ; \,\vec X_i ^{\mathrm{IV}}, \vec X_i^-) \big),
             \label{eqn:mte-secondstage}
     \end{align*}
-    where $\lambda_0, \lambda_1$ are the corresponding CFs, $\rho_0, \rho_1$ are linear parameters, and mediator propensity score $\pi(z;\vec X_i)$ is separately identified in the first-stage \eqref{eqn:parametric-firststage}.
+    where $g_0, g_1$ are the MTE-associated CFs, and mediator propensity score $\pi(z;\,\vec X_i ^{\mathrm{IV}}, \vec X_i^-)$ is separately identified in the first-stage \eqref{eqn:parametric-firststage}.
     Proof: see \appendixref{appendix:mte-secondstage}.
 \end{proposition}
 Again, this set-up required no linearity assumptions, and treatment effects vary, because $Z_i, D_i$ are categorical and  $\beta, \gamma, \delta , \varphi(\vec X_i)$ vary with $\vec X_i$.
 The CFs are functions which measure unobserved mediator gains, for those with unobserved mediator costs above or below a propensity score value.
-Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}$, to give the following representation for the CFs:
-\begin{align*}
-    \lambda_0\big(p\big) &=
-        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i}, \\
-    \lambda_1\big(p\big) &=
-        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p} = 
-            -\lambda_0\big( p \big) \left(\frac{1-p}{p}\right), \text{ for } p \in (0,1).
-\end{align*}
+%Following the IV notation of \cite{kline2019heckits}, put $\mu_V = \E{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}$, to give the following representation for the CFs:
+%\begin{align*}
+%    \lambda_0\big(p\big) &=
+%        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i}, \\
+%    \lambda_1\big(p\big) &=
+%        \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p} = 
+%            -\lambda_0\big( p \big) \left(\frac{1-p}{p}\right), \text{ for } p \in (0,1).
+%\end{align*}
 
-All relevant parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.)$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z;\vec X_i)$ identified separately in the first-stage thanks to the instrument(s) $\vec X_i^{\text{IV}}$.
-In the case that the CFs have an assumed functional form, then identification is complete.
-For example, in the canonical Heckman selection model, the error terms follow a normal distribution, so that $\lambda_0, \lambda_1$ are the inverse Mills ratio.
-If we do not know the distribution of $\big(U_{0,i}, U_{1,i}\big)$, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.\footnote{
-    This comes at the cost of $\alpha$ and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$.
-    However, this does not jeopardise identification and estimation of the ADE and AIE --- see \autoref{sec:semiparametric-mte}.
-}
+%All relevant parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.)$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z;\vec X_i)$ identified separately in the first-stage thanks to the instrument(s) $\vec X_i^{\text{IV}}$.
+%In the case that the CFs have an assumed functional form, then identification is complete.
+%For example, in the canonical Heckman selection model, the error terms follow a normal distribution, so that $\lambda_0, \lambda_1$ are the inverse Mills ratio.
+%If we do not know the distribution of $\big(U_{0,i}, U_{1,i}\big)$, then $\lambda_0, \lambda_1$ can be estimated separately with semi-parametric methods to avoid relying on parametric assumptions.\footnote{
+%    This comes at the cost of $\alpha$ and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$.
+%    However, this does not jeopardise identification and estimation of the ADE and AIE --- see \autoref{sec:semiparametric-mte}.
+%}
 
 This identification strategy is an MTE approach \citep{bjorklund1987estimation,heckman2005structural} applied to a CM setting.
 One can see this by noting the connection to the marginal effect of the mediator,
 \begin{align*}
-    & \Egiven{Y_i(z, 1) - Y_i(z, 0)}{Z_i = z, \vec X_i, U_i = p} \\
+    & \Egiven{Y_i(z, 1) - Y_i(z, 0)}{Z_i = z, \vec X_i^-, U_i = p} \\
     &= \beta + \delta z +
-    \underbrace{\Egiven{U_{1,i} - U_{0,i}}{\vec X_i, U_i = p}}_{
-        = \rho_1\lambda_1(p) + \rho_1 \lambda_1'(p)p
-            - \left[\rho_0\lambda_0(p) - \rho_0\lambda_0'(p)(1-p)\right]},
+    \underbrace{\Egiven{U_{1,i} - U_{0,i}}{\vec X_i^-, U_i = p}}_{
+        = g_1(p) + g_1'(p)p \,-\, \left[ g_0(p) - g_0'(p)(1-p)\right]},
     \;\;\;\; \text{ for } z = 0,1,\;p \in (0,1).
 \end{align*}
 The marginal effect of the mediator is identified under the \ref{thm:mte-identification} assumptions, thanks to instrumental variation in $\vec X_i^{\text{IV}}$.
-The final step uses the corresponding CFs to extrapolate from $\vec X_i^{\text{IV}}$ compliers to mediator compliers, and thus identify the ADE and AIE.
+The final step uses the corresponding CFs to interpolate from $\vec X_i^{\text{IV}}$ compliers to mediator compliers, and thus identify the ADE and AIE.
 
 \newtheorem{theoremMTE}{Theorem}
 \renewcommand\thetheoremMTE{MTE Approach}
 \begin{theoremMTE}
     \label{thm:mte-identification}
-    If assumptions \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument}, and the restricted-CF support condition hold, then the ADE and AIE are identified as a function of the parameters in Proposition \ref{proposition:secondstage}.
+    If assumptions \ref{mte:monotonicity}, \ref{mte:instrument} \ref{mte:joint-monotonicity}, and \ref{mte:restricted-cf}, then the ADE and AIE are identified as a function of the parameters in Proposition \ref{proposition:secondstage}.
     \begin{align*}
     \text{ADE}
     %= \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
         &= \E{\gamma + \delta D_i}, \\
     \text{AIE}
     %= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \mathbb E \Bigg[ \, \bar \pi \,
-            \Big( \beta +  \delta Z_i +
-                \underbrace{ (\rho_1 - \rho_0) \,
-                \Gamma \big(\pi(0; \vec X_i), \, \pi(1; \vec X_i) \big)}_{
-                    \text{Mediator compliers adjustment}} \Big) \Bigg]
+        %&= \E{\int_{\pi(0;\,\vec X_i ^{\mathrm{IV}}, \vec X_i^-)}^{
+        %    \pi(1;\,\vec X_i ^{\mathrm{IV}}, \vec X_i^-)} 
+        %\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{
+        %    \vec X_i ^{\mathrm{IV}}, \vec X_i^-, U_i = p} dp} \\
+        &= \text{ATE}
+            - \E{\gamma + \delta \,\pi\big(1-Z_i; \,\vec X_i ^{\mathrm{IV}}, \vec X_i^- \big)}.
     \end{align*}
-    where $\Gamma\left(p,p'\right) 
-    = \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i \leq p'}
-    = \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p}$ is the average unobserved net gains for those with unobserved costs between $p < p'$,\footnote{
-        The complier adjustment term was first written in this manner by \cite{kline2019heckits} for an IV setting.
-    } and $\bar\pi = \pi(1; \vec X_i) - \pi(0; \vec X_i)$ is the mediator complier score.
+    %where $\Gamma\left(p,p'\right) 
+    %= \Egiven{ F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i \leq p'}
+    %= \frac{p'\lambda_1\left(p'\right) - p\lambda_1\left(p\right)}{p' - p}$ is the average unobserved net gains for those with unobserved costs between $p < p'$,\footnote{
+    %    The complier adjustment term was first written in this manner by \cite{kline2019heckits} for an IV setting.
+    %} and $\bar\pi = \pi(1; \vec X_i) - \pi(0; \vec X_i)$ is the mediator complier score.
     Proof: see \appendixref{appendix:mte-ade-aie}.
 \end{theoremMTE}
 

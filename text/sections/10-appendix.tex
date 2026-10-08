@@ -55,8 +55,6 @@ These give (1) identification equivalence of AIE local to mediator compliers con
         \Big( \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i}
             - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)
 \end{align*}
-Monotonicity is not technically required for the above.
-Breaking monotonicity would not change the identification in any of the above; it would be the same except replacing the complier score with a complier/defier score, $\Probgiven{D_i(0) \neq D_i(1)}{\vec X_i} = \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$.
 
 %\subsection{Continuous Average Causal Responses}
 %\label{appendix:continuous}
@@ -216,10 +214,10 @@ $= \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$,
 then applying the expectation across $Z_i = z$, and $\vec X_i$.
 
 \subsection{The AIE Without Mediator Monotonicity}
-\label{appendx:aie-with-defiers}
+\label{appendix:aie-with-defiers}
 The main text maintains mediator monotonicity,
 \[
-    \Pr\bigl(D_i(0) \leq D_i(1) \mid \vec X_i\bigr) = 1.
+    \Prob{ D_i(0) \leq D_i(1)} = 1.
 \]
 This assumption rules out mediator defiers and allows the mediator first-stage to be interpreted as the mediator complier share.
 This section relaxes mediator monotonicity and shows how the AIE decomposition changes when mediator defiers are present.

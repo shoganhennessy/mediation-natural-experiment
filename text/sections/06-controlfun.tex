@@ -24,12 +24,16 @@ Thus, it is best practice to use this method with access to an instrument.
 
 From this probit first-stage, construct the inverse Mills ratio terms to serve as the MTE-associated CFs.
 These terms capture the correlation between unobserved factors influencing both mediator selection and outcomes, when the errors are normally distributed.
-\[ \lambda_0(p) =
-        \frac{\phi( - \Phi^{-1}(p) )}{\Phi( -\Phi^{-1}(p) )}, \;\;\;\;
-    \lambda_1(p) =
-        \frac{\phi( \Phi^{-1}(p) )}{\Phi( \Phi^{-1}(p) )},
+\[ g_0(p) = \rho_0
+        \underbrace{\frac{\phi( - \Phi^{-1}(p) )}{\Phi( -\Phi^{-1}(p) )}}_{
+            \eqqcolon \lambda_0(p)
+        }, \;\;\;\;
+    g_1(p) = \rho_1
+        \underbrace{\frac{\phi( \Phi^{-1}(p) )}{\Phi( \Phi^{-1}(p) )}}_{
+            \eqqcolon \lambda_1(p)
+        },
         \;\;\;\; \text{ for } p \in (0,1) \]
-where $\phi(.)$ is the probability density function for the standard normal distribution.
+where $\rho_0, \rho_1$ are linear parameters and $\phi(.)$ is the probability density function for the standard normal distribution, so that $\lambda_0$ and $\lambda_1$ are the relevant inverse Mills ratio terms.
 
 Lastly, the second-stage is estimated with OLS, including the MTE-associated CFs with plug-in estimates of the mediator propensity score, and $\vec \varphi'$ a linear approximation of nuisance function $\varphi(.)$.
 \begin{align*}
@@ -49,16 +53,16 @@ The resulting ADE and AIE estimates are composed from sample estimates of the te
 \[ \hat{\text{ADE}}
     = \hat{\gamma} + \hat{\delta}\,\bar D, \;\;\;\;
     \hat{\text{AIE}}
-    = \hat{\bar\pi}\; \Big(
-        \hat{\beta} + \hat{\delta}\,\bar Z
-        + \big(\hat \rho_1 - \hat \rho_0 \big)
-        \frac1n \sum_{i=1}^n \Gamma \big( \hat\pi(0;\vec X_i), \hat\pi(1;\vec X_i)\big) \Big) \]
-where $\bar D = \frac1n \sum_{i=1}^n D_i$, $\bar Z = \frac1n \sum_{i=1}^n Z_i$,
-$\hat{\bar\pi}$ is the estimate of the mean compliance rate, and $\frac1n \sum_{i=1}^n \Gamma(.,.)$ is the average of the complier adjustment term as a function of $\lambda_1$ with $\hat\pi \big(0; \vec X_i \big), \hat\pi \big(1; \vec X_i \big)$ values plugged in.
+    = \hat{\text{ATE}}
+        - \hat \gamma
+        - \hat \delta \frac1n \sum_{i=1}^n
+            \hat \pi\big(1-Z_i; \,\vec X_i ^{\mathrm{IV}}, \vec X_i^- \big)
+    \]
+where $\bar D = \frac1n \sum_{i=1}^n D_i$.
 
 The standard errors for estimates can be computed using the delta method.
 Specifically, accounting for sampling variability in both first-stage mediator propensity score estimation and second-stage causal effects estimation.
-This approach yields $\sqrt{n}$-consistent estimates when the underlying error terms follow a bivariate normal distribution --- i.e., when $\pi(Z_i; \vec X_i)$ is correctly modelled by the probit first-stage.
+This approach yields $\sqrt{n}$-consistent estimates when the underlying error terms follow a bivariate normal distribution --- i.e., when $\pi(Z_i; \,\vec X_i ^{\mathrm{IV}}, \vec X_i^-)$ is correctly modelled by the probit first-stage.
 Errors can also be estimated by the bootstrap, by including estimation of both the first and second-stage within each bootstrap iteration.
 % \appendixref{appendix:implement} further describes the implementation of this approach in the R language \citep{R2023}, with a linear probit first-stage and second-stage estimated by OLS.
 
@@ -89,7 +93,7 @@ Errors can also be estimated by the bootstrap, by including estimation of both t
 In practice, a parametric MTE approach is simple to implement using standard statistical packages.
 The key advantage is computational simplicity and efficiency, particularly in moderate-sized samples.
 However, this comes at the cost of strong distributional assumptions.
-For example, if the error terms deviate substantially from joint normality, the estimates may be biased.\footnote{
+For example, if the error terms deviate substantially from joint normality, the estimates will be biased.\footnote{
     While this concern is immaterial in an IV setting estimating the LATE \citep{kline2019heckits}, it is pertinent in this setting as the CF extrapolates from IV compliers to mediator compliers.
 }
 
@@ -101,8 +105,7 @@ This estimation approach is used in the modern semi-parametric approach to estim
 
 The semi-parametric approach begins with flexible estimation of the first-stage, estimating the mediator propensity score,
 \[ \Probgiven{D_i = 1}{Z_i, \vec X_i}
-    = \pi\left(Z_i; \vec X_i \right), \]
-where $\vec X_i$ must include the instrument(s) $\vec X_i^{\text{IV}}$.
+    = \pi\left(Z_i; \,\vec X_i ^{\mathrm{IV}}, \vec X_i^- \right). \]
 This can be estimated using flexible methods, as long as the first-stage is estimated $\sqrt{n}$-consistently.\footnote{
     If an estimate of the first-stage that is not $\sqrt{n}$-consistent is used (e.g., a modern machine learning estimator), then the resulting second-stage estimate will not be $\sqrt{n}$-consistent.
     %This could be ameliorated by augmenting the approach with cross-fitting, and the appropriate Neyman orthogonal moments; \cite{bia2024double} use this approach for one-sided selection problems, but (as fas as I am aware) there is no general double machine learning approach for CF methods with a two-sided selection problem.
@@ -115,15 +118,16 @@ Consider the subsamples of mediator refusers and takers separately,
 \begin{align*}
     \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} &=
         \alpha + \gamma Z_i + \varphi_0\big( \vec X_i^- \big)
-        + \rho_0 \lambda_0 \big( \pi(Z_i ; \vec X_i) \big), \\
+        + g_0 \big( \pi(Z_i ; \vec X_i) \big), \\
     \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} &=
         (\alpha + \beta) + (\gamma + \delta) Z_i + \varphi_1\big( \vec X_i^- \big)
-        + \rho_1 \lambda_1 \big( \pi(Z_i ; \vec X_i) \big).
+        + g_1 \big( \pi(Z_i ; \vec X_i) \big).
 \end{align*}
 The separated subsamples can be estimated, each individually, with semi-parametric methods.
 The linear parameters (including linear approximations $\vec \varphi'_{d}$ of nuisance functions $\varphi_{d}(.)$)\footnote{
-    Appropriate interactions between $Z_i, D_i$ and $\vec X_i$ can also flexibly control for $\vec X_i$, again avoiding linearity assumptions.
-} can be estimated with OLS, while $\rho_0 \lambda_0$ and $\rho_1 \lambda_1$ take a flexible semi-parametric specification with first-stage estimates $\hat \pi(Z_i; \vec X_i)$ plugged in.
+    Appropriate interactions between $Z_i, D_i$ and $\vec X_i^-$ can also flexibly control for $\vec X_i^-$, again avoiding linearity assumptions.
+}
+can be estimated with OLS, while $g_0(.), g_1(.)$ take a flexible semi-parametric specification with first-stage estimates $\hat \pi(Z_i; \,\vec X_i ^{\mathrm{IV}}, \vec X_i^-)$ plugged in.
 An attractive option is a series estimator, such as a spline specification, as this estimates the function without assuming a functional form but maintains $\sqrt n$-consistency.
 
 The ADE is estimated by this approach as follows.
@@ -131,24 +135,15 @@ Take $\hat \gamma$, the $D_i = 0$ subsample estimate of $\E \gamma$, and $(\hat{
 \[ \hat{\text{ADE}}^{\text{Semi}}
     = (1 - \bar D) \, \hat \gamma + \bar D \, (\hat{\gamma + \delta}). \]
 
-The AIE is less simple, for two reasons that differ from the parametric MTE setting.
-First, the intercepts for each subsample, $\alpha$ and $(\alpha + \beta)$, are not separately identified from the MTE-associated CFs if the $\lambda_0, \lambda_1$ functions are flexibly estimated.
-Second, a semi-parametric specification for the CFs mean $\rho_0$ and $\lambda_0$ are no longer separately identified from each other (and same for $\rho_1,\lambda_1$).
-As such, it is not possible to directly use $\hat \lambda_0, \hat \lambda_1$ in estimating the complier adjustment term (as is done in the parametric case).
-
-These problems can be avoided by estimating the AIE using its relation to the ATE.
+The AIE is estimated by this approach as follows.
 Write $\hat{\text{ATE}}$ for the point-estimate of the ATE, and 
 $\hat\delta = (\hat{\gamma + \delta}) - \hat\gamma$ for the point estimate of $\E \delta$, to give the following estimator,
 \[ \hat{\text{AIE}}^{\text{Semi}}
     = \hat{\text{ATE}}
-    - (1 - \bar Z) \, \left( 
-        \frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i) \right)
-    - \bar Z \, \left(
-        \frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
-where $\frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(0; \vec X_i)$ estimates the ADE conditional on $Z_i = 0$, $\E{\gamma + \delta D_i(0)}$, and $\frac 1n \sum_{i = 1}^n \hat\gamma + \hat \delta \, \hat\pi(1; \vec X_i)$ estimates the ADE conditional on $Z_i = 1$, $\E{\gamma + \delta D_i(1)}$.
-\appendixref{appendix:semi-parametric} describes the reasoning for this estimator of the AIE, relative to estimates of the ATE and ADE, in further detail.
-% \appendixref{appendix:implement} describes in further detail the implementation of this approach in the R language \citep{R2023}, with a \cite{klein1993efficient} first-stage and splines in the second-stage CF estimation.
-
+    - \hat\gamma
+    - \hat\delta \frac{1}{n} \sum_{i=1}^{n}
+    \hat\pi \bigl( 1-Z_i; \vec X_i^{\mathrm{IV}}, \vec X_i^- \bigr).
+\]
 This semi-parametric approach achieves valid estimation of the CM effects, without specifying the distribution behind unobserved error terms, and achieves desirable properties as long as the first-stage correctly estimates the mediator propensity score, and the structural assumptions hold true.
 The standard errors for estimates can again be computed using the delta method, or estimated by the bootstrap --- again, across both first and second-stages within each bootstrap iteration.
 Note that relying on propensity score estimation requires assumptions that can be found wanting in real-world settings; a common support condition for the mediator is required, and a semi-/non-parametric first-stage may become cumbersome if there are many control variables or many rows of data.
