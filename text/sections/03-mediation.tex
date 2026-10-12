@@ -36,14 +36,38 @@ There are only two average effects which are identified without additional assum
 \end{enumerate}
 
 $Z_i$ affects outcome $Y_i$ directly, and indirectly via the $D_i(Z_i)$ channel, with no reverse causality.
-\autoref{fig:scm-model} visualises the design, where the direction arrows denote the causal direction.
-CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
+CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways.
+For each $z= 0,1$,
 \begin{align*}
-    \text{Average Direct Effect (ADE): } \;\;\;&
-        \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}, \\
-    \text{Average Indirect Effect (AIE): } \;\;\;&
-            \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}.
+    \underbrace{ \E{Y_i(1, D_i(1)) - Y_i(0, D_i(0))}}_{
+        \text{ATE}} &=
+    \underbrace{ \E{Y_i(z, D_i(1)) - Y_i(z, D_i(0))}}_{
+        \text{Average natural Indirect Effect, AIE($z$).}} \\
+    &\;\;\;\;+
+    \underbrace{ \E{Y_i(1, D_i(1-z)) - Y_i(0, D_i(1-z))}}_{
+        \text{Average natural Direct Effect, ADE($1-z$).}
+    }
 \end{align*}
+These parameters are conventionally termed the average natural direct and indirect effects;
+for brevity, I refer to them henceforth as the ADE and AIE, respectively.\footnote{
+    Terminology for CM is somewhat fractured across the literature.
+    I follow the terminology favoured by \cite{huber2019review}.
+    \cite{imai2010identification} labels AIE($z$) the Average Causal Mediation Effect, and ADE($z$) the Average Direct Effect; \cite{pearl2003direct} labels them the natural indirect effect and natural direct effect, respectively; and \cite{robins2003semantics} labels AIE(0) and ADE(0) the pure indirect and total direct effects, respectively, and AIE(1) and ADE(1) the total indirect and pure direct effects, respectively.
+}
+The index on each effect records the channel held fixed when separating the two causal pathways.
+$\operatorname{AIE}(z)$ changes the mediator from $D_i(0)$ to $D_i(1)$ while holding treatment fixed at the relevant treatment state $z = 0,1$;
+$\operatorname{ADE}(z)$ changes treatment from $Z_i=0$ to $Z_i=1$ while holding the mediator choice at $D_i(z)$ for the opposite treatment state $1-z$.
+This distinction matters when the effects of $Z_i$ and $D_i$ interact: the effect of changing one may depend on the level at which the other is held fixed.
+$\operatorname{ATE} = \operatorname{ADE}(1) + \operatorname{AIE}(0)$ has the clearest interpretation as the effect of changing the mediator from $D_i(0)$ to $D_i(1)$ while holding treatment at the untreated baseline $Z_i=0$, then allocating the remainder to the direct effect.\footnote{
+    All arguments developed below apply symmetrically to the alternative decomposition, $\operatorname{ATE}=\operatorname{ADE}(0)+\operatorname{AIE}(1)$.
+}
+%The complementary pairs $\operatorname{ADE}(1)+\operatorname{AIE}(0)$ and $\operatorname{ADE}(0)+\operatorname{AIE}(1)$ each account for this interaction and give an exact decomposition of the ATE.
+%\begin{align*}
+%    \text{Average Direct Effect (ADE): } \;\;\;&
+%        \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}, \\
+%    \text{Average Indirect Effect (AIE): } \;\;\;&
+%            \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}.
+%\end{align*}
 
 \begin{figure}[h!]
     \centering
@@ -85,11 +109,9 @@ CM aims to decompose the ATE of $Z_i$ on $Y_i$ into these two separate pathways:
 \end{figure}
 
 Estimating the AIE answers the following question: how much of the causal effect $Z_i$ on $Y_i$ goes through the $D_i$ channel?
+\autoref{fig:scm-model} visualises the design, where the direction arrows denote the causal direction.
 When studying the health gains of winning the Medicaid wait-list lottery \citep{finkelstein2008oregon}, the AIE represents how much of the effect comes from using the hospital more often.
-Estimating the ADE answers the following equation: how much is left over after accounting for the $D_i$ channel?\footnote{
-    In a non-parametric setting it is not necessary that ADE $+$ AIE $=$ ATE.
-    See \cite{imai2010identification} for this point in full.
-}
+Estimating the ADE answers the following equation: how much is left over after accounting for the $D_i$ channel?
 For the example, how much of the wait-list lottery effect is a direct effect, other than increased healthcare usage --- e.g., income effects of lower medical debt, or less worry over health shocks thanks to government support.
 An Instrumental Variables (IV) approach assumes this direct effect is zero for everyone (the exclusion restriction).
 CM is a similar, yet distinct, framework attempting to explicitly model the direct effect, and not assuming it is zero.
@@ -114,20 +136,24 @@ Sequential quasi-random assignment assumes that the initial treatment $Z_i$ is q
 It then also assumes that, after $Z_i$ is assigned, that $D_i$ is quasi-randomly assigned conditional on $\vec X, Z_i$ (hereafter, mediator quasi-random assignment).
 If \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} hold, then the ADE and AIE are identified by two-stage mean differences conditioning on $\vec X_i$.\footnote{
     In addition, a common support condition for both $Z_i, D_i$ (across $\vec X_i$) is necessary.
-    \cite{imai2010identification} show a general identification statement; I show identification in terms of two-stage regression.
-    See \appendixref{appendix:identification}.
+    \cite{imai2010identification} show a general identification statement; see \appendixref{appendix:identification}.
 }
 \vspace{0.1cm}
 
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
-\[ \E[D_i, \vec X_i]{
-    \underbrace{\Egiven{Y_i}{Z_i = 1, D_i, \vec X_i} - \Egiven{Y_i}{Z_i = 0, D_i, \vec X_i}}_{\text{Second-stage regression, $Y_i$ on $Z_i$ holding $D_i, \vec X_i$ constant}}}
-    = \underbrace{\E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}}_{\text{Average Direct Effect (ADE)}} \]
-\[ \E[Z_i, \vec X_i]{ \underbrace{\Big(
-    \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i} \Big)}_{\text{First-stage regression, $D_i$ on $Z_i$}}
-    \times \underbrace{\Big(
-    \Egiven{Y_i}{Z_i, D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i, D_i = 0, \vec X_i} \Big)}_{\text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i, \vec X_i$ constant}} } \]
-\[ = \underbrace{\E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}}_{\text{Average Indirect Effect (AIE)}} \]
+\[ \E[\vec X_i,\,D_i \,\mid\, Z_i=z]{ \underbrace{
+    \Egiven{Y_i}{Z_i=1,D_i,\vec X_i} - \Egiven{Y_i}{Z_i=0,D_i,\vec X_i} }_{\substack{
+        \text{Second-stage contrast, holding $D_i$ constant to its}\\
+        \text{distribution under treatment state $z$} }} }
+    = \underbrace{\E{Y_i(1, D_i(z)) - Y_i(0, D_i(z))}}_{
+        \text{ADE($z$), for $z= 0, 1$.}} \]
+\[ \E[\vec X_i]{ \underbrace{\Big(
+    \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i} \Big)}_{
+        \text{First-stage regression, $D_i$ on $Z_i$}}
+    \times 
+    \underbrace{\Big(\Egiven{Y_i}{Z_i =z, D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i=z, D_i = 0, \vec X_i} \Big) }_{
+        \text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i$ constant at $z$}} } \]
+\[ = \underbrace{\E{Y_i(z, D_i(1)) - Y_i(z, D_i(0))}}_{\text{AIE($z$), for $z=0,1$.}} \]
 }}
 
 I refer to the estimands on the left-hand side as CM estimands, which are typically estimated by a composition of two-stage Ordinary Least Squares (OLS) estimates \citep{imai2010identification}.
