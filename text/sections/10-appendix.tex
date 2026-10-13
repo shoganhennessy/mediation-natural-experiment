@@ -15,6 +15,7 @@
 \subsection{Identification in Causal Mediation}
 \label{appendix:identification}
 \citet[Theorem~1]{imai2010identification} states that the ADE and AIE are identified under sequential quasi-random assignment.
+Write $F_{\vec X_i}$ for the cumulative density function for control variables $\vec X_i$.
 For each $z = 0,1$: \\
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
 \begin{align*}
@@ -30,13 +31,12 @@ For each $z = 0,1$: \\
 \end{align*}
 }}
 
-In the binary setting considered in this paper, these are written as sums instead.
-Write $F_{\vec X_i}$ for the cumulative density function for control variables $\vec X_i$.
+In the  setting with $D_i =0,1$ binary considered in this paper, these are written as sums instead.
 For each $z=0,1$,
 \begin{align*}
     \operatorname{ADE}(z)
     &= \E{Y_i(1,D_i(z))-Y_i(0,D_i(z))} \\
-    &= \int \sum_{d=0}^1 \Big(
+    &= \int \sum_{d \in \{0,1\}} \Big(
         \Egiven{Y_i}{Z_i=1,D_i=d,\vec X_i=\vec x} - \Egiven{Y_i}{Z_i=0,D_i=d,\vec X_i} \Big) \\
     &\qquad\qquad\times \Prob{D_i=d\mid Z_i=z,\vec X_i} \,dF_{\vec X_i}.
 \end{align*}
@@ -44,7 +44,7 @@ Likewise, for the average natural indirect effect, for each $z=0,1$
 \begin{align*}
     \operatorname{AIE}(z)
     &= \E{Y_i(z,D_i(1))-Y_i(z,D_i(0))} \\
-    &= \int \sum_{d=0}^1 \Egiven{Y_i}{Z_i=z,D_i=d,\vec X_i} \\
+    &= \int \sum_{d \in \{0,1\}} \Egiven{Y_i}{Z_i=z,D_i=d,\vec X_i} \\
     &\qquad\qquad
     \times \Big(\Prob{D_i=d\mid Z_i=1,\vec X_i} - \Prob{D_i=d\mid Z_i=0,\vec X_i=\vec x} \Big) \,dF_{\vec X_i}.
 \end{align*}
@@ -53,69 +53,15 @@ Likewise, for the average natural indirect effect, for each $z=0,1$
 \label{appendix:mediation-bias}
 Suppose that $Z_i$ is ignorable conditional on $\vec X_i$, but $D_i$ is not.
 
+
 \subsubsection{Bias in the Average Direct Effect (ADE)}
-To show that the conventional approach to mediation gives an estimate for the ADE with selection and group difference-bias, start with the components of the conventional estimands.
-This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$ and $d =0,1$.
-\begin{align*}
-    \Egiven{Y_i}{Z_i = 1, D_i = d, \vec X_i}
-    =& \Egiven{Y_i(1, D_i(Z_i))}{D_i(1) = d, \vec X_i}, \\
-    \Egiven{Y_i}{Z_i = 0, D_i = d, \vec X_i}
-    =& \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d, \vec X_i}
-\end{align*}
-And so,
-\begin{align*}
-    &  \Egiven{Y_i}{Z_i = 1, D_i = d, \vec X_i}
-    - \Egiven{Y_i}{Z_i = 0, D_i = d, \vec X_i} \\
-    &= \Egiven{Y_i(1, D_i(Z_i))}{D_i(1) = d, \vec X_i}
-    - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d, \vec X_i} \\
-    &= \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d, \vec X_i} \\
-    &\;\;\;\;+ \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d, \vec X_i}
-        - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d, \vec X_i}.
-\end{align*}
-The final term is a sum of the ADE, conditional on $D_i(1) = d$, and a selection bias term --- difference in baseline outcomes between the (partially overlapping) groups for whom $D_i(1) = d$ and $D_i(0) = d$.
-
-To reach the final term, note the following.
-\begin{align*}
-    &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{\vec X_i} \\    
-    &= \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d, \vec X_i} \\
-    &\;\;\;\;+ \Big(1 - \Probgiven{D_i(1) = d}{\vec X_i}\Big)
-    \left( \begin{aligned}
-        &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d, \vec X_i} \\ 
-        & - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1 - d, \vec X_i}
-    \end{aligned} \right) 
-\end{align*}
-The second term is the difference between the ADE and LADE local to relevant complier groups.
-
-Collect everything together, as follows.
-\begin{align*}
-    &  \Egiven{Y_i}{Z_i = 1, D_i = d, \vec X_i}
-    - \Egiven{Y_i}{Z_i = 0, D_i = d, \vec X_i} \\
-    =& \underbrace{
-        \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{\vec X_i}}_{
-            \text{ADE, conditional on }\vec X_i} \\
-    &+ \underbrace{
-        \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d, \vec X_i}
-            - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d, \vec X_i}}_{
-                \text{Selection bias}} \\
-    &+ \underbrace{\Big(1 - \Probgiven{D_i(1) = d}{\vec X_i}\Big)
-    \left( \begin{aligned}
-        &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1 - d, \vec X_i} \\ 
-        & - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d, \vec X_i}
-    \end{aligned} \right)}_{
-        \text{group difference-bias}}
-\end{align*}
-The proof is achieved by applying the expectation across $D_i = d$, and $\vec X_i$.
-
-\subsubsection{New: Bias in the Average Direct Effect (ADE)}
 Consider the conventional estimand for $\operatorname{ADE}(z)$, for each $z=0,1$.
-Conditional on $\vec X_i$, it averages the outcome contrast between $Z_i=1$ and $Z_i=0$ at each fixed mediator value $d$ over the mediator distribution under treatment state $z$.
-For $z = 0,1$.
 \begin{align*}
     & \E[D_i \,\mid\, Z_i=z, \vec X_i]{
         \Egiven{Y_i}{Z_i=1,D_i,\vec X_i} -
         \Egiven{Y_i}{Z_i=0,D_i,\vec X_i} } \\
     &=
-    \sum_{d=0}^1
+    \sum_{d \in \{0,1\}}
     \Probgiven{D_i=d}{Z_i=z,\vec X_i}
     \Big(
         \Egiven{Y_i}{Z_i=1,D_i=d,\vec X_i}
@@ -123,7 +69,9 @@ For $z = 0,1$.
         \Egiven{Y_i}{Z_i=0,D_i=d,\vec X_i}
     \Big).
 \end{align*}
+Conditional on $\vec X_i$, it averages the outcome contrast between $Z_i=1$ and $Z_i=0$ at each fixed mediator value $d$ over the mediator distribution under treatment state $z$.
 
+Fix $d \in \{0,1\}$.
 Treatment quasi-random assignment and consistency give,
 \begin{align*}
     \Egiven{Y_i}{Z_i=1,D_i=d,\vec X_i}
@@ -167,40 +115,48 @@ $\Egiven{Y_i(0,d)}{D_i(1)=d,\vec X_i}$, to give
 The first term is the direct effect with the mediator held at $d$ among individuals for whom $D_i(1)=d$.
 The second term is selection bias arising from differences in untreated potential outcomes between individuals for whom $D_i(1)=d$ and individuals for whom $D_i(0)=d$.
 
-To relate the first term to $\operatorname{ADE}(z)$, define
+To relate the first term to $\operatorname{ADE}(z)$, note that
 \[
-    q_{zd}(\vec X_i)
-    :=
     \Probgiven{D_i=d}{Z_i=z,\vec X_i}
     =
     \Probgiven{D_i(z)=d}{\vec X_i},
 \]
-where the equality follows from treatment quasi-random assignment.
 
-By contrast, the target conditional ADE is
+Unfix $d$, to note the target conditional ADE as a weighted average of fixed-mediator direct effects local to the individuals with $D_i(z) = d$:
 \begin{align*}
-    &\text{Conditional ADE}(z \, | \, \vec X_i) \\ 
-    &= \Egiven{
+    & \Egiven{
         Y_i(1,D_i(z))-Y_i(0,D_i(z))
     }{\vec X_i}
     \\
     &=
-    \sum_{d=0}^1
-    q_{zd}(\vec X_i)
+    \sum_{d \in \{0,1\}}
+    \Probgiven{D_i=d}{Z_i=z,\vec X_i}
+    \Egiven{
+        Y_i(1,d)-Y_i(0,d)
+    }{
+        Z_i=z,D_i = d,\vec X_i
+    }
+    \\
+    &=
+    \sum_{d \in \{0,1\}}
+    \Probgiven{D_i=d}{Z_i=z,\vec X_i}
     \Egiven{
         Y_i(1,d)-Y_i(0,d)
     }{
         D_i(z)=d,\vec X_i
-    }.
+    }
 \end{align*}
+where the second equality follows from treatment quasi-random assignment.
 
 Substituting the fixed-$d$ decomposition into the conventional CM estimand gives
 \begin{align*}
-    &\sum_{d=0}^1 q_{zd}(\vec X_i) \Big(
+    &\E[D_i \,\mid\, Z_i=z, \vec X_i]{
+        \Egiven{Y_i}{Z_i=1,D_i,\vec X_i} - \Egiven{Y_i}{Z_i=0,D_i,\vec X_i}} \\
+    &=\sum_{d \in \{0,1\}} \Probgiven{D_i=d}{Z_i=z,\vec X_i} \Big(
         \Egiven{Y_i}{Z_i=1,D_i=d,\vec X_i} - \Egiven{Y_i}{Z_i=0,D_i=d,\vec X_i} \Big) \\
     &=
-    \sum_{d=0}^1
-    q_{zd}(\vec X_i)
+    \sum_{d \in \{0,1\}}
+    \Probgiven{D_i=d}{Z_i=z,\vec X_i}
     \Egiven{
         Y_i(1,d)-Y_i(0,d)
     }{
@@ -208,8 +164,8 @@ Substituting the fixed-$d$ decomposition into the conventional CM estimand gives
     }
     \\
     &\quad+
-    \sum_{d=0}^1
-    q_{zd}(\vec X_i)
+    \sum_{d \in \{0,1\}}
+    \Probgiven{D_i=d}{Z_i=z,\vec X_i}
     \Big(
         \Egiven{Y_i(0,d)}
             {D_i(1)=d,\vec X_i}
@@ -219,26 +175,26 @@ Substituting the fixed-$d$ decomposition into the conventional CM estimand gives
     \Big).
 \end{align*}
 
-
-Separate the group difference from selection by add and subtract $\operatorname{ADE}(z\mid\vec X_i)$, and average over $\vec X_i$ to give the final terms
+Separate the group difference from selection by add and subtract the conditional ADE, and average over $\vec X_i$ to give the final terms
 \begin{align*}
     &\E[\vec X_i]{\E[D_i \,\mid\, Z_i=z, \vec X_i]{
         \Egiven{Y_i}{Z_i=1,D_i,\vec X_i} - \Egiven{Y_i}{Z_i=0,D_i,\vec X_i}}} \\
     &= \text{ADE}(z) \\
     &\quad+
-    \underbrace{
-        \E[D_i = d, \vec X_i]{
+    \underbrace{ \E[\vec X_i]{
+        \E[D_i = d\,| \, Z_i = z, \vec X_i]{
             \Egiven{Y_i(0,d)}
                 {D_i(1)=d,\,\vec X_i}
             -
             \Egiven{Y_i(0,d)}
-                {D_i(0)=d,\,\vec X_i}}
+                {D_i(0)=d,\,\vec X_i}}}
     }_{
         \text{Selection bias}
     }
     \\
     &\quad+
-    \underbrace{\E[D_i = d, \vec X_i]{
+    \underbrace{
+        \E[\vec X_i]{\E[D_i = d \,| \, Z_i = z, \vec X_i]{
             \Egiven{
                 Y_i(1,d)-Y_i(0,d)
             }{
@@ -249,100 +205,75 @@ Separate the group difference from selection by add and subtract $\operatorname{
                 Y_i(1,d)-Y_i(0,d)
             }{
                 D_i(z)=d,\vec X_i
-            }}
+            }}}
     }_{
-        \text{Group-difference bias}
-    }.
+        \text{Group-difference bias.}
+    }
 \end{align*}
 
-Note that in the setting $z=1$ makes the ADE(1) group-difference term equal to zero, because its two conditional direct effects are both evaluated among individuals for whom $D_i(1)=d$.
-
+Note that in the setting $z=1$, the ADE(1) group-difference term equal to zero, group-difference term equal to zero, because both conditional direct effects are evaluated among individuals for whom  $D_i(1)=d$.
 
 \subsubsection{Bias in the Average Indirect Effect (AIE)}
-To show that the conventional approach to mediation gives an estimate for the AIE with selection and group difference-bias, start with the definition of the ADE --- the direct effect among compliers times the size of the complier group.
+To show that the conventional approach to mediation gives an estimate for the AIE with selection and group difference-bias, start with the definition of the AIE --- the indirect effect among compliers times the size of the complier group.
+This sequence relies on assuming no mediator defiers; the following appendix subsection adds another bias term in the case that mediator defiers exist.
 
-This proof starts with the relevant expectations, conditional on a specific value of $\vec X_i$.
+Fix $z \in \{0,1\}$.
+This proof starts with the conditional AIE, conditional on a specific value of $\vec X_i$.
 \begin{align*}
-    &\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{\vec X_i} \\
-    =& \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}
-        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) \neq D_i(1), \vec X_i}
+    &\Egiven{ Y_i(z, D_i(1)) - Y_i(z, D_i(0))}{\vec X_i} \\
+    &= \Probgiven{D_i(0)=0, D_i(1)=1}{\vec X_i}
+        \Egiven{ Y_i(z, 1) - Y_i(z, 0)}{D_i(0)=0, D_i(1)=1, \vec X_i}
 \end{align*}
-When $D_i$ is not ignorable, the bias comes from estimating the second term,
-\\ $\Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) \neq D_i(1), \vec X_i}$, the indirect effect among mediator compliers.
+When $D_i$ is not ignorable, the bias comes from attempting to identify the second term,
+\\ $\Egiven{ Y_i(z, 1) - Y_i(z, 0)}{D_i(0)=0, D_i(1)=1, \vec X_i}$, the indirect effect among mediator compliers.
 
-Let $z \in \{ 0, 1 \}$.
 Again, note the mean outcomes in terms of average potential outcomes,
 \begin{align*}
     \Egiven{Y_i}{Z_i = z, D_i = 1, \vec X_i}
-    =& \Egiven{Y_i(z, 1)}{D_i = 1, \vec X_i}, \\
+    =& \Egiven{Y_i(z, 1)}{D_i(z) = 1, \vec X_i}, \\
     \Egiven{Y_i}{Z_i = z, D_i = 0, \vec X_i}
-    =& \Egiven{Y_i(z, 0)}{D_i = 0, \vec X_i}.
+    =& \Egiven{Y_i(z, 0)}{D_i(z) = 0, \vec X_i}.
 \end{align*}
 Compose the selection bias term, as follows.
 \begin{align*}
     & \Egiven{Y_i}{Z_i = z, D_i = 1, \vec X_i}
     - \Egiven{Y_i}{Z_i = z, D_i = 0, \vec X_i} \\
-    &= \Egiven{Y_i(z, 1)}{D_i = 1, \vec X_i}
-        - \Egiven{Y_i(z, 0)}{D_i = 0, \vec X_i} \\
-    &= \Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i = 1, \vec X_i}
-    + \Egiven{Y_i(z, 0)}{D_i = 1, \vec X_i} - \Egiven{Y_i(z, 0)}{D_i = 0, \vec X_i}
+    &= \Egiven{Y_i(z, 1)}{D_i(z) = 1, \vec X_i}
+        - \Egiven{Y_i(z, 0)}{D_i(z) = 0, \vec X_i} \\
+    &= \Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(z) = 1, \vec X_i}
+        + \Egiven{Y_i(z, 0)}{D_i(z) = 1, \vec X_i}
+        - \Egiven{Y_i(z, 0)}{D_i(z) = 0, \vec X_i}
 \end{align*}
-The final term is a sum of the AIE, among the treated group $D_i = 1$, and a selection bias term --- difference in baseline potential outcomes between the groups for whom $D_i = 1$ and $D_i = 0$.
+The right-hand side is the sum of the mediator effect among individuals with $D_i(z)=1$ and a selection-bias term capturing differences in baseline potential outcomes between individuals with $D_i(z)=1$ and $D_i(z)=0$
 
-The AIE is the indirect effect among compliers times the size of the complier group, so we need to compensate for the difference between the treated group $D_i = 1$ and complier group $D_i(0) \neq D_i(1)$.
-
-Start with the difference between treated groups average and overall average.
+The AIE is the indirect effect among compliers times the size of the complier group, so we need to compensate for the difference between the med $D_i(z) = 1$ and mediator-complier group $D_i(0)=0, D_i(1)=1$.
 \begin{align*}
-    & \Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i = 1, \vec X_i} \\
-    =& \Egiven{Y_i(z, 1) - Y_i(z, 0)}{\vec X_i} \\
-    &+ \Big(1 - \Probgiven{D_i = 1}{\vec X_i} \Big)
-    \left( \begin{aligned}
-        &\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i = 1, \vec X_i} \\ 
-        &  - \Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i = 0, \vec X_i}
-    \end{aligned} \right)
+    &\Egiven{ Y_i(z,1)-Y_i(z,0) }{ D_i(z)=1,\vec X_i } \\
+    &= \Egiven{ Y_i(z,1)-Y_i(z,0) }{ D_i(0)=0,D_i(1)=1,\vec X_i } \\
+    &\qquad+ \Egiven{ Y_i(z,1)-Y_i(z,0) }{ D_i(z)=1,\vec X_i } - \Egiven{ Y_i(z,1)-Y_i(z,0) }{ D_i(0)=0,D_i(1)=1,\vec X_i }
+    .
 \end{align*}
-Then the difference between the compliers' average and the overall average.
-\begin{align*}
-    & \Egiven{ Y_i(z, 1) - Y_i(z, 0)}{D_i(0) \neq D_i(1), \vec X_i} \\
-    =& \Egiven{Y_i(z, 1) - Y_i(z, 0)}{\vec X_i} \\
-    & + \frac{1 - \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i} }{
-        \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}}
-    \left( \begin{aligned}
-        &\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(1) = 0 \text{ or } D_i(0)=1, \vec X_i} \\ 
-        &  - \Egiven{Y_i(z, 1) - Y_i(z, 0)}{\vec X_i}
-    \end{aligned} \right)
-\end{align*}
+The first term is the mediator effect among mediator compliers, while the remaining difference is the group-difference bias from using the mediator effect among individuals with $D_i(z)=1$ in its place.
 
 Collect everything together, as follows.
 \begin{align*}
-    &  \Egiven{Y_i}{Z_i = z, D_i = 1, \vec X_i}
+    &\Egiven{Y_i}{Z_i = z, D_i = 1, \vec X_i}
     - \Egiven{Y_i}{Z_i = z, D_i = 0, \vec X_i} \\
-    =& \underbrace{
+    &= \underbrace{
         \Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(1) =1, D_i(0)=0,\vec X_i}}_{
-            \text{AIE among compliers, conditional on }\vec X_i, Z_i = z} \\
+            \text{Effect of $D_i$ among compliers, conditional on }\vec X_i} \\
     &+ \underbrace{
-        \Egiven{Y_i(z, 0)}{D_i = 1, \vec X_i}
-            - \Egiven{Y_i(z, 0)}{D_i = 0, \vec X_i}}_{
+        \Egiven{Y_i(z, 0)}{D_i(z) = 1, \vec X_i}
+            - \Egiven{Y_i(z, 0)}{D_i(z) = 0, \vec X_i}}_{
                 \text{Selection bias}} \\
-    &+ \underbrace{\left[ \begin{aligned}
-        &\Big( 1 - \Probgiven{D_i = 1}{\vec X_i} \Big)
-        \left( \begin{aligned}
-            &\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i = 1, \vec X_i} \\ 
-            &  - \Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i = 0, \vec X_i}
-        \end{aligned} \right) \\
-        &- \frac{1 - \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i} }{
-            \Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}} 
-        \left( \begin{aligned}
-            &\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(1) = 0 \text{ or } D_i(0)=1, \vec X_i} \\ 
-            &  - \Egiven{Y_i(z, 1) - Y_i(z, 0)}{\vec X_i}
-        \end{aligned} \right)
-    \end{aligned} \right] }_{
+    &+ \underbrace{\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(z)=1, \vec X_i}
+            - \Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(0)=0, D_i(1)=1, \vec X_i} }_{
         \text{group difference-bias}}
 \end{align*}
 The proof is finally achieved by multiplying by the complier score, 
-$\Probgiven{D_i(0) \neq D_i(1)}{\vec X_i}$
+$\Probgiven{D_i(0)=0, D_i(1)=1}{\vec X_i}$
 $= \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i}$,
-then applying the expectation across $Z_i = z$, and $\vec X_i$.
+then averaging across $\vec X_i$.
 
 \subsection{The AIE Without Mediator Monotonicity}
 \label{appendix:aie-with-defiers}
@@ -380,61 +311,50 @@ The mediator first-stage is then
 \end{align}
 Thus, absent monotonicity, the mediator first-stage identifies the net complier share rather than the mediator complier share.
 
-Because \(D_i(0)\) and \(D_i(1)\) are binary,
-\begin{align}
-    &Y_i\bigl(Z_i,D_i(1)\bigr)
+Fix $z \in \{0,1\}$. Because \(D_i(0)\) and \(D_i(1)\) are binary,
+\[ Y_i\bigl(z,D_i(1)\bigr)
     -
-    Y_i\bigl(Z_i,D_i(0)\bigr)
-    \notag\\
-    &\qquad
+    Y_i\bigl(z,D_i(0)\bigr)
     =
-    \bigl[D_i(1)-D_i(0)\bigr]\bigl[Y_i(Z_i, 1) - Y_i(Z_i, 0)\bigr].
-    \label{eq:aie-binary-mediator-identity}
-\end{align}
+    \bigl[D_i(1)-D_i(0)\bigr]\bigl[Y_i(z, 1) - Y_i(z, 0)\bigr].
+\]
 Always-takers and never-takers make no contribution to this expression because their mediator status does not respond to \(Z_i\).
 Compliers contribute positively, while defiers contribute negatively.
 
 Define the average effects of the mediator among compliers and defiers, respectively, as
-\[
-    \tau_C( \vec X_i)
-    :=
-    \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{ 
+\[ \tau_C(z;\vec X_i)
+    \coloneqq
+    \Egiven{Y_i(z, 1) - Y_i(z, 0)}{ 
         D_i(0)=0,D_i(1)=1, \vec X_i}
 \]
-\[
-    \tau_D( \vec X_i)
-    :=
-    \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{ 
+\[ \tau_D(z;\vec X_i)
+    \coloneqq
+    \Egiven{Y_i(z, 1) - Y_i(z, 0)}{ 
         D_i(0)=1,D_i(1)=0, \vec X_i}.
 \]
 The conditional AIE can therefore be written as
-\begin{align}
-    &\Egiven{
-        Y_i\bigl(Z_i,D_i(1)\bigr)
+\[ \Egiven{
+        Y_i\bigl(z,D_i(1)\bigr)
         -
-        Y_i\bigl(Z_i,D_i(0)\bigr)}{ \vec X_i}
-    \notag\\
-    &\qquad
+        Y_i\bigl(z,D_i(0)\bigr)}{ \vec X_i}
     =
-    \pi_C( \vec X_i)\tau_C( \vec X_i)
+    \pi_C( \vec X_i)\tau_C(z;\vec X_i)
     -
-    \pi_D( \vec X_i)\tau_D( \vec X_i).
-    \label{eq:aie-with-defiers}
-\end{align}
+    \pi_D( \vec X_i)\tau_D(z;\vec X_i). \]
 Applying the expectation across \( \vec X_i\) gives
 \begin{align}
-    \operatorname{AIE}
-    = \E{\pi_C( \vec X_i)\tau_C( \vec X_i)
-        - \pi_D( \vec X_i)\tau_D( \vec X_i) }.
+    \operatorname{AIE}(z)
+    = \E{\pi_C( \vec X_i)\tau_C( z;\vec X_i)
+        - \pi_D( \vec X_i)\tau_D( z;\vec X_i) }.
     \label{eq:unconditional-aie-with-defiers}
 \end{align}
 
-Using \autoref{eq:first-stage-with-defiers}, \autoref{eq:aie-with-defiers} can alternatively be written as
+Using \autoref{eq:first-stage-with-defiers}, this can alternatively be written as
 \begin{align}
     &\Egiven{
-        Y_i\bigl(Z_i,D_i(1)\bigr)
+        Y_i\bigl(z,D_i(1)\bigr)
         -
-        Y_i\bigl(Z_i,D_i(0)\bigr)}{ \vec X_i }
+        Y_i\bigl(z,D_i(0)\bigr)}{ \vec X_i }
     \notag\\
     &\qquad
     =
@@ -443,31 +363,31 @@ Using \autoref{eq:first-stage-with-defiers}, \autoref{eq:aie-with-defiers} can a
         -
         \Egiven{D_i}{ Z_i=0, \vec X_i }
     \Big)
-    \tau_C( \vec X_i)
+    \tau_C(z;\vec X_i)
     \notag\\
     &\qquad\quad
     +
-    \pi_D( \vec X_i)
+    \pi_D(\vec X_i)
     \left[
-        \tau_C( \vec X_i)-\tau_D( \vec X_i)
+        \tau_C(z; \vec X_i)-\tau_D(z; \vec X_i)
     \right].
     \label{eq:aie-net-first-stage}
 \end{align}
 The first term is the net mediator first-stage multiplied by the average mediator effect among compliers.
 The second term adjusts for differences between the average mediator effects of compliers and defiers.
 
-Under mediator monotonicity, \(\pi_D( \vec X_i)=0\), and equation \eqref{eq:aie-net-first-stage} reduces to the complier-based decomposition used in the main text.
+Under mediator monotonicity, \(\pi_D(\vec X_i)=0\), and equation \eqref{eq:aie-net-first-stage} reduces to the complier-based decomposition used in the main text.
 The additional term also vanishes if compliers and defiers have the same average mediator effect, although this is a treatment-effect homogeneity restriction rather than monotonicity.
 Without either restriction, the mediator first-stage cannot be interpreted as the mediator complier share, and the AIE cannot be written as the mediator first-stage multiplied only by the average mediator effect among compliers.
 
 The presence of mediator defiers also changes the selection-bias decomposition for the conventional CM estimand. Absent mediator monotonicity, the conventional CM estimand for the AIE can be written as
-\begin{align}
-    &\E{ \Big( \Egiven{D_i}{Z_i=1,\vec X_i} - \Egiven{D_i}{Z_i=0,\vec X_i} \big) \Big( \Egiven{Y_i}{Z_i,D_i=1,\vec X_i} - \Egiven{Y_i}{Z_i,D_i=0,\vec X_i} \Big) } \notag\\
-    &\qquad = \underbrace{ \E{ Y_i\bigl(Z_i, D_i(1)\bigr) - Y_i\bigl(Z_i,D_i(0)\bigr) } }_{\text{AIE}}
-    \label{eq:aie-selection-bias-with-defiers} \\
-    &\qquad\quad + \underbrace{ \E{ \Big( \pi_C(\vec X_i)-\pi_D(\vec X_i) \Big) \Big( \Egiven{Y_i(Z_i,0)} {Z_i,D_i=1,\vec X_i} - \Egiven{Y_i(Z_i,0)} {Z_i,D_i=0,\vec X_i} \Big) } }_{\text{Selection bias}} \notag\\
-    &\qquad\quad + \underbrace{ \E{ \Big( \pi_C(\vec X_i)-\pi_D(\vec X_i) \Big) \Big( \Egiven{Y_i(Z_i,1)-Y_i(Z_i,0)} {Z_i,D_i=1,\vec X_i} - \tau_C(\vec X_i) \Big) } }_{\text{Group differences}} \notag\\ &\qquad\quad + \underbrace{ \E{ \pi_D(\vec X_i) \Big( \tau_D(\vec X_i)-\tau_C(\vec X_i) \Big) } }_{\text{Defier compensation}}. \notag
-\end{align}
+\begin{align*}
+    &\E[\vec X_i]{ \Big( \Egiven{D_i}{Z_i=1,\vec X_i} - \Egiven{D_i}{Z_i=0,\vec X_i} \Big) \Big( \Egiven{Y_i}{Z_i=z,D_i=1,\vec X_i} - \Egiven{Y_i}{Z_i=z,D_i=0,\vec X_i} \Big) } \notag\\
+    &= \operatorname{AIE}(z)\\
+    &\quad+ \underbrace{ \E[\vec X_i]{ \Big( \pi_C(\vec X_i)-\pi_D(\vec X_i) \Big) \Big( \Egiven{Y_i(z,0)} {D_i(z)=1,\vec X_i} - \Egiven{Y_i(z,0)} {D_i(z)=0,\vec X_i} \Big) } }_{ \text{Selection bias} } \\
+    &\quad+ \underbrace{ \E[\vec X_i]{ \Big( \pi_C(\vec X_i)-\pi_D(\vec X_i) \Big) \Big( \Egiven{Y_i(z,1)-Y_i(z,0)} {D_i(z)=1,\vec X_i} - \tau_C(z;\vec X_i) \Big) } }_{ \text{Group-difference bias} } \notag\\
+    &\quad+ \underbrace{ \E[\vec X_i]{ \pi_D(\vec X_i) \Big( \tau_D(z;\vec X_i) - \tau_C(z;\vec X_i) \Big) } }_{ \text{Defier compensation} }.
+\end{align*}
 
 The second term is selection bias: differences in baseline potential outcomes between those who take and refuse the mediator.
 The third term is group-difference bias: the average mediator effect among those observed taking the mediator may differ from the average mediator effect among mediator compliers.

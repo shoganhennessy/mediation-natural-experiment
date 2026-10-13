@@ -136,27 +136,27 @@ Sequential quasi-random assignment assumes that the initial treatment $Z_i$ is q
 It then also assumes that, after $Z_i$ is assigned, that $D_i$ is quasi-randomly assigned conditional on $\vec X, Z_i$ (hereafter, mediator quasi-random assignment).
 If \ref{dfn:seq-ign}\eqref{eqn:seq-ign-Z} and \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D} hold, then the ADE and AIE are identified by two-stage mean differences conditioning on $\vec X_i$.\footnote{
     In addition, a common support condition for both $Z_i, D_i$ (across $\vec X_i$) is necessary.
-    \cite{imai2010identification} show a general identification statement; see \appendixref{appendix:identification}.
+    \cite{imai2010identification} shows this general identification statement; see \appendixref{appendix:identification}.
 }
 \vspace{0.1cm}
 
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
-\[ \E[\vec X_i,\,D_i \,\mid\, Z_i=z]{ \underbrace{
+\[ \E[\vec X_i]{\E[D_i \,\mid\, Z_i=z, \vec X_i]{ \underbrace{
     \Egiven{Y_i}{Z_i=1,D_i,\vec X_i} - \Egiven{Y_i}{Z_i=0,D_i,\vec X_i} }_{\substack{
-        \text{Second-stage contrast, holding $D_i$ constant to its}\\
-        \text{distribution under treatment state $z$} }} }
+        \text{Second-stage mean difference, $Z_i \to Y_i$ holding $D_i$ constant to}\\
+        \text{its distribution under treatment state $Z_i = z$} }} }}
     = \underbrace{\E{Y_i(1, D_i(z)) - Y_i(0, D_i(z))}}_{
         \text{ADE($z$), for $z= 0, 1$.}} \]
 \[ \E[\vec X_i]{ \underbrace{\Big(
     \Egiven{D_i}{Z_i = 1, \vec X_i} - \Egiven{D_i}{Z_i = 0, \vec X_i} \Big)}_{
-        \text{First-stage regression, $D_i$ on $Z_i$}}
+        \text{First-stage mean difference, $Z_i \to D_i$}}
     \times 
     \underbrace{\Big(\Egiven{Y_i}{Z_i =z, D_i = 1, \vec X_i} - \Egiven{Y_i}{Z_i=z, D_i = 0, \vec X_i} \Big) }_{
-        \text{Second-stage regression, $Y_i$ on $D_i$ holding $Z_i$ constant at $z$}} } \]
+        \text{Second-stage mean difference, $D_i \to Y_i$ holding $Z_i$ constant at $z$}} } \]
 \[ = \underbrace{\E{Y_i(z, D_i(1)) - Y_i(z, D_i(0))}}_{\text{AIE($z$), for $z=0,1$.}} \]
 }}
 
-I refer to the estimands on the left-hand side as CM estimands, which are typically estimated by a composition of two-stage Ordinary Least Squares (OLS) estimates \citep{imai2010identification}.
+I refer to the estimands on the left-hand side as conventional CM estimands, which are typically estimated by a composition of two-stage Ordinary Least Squares (OLS) estimates \citep{imai2010identification}.
 While this is the most common approach in the applied literature, I do not assume the linear model for my identification analysis.
 Linearity assumptions are not necessary for identification, and it suffices to note that heterogeneous treatment effects and non-linear confounding can bias OLS estimates of CM estimands in the same manner that is well documented elsewhere (see e.g., \citealt{angrist1998estimating,sloczynski2022interpreting}).
 This section focuses on problems that plague conventional CM, regardless of estimation method.
@@ -189,59 +189,61 @@ For the direct effect: conventional CM estimand $=$ ADE $+$ selection bias $+$ g
             \text{Group-differences Bias}}. \]
 }
 \begin{align*}
-    & \mathbb E_{D_i} \Big[
-        \Egiven{Y_i}{Z_i = 1, D_i} - \Egiven{Y_i}{Z_i = 0, D_i} \Big] \\
-    & = \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))} \\
-    & \;\;\;\; + \mathbb E_{D_i = d} \Big[
-        \Egiven{Y_i(0, D_i(Z_i))}{D_i(1) = d} 
-        - \Egiven{Y_i(0, D_i(Z_i))}{D_i(0) = d} \Big] \\
-    & \;\;\;\; + \E[D_i = d]{
-        \Big(1 - \Prob{D_i(1) = d} \Big)
-        \left( \begin{aligned}
-            &\Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = 1-d} \\ 
-            &  - \Egiven{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{D_i(1) = d}
-            \end{aligned} \right) }
+    & \mathbb E_{D_i \,\mid\, Z_i=z} \Big[
+        \Egiven{Y_i}{Z_i=1,D_i} - \Egiven{Y_i}{Z_i=0,D_i} \Big] \\
+    &= \text{ADE}(z) \\
+    &\quad+
+        \mathbb E_{D_i =d\,\mid\, Z_i=z} \Big[
+            \Egiven{Y_i(0,d)}
+                {D_i(1)=d}
+            -
+            \Egiven{Y_i(0,d)}
+                {D_i(0)=d} \Big] \\
+    &\quad+
+        \mathbb E_{D_i =d \,\mid\, Z_i=z} \Big[
+            \Egiven{
+                Y_i(1,d)-Y_i(0,d)
+            }{
+                D_i(1)=d
+            }
+            -
+            \Egiven{
+                Y_i(1,d)-Y_i(0,d)
+            }{
+                D_i(z)=d
+            } \Big].
 \end{align*}
+
 
 \noindent
 For the indirect effect: conventional CM estimand $=$ AIE $+$ selection bias $+$ group differences.
 \begin{align*}
-    &\E[Z_i]{
-        \Big( \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0} \Big) \times
-        \Big( \Egiven{Y_i}{Z_i, D_i = 1} - \Egiven{Y_i}{Z_i, D_i = 0} \Big) } \\
-    & = \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
+    &\Big( \Egiven{D_i}{Z_i = 1} - \Egiven{D_i}{Z_i = 0} \Big) \times
+        \Big( \Egiven{Y_i}{Z_i=z, D_i = 1} - \Egiven{Y_i}{Z_i=z, D_i = 0} \Big) \\
+    & = \text{AIE}(z) \\
     & \;\;\;\; + \Prob{D_i(0) = 0, D_i(1) = 1} \Big(
-        \Egiven{Y_i(Z_i, 0)}{D_i = 1} - \Egiven{Y_i(Z_i, 0)}{D_i = 0} \Big) \\
-    & \;\;\;\; + \Prob{D_i(0) = 0, D_i(1) = 1} \times \\
-    & \;\;\;\; \;\; \left[ \begin{aligned}
-        &\Big( 1 - \Prob{D_i=1} \Big)
+        \Egiven{Y_i(z, 0)}{D_i(z) = 1} - \Egiven{Y_i(z, 0)}{D_i(z) = 0} \Big) \\
+    & \;\;\;\; + \Prob{D_i(0) = 0, D_i(1) = 1} 
         \left( \begin{aligned}
-            &\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i = 1} \\ 
-            &  - \Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i = 0}
-        \end{aligned} \right) \\
-        &- \left( \frac{1 - \Prob{D_i(0) = 0, D_i(1) = 1} }{
-            \Prob{D_i(0) = 0, D_i(1) = 1}} \right)
-        \left( \begin{aligned}
-            &\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(1) = 0 \text{ or } D_i(0)=1} \\ 
-            &  - \E{Y_i(Z_i, 1) - Y_i(Z_i, 0)}
-        \end{aligned} \right)
-    \end{aligned} \right]
+            &\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(z)=1}\\
+            &- \Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(0)=0, D_i(1)=1}
+            \end{aligned} \right)    
 \end{align*}
 
-The selection bias terms come from systematic differences between the groups taking or refusing the mediator ($D_i = 1$ versus $D_i = 0$), differences not fully unexplained by $\vec X_i$.
+The selection bias terms come from systematic differences between the groups taking or refusing the mediator ($D_i(z) = 1$ versus $D_i(z) = 0$), differences not fully unexplained by $\vec X_i$.
 These selection bias terms would equal zero if the mediator had been quasi-randomly assigned \ref{dfn:seq-ign}\eqref{eqn:seq-ign-D}, but do not necessarily average to zero if not.
 In the Oregon Health Insurance Experiment, the wait-list gave random variation in the treatment (the Medicaid wait-list lottery) but there was not a similar natural experiment for healthcare usage; correspondingly, the selection-on-observables approach to CM has selection bias.
 
-The group differences represent the fact that a matching approach gives an average effect on the treated group, which is systematically different from the average effect if selection-on-observables does not hold.
+The group differences represent the fact that mean differences give an average effect on the $D_i(z) = 1$ treated group, which is systematically different from the compliers' average effect if selection-on-observables does not hold.
 These terms are a non-parametric framing of the bias from controlling for intermediate outcomes, previously studied only in a linear setting (i.e., bad controls in \citealt{cinelli2024crash}, or M-bias in \citealt{ding2015adjust}).
 
 The AIE group differences term is longer, because the indirect effect is the average effect of $D_i$ local to $D_i(Z_i)$ compliers.
 \begin{align*}
-    \text{AIE}
-    &= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))} \\
+    \text{AIE}(z)
+    &= \E{Y_i(z, D_i(1)) - Y_i(z, D_i(0))} \\
     &= \Prob{D_i(0) = 0, D_i(1) = 1} \; 
-        \underbrace{\Egiven{Y_i(Z_i, 1) - Y_i(Z_i, 0)}{D_i(0) = 0, D_i(1) = 1}}_{
-            \text{Average $D_i$ on $Y_i$ effect among $D_i(Z_i)$ compliers}
+        \underbrace{\Egiven{Y_i(z, 1) - Y_i(z, 0)}{D_i(0) = 0, D_i(1) = 1}}_{
+            \text{Average $D_i \to Y_i$ effect among $D_i(Z_i)$ compliers}
         }
 \end{align*}
 It is important to acknowledge the mediator compliers here, because the AIE is the treatment effect going through the $D_i(Z_i)$ channel, thus only refers to individuals pushed into mediator $D_i$ by initial treatment $Z_i$.\footnote{

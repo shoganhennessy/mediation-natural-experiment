@@ -22,7 +22,8 @@ The main problem is that second-stage regression equation \eqref{eqn:parametric-
 
 My approach to identifying CM effects models the contaminating terms in \eqref{eqn:secondstage-reg} via the mediator MTE, avoiding the bias terms derived in \autoref{sec:mediation}.
 Thinking on MTEs began with corrections for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem of the same form as \autoref{eqn:secondstage-reg} in parametric settings \citep{heckman1979sample,bjorklund1987estimation} and a general case \citep{heckman2005structural}.
-The approach works in the following manner: (1) assume that the variable of interest follows a threshold-crossing model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage; and (3) incorporate this information as control terms in the second-stage equation to adjust for selection-into-mediator.
+The approach works in the following manner: (1) assume that the variable of interest follows a threshold-crossing model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage using an instrumental variable; and (3) estimate the ADE and AIE via the mediator MTE.
+
 Identification in MTE methods typically relies on identifying the corresponding Control Functions (CFs) with an external instrument or distributional assumptions; this paper focuses exclusively on the case that an instrument is available.
 By explicitly accounting for the information contained in the first-stage selection model, the MTE approach enables consistent estimation of causal effects in the second-stage even when selection is driven by unobserved factors.
 
@@ -31,7 +32,11 @@ It does so by assuming that unobserved selection-into-healthcare use is informat
 Then it uses this information in the second-stage estimation of how much the effect goes through increased healthcare usage, estimating the ADE and AIE after controlling for this confounding.
 
 \subsection{MTE Model Set-up}
-The following assumptions identify the second-stage conditional mean \eqref{eqn:parametric-secondstage} and the combinations of its systematic and control-function components required to identify the mediator MTE, and thus both the ADE and AIE.
+
+DEFINE THE MEDIATOR MTE HERE.
+
+
+The following assumptions identify the mediator MTE \eqref{eqn:parametric-secondstage} and the combinations of its systematic and control-function components required to identify the mediator MTE, and thus both the ADE and AIE.
 
 \theoremstyle{definition}
 \newtheorem{assumptionMTE}{Assumption}
