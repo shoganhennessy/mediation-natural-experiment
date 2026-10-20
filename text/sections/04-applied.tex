@@ -20,9 +20,9 @@ Second, I show how selection bias operates in a basic model for selection-into-m
 Inference for CM effects can be written in a regression framework with random coefficients, showing how correlation between unobserved error terms and the mediator disrupts identification.
 
 Start by writing potential outcomes $Y_i(., .)$ as a sum of observed and unobserved factors, following the notation of \cite{heckman2005structural}.
-For each $z,d = 0,1$, put $\mu_{d}(z; \vec X_i) = \Egiven{Y_i(z, d)}{\vec X_i}$ and the corresponding error terms, $U_{d, i} = Y_i(z, d) - \mu_{d}(z; \vec X_i)$, so we have the following expressions:
-\[ Y_i(Z_i, 0)  = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
-    Y_i(Z_i, 1) = \mu_{1}(Z_i; \vec X_i) + U_{1,i}. \]
+For each $z,d = 0,1$, put $\mu_{d}(z; \vec X_i) = \Egiven{Y_i(z, d)}{\vec X_i}$ and the corresponding error terms, $U_i(z,d) = Y_i(z, d) - \mu_{d}(z; \vec X_i)$, so we have the following expressions:
+\[ Y_i(Z_i, 0)  = \mu_{0}(Z_i; \vec X_i) + U_i(Z_i, 0), \;\;
+    Y_i(Z_i, 1) = \mu_{1}(Z_i; \vec X_i) + U_i(Z_i, 1). \]
 %In these terms, the ADE and AIE are represented as follows,
 %\begin{align*}
 %    \text{ADE}
@@ -34,44 +34,39 @@ For each $z,d = 0,1$, put $\mu_{d}(z; \vec X_i) = \Egiven{Y_i(z, d)}{\vec X_i}$ 
 %        \times \Big( \mu_1(Z_i; \vec X_i) - \mu_0(Z_i; \vec X_i) + U_{1,i} - U_{0,i}\Big) }.
 %\end{align*}
 
-With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following random coefficient outcome formulae --- which characterise direct effects, indirect effects, and selection bias.
+With this notation, observed data $Z_i, D_i, Y_i, \vec X_i$ have the following random coefficient outcome formulae --- which characterise direct effects, indirect effects, and selection bias.\footnote{
+    This is not consequence  of linearity assumptions; the outcome formulae allow for unconstrained heterogeneous treatment effects, because the coefficients are random.
+    If either $Z_i, D_i$ were continuously distributed, then this representative would not necessarily hold true.
+}
 \begin{align}
     \label{eqn:parametric-firststage}
     D_i &= \theta + \bar \pi Z_i + \zeta(\vec X_i) + \eta_i,  \\
     \label{eqn:parametric-secondstage}
     Y_i &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
     + \varphi(\vec X_i)
-    + \underbrace{ \left(1 - D_i \right) U_{0,i} + D_i U_{1,i}}_{
-        \text{Correlated error term.}}
+    + \varepsilon_i.
 \end{align}
 
-This is not consequence  of linearity assumptions; the outcome formulae allow for unconstrained heterogeneous treatment effects, because the coefficients are random.
-If either $Z_i, D_i$ were continuously distributed, then this representative would not necessarily hold true.
 First-stage \eqref{eqn:parametric-firststage} is identified, with $\theta + \zeta(\vec X_i)$ the intercept, and $\bar \pi$ the first-stage average compliance rate (conditional on $\vec X_i$).
-Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to omitted variables bias.
-See \appendixref{appendix:regression-model} for the derivation.
+Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to the correlated error term, $\varepsilon_i$.
 \begin{enumerate}[label=\textbf{(\alph*)}]
     \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\varphi(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
-    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the AIE conditional on $Z_i = 0, \vec X_i$.
-    \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the ADE conditional on $D_i = 0, \vec X_i$.
+    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the controlled indirect effect under $Z_i = 0$
+    \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the controlled direct effect under $D_i = 0$.
     \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) - \big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big)$ is the average interaction effect conditional on $\vec X_i$.
-    \item $\left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}$ is the disruptive error term.
+    \item $\varepsilon_i$ is the disruptive error term, with the following definition
+    \[ \varepsilon_i = \begin{cases}
+        \left(1 - D_i \right) U_i(0,0) + D_i U_i(0,1),& \text{ if } Z_i = 0 \\
+        \left(1 - D_i \right) U_i(1,0) + D_i U_i(1,1),& \text{ if } Z_i = 1.
+\end{cases} \]
+    The selection bias comes from the fact that $\varepsilon_i$ is correlated with mediator $D_i$, when $D_i$ is not quasi-randomly assigned.
 \end{enumerate}
 
-The ADE and AIE are averages of the random coefficients:
-\begin{align*}
-    \text{ADE}
-    %= \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
-        &= \E{\gamma + \delta D_i}, \\
-    \text{AIE}
-    %= \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{ \bar \pi \big( \beta +  \delta Z_i + \tilde U_i \big)},
-        \;\;\;\; \text{ with } \tilde U_i
-            = \underbrace{\Egiven{ U_{1,i} - U_{0,i}}{
-                \vec X_i, D_i(0) = 0, D_i(1) = 1}}_{
-                    \text{Unobserved complier gains.}}.
-\end{align*}
-The ADE is a simple sum of the coefficients, while the AIE includes a group differences term because it only refers to $D_i(Z_i)$ compliers.
+The ADE and AIE are averages of these random coefficients:
+\[ \text{ADE}(z) = \E{\gamma + \delta z}, \qquad
+\text{AIE}(z) = \E{ \bar \pi \Big( \beta +  \delta z + \tilde U_i(z) \Big)}, \]
+where $\tilde U_i(z) = \Egiven{ U_i(z, 1) - U_i(z, 0)}{D_i(0)=0, D_i(1)=1, \vec X_i}$, for each $z=0,1$.
+Second-stage \eqref{eqn:parametric-secondstage} is not identified, so that the ADE and AIE are not identified in these regression equations --- \appendixref{appendix:regression-model} shows the omitted variables bias formulae.
 
 By construction, $\vec U_i \coloneqq \left(U_{0, i}, U_{1, i} \right)$ is an unobserved confounder.
 The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally quasi-randomly assigned: $D_i \indep  \vec U_{i} $.
@@ -117,7 +112,7 @@ If there are any selection-into-$D_i$ benefits unobserved to the researcher, the
 \begin{proposition}
     \label{prop:roy-seq-ig}
     Suppose mediator selection follows a Roy model \eqref{eqn:roy-model}, and selection is not fully explained by costs and observed gains.
-    Then mediator quasi-random assignment does not hold.
+    Then mediator quasi-random assignment does not hold, and thus conventional CM estimands are at risk of selection bias.
 \end{proposition}
 
 This is an equivalence statement: selection based on costs and benefits is only consistent with mediator quasi-random assignment if the researcher observed every single source of mediator benefits.

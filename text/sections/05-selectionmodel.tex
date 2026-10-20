@@ -1,27 +1,8 @@
 \section{Solving Identification via the Mediator MTE}
 \label{sec:selectionmodel}
-If your goal is to estimate CM effects, and you could control for unobserved selection terms $U_{0,i}, U_{1,i}$, then you would.
-This ideal (but infeasible) scenario would yield unbiased estimates for the ADE and AIE.
-% Alas, $U_i$ is by definition unobserved.
-Identification via the mediator Marginal Treatment Effect (MTE) takes this insight seriously, providing conditions to model the implied confounding by $U_{0,i}, U_{1,i}$, and then controlling for it.
 
-The main problem is that second-stage regression equation \eqref{eqn:parametric-secondstage} is not identified, because $U_{0,i},U_{1,i}$ are unobserved, and lead to omitted variables bias.
-\begin{align}
-    \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
-        \alpha
-        + \beta D_i
-        + \gamma Z_i
-        + \delta Z_i D_i
-        + \varphi(\vec X_i) \nonumber \\
-        \label{eqn:secondstage-reg}
-        & \;\; +\underbrace{\left( 1 - D_i
-            \right) \Egiven{ U_{0,i} }{D_i = 0, \vec X_i}
-                + D_i \Egiven{ U_{1,i} }{D_i = 1, \vec X_i}}_{
-                    \text{Unobserved confounding.}}
-\end{align}
-
-My approach to identifying CM effects models the contaminating terms in \eqref{eqn:secondstage-reg} via the mediator MTE, avoiding the bias terms derived in \autoref{sec:mediation}.
-Thinking on MTEs began with corrections for sample selection problems \citep{heckman1974shadow}, and were extended to a general selection problem of the same form as \autoref{eqn:secondstage-reg} in parametric settings \citep{heckman1979sample,bjorklund1987estimation} and a general case \citep{heckman2005structural}.
+My approach to identifying CM effects models unobserved selection-into-$D_i$ via the mediator MTE, avoiding the bias terms derived in \autoref{sec:mediation}.
+Thinking on MTEs began with corrections for sample selection problems \citep{heckman1974shadow}, and were extended to a switching/selection problem in parametric settings \citep{heckman1979sample,bjorklund1987estimation} and a general case \citep{heckman2005structural}.
 The approach works in the following manner: (1) assume that the variable of interest follows a threshold-crossing model, where unexplained first-stage selection informs unobserved second-stage confounding; (2) extract information about unobserved confounding from the first-stage using an instrumental variable; and (3) estimate the ADE and AIE via the mediator MTE.
 
 Identification in MTE methods typically relies on identifying the corresponding Control Functions (CFs) with an external instrument or distributional assumptions; this paper focuses exclusively on the case that an instrument is available.
@@ -32,19 +13,32 @@ It does so by assuming that unobserved selection-into-healthcare use is informat
 Then it uses this information in the second-stage estimation of how much the effect goes through increased healthcare usage, estimating the ADE and AIE after controlling for this confounding.
 
 \subsection{MTE Model Set-up}
+The mediator MTE measures how the average causal effect of mediator $D_i$ varies across the population distribution, measured by a uniform random variable $U_i$.
+\begin{align*}
+    \operatorname{MTE}^D(p; z, \vec X_i)
+    &= \Egiven{Y_i(z, 1) - Y_i(z, 0)}{Z_i = z, \vec X_i, U_i = p},
+    \;\;\;\; \text{ for } z = 0,1,\;p \in (0,1).
+\end{align*}
 
-DEFINE THE MEDIATOR MTE HERE.
+Under the threshold-crossing selection model, a marginal increase in $P_i$ induces mediator take-up among individuals whose latent mediator take-up cost $U_i$ is locally equal to $p$.
+Write $P_i = \pi(Z_i; \vec X_i)$ for the observed propensity score.
+As the propensity score increases continuously through $p \in (0,1)$, individuals with $U_i=p$ are induced to move from $D_i=0$ to $D_i=1$.
+The resulting marginal change in the conditional mean of $Y_i$, therefore identifies the average causal effect of the mediator for individuals at that point on the selection margin \citep{heckman2005structural}.
+Thus, the mediator MTE therefore equals the partial derivative of the observed conditional mean with respect to $p$ if the relevant conditional expectations are finite and continuously differentiable in $p$.
+\[ \operatorname{MTE}(p; z, \vec X_i)
+    = \partialdiff{p}
+        \Egiven{Y_i}{Z_i = z, \vec X_i, P_i = p},
+    \text{ for } z = 0,1. \]
 
-
-The following assumptions identify the mediator MTE \eqref{eqn:parametric-secondstage} and the combinations of its systematic and control-function components required to identify the mediator MTE, and thus both the ADE and AIE.
+The following assumptions identify the mediator MTE in observed data, plus the combinations of its systematic and control-function components required to  identify the mediator MTE, and thus both the ADE and AIE.
 
 \theoremstyle{definition}
 \newtheorem{assumptionMTE}{Assumption}
 \renewcommand\theassumptionMTE{MTE--\arabic{assumptionMTE}}
 \begin{assumptionMTE}
     \label{mte:monotonicity}
-    Mediator monotonicity, conditional on $\vec X_i$.
-    \[ \Probgiven{ D_i(0) \leq D_i(1) }{\vec X_i} = 1. \]
+    Mediator monotonicity.
+    \[ \Probgiven{ D_i(0) \leq D_i(1) } = 1. \]
 \end{assumptionMTE}
 Assumption \ref{mte:monotonicity} is the monotonicity condition first used in an IV context \citep{imbens1994identification}.
 Here, it is assuming that people respond to treatment, $Z_i$, by consistently taking or refusing the mediator $D_i$ (always or never-mediators), or taking the mediator $D_i$ if and only if assigned to the treatment $Z_i=1$ (mediator compliers).
@@ -77,18 +71,10 @@ For each $z = 0,1$ and each possible value of $\vec x_i^{\mathrm{IV}}$ in the su
 \begin{assumptionMTE}
     \label{mte:instrument}
     Mediator take-up cost instrument: $\vec X_i^{\mathrm{IV}}$ satisifes \emph{relevance}, \emph{exclusion}, and \emph{quasi-random assignment}.
-    \begin{enumerate}[label=\textbf{(\arabic*)}]
-        \item \emph{Relevance:} $\vec X_i^{\mathrm{IV}}$ changes the probability of mediator take-up.
-        \[ \pi\big( z; \vec x^{\mathrm{IV}}, \vec x^- \big) \text{ is nonconstant in } \vec x^{\mathrm{IV}}. \]
-        \item \emph{Exclusion:} $\vec X_i^{\mathrm{IV}}$ affects $Y_i$ only through mediator take-up.
-        \[ Y_i(z,d,\vec x^{\mathrm{IV}}) = Y_i(z,d), \;\; \text{ for all } z,d=0,1 \text{ and } \vec x^{\mathrm{IV}} \text{ in the } \vec X_i^{\mathrm{IV}} \text{ support}.\]
-        \item \emph{Quasi-random assignment:}
-        $\vec X_i^{\mathrm{IV}}$ is assigned independently of the relevant potential outcomes, and mediator potential choices
-        \[ \vec X_i^{\mathrm{IV}} \; \indep \;D_i(z), \;Y_i(z',d)
-        \;\; \big| \;\; \vec X_i^-, \;\; \text{ for } z,z',d = 0,1.\]
-    \end{enumerate}
 \end{assumptionMTE}
-Assumption \ref{mte:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an Instrumental Variable (IV).
+Assumption \ref{mte:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an Instrumental Variable (IV).\footnote{
+    \appendixref{appendix}
+}
 Relevance provides variation in the mediator propensity score.
 Exclusion requires preceding healthcare access location to affect subsequent health and well-being only through healthcare take-up, after conditioning on $\vec X_i^-$ and $Z_i$.
 Quasi-random assignment requires this variation to be unrelated to latent mediator choices and mediator potential outcomes after conditioning on $\vec X_i^-$.
@@ -201,8 +187,7 @@ One can see this by noting the connection to the marginal effect of the mediator
 \begin{align*}
     & \Egiven{Y_i(z, 1) - Y_i(z, 0)}{Z_i = z, \vec X_i^-, U_i = p} \\
     &= \beta + \delta z +
-    \underbrace{\Egiven{U_{1,i} - U_{0,i}}{\vec X_i^-, U_i = p}}_{
-        = g_1(p) + g_1'(p)p \,-\, \left[ g_0(p) - g_0'(p)(1-p)\right]},
+        \Egiven{U_{1,i} - U_{0,i}}{\vec X_i^-, U_i = p},
     \;\;\;\; \text{ for } z = 0,1,\;p \in (0,1).
 \end{align*}
 The marginal effect of the mediator is identified under the \ref{thm:mte-identification} assumptions, thanks to instrumental variation in $\vec X_i^{\text{IV}}$.

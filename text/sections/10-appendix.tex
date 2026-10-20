@@ -396,14 +396,6 @@ The final term is the additional defier-compensation term. It arises because the
 
 \subsection{A Regression Framework for Direct and Indirect Effects}
 \label{appendix:regression-model}
-Put $\mu_{d}(z; \vec X) = \Egiven{Y_i(z, d)}{\vec X}$ and $U_{d, i} = Y_i(z, d) - \mu_{d}(z; \vec X)$ for each $z,d=0,1$, so we have the following expressions:
-\[ Y_i(Z_i, 0)
-        = \mu_{0}(Z_i; \vec X_i) + U_{0,i}, \;\;
-    Y_i(Z_i, 1)
-        = \mu_{1}(Z_i; \vec X_i) + U_{1,i}. \]
-$U_{0,i}, U_{1,i}$ are error terms with unknown distributions, mean independent of $Z_i, \vec X_i$ by definition --- but possibly correlated with $D_i$.
-$Z_i$ is conditionally independent of potential outcomes, so that $U_{0,i}, U_{1,i} \indep Z_i$.
-
 The first-stage regression of $Z \to Y$ has unbiased estimates, since $Z_i \indep D_i(.) \big| \vec X_i$.
 Put $\pi(z; \vec X) = \Egiven{D_i(z)}{\vec X}$, and $\eta_{z, i} = D_i(z) - \pi(z; \vec X)$ the first-stage error terms.
 \begin{align*}
@@ -420,10 +412,9 @@ Put $\pi(z; \vec X) = \Egiven{D_i(z)}{\vec X}$, and $\eta_{z, i} = D_i(z) - \pi(
         &= \theta + \bar \pi Z_i + \zeta(\vec X_i).
 \end{align*}
 Since the quasi-random assignment assumption gives $\Egiven{Z_i \eta_{z,i}}{\vec X_i} = \Egiven{Z_i}{\vec X_i} \Egiven{\eta_{z,i}}{\vec X_i} = 0$, for each $z =0,1$.
-By the same argument $Z_i$ is also assumed independent of potential outcomes $Y_i(.,.)$, so that $U_{0,i}, U_{1,i} \indep Z_i$.
-Thus, the reduced form regression $Z \to Y$ also leads to unbiased estimates for the ATE.
 
 The same cannot be said of the regression that estimates direct and indirect effects, without further assumptions.
+Write the mean potential outcome as $\mu_{d}(z; \vec X)^z = \Egiven{Y_i(z, d)}{\vec X}$, with residual $U_i(z,d) = Y_i(z, d) - \mu_{d}(z; \vec X)$ for each $z,d=0,1$.
 \begin{align*}
     Y_i &= Z_i Y_i(1, D_i(1)) + (1 - Z_i) Y_i(0, D_i(0)) \\
         &= Z_i D_i Y_i(1, 1) \\
@@ -443,11 +434,12 @@ And so $Y_i$ can be written as a regression equation in terms of the observed fa
         & \;\;\;\; + Z_i \left[\mu_0(1; \vec X_i) - \mu_0(0; \vec X_i) \right] \\
         & \;\;\;\; + Z_i D_i \left[\mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)
             - \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)\right] \\
-        & \;\;\;\; + U_{0,i} + D_i \left( U_{1,i} - U_{0,i} \right) \\
-        &=
-            \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
-            + \varphi(\vec X_i)
-            + \left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}
+        & \;\;\;\; + (1-Z_i) \Big[
+            \left( 1 - D_i \right) U_i(0, 0) + D_i U_i(0, 1) \Big] \\
+        & \;\;\;\; + Z_i \Big[
+            \left( 1 - D_i \right) U_i(1, 0) + D_i U_i(1, 1) \Big] \\
+        &= \alpha + \beta D_i + \gamma Z_i + \delta Z_i D_i
+            + \varphi(\vec X_i) + \varepsilon_i
 \end{align*}
 With the following definitions:
 \begin{enumerate}[label=\textbf{(\alph*)}]
@@ -455,9 +447,28 @@ With the following definitions:
     \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the indirect effect under $Z_i = 0$
     \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the direct effect under $D_i = 0$.
     \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)- \left( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \right)$ is the interaction effect.
-    \item $\left( 1 - D_i \right) U_{0,i} + D_i U_{1,i}$ is the remaining error term.
+    \item $\varepsilon_i$ is the disruptive error term, with the following definition
+    \[ \varepsilon_i = \begin{cases}
+        \left(1 - D_i \right) U_i(0,0) + D_i U_i(0,1),& \text{ if } Z_i = 0 \\
+        \left(1 - D_i \right) U_i(1,0) + D_i U_i(1,1),& \text{ if } Z_i = 1.
+    \end{cases} \]
 \end{enumerate}
-This sequence gives us the resulting regression equation:
+
+Taking the conditional expectation, and collecting for the expressions of the ADE and AIE:
+\begin{align*}
+    \text{ADE(z)}
+        &= \E{Y_i(1, D_i(z)) - Y_i(0, D_i(z))}
+        \;= \E{\gamma + \delta z} \\
+    \text{AIE(z)}
+        &=\E{Y_i(z, D_i(1)) - Y_i(z, D_i(0))}
+        \;= \E{\bar \pi \left( \beta + \delta z + \tilde U_i(z) \right)}
+\end{align*}
+where $\tilde U_i(z) = \Egiven{ U_i(z, 1) - U_i(z, 0)}{D_i(0)=0, D_i(1)=1, \vec X_i}$, for each $z=0,1$.
+These equations have simpler expressions after assuming constant treatment effects in a linear framework.
+However, unobserved selection-into-$D_i$ based on unobserved costs and benefits only makes sense in the case of heterogeneous treatment effects.
+This means a constant treatment effect model is inappropriate for causal mediation analyses of economic settings.
+
+The ultimate regression equation leads to the following expected values, with omitted variables bias coming from the correlated error term, $\varepsilon_i$.
 \begin{align*}
     \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
         \alpha
@@ -465,60 +476,63 @@ This sequence gives us the resulting regression equation:
         + \gamma Z_i
         + \delta Z_i D_i
         + \varphi(\vec X_i) \\
-        & \;\; +\left( 1 - D_i \right) \Egiven{ U_{0,i} }{D_i = 0, \vec X_i}
-            + D_i \Egiven{ U_{1,i} }{D_i = 1, \vec X_i}
+        & \;\; \underbrace{\begin{aligned} &+(1-Z_i) \Big[
+            \left( 1 - D_i \right) \Egiven{ U_i(0,0) }{D_i(0) = 0, \vec X_i}
+            + D_i \Egiven{ U_i(0,1) }{D_i(0) = 1, \vec X_i}\Big] \\
+        & + Z_i \Big[
+            \left( 1 - D_i \right) \Egiven{ U_i(1,0) }{D_i(1) = 0, \vec X_i}
+            + D_i \Egiven{ U_i(1,1) }{D_i(1) = 1, \vec X_i}\Big]
+        \end{aligned}}_{
+                \text{Omitted variables bias.}
+            }
 \end{align*}
-Taking the conditional expectation, and collecting for the expressions of the direct and indirect effects:
-\begin{align*}
-    \E{Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}
-        &= \E{\gamma + \delta D_i} \\
-    \E{Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}
-        &= \E{\bar \pi \left( \beta +  Z_i \delta + \tilde U_i \right)}
-\end{align*}
+If $D_i$ was quasi-randomly assigned, then $\Egiven{ U_i(z,d) }{D_i(z) = d, \vec X_i} = 0$; if not, then there terms comprise non-zero omitted variables bias.
+
 These equations have simpler expressions after assuming constant treatment effects in a linear framework;
 I have avoided this as having compliers, and controlling for observed factors $\vec X_i$ only makes sense in the case of heterogeneous treatment effects.
-
-These terms are conventionally estimated in a simultaneous regression \citep{imai2010identification}.
+These regression terms are conventionally estimated in a simultaneous regression \citep{imai2010identification}.
 If sequential quasi-random assignment does not hold, then the regression estimates from estimating the mediation equations (without adjusting for the contaminated bias term) suffer from omitted variables bias.
+
+The following collects these omitted variables bias, omitting the conditional on $\vec X_i$ for brevity.
 
 \makebox[\textwidth]{\parbox{1.25\textwidth}{
 \begin{align*}
-    \E[\vec X_i]{\Egiven{Y_i}{Z_i = D_i = 0, \vec X_i}}
-        &= \E\alpha + \Egiven{ U_{0,i} }{D_i = 0} \\
-    \E[\vec X_i]{\Egiven{Y_i}{Z_i = 0, D_i = 1, \vec X_i}
-        - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i}}
-        &= \E\beta + 
-            \left( \Egiven{ U_{1,i} }{D_i = 1} - \Egiven{ U_{0,i} }{D_i = 0} \right) \\
-    \E[\vec X_i]{\Egiven{Y_i}{Z_i = 1, D_i = 0, \vec X_i}
-        - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i}}
-        &= \E\gamma + \Egiven{ U_{0,i} }{D_i = 0} \\
-    \E[\vec X_i]{\begin{aligned}
-        &\Egiven{Y_i}{Z_i = 1, D_i = 1, \vec X_i}
-            - \Egiven{Y_i}{Z_i = 1, D_i = 0, \vec X_i} \\
-            &- \left( \Egiven{Y_i}{Z_i = 0, D_i = 1, \vec X_i}
-                - \Egiven{Y_i}{Z_i = 0, D_i = 0, \vec X_i} \right)
-        \end{aligned}}
-    &= \E\delta
+    \Egiven{Y_i}{Z_i = D_i = 0}
+        &= \alpha + \Egiven{ U_i(0,0) }{D_i(0) = 0} \\
+    \Egiven{Y_i}{Z_i = 0, D_i = 1}
+        - \Egiven{Y_i}{Z_i = 0, D_i = 0}
+        &= \beta + 
+            \Big( \Egiven{ U_i(0,1) }{D_i(0) = 1}
+                - \Egiven{ U_i(0,0) }{D_i(0) = 0} \Big) \\
+    \Egiven{Y_i}{Z_i = 1, D_i = 0}
+        - \Egiven{Y_i}{Z_i = 0, D_i = 0}
+        &= \gamma + \Big( \Egiven{ U_i(1,0) }{D_i(1) = 0}
+            - \Egiven{ U_i(0,0) }{D_i(0) = 0} \Big) \\
+    \Egiven{Y_i}{Z_i = 1, D_i = 1} - \Egiven{Y_i}{Z_i = 1, D_i = 0} & \\
+    - \Big( \Egiven{Y_i}{Z_i = 0, D_i = 1} - \Egiven{Y_i}{Z_i = 0, D_i = 0} \Big)
+    &= \delta + \Big(
+        \Egiven{ U_i(1,1) }{D_i(1) = 1} - \Egiven{ U_i(1,0) }{D_i(1) = 0} \Big)\\ 
+    &\;\;\;\;\;\; - \Big(
+        \Egiven{ U_i(0,1) }{D_i(0) = 1} - \Egiven{ U_i(0,0) }{D_i(0) = 0} \Big)
 \end{align*}
 }}
-And so the ADE and AIE estimates are contaminated by these bias terms.
-Additionally, the AIE estimates refers to gains from the mediator among $D(z)$ compliers (not the entire average), so will be biased when not accounting for $\tilde U_i$, too.
+And so the ADE and AIE estimates are contaminated by these bias terms, because each $\Egiven{ U_i(z,d) }{D_i(z) = d, \vec X_i}$ is not necessary equal to zero.
+Additionally, the AIE estimates refers to gains from the mediator among $D_i(Z_i)$ compliers (not the entire average), so will be biased when not accounting for $\tilde U_i(z)$, too.
 
 \subsection{Roy Model and Sequential quasi-random assignment}
 \label{appendix:roy-seq-ig}
-\textit{Proof of Proposition \ref{prop:roy-seq-ig}.}
-
+\paragraph{Proof of Proposition \ref{prop:roy-seq-ig}.}
 Suppose $Z_i$ is ignorable, and selection-into-$D_i$ follows a Roy model, with the definitions in \autoref{sec:applied}.
-If selection-into-$D_i$ is degenerate on $U_{0,i}, U_{1,i}$:
-\[ \Egiven{D_i}{Z_i, \vec X_i, U_{1,i}- U_{0,i} = u}
-    = \Egiven{D_i}{Z_i, \vec X_i, U_{1,i}- U_{0,i} = u'},
-    \text{ for all } u, u' \text{ in the range of $U_{1,i}- U_{0,i}$.} \]
+If selection-into-$D_i$ is degenerate on $U_{0,i}, U_{1,i}$, then 
+for each $z=0,1$ all $u, u'$ in the range of $U_{1,i}- U_{0,i}$
+\[ \Egiven{D_i}{Z_i =z, \vec X_i, U_{1,i}- U_{0,i} = u}
+    = \Egiven{D_i}{Z_i=z, \vec X_i, U_{1,i}- U_{0,i} = u'}. \]
 %Conversely, if selection based on $U_{0,i}, U_{1,i}$ is non-degenerate:
 %\[ \exists u, u' \text{in the range of $U_{1,i}- U_{0,i}$ such that }
 %    \Egiven{D_i}{Z_i, \vec X_i, U_{1,i}- U_{0,i} = u}
 %    \neq \Egiven{D_i}{Z_i, \vec X_i, U_{1,i}- U_{0,i} = u'}. \]
     %, \;\;\; \text{for at least one } z=0,1 \]
-In this case, the control set $\vec X_i$ and the costs $\mu_c, U_{c,i}$ are the only determinants of selection-into-$D_i$ --- and, $U_{0,i}, U_{1,i}$ play no role.
+In this case, the control variables $\vec X_i$, randomised treatment $Z_i$ the costs $\mu_c, U_{c,i}$ are the only determinants of selection-into-$D_i$ --- and, $U_{0,i}, U_{1,i}$ play no role.
 This could be achieved by either assuming that unobserved gains are degenerate (the researcher had observed everything in $\vec X_i$), or selection-into-$D_i$ had been disrupted in some fashion (e.g., by a natural experiment design for $D_i$).
 
 To motivate a contraposition argument, suppose $D_i$ is ignorable conditional on $Z_i, \vec X_i$.
@@ -608,6 +622,21 @@ Define
 We can then equivalently represent the mediator choice as the transformed selection model
 \[ D_i(z) = \indicator{\pi(z; \vec{X}_i) \geq U_i}, \;\;\; \text{for } z=0,1 \]
 where $U_i \,| \,\vec{X}_i \sim \text{Uniform}(0,1)$ by the probability integral transformation.
+
+
+\subsection{Mediator MTE Instrument}
+\label{appendix:mte-iv}
+Mediator take-up cost instrument: $\vec X_i^{\mathrm{IV}}$ satisifes \emph{relevance}, \emph{exclusion}, and \emph{quasi-random assignment}.
+\begin{enumerate}[label=\textbf{(\arabic*)}]
+    \item \emph{Relevance:} $\vec X_i^{\mathrm{IV}}$ changes the probability of mediator take-up.
+    \[ \pi\big( z; \vec x^{\mathrm{IV}}, \vec x^- \big) \text{ is nonconstant in } \vec x^{\mathrm{IV}}. \]
+    \item \emph{Exclusion:} $\vec X_i^{\mathrm{IV}}$ affects $Y_i$ only through mediator take-up.
+    \[ Y_i(z,d,\vec x^{\mathrm{IV}}) = Y_i(z,d), \;\; \text{ for all } z,d=0,1 \text{ and } \vec x^{\mathrm{IV}} \text{ in the } \vec X_i^{\mathrm{IV}} \text{ support}.\]
+    \item \emph{Quasi-random assignment:}
+    $\vec X_i^{\mathrm{IV}}$ is assigned independently of the relevant potential outcomes, and mediator potential choices
+    \[ \vec X_i^{\mathrm{IV}} \; \indep \;D_i(z), \;Y_i(z',d)
+    \;\; \big| \;\; \vec X_i^-, \;\; \text{ for } z,z',d = 0,1.\]
+\end{enumerate}
 
 \subsection{Restricted MTE-CF Condition}
 \label{appendix:mte-restricted}
