@@ -51,8 +51,8 @@ First-stage \eqref{eqn:parametric-firststage} is identified, with $\theta + \zet
 Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to the correlated error term, $\varepsilon_i$.
 \begin{enumerate}[label=\textbf{(\alph*)}]
     \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\varphi(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
-    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the controlled indirect effect under $Z_i = 0$
-    \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the controlled direct effect under $D_i = 0$.
+    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the controlled indirect effect under $Z_i = 0$ conditional on $\vec X_i$.
+    \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the controlled direct effect under $D_i = 0$ conditional on $\vec X_i$.
     \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) - \big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big)$ is the average interaction effect conditional on $\vec X_i$.
     \item $\varepsilon_i$ is the disruptive error term, with the following definition
     \[ \varepsilon_i = \begin{cases}
@@ -63,13 +63,13 @@ Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, a
 \end{enumerate}
 
 The ADE and AIE are averages of these random coefficients:
-\[ \text{ADE}(z) = \E{\gamma + \delta z}, \qquad
+\[ \text{ADE}(z) = \Egiven{\gamma + \delta D_i}{Z_i = z}, \qquad
 \text{AIE}(z) = \E{ \bar \pi \Big( \beta +  \delta z + \tilde U_i(z) \Big)}, \]
 where $\tilde U_i(z) = \Egiven{ U_i(z, 1) - U_i(z, 0)}{D_i(0)=0, D_i(1)=1, \vec X_i}$, for each $z=0,1$.
 Second-stage \eqref{eqn:parametric-secondstage} is not identified, so that the ADE and AIE are not identified in these regression equations --- \appendixref{appendix:regression-model} shows the omitted variables bias formulae.
 
-By construction, $\vec U_i \coloneqq \left(U_{0, i}, U_{1, i} \right)$ is an unobserved confounder.
-The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates only if $D_i$ is also conditionally quasi-randomly assigned: $D_i \indep  \vec U_{i} $.
+By construction, $\vec U_i \coloneqq \Big(U_i(z,d) \Big)_{(z,d) \in \{0,1\}^2}$ is an unobserved confounder.
+The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates if $D_i$ is also conditionally quasi-randomly assigned: $D_i \indep  \vec U_{i} $.
 If not, then estimates of CM effects suffer from omitted variables bias from failing to adjust for the unobserved confounder, $\vec U_i$.
 
 \subsection{Selection on Costs and Benefits}

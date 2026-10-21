@@ -414,7 +414,7 @@ Put $\pi(z; \vec X) = \Egiven{D_i(z)}{\vec X}$, and $\eta_{z, i} = D_i(z) - \pi(
 Since the quasi-random assignment assumption gives $\Egiven{Z_i \eta_{z,i}}{\vec X_i} = \Egiven{Z_i}{\vec X_i} \Egiven{\eta_{z,i}}{\vec X_i} = 0$, for each $z =0,1$.
 
 The same cannot be said of the regression that estimates direct and indirect effects, without further assumptions.
-Write the mean potential outcome as $\mu_{d}(z; \vec X)^z = \Egiven{Y_i(z, d)}{\vec X}$, with residual $U_i(z,d) = Y_i(z, d) - \mu_{d}(z; \vec X)$ for each $z,d=0,1$.
+Write the mean potential outcome as $\mu_{d}(z; \vec X) = \Egiven{Y_i(z, d)}{\vec X}$, with residual $U_i(z,d) = Y_i(z, d) - \mu_{d}(z; \vec X)$ for each $z,d=0,1$.
 \begin{align*}
     Y_i &= Z_i Y_i(1, D_i(1)) + (1 - Z_i) Y_i(0, D_i(0)) \\
         &= Z_i D_i Y_i(1, 1) \\
@@ -458,12 +458,13 @@ Taking the conditional expectation, and collecting for the expressions of the AD
 \begin{align*}
     \text{ADE(z)}
         &= \E{Y_i(1, D_i(z)) - Y_i(0, D_i(z))}
-        \;= \E{\gamma + \delta z} \\
+        \;= \E{\gamma + \delta D_i(z)} \\
     \text{AIE(z)}
         &=\E{Y_i(z, D_i(1)) - Y_i(z, D_i(0))}
         \;= \E{\bar \pi \left( \beta + \delta z + \tilde U_i(z) \right)}
 \end{align*}
 where $\tilde U_i(z) = \Egiven{ U_i(z, 1) - U_i(z, 0)}{D_i(0)=0, D_i(1)=1, \vec X_i}$, for each $z=0,1$.
+
 These equations have simpler expressions after assuming constant treatment effects in a linear framework.
 However, unobserved selection-into-$D_i$ based on unobserved costs and benefits only makes sense in the case of heterogeneous treatment effects.
 This means a constant treatment effect model is inappropriate for causal mediation analyses of economic settings.
@@ -636,10 +637,16 @@ Mediator take-up cost instrument: $\vec X_i^{\mathrm{IV}}$ satisifes \emph{relev
     $\vec X_i^{\mathrm{IV}}$ is assigned independently of the relevant potential outcomes, and mediator potential choices
     \[ \vec X_i^{\mathrm{IV}} \; \indep \;D_i(z), \;Y_i(z',d)
     \;\; \big| \;\; \vec X_i^-, \;\; \text{ for } z,z',d = 0,1.\]
+    \item \emph{Complier support:}
+    WRITE IT IN HERE.
 \end{enumerate}
 
 \subsection{Restricted MTE-CF Condition}
 \label{appendix:mte-restricted}
+FIX IT HIN HERE, SO IT VARIES BY Z.
+
+
+
 Proposition~\ref{proposition:secondstage} shows that the second-stage regression is identified once the MTE-associated CF terms
 $g_0\big(\pi(Z_i;\vec X_i)\big), \; g_1\big(\pi(Z_i;\vec X_i)\big)$ are identified.
 Assumption~\ref{mte:instrument} supplies excluded variation in the mediator propensity
@@ -786,6 +793,9 @@ It requires only the restricted CFs on the support relevant for mediator complie
 
 \subsection{MTE Identification of the Second-stage}
 \label{appendix:mte-secondstage}
+FIX THIS BY MAKING 
+
+
 \textit{Proof of Proposition \ref{proposition:secondstage}.
     This proof relies heavily on the notation and reasoning of \cite{kline2019heckits} for an IV setting.}
 
