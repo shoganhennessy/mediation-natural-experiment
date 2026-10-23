@@ -1,7 +1,27 @@
 \section{Solving Identification via the Mediator MTE}
 \label{sec:selectionmodel}
-FIX THE WRITING TO NOT CLAIM IDENTIFICATION OF THE MEDIATOR MTE, INSTEAD A POINT WISE VERSION OF IT.
+FIX THE WRITING TO CLAIM Pointwise IDENTIFICATION OF THE MEDIATOR MTE, INSTEAD A POINT WISE VERSION OF IT.
 
+If your goal is to estimate CM effects, and you could control for unobserved selection terms $\vec U_i$, then you would.
+This ideal (but infeasible) scenario would yield unbiased estimates for the ADE and AIE.
+% Alas, $U_i$ is by definition unobserved.
+Identification via the mediator Marginal Treatment Effect (MTE) takes this insight seriously, providing conditions to model the implied confounding by $\vec U_i$, and then controlling for it.
+
+The main problem is that second-stage regression equation \eqref{eqn:parametric-secondstage} is not identified, because $\vec U_i$ is unobserved, and leads to omitted variables bias.
+\begin{align}
+    \Egiven{Y_i}{Z_i, D_i, \vec X_i} \; =& \;
+        \alpha
+        + \beta D_i
+        + \gamma Z_i
+        + \delta Z_i D_i
+        + \varphi(\vec X_i)
+        \label{eqn:secondstage-reg} \\
+        & \;\; +\underbrace{\left( 1 - D_i
+            \right) \Egiven{ U_i(Z_i, 0) }{D_i(Z_i) = 0, \vec X_i}
+                + D_i \Egiven{ U_i(Z_i, 1) }{D_i(Z_i) = 1, \vec X_i}}_{
+                    \text{Unobserved confounding.}}
+        \nonumber 
+\end{align}
 
 My approach to identifying CM effects models unobserved selection-into-$D_i$ via the mediator MTE, avoiding the bias terms derived in \autoref{sec:mediation}.
 Thinking on MTEs began with corrections for sample selection problems \citep{heckman1974shadow}, and were extended to a switching/selection problem in parametric settings \citep{heckman1979sample,bjorklund1987estimation} and a general case \citep{heckman2005structural}.
