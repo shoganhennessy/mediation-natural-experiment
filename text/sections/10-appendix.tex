@@ -458,7 +458,7 @@ Taking the conditional expectation, and collecting for the expressions of the AD
 \begin{align*}
     \text{ADE(z)}
         &= \E{Y_i(1, D_i(z)) - Y_i(0, D_i(z))}
-        \;= \E{\gamma + \delta D_i(z)} \\
+        \;= \Egiven{\gamma + \delta D_i}{Z_i = z} \\
     \text{AIE(z)}
         &=\E{Y_i(z, D_i(1)) - Y_i(z, D_i(0))}
         \;= \E{\bar \pi \left( \beta + \delta z + \tilde U_i(z) \right)}
@@ -624,441 +624,2246 @@ We can then equivalently represent the mediator choice as the transformed select
 \[ D_i(z) = \indicator{\pi(z; \vec{X}_i) \geq U_i}, \;\;\; \text{for } z=0,1 \]
 where $U_i \,| \,\vec{X}_i \sim \text{Uniform}(0,1)$ by the probability integral transformation.
 
-
 \subsection{Mediator MTE Instrument}
 \label{appendix:mte-iv}
-Mediator take-up cost instrument: $\vec X_i^{\mathrm{IV}}$ satisifes \emph{relevance}, \emph{exclusion}, and \emph{quasi-random assignment}.
+
+This subsection states the relevance, exclusion, assignment, overlap, and support conditions imposed on the mediator instrument $\vec X_i^{\mathrm{IV}}$.
+Write $\vec X_i=(\vec X_i^{\mathrm{IV}},\vec X_i^-)$, where $\vec X_i^{\mathrm{IV}}$ denotes the variables excluded from the outcome equation and $\vec X_i^-$ contains the remaining controls.
+For each treatment arm $z=0,1$, define the mediator propensity score
+\[
+    \pi\big(z;\vec x^{\mathrm{IV}},\vec x^-\big)
+    =
+    \Prob{
+        D_i=1
+        \mid
+        Z_i=z,
+        \vec X_i^{\mathrm{IV}}=\vec x^{\mathrm{IV}},
+        \vec X_i^-=\vec x^-
+    }.
+\]
+Define the realised mediator propensity score as
+\[
+    P_i
+    =
+    \pi\big(
+        Z_i;
+        \vec X_i^{\mathrm{IV}},
+        \vec X_i^-
+    \big).
+\]
+For each $z$ and $\vec x^-$, let
+\[
+    \mathcal P_z(\vec x^-)
+    =
+    \operatorname{Supp}
+    \left(
+        P_i
+        \mid
+        Z_i=z,
+        \vec X_i^-=\vec x^-
+    \right)
+\]
+denote the IV-guided propensity-score support within treatment arm $z$.
+
 \begin{enumerate}[label=\textbf{(\arabic*)}]
-    \item \emph{Relevance:} $\vec X_i^{\mathrm{IV}}$ changes the probability of mediator take-up.
-    \[ \pi\big( z; \vec x^{\mathrm{IV}}, \vec x^- \big) \text{ is nonconstant in } \vec x^{\mathrm{IV}}. \]
-    \item \emph{Exclusion:} $\vec X_i^{\mathrm{IV}}$ affects $Y_i$ only through mediator take-up.
-    \[ Y_i(z,d,\vec x^{\mathrm{IV}}) = Y_i(z,d), \;\; \text{ for all } z,d=0,1 \text{ and } \vec x^{\mathrm{IV}} \text{ in the } \vec X_i^{\mathrm{IV}} \text{ support}.\]
-    \item \emph{Quasi-random assignment:}
-    $\vec X_i^{\mathrm{IV}}$ is assigned independently of the relevant potential outcomes, and mediator potential choices
-    \[ \vec X_i^{\mathrm{IV}} \; \indep \;D_i(z), \;Y_i(z',d)
-    \;\; \big| \;\; \vec X_i^-, \;\; \text{ for } z,z',d = 0,1.\]
-    \item \emph{Complier support:}
-    WRITE IT IN HERE.
+
+    \item \emph{Relevance.}
+    Conditional on $Z_i=z$ and $\vec X_i^-=\vec x^-$, the mediator propensity score is nonconstant in the excluded mediator instrument:
+    \[
+        \pi\big(z;\vec x^{\mathrm{IV}},\vec x^-\big)
+        \text{ is nonconstant in }
+        \vec x^{\mathrm{IV}},
+        \qquad
+        z=0,1.
+    \]
+    Equivalently, the excluded instrument generates at least two distinct mediator propensity scores within each treatment arm used for identification:
+    \[
+        K_z(\vec x^-)
+        \coloneqq
+        \left|
+            \mathcal P_z(\vec x^-)
+        \right|
+        \geq 2.
+    \]
+
+    \item \emph{Exclusion.}
+    Conditional on $Z_i$ and $\vec X_i^-$, the excluded mediator instrument affects the outcome only through mediator take-up:
+    \[
+        Y_i
+        \big(
+            z,d,\vec x^{\mathrm{IV}}
+        \big)
+        =
+        Y_i(z,d),
+    \]
+    for all $z,d=0,1$ and all $\vec x^{\mathrm{IV}}$ in the relevant support.
+
+    \item \emph{Conditional quasi-random assignment.}
+    Conditional on $Z_i$ and $\vec X_i^-$, the excluded mediator instrument is independent of the latent mediator-selection rank and the potential outcomes:
+    \[
+        \vec X_i^{\mathrm{IV}}
+        \indep
+        \left(
+            U_i,
+            \left\{
+                Y_i(z,d):
+                z,d\in\{0,1\}
+            \right\}
+        \right)
+        \,\big|\,
+        Z_i,\vec X_i^-.
+    \]
+    Equivalently, variation in $\vec X_i^{\mathrm{IV}}$ changes mediator take-up through the propensity score without independently selecting individuals according to their mediator resistance or potential outcomes.
+
+    \item \emph{Common mediator-selection index.}
+    Treatment and the excluded mediator instrument shift mediator take-up through the same scalar latent rank:
+    \[
+        D_i
+        \big(
+            z,\vec x^{\mathrm{IV}}
+        \big)
+        =
+        \indicator{
+            U_i
+            \leq
+            \pi
+            \big(
+                z;
+                \vec x^{\mathrm{IV}},
+                \vec X_i^-
+            \big)
+        },
+    \]
+    for $z=0,1$ and all $\vec x^{\mathrm{IV}}$ in the relevant support, almost surely conditional on $\vec X_i^-$.
+    Thus, whenever
+    \[
+        \pi
+        \big(
+            z;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big)
+        \leq
+        \pi
+        \big(
+            z';
+            \vec x^{\mathrm{IV}\prime},
+            \vec x^-
+        \big),
+    \]
+    the corresponding mediator-treatment sets are nested:
+    \[
+        D_i
+        \big(
+            z,\vec x^{\mathrm{IV}}
+        \big)
+        \leq
+        D_i
+        \big(
+            z',\vec x^{\mathrm{IV}\prime}
+        \big)
+        \qquad
+        \text{almost surely conditional on }
+        \vec X_i^-=\vec x^-.
+    \]
+
+    \item \emph{Mediator-cell overlap.}
+    At every propensity-score value used to identify the treatment-arm-specific outcome equation, both mediator states occur with positive conditional probability:
+    \[
+        0
+        <
+        \Prob{
+            D_i=1
+            \mid
+            Z_i=z,
+            P_i=p,
+            \vec X_i^-=\vec x^-
+        }
+        =
+        p
+        <
+        1.
+    \]
+    Consequently, the mediator-status-specific conditional means
+    \[
+        \Egiven{
+            Y_i
+        }{
+            Z_i=z,
+            D_i=d,
+            P_i=p,
+            \vec X_i^-=\vec x^-
+        }
+    \]
+    are observed for each $d=0,1$ and each relevant supported value $p\in\mathcal P_z(\vec x^-)$.
+
+    \item \emph{Mediator-complier support.}
+    For each $\vec x=(\vec x^{\mathrm{IV}},\vec x^-)$, define the treatment-induced mediator-complier interval as
+    \[
+        \mathcal C(\vec x)
+        =
+        \left[
+            \pi
+            \big(
+                0;
+                \vec x^{\mathrm{IV}},
+                \vec x^-
+            \big),
+            \pi
+            \big(
+                1;
+                \vec x^{\mathrm{IV}},
+                \vec x^-
+            \big)
+        \right].
+    \]
+    Under mediator monotonicity, the endpoints are ordered so that
+    \[
+        \pi
+        \big(
+            0;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big)
+        \leq
+        \pi
+        \big(
+            1;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big).
+    \]
+    Each endpoint of $\mathcal C(\vec x)$ must lie in the domain over which the restricted treatment-arm-specific outcome curve is identified for both $z=0,1$.
+    More precisely,
+    \[
+        \mathcal C(\vec x)
+        \subseteq
+        \mathcal I_z(\vec x^-),
+        \qquad
+        z=0,1,
+    \]
+    where $\mathcal I_z(\vec x^-)$ is an interval containing $\mathcal P_z(\vec x^-)$ over which the restricted CF basis introduced in \appendixref{appendix:mte-restricted} is defined and identified.
+    If both endpoints belong to $\mathcal P_z(\vec x^-)$, the endpoint conditional means are directly identified in observed data.
+    If an endpoint lies between supported propensity-score values, its identification follows from the maintained restricted-CF specification and the full-rank condition stated below.
+
 \end{enumerate}
+
+The first three conditions are the standard relevance, exclusion, and conditional assignment conditions for a valid mediator instrument.
+The common-index condition ensures that treatment-induced mediator compliers lie on the same latent selection margin traced by the mediator instrument.
+Mediator-cell overlap ensures that the selected outcome means for both mediator states contribute identifying information at the relevant propensity-score values.
+Mediator-complier support requires the restricted outcome curve within each treatment arm to cover the propensity-score interval generated by changing treatment from $Z_i=0$ to $Z_i=1$.
+The conditions do not require identification at infinity or support over the entire unit interval.
 
 \subsection{Restricted MTE-CF Condition}
 \label{appendix:mte-restricted}
-FIX IT HIN HERE, SO IT VARIES BY Z.
 
+Proposition~\ref{proposition:secondstage} uses mediator-status-specific CFs to identify a restricted conditional-outcome curve separately within the $Z_i=0$ and $Z_i=1$ treatment arms.
+The finite support of the mediator instrument does not nonparametrically identify an unrestricted CF or the derivative of an unrestricted conditional-outcome function.
+Instead, the paper imposes a finite-dimensional restriction on the CFs and uses the mediator-status-specific outcome means at the supported propensity-score values to identify its coefficients.
 
-
-Proposition~\ref{proposition:secondstage} shows that the second-stage regression is identified once the MTE-associated CF terms
-$g_0\big(\pi(Z_i;\vec X_i)\big), \; g_1\big(\pi(Z_i;\vec X_i)\big)$ are identified.
-Assumption~\ref{mte:instrument} supplies excluded variation in the mediator propensity
-score, $\pi(z;\vec X_i)$.
-However, if the mediator IV has finite support, this excluded variation does not identify
-an unrestricted CF over the whole interval $p\in(0,1)$.
-This subsection states the restricted-CF condition used in the main text.
-
-The restricted-CF condition has two parts.
-First, after observed heterogeneity has been absorbed by the potential-outcome means
-$\mu_d(z;\vec X_i)$, the remaining dependence between mediator resistance $U_i$ and the
-outcome errors $U_{d,i}$ is assumed to be common across $\vec X_i^-$.
-For $d=0,1$, define
+For each treatment arm $z=0,1$, define the selected CFs
 \[
-    m_d(p;\vec x)
+    g_{z,0}
+    \big(
+        p,\vec x^-
+    \big)
     =
-    \Egiven{U_{d,i}}{U_i=p,\vec X_i=\vec x}.
-\]
-The separability restriction is for any $\vec x$ in the support of $\vec X_i^-$
-\[
-    m_d(p;\vec x)
-    =
-    m_d(p),
-    \qquad d=0,1.
-    \label{eqn:mte-cf-separability}
-\]
-Equivalently, conditional on the observed components of the potential outcomes, the shape of selection on unobserved mediator resistance is common across values of $\vec X_i^-$.
-This is the analogue, in this CM setting, of the separable restricted-MTE structure used with finite-support instruments in \cite{brinch2017beyond}.
-It rules out unrestricted interactions between $\vec X_i^-$ and $U_i$ in the unobserved component of the mediator MTE.
-
-Fix the non-instrument controls at $\vec X_i^-=\vec x^-$, and define the set of distinct
-propensity-score values generated by $Z_i$ and the mediator IV:
-\[
-    \mathcal P(\vec x^-)
-    =
-    \left\{
-        \pi(z;x^{\textnormal{IV}},\vec x^-)
-        :
-        z\in\{0,1\},
-        x^{\textnormal{IV}}
-        \in
-        \operatorname{supp}\left[
-            \vec X_i^{\textnormal{IV}}\mid \vec X_i^-=\vec x^-
-        \right]
-    \right\}.
-\]
-\[\text{Let } \;\;\;\;
-    K(\vec x^-)
-    =
-    \left|\mathcal P(\vec x^-)\right|. \]
-$K(\vec x^-)$ counts the number of distinct values taken by the mediator propensity score $\pi(Z_i;\vec X_i)$, not the number of raw values taken by
-$\vec X_i^{\textnormal{IV}}$.
-For example, if there are no additional controls and both $Z_i$ and
-$\vec X_i^{\textnormal{IV}}$ are binary, then $\pi(Z_i;\vec X_i)$ may take up to four distinct values.
-
-The restricted-CF condition then assumes that, over the relevant support, the common CFs
-lie in a finite-dimensional class. Specifically, for $d=0,1$,
-\[
-    \rho_d\lambda_d(p)
-    =
-    c_d
-    +
-    \sum_{\ell=1}^{K(\vec x^-)-1}
-        a_{d\ell}\, b_\ell(p),
-    \qquad
-    p\in\mathcal P(\vec x^-),
-    \label{eqn:restricted-cf-basis}
-\]
-where $b_1,\ldots,b_{K(\vec x^-)-1}$ are known basis functions.
-The constant $c_d(\vec x^-)$ is absorbed by the corresponding intercept in the
-second-stage outcome equation, so the excluded variation identifies the non-constant
-components of the CF.
-The associated rank condition is
-\[
-    \operatorname{rank}
-    \begin{bmatrix}
-        b_1(p_1) & \cdots & b_{K(\vec x^-)-1}(p_1) \\
-        \vdots   & \ddots & \vdots \\
-        b_1(p_K) & \cdots & b_{K(\vec x^-)-1}(p_K)
-    \end{bmatrix}
-    =
-    K(\vec x^-)-1,
-    \qquad
-    \{p_1,\ldots,p_K\}=\mathcal P(\vec x^-).
-    \label{eqn:restricted-cf-rank}
-\]
-This condition is the finite-support analogue of identifying the CFs with a continuous
-instrument.
-When there are only two relevant propensity-score values, the restriction leaves one
-non-constant degree of freedom, equivalent to a linear CF over that support.
-With additional propensity-score values, richer restricted-MTE specifications can be used,
-following the logic of \cite{brinch2017beyond}.
-
-The support required for the AIE is narrower than the whole unit interval.
-By mediator monotonicity, individuals induced into the mediator by $Z_i$ are those with
-\[
-    \pi(0;\vec X_i)<U_i\leq \pi(1;\vec X_i).
-\]
-Thus, the AIE requires the CFs only at the propensity-score values that determine this
-mediator-complier interval.
-Equivalently, the relevant support is
-\[
-    \mathcal \pi_C
-    =
-    \left\{
-        p:
-        \pi(0; \vec X_i)\leq p\leq \pi(1;\vec X_i)
-        %\textnormal{ for some } \vec x
-    \right\}.
-    \label{eqn:mediator-complier-support}
-\]
-Identification at infinity is a sufficient special case, because it identifies the CFs for all
-$p\in(0,1)$.
-The weaker requirement used here is that the restricted-CF specification in
-\eqref{eqn:restricted-cf-basis} identifies
-\[
-    \rho_0\lambda_0(p)
-    \quad\textnormal{and}\quad
-    \rho_1\lambda_1(p)
-    \qquad
-    \textnormal{for } p\in\mathcal \pi_C.
-    \label{eqn:restricted-cf-complier-support}
-\]
-
-This is enough for Theorem~\ref{thm:mte-identification}.
-The ADE uses the CF-adjusted second-stage parameters from
-Proposition~\ref{proposition:secondstage}.
-The AIE additionally uses the average unobserved gain among mediator compliers, which is
-pinned down by the CF values at the endpoints $\pi(0;\vec X_i)$ and $\pi(1;\vec X_i)$:
-\[
-    \Gamma\big(\pi(0;\vec X_i),\pi(1;\vec X_i)\big)
-    =
-    \frac{
-        \pi(1;\vec X_i)\lambda_1\big(\pi(1;\vec X_i)\big)
-        -
-        \pi(0;\vec X_i)\lambda_1\big(\pi(0;\vec X_i)\big)
+    \Egiven{
+        U_i(z,0)
     }{
-        \pi(1;\vec X_i)-\pi(0;\vec X_i)
+        U_i>p,
+        \vec X_i^-=\vec x^-
+    },
+\]
+\[
+    g_{z,1}
+    \big(
+        p,\vec x^-
+    \big)
+    =
+    \Egiven{
+        U_i(z,1)
+    }{
+        U_i\leq p,
+        \vec X_i^-=\vec x^-
     }.
 \]
-Therefore the theorem does not require pointwise identification of the full mediator MTE
-over $p\in(0,1)$.
-It requires only the restricted CFs on the support relevant for mediator compliers.
+These CFs are allowed to differ across treatment arms because the relevant potential-outcome residuals are indexed jointly by $z$ and $d$.
 
-\subsection{MTE Identification of the Second-stage}
-\label{appendix:mte-secondstage}
-FIX THIS BY MAKING 
-
-
-\textit{Proof of Proposition \ref{proposition:secondstage}.
-    This proof relies heavily on the notation and reasoning of \cite{kline2019heckits} for an IV setting.}
-
-By Assumption \ref{mte:monotonicity} (mediator monotonicity), selection-into-mediator can be represented as a threshold-crossing selection model.
-\[ D_i(z) = \indicator{ \pi(z; \vec X_i) \geq U_i }, \text{ for } z = 0, 1 \]
-where $U_i = F_V\left( V_i \mid \vec{X}_i \right)$ follows a uniform distribution on $[0,1]$, and $\pi(z; \vec X_i) = \Egiven{D_i}{Z_i = z, \vec X_i}$ is the mediator propensity score.
-
-The threshold crossing selection model represents individuals who refuse the mediator as follows:
-\[ D_i = 0 \implies \pi(Z_i; \vec X_i) < U_i \]
-Our objective is to determine $\Egiven{U_{0,i}}{D_i=0, Z_i, \vec X_i}$, which can then be written as
-\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i, Z_i, \vec X_i}. \]
-Since $Z_i$ is ignorable, we have:
-\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i, Z_i, \vec X_i}
-    = \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} \]
-
-Assumption \ref{mte:identification} has $\text{Cov}(U_i, U_{0,i}) \neq 0$.
-This non-zero covariance implies statistical dependence between the selection error and outcome error.
-This dependence allows us to represent $U_{0,i}$ using a linear projection.
-We use $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$ rather than $U_i$ directly in the projection to allow for flexibility in how the selection error affects outcomes.
-The linear projection can be written as follows
-\[ U_{0,i} = \rho_0 \big( F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V \big) + \varepsilon_{0,i}, \]
+The treatment-arm-specific mediator-status outcome means are
+\[
+    \begin{aligned}
+    &\Egiven{
+        Y_i
+    }{
+        Z_i=z,
+        D_i=0,
+        P_i=p,
+        \vec X_i^-=\vec x^-
+    }
+    \\
+    &\qquad=
+    \mu_0
+    \big(
+        z;\vec x^-
+    \big)
+    +
+    g_{z,0}
+    \big(
+        p,\vec x^-
+    \big),
+    \end{aligned}
+\]
+\[
+    \begin{aligned}
+    &\Egiven{
+        Y_i
+    }{
+        Z_i=z,
+        D_i=1,
+        P_i=p,
+        \vec X_i^-=\vec x^-
+    }
+    \\
+    &\qquad=
+    \mu_1
+    \big(
+        z;\vec x^-
+    \big)
+    +
+    g_{z,1}
+    \big(
+        p,\vec x^-
+    \big).
+    \end{aligned}
+\]
+Equivalently, the pooled CF-augmented estimating equation is
+\[
+    \begin{aligned}
+    Y_i
+    ={}&
+    \alpha
+    +
+    \beta D_i
+    +
+    \gamma Z_i
+    +
+    \delta Z_iD_i
+    +
+    \varphi
+    \big(
+        \vec X_i^-
+    \big)
+    \\
+    &+
+    (1-Z_i)(1-D_i)
+    g_{0,0}(P_i)
+    +
+    (1-Z_i)D_i
+    g_{0,1}(P_i)
+    \\
+    &+
+    Z_i(1-D_i)
+    g_{1,0}(P_i)
+    +
+    Z_iD_i
+    g_{1,1}(P_i)
+    +
+    \epsilon_i,
+    \end{aligned}
+\]
 where
-\begin{itemize}
-    \item $\mu_V = \E{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}$ is the mean of $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$
-    \item $\rho_0 = \frac{\Cov{U_{0,i}, F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}{\Var{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}$ is the projection coefficient
-    \item $\varepsilon_{0,i}$ is a residual with $\Egiven{\varepsilon_{0,i}}{F_V^{-1}\left( U_i \mid \vec{X}_i \right)} = 0$.
-\end{itemize}
+\[
+    \Egiven{
+        \epsilon_i
+    }{
+        Z_i,
+        D_i,
+        P_i,
+        \vec X_i^-
+    }
+    =
+    0.
+\]
+This equation is an estimating representation and does not by itself require each of $\alpha,\beta,\gamma,\delta$ to be separately interpreted as an identified CM effect.
 
-The coefficient $\rho_0$ is the slope in the best linear predictor of $U_{0,i}$ given $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, and is chosen to ensure that the residual $\varepsilon_{0,i}$ is uncorrelated with $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$.
-This property is crucial for the identification strategy, as it isolates the component of $U_{i}$ that is related to selection-into-$D_i$.
+\subsubsection{Separability from observed heterogeneity}
 
-The non-zero covariance condition in \ref{mte:identification} ensures $\rho_0 \neq 0$, so is relevant.
-Since $U_i$ and $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$ are related by a monotonic transformation (the inverse cumulative density function), the covariance $\text{Cov}(U_i, U_{0,i}) \neq 0$ implies $\text{Cov}(F_V^{-1}\left( U_i \mid \vec{X}_i \right), U_{0,i}) \neq 0$.
+The first restriction assumes that, after observed heterogeneity has been absorbed by the potential-outcome means, the shape of selection on latent mediator resistance is common across values of $\vec X_i^-$.
+For each $z,d=0,1$, define the rank-specific residual mean
+\[
+    r_{z,d}
+    \big(
+        u,\vec x^-
+    \big)
+    =
+    \Egiven{
+        U_i(z,d)
+    }{
+        U_i=u,
+        \vec X_i^-=\vec x^-
+    }.
+\]
+The separability restriction is
+\[
+    r_{z,d}
+    \big(
+        u,\vec x^-
+    \big)
+    =
+    r_{z,d}(u),
+    \qquad
+    z,d=0,1.
+    \label{eqn:mte-cf-separability}
+\]
+Equivalently, $\vec X_i^-$ may shift the observed potential-outcome means, but it does not unrestrictedly alter the shape of selection on the unobserved mediator rank.
+A linear empirical specification for the observed heterogeneity may be written as
+\[
+    \mu_d
+    \big(
+        z;\vec x^-
+    \big)
+    =
+    \alpha
+    +
+    \beta d
+    +
+    \gamma z
+    +
+    \delta zd
+    +
+    \vec\phi_{z,d}'\vec x^-.
+\]
 
-Given the linear projection of $U_{0,i}$ onto $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, we can compute the conditional expectation:
-\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = \Egiven{\rho_0\big(F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V\big) + \varepsilon_{0,i}}{\pi(Z_i; \vec X_i) < U_i} \]
+\subsubsection{Finite arm-specific propensity-score support}
 
-Since $\Egiven{\varepsilon_{0,i}}{F_V^{-1}\left( U_i \mid \vec{X}_i \right)} = 0$ by construction, and $U_i$ is a function of $F_V^{-1}\left( U_i \mid \vec{X}_i \right)$, we have
-\[ \Egiven{\varepsilon_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = 0. \]
+For each $z$ and $\vec x^-$, write
+\[
+    \mathcal P_z(\vec x^-)
+    =
+    \left\{
+        p_{z1}(\vec x^-),
+        \ldots,
+        p_{zK_z}(\vec x^-)
+    \right\},
+\]
+where
+\[
+    K_z(\vec x^-)
+    =
+    \left|
+        \mathcal P_z(\vec x^-)
+    \right|.
+\]
+The number $K_z(\vec x^-)$ counts the distinct propensity-score values generated by $\vec X_i^{\mathrm{IV}}$ within treatment arm $z$, rather than the number of raw values taken by the instrument.
+The propensity-score support and the CFs are allowed to differ between the $Z_i=0$ and $Z_i=1$ arms.
 
-Therefore:
-\[ \Egiven{U_{0,i}}{\pi(Z_i; \vec X_i) < U_i} = \rho_0 \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{\pi(Z_i; \vec X_i) < U_i}. \]
+At every supported propensity score, observed data identify the two selected conditional-outcome means
+\[
+    h_{z,0}
+    \big(
+        p_{zk},\vec x^-
+    \big)
+    =
+    \Egiven{
+        Y_i
+    }{
+        Z_i=z,
+        D_i=0,
+        P_i=p_{zk},
+        \vec X_i^-=\vec x^-
+    },
+\]
+and
+\[
+    h_{z,1}
+    \big(
+        p_{zk},\vec x^-
+    \big)
+    =
+    \Egiven{
+        Y_i
+    }{
+        Z_i=z,
+        D_i=1,
+        P_i=p_{zk},
+        \vec X_i^-=\vec x^-
+    }.
+\]
+The mediator-cell overlap condition in \appendixref{appendix:mte-iv} ensures that both conditional means are observed at each support point used for identification.
 
-This gives us the control function representation:
-\[ \Egiven{U_{0,i}}{D_i=0, Z_i, \vec X_i} = \rho_0 \lambda_0\big(\pi(Z_i; \vec X_i)\big) \]
-where $\lambda_0 \left(p\right) = \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{p < U_i}$.
-The control function $\lambda_0\left(p\right)$ captures the expected value of the transformed selection term, conditional on being above the threshold $p \in (0,1)$.
+\subsubsection{Restricted CF basis}
 
-The same sequence of steps for mediator takers, $D_i = 1$, gives the other mte:
-\[ \Egiven{U_{1,i}}{D_i=1, Z_i, \vec X_i} = \rho_1 \lambda_1\big(\pi(Z_i; \vec X_i)\big), \]
-where $\lambda_1 \left(p\right) = \Egiven{F_V^{-1}\left( U_i \mid \vec{X}_i \right) - \mu_V}{U_i \leq p}$ for $p \in (0,1)$, and $\rho_1 = \frac{\Cov{U_{1,i}, F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}{\Var{F_V^{-1}\left( U_i \mid \vec{X}_i \right)}}$ is the corresponding projection coefficient.
+For each $z,d=0,1$, let
+\[
+    \vec b_{z,d}(p)
+    =
+    \left(
+        b_{z,d,1}(p),
+        \ldots,
+        b_{z,d,L_{z,d}}(p)
+    \right)'
+\]
+denote a vector of known basis functions.
+The restricted CF specification is
+\[
+    g_{z,d}(p)
+    =
+    c_{z,d}
+    +
+    \vec b_{z,d}(p)'
+    \vec\rho_{z,d},
+    \qquad
+    p\in\mathcal I_z(\vec x^-).
+    \label{eqn:restricted-cf-basis}
+\]
+The constants $c_{z,d}$ are not separately distinguished from the corresponding potential-outcome means.
+Accordingly, impose the normalisation
+\[
+    c_{z,d}=0,
+    \qquad
+    z,d=0,1,
+\]
+or equivalently omit the constant from each CF basis and absorb it into $\mu_d(z;\vec x^-)$.
+The number of free basis coefficients must not exceed the identifying variation supplied by the observed mediator-status-specific conditional means.
 
-The relationship between $\lambda_0(p)$ and $\lambda_1(p)$ can be derived as:
-\[ \lambda_1 \left(p\right) = -\lambda_0 \left(p\right) \left( \frac{1-p}{p} \right), \text{ for } p \in (0,1). \]
-This relationship ensures consistency in the CF approach across the $D_i=0$ and $D_i= 1$ groups \citep{kline2019heckits}.
+The basis functions must also be compatible with the truncated-mean interpretation of the CFs.
+In particular, the rank-specific residual means satisfy
+\[
+    \int_0^1
+        r_{z,d}(u)
+    \,du
+    =
+    0,
+    \qquad
+    z,d=0,1,
+    \label{eqn:cf-zero-mean}
+\]
+and the relevant selected residual means are generated by integrating these rank-specific residual means over the selected regions.
+For example,
+\[
+    \Egiven{
+        U_i(z,d)
+    }{
+        U_i\leq p
+    }
+    =
+    \frac{1}{p}
+    \int_0^p
+        r_{z,d}(u)
+    \,du,
+\]
+and
+\[
+    \Egiven{
+        U_i(z,d)
+    }{
+        U_i>p
+    }
+    =
+    \frac{1}{1-p}
+    \int_p^1
+        r_{z,d}(u)
+    \,du.
+\]
+The finite-dimensional basis must preserve these mean-zero and truncated-mean restrictions.
+This compatibility requirement prevents the CFs from being arbitrary unrelated functions of the propensity score.
 
-Assumption \ref{mte:instrument} (mediator take-up cost instrument $\vec X_i^{\text{IV}}$) ensures identification of the propensity score function $\pi(z; \vec X_i)$ in the first stage by providing valid instrumental variation.
-This variation allows us to identify the propensity score, and consequently the control functions $\lambda_0$ and $\lambda_1$.
+\subsubsection{Full-rank condition}
 
-Combining all elements, the conditional expectation of $Y_i$ given $Z_i, D_i, \vec X_i$ is
-\begin{align*}
-    \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
-        \alpha
-        + \beta D_i
-        + \gamma Z_i
-        + \delta Z_i D_i
-        + \varphi(\vec X_i) \\
-        & \;\; + \left( 1 - D_i \right) \Egiven{U_{0,i}}{D_i = 0}
-            + D_i \Egiven{U_{1,i}}{D_i = 1}.
-\end{align*}
-Substitute the CFs,
-\begin{align*}
-    &\;(1-D_i) \Egiven{ U_{0,i} }{Z_i, D_i=0, \vec X_i}
-        + D_i \Egiven{ U_{1,i}}{Z_i, D_i=1, \vec X_i} \\
-    &=\; (1-D_i)\rho_0 \lambda_0 \big(\pi(Z_i; \vec X_i) \big)
-    + D_i \rho_1 \lambda_1 \big(\pi(Z_i; \vec X_i) \big).
-\end{align*}
-This gives the final result,
-\begin{align*}
-    \Egiven{Y_i}{Z_i, D_i, \vec X_i} \;\; =& \;\;
-        \alpha
-        + \beta D_i
-        + \gamma Z_i
-        + \delta Z_i D_i
-        + \varphi(\vec X_i) \\
-        & \;\; +  \rho_0 \left( 1 - D_i \right) \lambda_0 \big( \pi(Z_i ; \vec X_i) \big)
-            + \rho_1 D_i \lambda_1 \big( \pi(Z_i ; \vec X_i) \big).
-\end{align*}
-All parameters --- $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ --- are identified once we control for selection bias through the CFs $\lambda_0, \lambda_1$, with $\pi(z;\vec X_i)$ identified separately in the first-stage.
-$\lambda_0, \lambda_1$ can be assumed to be certain functions (say, the inverse Mills ratio in \citealt{heckman1979sample}), or treated as semi-parametric parameters to be estimated --- at cost of the constant and $\rho_0, \rho_1$ no longer being separately identified from $\lambda_0, \lambda_1$, see \appendixref{appendix:semi-parametric}.
+Collect the free potential-outcome mean coefficients and the CF basis coefficients within treatment arm $z$ in the vector
+\[
+    \vec\vartheta_z
+    =
+    \left(
+        \vec\theta_{z,0}',
+        \vec\theta_{z,1}',
+        \vec\rho_{z,0}',
+        \vec\rho_{z,1}'
+    \right)',
+\]
+where $\vec\theta_{z,d}$ parameterises the observed component of $\mu_d(z;\vec X_i^-)$.
+Stack the identified mediator-status-specific conditional means at the supported propensity-score values in
+\[
+    \vec h_z(\vec x^-)
+    =
+    \left(
+        h_{z,0}(p_{z1},\vec x^-),
+        \ldots,
+        h_{z,0}(p_{zK_z},\vec x^-),
+        h_{z,1}(p_{z1},\vec x^-),
+        \ldots,
+        h_{z,1}(p_{zK_z},\vec x^-)
+    \right)'.
+\]
+The restricted outcome equations imply the finite system
+\[
+    \vec h_z(\vec x^-)
+    =
+    \mathbf Q_z(\vec x^-)
+    \vec\vartheta_z,
+    \label{eqn:restricted-cf-system}
+\]
+where $\mathbf Q_z(\vec x^-)$ contains the observed outcome regressors and the evaluations of the known CF bases at the supported propensity-score values.
+Identification requires
+\[
+    \operatorname{rank}
+    \left[
+        \mathbf Q_z(\vec x^-)
+    \right]
+    =
+    \dim
+    \left(
+        \vec\vartheta_z
+    \right),
+    \qquad
+    z=0,1.
+    \label{eqn:restricted-cf-rank}
+\]
+The rank condition requires the supported propensity-score values to generate linearly independent evaluations of the maintained CF basis after accounting for the observed outcome regressors and the imposed normalisations.
+Dimension counting alone is insufficient, because distinct basis coefficients may otherwise generate the same conditional means at every supported propensity-score value.
+
+\subsubsection{Restricted conditional-outcome curve}
+
+The conditional outcome mean that averages over realised mediator status is
+\[
+    m
+    \big(
+        p;
+        z,
+        \vec x^-
+    \big)
+    =
+    \Egiven{
+        Y_i
+    }{
+        Z_i=z,
+        P_i=p,
+        \vec X_i^-=\vec x^-
+    }.
+\]
+Because
+\[
+    \Egiven{
+        D_i
+    }{
+        Z_i=z,
+        P_i=p,
+        \vec X_i^-=\vec x^-
+    }
+    =
+    p,
+\]
+the CF-augmented estimating equation implies
+\[
+    \begin{aligned}
+    m^R
+    \big(
+        p;
+        z,
+        \vec x^-
+    \big)
+    ={}&
+    (1-p)
+    \mu_0
+    \big(
+        z;\vec x^-
+    \big)
+    +
+    p
+    \mu_1
+    \big(
+        z;\vec x^-
+    \big)
+    \\
+    &+
+    (1-p)
+    g_{z,0}(p)
+    +
+    p
+    g_{z,1}(p).
+    \end{aligned}
+    \label{eqn:restricted-outcome-curve}
+\]
+At every observed support point,
+\[
+    m^R
+    \big(
+        p_{zk};
+        z,
+        \vec x^-
+    \big)
+    =
+    m
+    \big(
+        p_{zk};
+        z,
+        \vec x^-
+    \big).
+\]
+The restricted-CF specification and full-rank condition identify the parameters of $m^R$ from the observed conditional means.
+They therefore identify the restricted extension $m^R(p;z,\vec x^-)$ over the interval $\mathcal I_z(\vec x^-)$.
+Values of the outcome curve between finite support points are identified within this maintained finite-dimensional class, rather than by nonparametric local differentiation.
 
 \subsection{MTE Identification of the ADE and AIE}
 \label{appendix:mte-ade-aie}
 \textit{Proof of Theorem \ref{thm:mte-identification}.}
+Assume that Assumptions~\ref{mte:monotonicity}, \ref{mte:instrument}, \ref{mte:joint-monotonicity}, and \ref{mte:restricted-cf} hold.
 
-Assume \ref{mte:monotonicity}, \ref{mte:identification}, \ref{mte:instrument} hold.
-Then Proposition~\ref{proposition:secondstage} has $\alpha, \beta, \gamma, \delta, \varphi(.), \rho_0, \rho_1$ identified in a regression.
-The following composes the ADE and AIE from these parameters.
+Proposition~\ref{proposition:secondstage} establishes identification of the restricted conditional-outcome curve separately within each treatment arm:
+\[
+    m^R
+    \big(
+        p;
+        z,
+        \vec x^-
+    \big)
+    =
+    \Egiven{
+        Y_i
+    }{
+        Z_i=z,
+        P_i=p,
+        \vec X_i^-=\vec x^-
+    },
+\]
+for $z=0,1$ and for $p$ in the interval $\mathcal I_z(\vec x^-)$ covered by the restricted CF model.
 
-For the ADE,
-\begin{align*}
-    \E{ \gamma + \delta D_i}
-        &= \E{ \Big( \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i) \Big)
-            + D_i \Big( \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) - \big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big) \Big) } \\
-    &= \E{ D_i \Big(\mu_1(1; \vec X_i) - \mu_1(0; \vec X_i) \Big)
-        + (1 - D_i) \Big( \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i) \Big) } \\
-    &= \E{ D_i \Big( Y_i(1,1) - U_{1,i} - \big( Y_i(0,1) - U_{1,i} \big) \Big)
-        + (1 - D_i) \Big( 
-            Y_i(1,0) - U_{0,i} - \big( Y_i(0,0) - U_{0,i} \big) \Big) } \\
-    &= \E{ D_i \Big( Y_i(1,1) - Y_i(0,1) \Big)
-        + (1 - D_i) \Big( Y_i(1,0) - Y_i(0,0) \Big) } \\
-    &= \E{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))} \\
-    &= \text{ADE}.
-\end{align*}
+The superscript $R$ indicates that values of the curve between finitely supported propensity-score values are identified within the maintained restricted-CF class.
+At observed propensity-score support points, $m^R$ coincides with the observed conditional-outcome mean.
+At other points in $\mathcal I_z(\vec x^-)$, $m^R$ is identified by the finite-dimensional CF restriction and the full-column-rank condition.
 
-Identification is similar for the AIE, but also involves the complier adjustment term.
-\begin{align*}
-    (\rho_1 - \rho_0) \, \Gamma \big(\pi(0; \vec{X}_i), \, \pi(1; \vec{X}_i) \big)
-    &= (\rho_1 - \rho_0) \, \frac{\pi(1; \vec{X}_i)\lambda_1(\pi(1; \vec{X}_i)) - \pi(0; \vec{X}_i)\lambda_1(\pi(0; \vec{X}_i))}{\pi(1; \vec{X}_i) - \pi(0; \vec{X}_i)} \\
-    &= (\rho_1 - \rho_0) \, \Egiven{ F_V^{-1}(U_i | \vec{X}_i) - \mu_V }{\pi(0; \vec{X}_i) < U_i \leq \pi(1; \vec{X}_i), \vec{X}_i} \\
-    &= (\rho_1 - \rho_0) \, \Egiven{ F_V^{-1}(U_i | \vec{X}_i) - \mu_V }{
-        D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \\
-    &= \Egiven{ \rho_1 \big( F_V^{-1}(U_i | \vec{X}_i) - \mu_V \big) }{
-        D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \\
-    &\;\;\; - \Egiven{ \rho_0 \big( F_V^{-1}(U_i | \vec{X}_i) - \mu_V \big) }{
-        D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \\
-    &= \Egiven{ U_{1,i} - U_{0,i} }{D_i(0) = 0, D_i(1) = 1, \vec{X}_i}.
-\end{align*}
-This complier adjustment was first presented for an IV setting by \cite{kline2019heckits}.
+\subsubsection{Interpretation of the treatment-arm-specific outcome curve}
 
-Collecting for the AIE,
-\begin{align*}
-    &\E{ \bar \pi \, \Big( \beta +  \delta Z_i +
-        (\rho_1 - \rho_0) \Gamma \big(\pi(0; \vec X_i), \, \pi(1; \vec X_i) \big) \Big) } \\
-    &= \E{ \bar \pi \, \Bigg( \Big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \Big)
-        +  Z_i \Big( \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i)
-            - \big(\mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big) \Big) \Bigg) } \\
-    &\;\;\;\; + \mathbb E \Big[ \bar \pi \; \Egiven{ U_{1,i} - U_{0,i} }{D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \Big] \\
-    &= \E{ \bar \pi \, \Bigg(
-        Z_i \Big( \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) \Big)
-        + (1 - Z_i) \Big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \Big) \Bigg) } \\
-    &\;\;\;\; + \mathbb E \Big[ \bar \pi \; \Egiven{ U_{1,i} - U_{0,i} }{D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \Big] \\
-    &= \E{ \bar \pi \, \Bigg(
-        \mu_1(Z_i, \vec X_i) - \mu_0(Z_i, \vec X_i)
-        + \Egiven{ U_{1,i} - U_{0,i} }{D_i(0) = 0, D_i(1) = 1, \vec{X}_i} \Bigg) } \\
-    &= \E{ \bar \pi \; \Egiven{
-        \mu_1(Z_i, \vec X_i) - \mu_0(Z_i, \vec X_i) + U_{1,i} - U_{0,i} }{
-            D_i(0) = 0, D_i(1) = 1, \vec{X}_i} } \\
-    &= \E{ \Egiven{D_i(1) - D_i(0)}{\vec X_i} \; \Egiven{
-        Y_i(Z_i, 1) - Y_i(Z_i, 0) }{ D_i(0) = 0, D_i(1) = 1, \vec{X}_i} } \\
-    &= \E{ \Egiven{Y_i(Z_i,D_i(1)) - Y_i(Z_i,D_i(0))}{\vec X_i} } \\
-    &= \E{ Y_i(Z_i,D_i(1)) - Y_i(Z_i,D_i(0)) } \\
-    &= \text{AIE}.
-\end{align*}
+Under the common mediator-selection index,
+\[
+    D_i
+    \big(
+        z',
+        \vec x^{\mathrm{IV}}
+    \big)
+    =
+    \indicator{
+        U_i
+        \leq
+        \pi
+        \big(
+            z';
+            \vec x^{\mathrm{IV}},
+            \vec X_i^-
+        \big)
+    }.
+\]
 
-\subsection{Semi-parametric Estimation of the AIE}
+For any fixed treatment state $z$ and propensity-score value $p$, define the counterfactual mediator rule
+\[
+    D_i(p)
+    =
+    \indicator{
+        U_i\leq p
+    }.
+\]
+
+Conditional exclusion and quasi-random assignment of the mediator instrument imply
+\[
+    \begin{aligned}
+    m^R
+    \big(
+        p;
+        z,
+        \vec x^-
+    \big)
+    &=
+    \Egiven{
+        Y_i
+        \big(
+            z,D_i(p)
+        \big)
+    }{
+        \vec X_i^-=\vec x^-
+    }.
+    \end{aligned}
+    \label{eqn:restricted-outcome-policy-interpretation}
+\]
+
+Accordingly, evaluating the restricted outcome curve at the treatment-induced propensity score gives
+\[
+    \begin{aligned}
+    &m^R
+    \left(
+        \pi
+        \big(
+            z';
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big);
+        z,
+        \vec x^-
+    \right)
+    \\
+    &\qquad=
+    \Egiven{
+        Y_i
+        \left(
+            z,
+            D_i
+            \big(
+                z',
+                \vec x^{\mathrm{IV}}
+            \big)
+        \right)
+    }{
+        \vec X_i^-=\vec x^-
+    },
+    \end{aligned}
+    \label{eqn:restricted-outcome-endpoint-interpretation}
+\]
+for $z,z'=0,1$.
+
+Therefore, the two endpoint values of the $Z_i=z$ outcome curve identify the two relevant nested counterfactual outcome means:
+\[
+    \begin{aligned}
+    &m^R
+    \left(
+        \pi
+        \big(
+            0;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big);
+        z,
+        \vec x^-
+    \right)
+    \\
+    &\qquad=
+    \Egiven{
+        Y_i
+        \left(
+            z,
+            D_i
+            \big(
+                0,
+                \vec x^{\mathrm{IV}}
+            \big)
+        \right)
+    }{
+        \vec X_i^-=\vec x^-
+    },
+    \end{aligned}
+\]
+and
+\[
+    \begin{aligned}
+    &m^R
+    \left(
+        \pi
+        \big(
+            1;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big);
+        z,
+        \vec x^-
+    \right)
+    \\
+    &\qquad=
+    \Egiven{
+        Y_i
+        \left(
+            z,
+            D_i
+            \big(
+                1,
+                \vec x^{\mathrm{IV}}
+            \big)
+        \right)
+    }{
+        \vec X_i^-=\vec x^-
+    }.
+    \end{aligned}
+\]
+
+\subsubsection{Identification of the AIE}
+
+For $z=0,1$, define the conditional indirect effect as
+\[
+    \begin{aligned}
+    \operatorname{AIE}
+    \big(
+        z;
+        \vec x^{\mathrm{IV}},
+        \vec x^-
+    \big)
+    =
+    \Egiven{
+        Y_i
+        \left(
+            z,
+            D_i
+            \big(
+                1,
+                \vec x^{\mathrm{IV}}
+            \big)
+        \right)
+        -
+        Y_i
+        \left(
+            z,
+            D_i
+            \big(
+                0,
+                \vec x^{\mathrm{IV}}
+            \big)
+        \right)
+    }{
+        \vec X_i^-=\vec x^-
+    }.
+    \end{aligned}
+    \label{eqn:conditional-aie-definition}
+\]
+
+Using \eqref{eqn:restricted-outcome-endpoint-interpretation},
+\[
+    \begin{aligned}
+    &\operatorname{AIE}
+    \big(
+        z;
+        \vec x^{\mathrm{IV}},
+        \vec x^-
+    \big)
+    \\
+    &\qquad=
+    m^R
+    \left(
+        \pi
+        \big(
+            1;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big);
+        z,
+        \vec x^-
+    \right)
+    \\
+    &\qquad\quad-
+    m^R
+    \left(
+        \pi
+        \big(
+            0;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big);
+        z,
+        \vec x^-
+    \right).
+    \end{aligned}
+    \label{eqn:conditional-aie-endpoint-difference}
+\]
+
+The mediator-complier support condition ensures that both propensity-score endpoints lie in the domain $\mathcal I_z(\vec x^-)$ over which $m^R$ is identified.
+
+Therefore, the right-hand side of \eqref{eqn:conditional-aie-endpoint-difference} is identified for each $z=0,1$ and each relevant covariate value.
+
+To connect this endpoint expression to the mediator MTE, note that mediator monotonicity and the common-index representation imply
+\[
+    \begin{aligned}
+    &D_i
+    \big(
+        1,
+        \vec x^{\mathrm{IV}}
+    \big)
+    -
+    D_i
+    \big(
+        0,
+        \vec x^{\mathrm{IV}}
+    \big)
+    \\
+    &\qquad=
+    \indicator{
+        \pi
+        \big(
+            0;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big)
+        <
+        U_i
+        \leq
+        \pi
+        \big(
+            1;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big)
+    }.
+    \end{aligned}
+    \label{eqn:mediator-complier-indicator}
+\]
+
+For binary mediator values,
+\[
+    \begin{aligned}
+    &Y_i
+    \left(
+        z,
+        D_i
+        \big(
+            1,
+            \vec x^{\mathrm{IV}}
+        \big)
+    \right)
+    -
+    Y_i
+    \left(
+        z,
+        D_i
+        \big(
+            0,
+            \vec x^{\mathrm{IV}}
+        \big)
+    \right)
+    \\
+    &\qquad=
+    \left[
+        D_i
+        \big(
+            1,
+            \vec x^{\mathrm{IV}}
+        \big)
+        -
+        D_i
+        \big(
+            0,
+            \vec x^{\mathrm{IV}}
+        \big)
+    \right]
+    \left[
+        Y_i(z,1)-Y_i(z,0)
+    \right].
+    \end{aligned}
+\]
+
+Substituting \eqref{eqn:mediator-complier-indicator} gives
+\[
+    \begin{aligned}
+    &Y_i
+    \left(
+        z,
+        D_i
+        \big(
+            1,
+            \vec x^{\mathrm{IV}}
+        \big)
+    \right)
+    -
+    Y_i
+    \left(
+        z,
+        D_i
+        \big(
+            0,
+            \vec x^{\mathrm{IV}}
+        \big)
+    \right)
+    \\
+    &\qquad=
+    \indicator{
+        \pi
+        \big(
+            0;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big)
+        <
+        U_i
+        \leq
+        \pi
+        \big(
+            1;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big)
+    }
+    \left[
+        Y_i(z,1)-Y_i(z,0)
+    \right].
+    \end{aligned}
+\]
+
+Taking conditional expectations and iterating over the latent mediator rank yields
+\[
+    \begin{aligned}
+    &\operatorname{AIE}
+    \big(
+        z;
+        \vec x^{\mathrm{IV}},
+        \vec x^-
+    \big)
+    \\
+    &\qquad=
+    \int_{
+        \pi(
+            0;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        )
+    }^{
+        \pi(
+            1;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        )
+    }
+        \Egiven{
+            Y_i(z,1)-Y_i(z,0)
+        }{
+            U_i=p,
+            \vec X_i^-=\vec x^-
+        }
+    \,dp.
+    \end{aligned}
+\]
+
+By the definition of the mediator MTE,
+\[
+    \begin{aligned}
+    &\operatorname{AIE}
+    \big(
+        z;
+        \vec x^{\mathrm{IV}},
+        \vec x^-
+    \big)
+    \\
+    &\qquad=
+    \int_{
+        \pi(
+            0;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        )
+    }^{
+        \pi(
+            1;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        )
+    }
+        \operatorname{MTE}
+        \big(
+            p;
+            z,
+            \vec x^-
+        \big)
+    \,dp.
+    \end{aligned}
+    \label{eqn:conditional-aie-mte-integral}
+\]
+
+Within the restricted-CF model, the identified mediator MTE is the restricted mediator MTE,
+\[
+    \operatorname{MTE}^R
+    \big(
+        p;
+        z,
+        \vec x^-
+    \big)
+    =
+    \partialdiff{p}
+    m^R
+    \big(
+        p;
+        z,
+        \vec x^-
+    \big),
+\]
+for almost every $p$ in $\mathcal I_z(\vec x^-)$.
+
+Absolute continuity of $m^R$ therefore gives
+\[
+    \begin{aligned}
+    &\int_{
+        \pi(
+            0;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        )
+    }^{
+        \pi(
+            1;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        )
+    }
+        \operatorname{MTE}^R
+        \big(
+            p;
+            z,
+            \vec x^-
+        \big)
+    \,dp
+    \\
+    &\qquad=
+    m^R
+    \left(
+        \pi
+        \big(
+            1;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big);
+        z,
+        \vec x^-
+    \right)
+    \\
+    &\qquad\quad-
+    m^R
+    \left(
+        \pi
+        \big(
+            0;
+            \vec x^{\mathrm{IV}},
+            \vec x^-
+        \big);
+        z,
+        \vec x^-
+    \right).
+    \end{aligned}
+    \label{eqn:restricted-aie-equivalence}
+\]
+
+Thus, the MTE integral and endpoint-difference representations identify the same conditional indirect effect within the maintained restricted model.
+
+Averaging over the joint distribution of $\vec X_i^{\mathrm{IV}}$ and $\vec X_i^-$ identifies
+\[
+    \begin{aligned}
+    \operatorname{AIE}(z)
+    =
+    \mathbb E
+    \Big[
+        &
+        m^R
+        \left(
+            \pi
+            \big(
+                1;
+                \vec X_i^{\mathrm{IV}},
+                \vec X_i^-
+            \big);
+            z,
+            \vec X_i^-
+        \right)
+        \\
+        &-
+        m^R
+        \left(
+            \pi
+            \big(
+                0;
+                \vec X_i^{\mathrm{IV}},
+                \vec X_i^-
+            \big);
+            z,
+            \vec X_i^-
+        \right)
+    \Big].
+    \end{aligned}
+    \label{eqn:aie-endpoint-identification}
+\]
+
+Equivalently,
+\[
+    \begin{aligned}
+    \operatorname{AIE}(z)
+    =
+    \E{
+        \int_{
+            \pi(
+                0;
+                \vec X_i^{\mathrm{IV}},
+                \vec X_i^-
+            )
+        }^{
+            \pi(
+                1;
+                \vec X_i^{\mathrm{IV}},
+                \vec X_i^-
+            )
+        }
+            \operatorname{MTE}^R
+            \big(
+                u;
+                z,
+                \vec X_i^-
+            \big)
+        \,du }.
+    \end{aligned}
+    \label{eqn:aie-mte-identification}
+\]
+
+This establishes identification of $\operatorname{AIE}(z)$ for each $z=0,1$.
+
+\subsubsection{Identification of the ADE}
+
+For $z=0,1$, recall the ADE definition,
+\[
+    \operatorname{ADE}(z)
+    =
+    \E{Y_i
+        \big(
+            1,D_i(z)
+        \big)
+        -
+        Y_i
+        \big(
+            0,D_i(z)
+        \big)}.
+    \label{eqn:ade-t-definition}
+\]
+
+The total treatment effect is
+\[
+    \operatorname{ATE}
+    =
+    \E{
+        Y_i
+        \big(
+            1,D_i(1)
+        \big)
+        -
+        Y_i
+        \big(
+            0,D_i(0)
+        \big)}.
+    \label{eqn:ate-nested-definition}
+\]
+
+First add and subtract $Y_i(0,D_i(1))$:
+\[
+    \begin{aligned}
+    \operatorname{ATE}
+    ={}&
+    \E{
+        Y_i
+        \big(
+            1,D_i(1)
+        \big)
+        -
+        Y_i
+        \big(
+            0,D_i(1)
+        \big)}
+    \\
+    &+
+    \E{
+        Y_i
+        \big(
+            0,D_i(1)
+        \big)
+        -
+        Y_i
+        \big(
+            0,D_i(0)
+        \big)}.
+    \end{aligned}
+\]
+
+The first term is $\operatorname{ADE}(1)$ and the second is $\operatorname{AIE}(0)$.
+
+Therefore,
+\[
+    \operatorname{ATE}
+    =
+    \operatorname{ADE}(1)
+    +
+    \operatorname{AIE}(0).
+    \label{eqn:ate-decomposition-z0}
+\]
+
+It follows that
+\[
+    \operatorname{ADE}(1)
+    =
+    \operatorname{ATE}
+    -
+    \operatorname{AIE}(0).
+    \label{eqn:ade1-identification}
+\]
+
+Alternatively, AIE(1) and ADE(0) are identified by the same process, identifying AIE(1) via the Mediator MTE among the $Z_i =1$ sample and using ADE(0) as the ATE residual.
+This proves Theorem~\ref{thm:mte-identification}.
+
+Below is the complete appendix subsection, organised around estimation of the CM effects. It treats estimation of the propensity score and restricted outcome curve as intermediate steps, then states consistency, asymptotic normality, and bootstrap inference. The cited literature supports series/spline consistency and asymptotic normality of smooth functionals, and the adjustment required when the propensity score is a generated regressor.
+
+\subsection{Semi-parametric Estimation of the AIE and ADE}
 \label{appendix:semi-parametric}
-It is difficult to directly use the CFs to compose estimates of the complier adjustment term, because various intercepts lose identification, but also because trusting semi-parametric estimates at individual points across the $\hat\lambda_0(p), \hat\lambda_1(p)$ functions would increase variation more than is necessary.
 
-This can be avoided by noting the relation between the ATE and the conditional ADE and conditional AIE.
-The following showing how to identify the AIE via relation to the ATE and conditional ADE, and omits the conditional on $\vec X_i$ for brevity. 
+This subsection describes the semi-parametric estimation of the AIE and ADE.
+For notational convenience, the exposition focuses on the $Z_i=0$ treatment arm, which identifies $\operatorname{AIE}(0)$ and, together with the ATE, $\operatorname{ADE}(1)$.
+The estimators of $\operatorname{AIE}(1)$ and $\operatorname{ADE}(0)$ follow symmetrically by applying the same procedure to the $Z_i=1$ treatment arm.
 
-A simple algebraic rearrangement has the following (as first noted in \citealt[Section~3.1]{imai2010identification}),
-\begin{align*}
-    \text{ATE} &= \E{Y_i(1, D_i(1)) - Y_i(1, D_i(1))} \\
-    &= \E{ Y_i(1, D_i(1)) - Y_i(0, D_i(1))}
-    +  \E{ Y_i(0, D_i(1)) - Y_i(0, D_i(0))} \\
-    &= \underbrace{\Egiven{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{ Z_i = 1}}_{
-        \text{ADE conditional on } Z_i = 1}
-    +  \underbrace{\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 0}}_{
-        \text{AIE conditional on } Z_i = 0}.
-\end{align*}
-A similar re-arrangement also has the following,
-\[ \text{ATE} 
-    = \underbrace{\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 1}}_{
-        \text{AIE conditional on } Z_i = 1}
-    + \underbrace{\Egiven{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{ Z_i = 0}}_{
-        \text{ADE conditional on } Z_i = 0}. \]
+Let
+\[
+    n_0
+    \coloneqq
+    \sum_{i=1}^{n}
+        \indicator{Z_i=0}
+\]
+denote the number of observations assigned to the $Z_i=0$ arm.
 
-Reverting to the regression notation, to show how the ADE conditional on $Z_i$ is identified:
-\begin{align*}
-    \text{ADE} &= \E{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))} \\
-        &= \E{ \gamma + \delta D_i(Z_i) }. \\
-    \implies \text{ADE conditional on } Z_i = 0
-        &= \Egiven{ \gamma + \delta D_i(Z_i) }{Z_i = 0} \\
-        &= \E{ \gamma + \delta D_i(0) }. \\
-    \text{ADE conditional on } Z_i = 1
-        &= \Egiven{ \gamma + \delta D_i(Z_i) }{Z_i = 1} \\
-        &= \E{ \gamma + \delta D_i(1) }.
-\end{align*}
+\subsubsection{Estimation of the Mediator Propensity Score}
 
-Finally achieve identification of the AIE via the ATE and conditional ADE, as follows,
-\begin{align*}
-    \text{AIE}
-    &= \Prob{Z_i = 0}
-    \underbrace{\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 0}}_{
-        \text{AIE conditional on } Z_i = 0} \\
-    &\;\;\;\;+ \Prob{Z_i = 1}
-    \underbrace{\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 1}}_{
-        \text{AIE conditional on } Z_i = 1} \\
-    &= \Prob{Z_i = 0} \Big[
-        \text{ATE} - (\text{ADE conditional on } Z_i = 1) \Big] \\
-    &\;\;\;\;+ \Prob{Z_i = 1} \Big[
-        \text{ATE} - (\text{ADE conditional on } Z_i = 0) \Big] \\
-    &= \text{ATE} - \Prob{Z_i = 0} \E{ \gamma + \delta D_i(1) }
-        - \Prob{Z_i = 1} \E{ \gamma + \delta D_i(0) }.
-\end{align*}
+The first stage estimates the mediator propensity score,
+\[
+    \pi
+    \big(
+        z;
+        \vec x^{\mathrm{IV}},
+        \vec x^-
+    \big)
+    =
+    \Probgiven{
+        D_i=1
+    }{
+        Z_i=z,
+        \vec X_i^{\mathrm{IV}}=\vec x^{\mathrm{IV}},
+        \vec X_i^-=\vec x^-
+    }.
+\]
+Let
+\[
+    \widehat\pi
+    \big(
+        z;
+        \vec x^{\mathrm{IV}},
+        \vec x^-
+    \big)
+\]
+denote its estimate, and define the estimated realised propensity score as
+\[
+    \widehat P_i
+    =
+    \widehat\pi
+    \big(
+        Z_i;
+        \vec X_i^{\mathrm{IV}},
+        \vec X_i^-
+    \big).
+\]
 
-The semi-parametric AIE estimate then uses this representation, avoiding directly interacting with the estimated CFs, by plugging in estimates $\hat{\Pr}(Z_i = 1) = \bar Z$, $\hat{\text{ATE}}$, and the estimates from each side of the $D_i =0,1$ separated samples $\hat\gamma, \hat\delta$.
-\[ \hat{\text{AIE}}^{\text{CF}}
-    = \hat{\text{ATE}}
-    - (1 - \bar Z) \, \left( \hat\gamma +
-        \frac 1n \sum_{i = 1}^N \hat \delta \, \hat\pi(1; \vec X_i) \right)
-    - \bar Z \, \left(\hat\gamma +
-        \frac 1n \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)  \right), \]
-where $\frac 1n \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(0)}$, and $\frac 1n \sum_{i = 1}^N \hat \delta \, \hat\pi(0; \vec X_i)$ estimates $\E{\delta D_i(1)}$.
-Everything involved is a standard point estimate, so their composition will converge to a normal distribution, too.
-Standard error computation can be achieved by a bootstrap procedure.
+The propensity score may be estimated using a correctly specified binary-response model or an appropriate semi-parametric estimator.
+The estimator must consistently estimate both the realised propensity score and the two counterfactual endpoint propensities,
+\[
+    \widehat p_{0i}
+    \coloneqq
+    \widehat\pi
+    \big(
+        0;
+        \vec X_i^{\mathrm{IV}},
+        \vec X_i^-
+    \big)
+\]
+and
+\[
+    \widehat p_{1i}
+    \coloneqq
+    \widehat\pi
+    \big(
+        1;
+        \vec X_i^{\mathrm{IV}},
+        \vec X_i^-
+    \big).
+\]
 
-%The AIE conditional on $Z_i = 0$ is related to AIE conditional on $D_i = 0$ in the following manner, because $Z_i = D_i$ and is thus ignorable among $D_i(Z_i)$ compliers.
-%\begin{align*}
-%    &\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 0}\\
-%    &= \Probgiven{D_i(0) = 0, D_i(1) = 1}{Z_i = 0}
-%        \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{ Z_i = 0, D_i(0) = 0, D_i(1) = 1} \\
-%    &= \Prob{D_i(0) = 0, D_i(1) = 1}
-%    \Egiven{ Y_i(Z_i, 1) - Y_i(Z_i, 0)}{ D_i = 0, D_i(0) = 0, D_i(1) = 1} \\
-%    &= \frac{\Prob{D_i(0) = 0, D_i(1) = 1}}{
-%        \Probgiven{D_i(0) = 0, D_i(1) = 1}{D_i = 0}}
-%        \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ D_i = 0 } \\
-%    &= \frac{1}{\Prob{D_i = 0}}
-%        \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ D_i = 0 }
-%\end{align*}
-%And similarly, for the relation between AIE conditional on $Z_i = 1$ and AIE conditional on $D_i = 1$,
-%\begin{align*}
-%    &\Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ Z_i = 1} \\
-%    &= \frac{1}{\Prob{D_i = 1}}
-%        \Egiven{ Y_i(Z_i, D_i(1)) - Y_i(Z_i, D_i(0))}{ D_i = 1 }.
-%\end{align*}
+The mediator-complier support condition requires both endpoint propensities to lie in the domain identified by mediator-instrument variation within the treatment arm used to estimate the outcome curve.
+For the $Z_i=0$ estimator, this requires
+\[
+    \left[
+        \pi
+        \big(
+            0;
+            \vec X_i^{\mathrm{IV}},
+            \vec X_i^-
+        \big),
+        \pi
+        \big(
+            1;
+            \vec X_i^{\mathrm{IV}},
+            \vec X_i^-
+        \big)
+    \right]
+    \subseteq
+    \mathcal I_0
+    \big(
+        \vec X_i^-
+    \big)
+\]
+almost surely, where $\mathcal I_0(\vec X_i^-)$ is the domain over which the restricted $Z_i=0$ outcome curve is identified.
 
-%The ADE conditional on $Z_i = 1$ can be identified relative to the ADE conditional on $D_i$.
-%\begin{align*}
-%    &\Egiven{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{ Z_i = 1} \\
-%    &= \Probgiven{D_i = 1}{Z_i = 1} 
-%        \Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{Z_i =1, D_i = 1} \\
-%    &\;\;\;\;+ \Probgiven{D_i = 0}{Z_i = 1} 
-%        \Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{Z_i =1, D_i = 0} \\
-%    &= \Probgiven{D_i = 1}{Z_i = 1} 
-%        \underbrace{\Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{D_i = 1}}_{
-%            \text{ADE conditional on } D_i = 1} \\
-%    &\;\;\;\;+ \Probgiven{D_i = 0}{Z_i = 1} 
-%        \underbrace{\Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{D_i = 0}}_{
-%            \text{ADE conditional on } D_i = 0}.
-%\end{align*}
-%And similarly for the ADE conditional on $Z_i = 0$,
-%\begin{align*}
-%    &\Egiven{ Y_i(1, D_i(Z_i)) - Y_i(0, D_i(Z_i))}{ Z_i = 0} \\
-%    &= \Probgiven{D_i = 1}{Z_i = 0}
-%        \underbrace{\Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{D_i = 1}}_{
-%            \text{ADE conditional on } D_i = 1} \\
-%    &\;\;\;\;+ \Probgiven{D_i = 0}{Z_i = 0}
-%        \underbrace{\Egiven{Y_i(1, D_i) - Y_i(0, D_i)}{D_i = 0}}_{
-%            \text{ADE conditional on } D_i = 0}.
-%\end{align*}
+\subsubsection{Estimation of the Restricted Outcome Curve}
+\label{appendix:mte-estimation}
+
+Within the $Z_i=0$ treatment arm, define
+\[
+    m
+    \big(
+        p;
+        0,
+        \vec x^-
+    \big)
+    =
+    \Egiven{
+        Y_i
+    }{
+        Z_i=0,
+        P_i=p,
+        \vec X_i^-=\vec x^-
+    }.
+\]
+
+Let
+\[
+    \vec b_{0,K}(p)
+    =
+    \left(
+        b_{01}(p),
+        \ldots,
+        b_{0K}(p)
+    \right)'
+\]
+be a vector of known polynomial, regression-spline, or other series basis functions.
+The restricted outcome curve is approximated by
+\[
+    m_K^R
+    \big(
+        p;
+        0,
+        \vec x^-
+    \big)
+    =
+    \vec\phi_0'\vec x^-
+    +
+    \vec b_{0,K}(p)'\vec\rho_0.
+    \label{eqn:restricted-outcome-estimation-model}
+\]
+
+An intercept is included either in $\vec x^-$ or in $\vec b_{0,K}(p)$, but not in both.
+More generally, the basis must not duplicate terms already included in the linear control function.
+The rank condition in \appendixref{appendix:mte-restricted} requires the IV-guided propensity-score variation to distinguish the maintained basis terms from one another and from the included controls.
+
+The coefficients are estimated in the $Z_i=0$ subsample by
+\[
+    \begin{aligned}
+    \left(
+        \widehat{\vec\phi}_0,
+        \widehat{\vec\rho}_0
+    \right)
+    =
+    \arg \min_{
+        \vec\phi,
+        \vec\rho
+    }
+    \frac{1}{n_0}
+    \sum_{i:Z_i=0}
+    \left[
+        Y_i
+        -
+        \vec\phi'\vec X_i^-
+        -
+        \vec b_{0,K}
+        \big(
+            \widehat P_i
+        \big)'
+        \vec\rho
+    \right]^2.
+    \end{aligned}
+    \label{eqn:restricted-outcome-estimator}
+\]
+
+The resulting fitted outcome curve is
+\[
+    \widehat m
+    \big(
+        p;
+        0,
+        \vec x^-
+    \big)
+    =
+    \widehat{\vec\phi}_0'\vec x^-
+    +
+    \vec b_{0,K}(p)'
+    \widehat{\vec\rho}_0.
+    \label{eqn:fitted-restricted-outcome-curve}
+\]
+
+When the maintained restricted outcome model is exactly finite dimensional, $K$ is fixed.
+When the basis is used as a sieve approximation to a smooth outcome curve, $K=K_{n_0}$ may increase with the treatment-arm sample size.
+The basis dimension must increase sufficiently quickly to control approximation error, but sufficiently slowly to control estimation error \citep{newey1997convergence,chen2007large}.
+
+A parametric assumption on the joint distribution of the unobserved mediator-selection and outcome errors provides an alternative specification of the propensity-score component of the outcome curve.
+For example, joint normality implies the familiar inverse-Mills-ratio correction.
+The semi-parametric estimator instead uses a polynomial, spline, or sieve approximation and does not require a parametric distribution for the unobserved errors.
+
+\subsubsection{Estimation of the AIE and ADE}
+
+For each observation in the $Z_i=0$ subsample, evaluate the fitted $Z_i=0$ outcome curve at the mediator propensities induced by both treatment states:
+\[
+    \widehat m
+    \big(
+        \widehat p_{0i};
+        0,
+        \vec X_i^-
+    \big)
+\]
+and
+\[
+    \widehat m
+    \big(
+        \widehat p_{1i};
+        0,
+        \vec X_i^-
+    \big).
+\]
+
+The fitted conditional indirect effect is
+\[
+    \begin{aligned}
+    \widehat\tau_i^{\,\operatorname{AIE}(0)}
+    =
+    {}&
+    \widehat m
+    \big(
+        \widehat p_{1i};
+        0,
+        \vec X_i^-
+    \big)
+    \\
+    &-
+    \widehat m
+    \big(
+        \widehat p_{0i};
+        0,
+        \vec X_i^-
+    \big).
+    \end{aligned}
+    \label{eqn:conditional-aie-estimator}
+\]
+
+Under the partially linear specification in
+\eqref{eqn:fitted-restricted-outcome-curve}, the additive control-variable component cancels:
+\[
+    \begin{aligned}
+    \widehat\tau_i^{\,\operatorname{AIE}(0)}
+    =
+    \left[
+        \vec b_{0,K}
+        \big(
+            \widehat p_{1i}
+        \big)
+        -
+        \vec b_{0,K}
+        \big(
+            \widehat p_{0i}
+        \big)
+    \right]'
+    \widehat{\vec\rho}_0.
+    \end{aligned}
+    \label{eqn:conditional-aie-series-estimator}
+\]
+
+The cancellation of the additive control term does not make the controls redundant.
+They remain necessary for conditional instrument validity, consistent propensity-score estimation, and the separability condition used to identify the restricted outcome curve.
+
+The indirect effect is estimated by averaging these fitted endpoint differences over the $Z_i=0$ subsample:
+\[
+    \boxed{
+    \widehat{\operatorname{AIE}}_0(0)
+    =
+    \frac{1}{n_0}
+    \sum_{i:Z_i=0}
+        \widehat\tau_i^{\,\operatorname{AIE}(0)}
+    }.
+    \label{eqn:aie0-subsample-estimator}
+\]
+
+Equivalently,
+\[
+    \begin{aligned}
+    \widehat{\operatorname{AIE}}_0(0)
+    =
+    \frac{1}{n_0}
+    \sum_{i:Z_i=0}
+    \Big[
+        &
+        \widehat m
+        \big(
+            \widehat p_{1i};
+            0,
+            \vec X_i^-
+        \big)
+        \\
+        &-
+        \widehat m
+        \big(
+            \widehat p_{0i};
+            0,
+            \vec X_i^-
+        \big)
+    \Big].
+    \end{aligned}
+\]
+
+Quasi-random assignment of $Z_i$ implies that the distribution of
+\[
+    \left(
+        \vec X_i^{\mathrm{IV}},
+        \vec X_i^-
+    \right)
+\]
+within the $Z_i=0$ subsample consistently estimates the corresponding target-population distribution.
+The subsample average therefore standardises the conditional endpoint differences to the target population.
+
+An alternative estimator standardises the fitted effects over the full sample:
+\[
+    \begin{aligned}
+    \widehat{\operatorname{AIE}}_{\mathrm{std}}(0)
+    =
+    \frac{1}{n}
+    \sum_{i=1}^{n}
+    \Big[
+        &
+        \widehat m
+        \big(
+            \widehat p_{1i};
+            0,
+            \vec X_i^-
+        \big)
+        \\
+        &-
+        \widehat m
+        \big(
+            \widehat p_{0i};
+            0,
+            \vec X_i^-
+        \big)
+    \Big].
+    \end{aligned}
+    \label{eqn:aie0-full-standardisation}
+\]
+Under quasi-random treatment assignment, the subsample and full-sample standardisation estimators have the same probability limit, although their finite-sample and asymptotic variances may differ.
+
+The complementary direct effect is estimated using
+\[
+    \operatorname{ATE}
+    =
+    \operatorname{AIE}(0)
+    +
+    \operatorname{ADE}(1).
+\]
+Thus,
+\[
+    \boxed{
+    \widehat{\operatorname{ADE}}(1)
+    =
+    \widehat{\operatorname{ATE}}
+    -
+    \widehat{\operatorname{AIE}}(0)
+    }.
+    \label{eqn:ade1-estimator}
+\]
+
+Repeating the outcome-curve estimation in the $Z_i=1$ subsample gives
+\[
+    \widehat{\operatorname{AIE}}(1)
+\]
+and
+\[
+    \boxed{
+    \widehat{\operatorname{ADE}}(0)
+    =
+    \widehat{\operatorname{ATE}}
+    -
+    \widehat{\operatorname{AIE}}(1)
+    }.
+\]
+
+The endpoint estimator does not require numerical differentiation.
+Under absolute continuity,
+\[
+    \begin{aligned}
+    &m^R
+    \big(
+        p_1;
+        0,
+        \vec x^-
+    \big)
+    -
+    m^R
+    \big(
+        p_0;
+        0,
+        \vec x^-
+    \big)
+    \\
+    &\qquad=
+    \int_{p_0}^{p_1}
+        \operatorname{MTE}^R
+        \big(
+            u;
+            0,
+            \vec x^-
+        \big)
+    \,du.
+    \end{aligned}
+\]
+The AIE can therefore be estimated directly from the two fitted endpoint values.
+This avoids the instability associated with numerically differentiating a flexible estimate of the conditional-outcome curve.
+
+Prediction at
+\[
+    \widehat\pi
+    \big(
+        1;
+        \vec X_i^{\mathrm{IV}},
+        \vec X_i^-
+    \big)
+\]
+is not extrapolation merely because the outcome curve is estimated in the $Z_i=0$ subsample.
+It is interpolation when both treatment-induced propensity scores lie in the domain $\mathcal I_0(\vec X_i^-)$ identified by mediator-instrument variation and the restricted-CF model within the $Z_i=0$ arm.
+If an endpoint lies outside that domain, its evaluation instead requires unsupported extrapolation.
+
+\subsubsection{Consistency and Asymptotic Normality}
+
+The large-sample argument combines standard results for series or sieve estimation with results for multi-step semi-parametric estimators containing generated regressors.
+Series estimators consistently approximate conditional expectations under smoothness, moment, support, approximation, and basis-growth conditions.
+Although the estimated outcome curve may converge at a nonparametric rate, sufficiently smooth scalar functionals of the curve can be root-$n$ consistent and asymptotically normal \citep{newey1997convergence,chen2007large}.
+
+Assume that
+\[
+    q_0
+    \coloneqq
+    \Prob{Z_i=0}
+\]
+satisfies
+\[
+    0<q_0<1.
+\]
+Then
+\[
+    \frac{n_0}{n}
+    \overset{p}{\longrightarrow}
+    q_0.
+    \label{eqn:z0-sample-share}
+\]
+
+In addition to the identification assumptions, impose the following regularity conditions:
+
+\begin{enumerate}[label=\textbf{(\arabic*)}]
+
+    \item
+    The observations are independently and identically distributed, or satisfy an appropriate weak-dependence condition.
+
+    \item
+    The outcome has sufficiently many finite moments.
+    For some $\epsilon>0$,
+    \[
+        \E{
+            \left|
+                Y_i
+            \right|^{2+\epsilon}
+        }
+        <
+        \infty.
+    \]
+
+    \item
+    The mediator propensities are bounded away from zero and one over the target population:
+    \[
+        0
+        <
+        \underline p
+        \leq
+        \pi
+        \big(
+            z;
+            \vec X_i^{\mathrm{IV}},
+            \vec X_i^-
+        \big)
+        \leq
+        \overline p
+        <
+        1,
+        \qquad
+        z=0,1.
+    \]
+
+    \item
+    Both treatment-induced propensity-score endpoints lie in the domain of the restricted outcome curve:
+    \[
+        \left[
+            \pi
+            \big(
+                0;
+                \vec X_i^{\mathrm{IV}},
+                \vec X_i^-
+            \big),
+            \pi
+            \big(
+                1;
+                \vec X_i^{\mathrm{IV}},
+                \vec X_i^-
+            \big)
+        \right]
+        \subseteq
+        \mathcal I_0
+        \big(
+            \vec X_i^-
+        \big)
+    \]
+    almost surely.
+
+    \item
+    The population second-moment matrix of the outcome-curve regressors is nonsingular, with its relevant eigenvalues bounded away from zero and infinity.
+
+    \item
+    The restricted outcome curve is sufficiently smooth and can be approximated by the chosen basis with error
+    \[
+        a_K
+        \coloneqq
+        \sup_{
+            p,\vec x^-
+        }
+        \left|
+            m^R
+            \big(
+                p;
+                0,
+                \vec x^-
+            \big)
+            -
+            m_K^R
+            \big(
+                p;
+                0,
+                \vec x^-
+            \big)
+        \right|
+        \longrightarrow
+        0.
+    \]
+
+    \item
+    If the sieve dimension increases, then
+    \[
+        K=K_{n_0}
+        \longrightarrow
+        \infty
+    \]
+    sufficiently slowly for sampling error to vanish and sufficiently quickly for the approximation bias in the endpoint functional to be asymptotically negligible.
+
+    \item
+    The first-stage estimator is uniformly consistent over the relevant support:
+    \[
+        \sup_{
+            z,\vec x^{\mathrm{IV}},\vec x^-
+        }
+        \left|
+            \widehat\pi
+            \big(
+                z;
+                \vec x^{\mathrm{IV}},
+                \vec x^-
+            \big)
+            -
+            \pi
+            \big(
+                z;
+                \vec x^{\mathrm{IV}},
+                \vec x^-
+            \big)
+        \right|
+        \overset{p}{\longrightarrow}
+        0.
+    \]
+
+    \item
+    For asymptotic normality, the first-stage estimator possesses an asymptotically linear representation, and the map from the first-stage propensity score and restricted outcome curve to the averaged endpoint difference is sufficiently smooth.
+
+\end{enumerate}
+
+Under these conditions,
+\[
+    \sup_{
+        p,\vec x^-
+    }
+    \left|
+        \widehat m
+        \big(
+            p;
+            0,
+            \vec x^-
+        \big)
+        -
+        m^R
+        \big(
+            p;
+            0,
+            \vec x^-
+        \big)
+    \right|
+    \overset{p}{\longrightarrow}
+    0
+    \label{eqn:uniform-outcome-curve-consistency}
+\]
+over the mediator-complier domain.
+
+Uniform consistency of the fitted curve and consistency of the estimated endpoint propensities imply
+\[
+    \begin{aligned}
+    &
+    \widehat m
+    \big(
+        \widehat p_{1i};
+        0,
+        \vec X_i^-
+    \big)
+    -
+    \widehat m
+    \big(
+        \widehat p_{0i};
+        0,
+        \vec X_i^-
+    \big)
+    \\
+    &\qquad-
+    \left[
+        m^R
+        \big(
+            p_{1i};
+            0,
+            \vec X_i^-
+        \big)
+        -
+        m^R
+        \big(
+            p_{0i};
+            0,
+            \vec X_i^-
+        \big)
+    \right]
+    \overset{p}{\longrightarrow}
+    0.
+    \end{aligned}
+\]
+
+The law of large numbers therefore gives
+\[
+    \widehat{\operatorname{AIE}}_0(0)
+    \overset{p}{\longrightarrow}
+    \operatorname{AIE}(0).
+    \label{eqn:aie0-estimator-consistency}
+\]
+
+If
+\[
+    \widehat{\operatorname{ATE}}
+    \overset{p}{\longrightarrow}
+    \operatorname{ATE},
+\]
+then
+\[
+    \widehat{\operatorname{ADE}}(1)
+    \overset{p}{\longrightarrow}
+    \operatorname{ADE}(1).
+    \label{eqn:ade1-estimator-consistency}
+\]
+
+The entire estimated outcome curve need not attain a parametric convergence rate.
+The AIE, however, is a scalar functional of the propensity-score function, the restricted outcome curve, and the covariate distribution:
+\[
+    \begin{aligned}
+    \mathcal T_0
+    \big(
+        m,\pi,F_0
+    \big)
+    =
+    \int
+    \Big[
+        &
+        m
+        \big(
+            \pi(1;\vec x);
+            0,
+            \vec x^-
+        \big)
+        \\
+        &-
+        m
+        \big(
+            \pi(0;\vec x);
+            0,
+            \vec x^-
+        \big)
+    \Big]
+    dF_0(\vec x),
+    \end{aligned}
+\]
+where $F_0$ is the covariate distribution in the $Z_i=0$ arm.
+
+Under sufficient smoothness, a negligible sieve-approximation bias, and appropriate regularity of the generated propensity score, this functional admits an asymptotically linear representation:
+\[
+    \widehat{\operatorname{AIE}}_0(0)
+    -
+    \operatorname{AIE}(0)
+    =
+    \frac{1}{n_0}
+    \sum_{i:Z_i=0}
+        \psi_{0i}
+    +
+    o_p
+    \left(
+        n_0^{-1/2}
+    \right).
+    \label{eqn:aie0-asymptotic-linearity}
+\]
+
+The influence function $\psi_{0i}$ contains contributions from:
+
+\begin{enumerate}[label=\textnormal{(\roman*)}]
+    \item sampling variation in the covariate distribution;
+    \item estimation of the restricted outcome curve;
+    \item estimation of the propensity score used as a generated regressor;
+    \item estimation of the two endpoint propensity scores.
+\end{enumerate}
+
+The estimated propensity score has a dual role: it is both a conditioning variable in the restricted outcome regression and the argument at which the fitted outcome curve is evaluated.
+The contribution of both roles must be included in the asymptotic variance \citep{hahn2013asymptotic}.
+
+It follows that
+\[
+    \sqrt{n_0}
+    \left[
+        \widehat{\operatorname{AIE}}_0(0)
+        -
+        \operatorname{AIE}(0)
+    \right]
+    \overset{d}{\longrightarrow}
+    \mathcal N
+    \left(
+        0,
+        V_{\operatorname{AIE}(0)}
+    \right),
+    \label{eqn:aie0-root-n0-normality}
+\]
+where
+\[
+    V_{\operatorname{AIE}(0)}
+    =
+    \Egiven{
+        \psi_{0i}^2
+    }{
+        Z_i=0
+    }.
+\]
+
+Because
+\[
+    \frac{n_0}{n}
+    \overset{p}{\longrightarrow}
+    q_0,
+\]
+the equivalent full-sample normalisation is
+\[
+    \sqrt n
+    \left[
+        \widehat{\operatorname{AIE}}_0(0)
+        -
+        \operatorname{AIE}(0)
+    \right]
+    \overset{d}{\longrightarrow}
+    \mathcal N
+    \left(
+        0,
+        \frac{
+            V_{\operatorname{AIE}(0)}
+        }{
+            q_0
+        }
+    \right).
+    \label{eqn:aie0-root-n-normality}
+\]
+
+Thus, use of the $Z_i=0$ subsample affects the asymptotic variance through the treatment-arm probability but does not change the convergence order when $q_0$ is bounded away from zero.
+
+If the ATE estimator is also asymptotically linear, then
+\[
+    \begin{aligned}
+    \widehat{\operatorname{ADE}}(1)
+    -
+    \operatorname{ADE}(1)
+    ={}&
+    \left[
+        \widehat{\operatorname{ATE}}
+        -
+        \operatorname{ATE}
+    \right]
+    \\
+    &-
+    \left[
+        \widehat{\operatorname{AIE}}(0)
+        -
+        \operatorname{AIE}(0)
+    \right].
+    \end{aligned}
+\]
+The ADE estimator is therefore asymptotically normal, with variance accounting for the sampling variance and covariance of the estimated ATE and AIE.
+
+\subsubsection{Bootstrap Inference}
+
+Inference is implemented using a nonparametric bootstrap that repeats the complete estimation procedure.
+For each bootstrap replication:
+
+\begin{enumerate}[label=\textbf{(\arabic*)}]
+
+    \item
+    Resample observations from the original sample.
+
+    \item
+    Re-estimate the mediator propensity-score model.
+
+    \item
+    Reconstruct the realised propensity scores and the treatment-induced endpoint propensities.
+
+    \item
+    Re-estimate the restricted conditional-outcome curve using the bootstrap $Z_i=0$ subsample.
+
+    \item
+    Evaluate the fitted outcome curve at both endpoint propensity scores.
+
+    \item
+    Average the endpoint differences to estimate $\operatorname{AIE}(0)$.
+
+    \item
+    Re-estimate the ATE.
+
+    \item
+    Construct
+    \[
+        \widehat{\operatorname{ADE}}(1)
+        =
+        \widehat{\operatorname{ATE}}
+        -
+        \widehat{\operatorname{AIE}}(0).
+    \]
+
+\end{enumerate}
+
+Repeating every stage accounts for uncertainty from propensity-score estimation, estimation of the restricted outcome curve, endpoint evaluation, standardisation over the covariate distribution, and estimation of the ATE.
+Under the regularity conditions supporting the asymptotic linear representation, the bootstrap consistently estimates the sampling distributions of the AIE and ADE estimators.
+
+The same procedure applies to estimation of the $Z_i=1$ outcome curve and the resulting estimators of $\operatorname{AIE}(1)$ and $\operatorname{ADE}(0)$.
+
 
 \subsection{Implementation and Further Simulation Evidence}
 \label{appendix:implement}
@@ -1069,29 +2874,29 @@ A number of statistical packages, for the R language \citep{R2023}, made the sim
     \item \textit{Mediate} \citep{tingley2014mediation} automates the sequential quasi-random assignment estimates of CM effects \citep{imai2010identification} in the R language.
 \end{itemize}
 
-\begin{figure}[h!]
-    \caption{OLS versus MTE-based Estimates of CM Effects, varying $\Var{U_{1,i}}$ relative to $\Var{U_{0,i}} = 1$.}
-    \begin{subfigure}[c]{0.475\textwidth}
-        \centering
-        \caption{ADE.}
-        \includegraphics[width=\textwidth]{
-            sections/figures/sigma1-directeffect-bias.png}
-    \end{subfigure}
-    \begin{subfigure}[c]{0.475\textwidth}
-        \centering
-        \caption{AIE.}
-        \includegraphics[width=\textwidth]{
-            sections/figures/sigma1-indirecteffect-bias.png}
-    \end{subfigure}
-    \label{fig:sigma-1-bias}
-    \justify
-    \footnotesize    
-    \textbf{Note:}
-    These figures show the OLS and MTE-based estimates of the ADE and AIE, for $n = 5,000$ sample size.
-    The black dashed line is the true value, points are points estimates from data simulated with a given $\text{Corr}\big(U_{0,i}, U_{1,i}\big) =0.5$, $\Var{U_{0,i}} = 1$, and $\Var{U_{1,i}}^{\frac12}$ varied across $[0, 2]$.
-    Shaded regions are the 95\% confidence intervals;
-    orange are the OLS estimates, green the semi-parametric MTE-based approach.
-\end{figure}
+%\begin{figure}[h!]
+%    \caption{OLS versus MTE-based Estimates of CM Effects, varying $\Var{U_{1,i}}$ relative to $\Var{U_{0,i}} = 1$.}
+%    \begin{subfigure}[c]{0.475\textwidth}
+%        \centering
+%        \caption{ADE.}
+%        \includegraphics[width=\textwidth]{
+%            sections/figures/sigma1-directeffect-bias.png}
+%    \end{subfigure}
+%    \begin{subfigure}[c]{0.475\textwidth}
+%        \centering
+%        \caption{AIE.}
+%        \includegraphics[width=\textwidth]{
+%            sections/figures/sigma1-indirecteffect-bias.png}
+%    \end{subfigure}
+%    \label{fig:sigma-1-bias}
+%    \justify
+%    \footnotesize    
+%    \textbf{Note:}
+%    These figures show the OLS and MTE-based estimates of the ADE and AIE, for $n = 5,000$ sample size.
+%    The black dashed line is the true value, points are points estimates from data simulated with a given $\text{Corr}\big(U_{0,i}, U_{1,i}\big) =0.5$, $\Var{U_{0,i}} = 1$, and $\Var{U_{1,i}}^{\frac12}$ varied across $[0, 2]$.
+%    Shaded regions are the 95\% confidence intervals;
+%    orange are the OLS estimates, green the semi-parametric MTE-based approach.
+%\end{figure}
 
 %\subsection{Further Information on the Oregon Health Insurance Experiment}
 %\label{appendix:oregon}

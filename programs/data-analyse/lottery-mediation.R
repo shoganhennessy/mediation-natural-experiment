@@ -4,7 +4,8 @@
 print(Sys.time())
 set.seed(47)
 
-## Packages:
+## Load packages, in the RENV environment
+renv::load()
 # functions for data manipulation and visualisation
 library(tidyverse)
 # Functions for bootstrapping.

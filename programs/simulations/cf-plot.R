@@ -1,10 +1,11 @@
 #!/usr/bin/R
 ## Senan Hogan-Hennessy, 7 May 2025
-## Plot the estimates for indirect + direct effects, with semiparametric MTE.
+## Plot the estimates for indirect + direct effects, with semi-parametric MTE.
 # Show the date:
 print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 
-## Load libraries
+## Load packages, in the RENV environment
+renv::load()
 # Functions for data manipulation and visualisation
 library(tidyverse)
 # Library for better colour choice.
@@ -128,23 +129,23 @@ direct_dist.plot <- normal.data %>%
         x = 0.45, y = 7,
         fontface = "bold",
         label = ("Conventional CM"),
-        size = 4.25, hjust = 0.5, vjust = 0) +
+        size = 4, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
         x = 0.5, y = 6.875,
         xend = -0.3, yend = 5.25,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Dist of MTE estimates.
-    geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
+    geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     annotate("text", colour = colour.list[2],
-        x = 0.5, y = 2.5,
+        x = 0.4, y = 3.5,
         fontface = "bold",
-        label = ("Parametric MTE"),
-        size = 4.25, hjust = 0.5, vjust = 0) +
+        label = ("Semi-parametric MTE"),
+        size = 4, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[2],
-        x = 0.5, y = 2.375,
+        x = 0.4, y = 3.375,
         xend = 0.25, yend = 1.25,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
@@ -220,20 +221,20 @@ direct_dist.plot <- uniform.data %>%
         xend = -0.3, yend = 5.25,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
-    # Dist of Heckit estimates.
-    geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
-        y = after_stat(density)), adjust = 2,
-        colour = "black", fill = colour.list[2], alpha = 0.75) +
+    ## Dist of Heckit estimates.
+    #geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
+    #    y = after_stat(density)), adjust = 2,
+    #    colour = "black", fill = colour.list[2], alpha = 0.75) +
     # Dist of MTE estimates.
     geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
         y = after_stat(density)), adjust = 2,
-        colour = "black", fill = colour.list[3], alpha = 0.75) +
-    annotate("text", colour = colour.list[3],
+        colour = "black", fill = colour.list[2], alpha = 0.75) +
+    annotate("text", colour = colour.list[2],
         x = 0.4, y = 4,
         fontface = "bold",
         label = ("Semi-parametric MTE"),
         size = 4.25, hjust = 0.5, vjust = 0) +
-    annotate("curve", colour = colour.list[3],
+    annotate("curve", colour = colour.list[2],
         x = 0.5, y = 3.875,
         xend = 0.25, yend = 0.75,
         linewidth = 0.75, curvature = -0.25,
@@ -324,11 +325,11 @@ rho_directeffect_bias.plot <- rho.data %>%
     # MTE est + 95 % CI
     geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
-        fill = colour.list[3], alpha = 0.2) +
+        fill = colour.list[2], alpha = 0.2) +
     geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
-        colour = colour.list[3], linetype = "dashed") +
+        colour = colour.list[2], linetype = "dashed") +
     geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
-        colour = colour.list[3], linetype = "dashed") +
+        colour = colour.list[2], linetype = "dashed") +
     annotate("text", colour = colour.list[3],
         x = -0.5, y = 2.25,
         fontface = "bold",
@@ -388,18 +389,18 @@ rho_indirecteffect_bias.plot <- rho.data %>%
     # MTE est + 95 % CI
     geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
-        fill = colour.list[3], alpha = 0.2) +
+        fill = colour.list[2], alpha = 0.2) +
     geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
-        colour = colour.list[3], linetype = "dashed") +
+        colour = colour.list[2], linetype = "dashed") +
     geom_line(aes(y = (cf_indirect_effect_up)), alpha = 0.5,
-        colour = colour.list[3], linetype = "dashed") +
+        colour = colour.list[2], linetype = "dashed") +
     # Truth:
     geom_line(aes(y = (truth_indirect_effect)),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX(r"(Corr$(U_{i,0}, U_{i,1})$)"),
+        name = TeX(r"(Corr$(U_i(.,0)}, U_i(.,1)$)"),
         expand = c(0, 0),
         breaks = seq(-1, 1, by = 0.25),
         limits = c(-1.025, 1.025)) +
@@ -435,18 +436,18 @@ sigma_1_directeffect_bias.plot <- sigma_1.data %>%
     # MTE est + 95 % CI
     geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
-        fill = colour.list[3], alpha = 0.2) +
+        fill = colour.list[2], alpha = 0.2) +
     geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
-        colour = colour.list[3], linetype = "dashed") +
+        colour = colour.list[2], linetype = "dashed") +
     geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
-        colour = colour.list[3], linetype = "dashed") +
+        colour = colour.list[2], linetype = "dashed") +
     # Truth:
     geom_line(aes(y = truth_direct_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX(r"(Var$(U_{i,1})^{0.5}$)"),
+        name = TeX(r"(Var$(U_i(.,1))^{0.5}$)"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +
@@ -478,18 +479,18 @@ sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
     # MTE est + 95 % CI
     geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
-        fill = colour.list[3], alpha = 0.2) +
+        fill = colour.list[2], alpha = 0.2) +
     geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
-        colour = colour.list[3], linetype = "dashed") +
+        colour = colour.list[2], linetype = "dashed") +
     geom_line(aes(y = (cf_indirect_effect_up)), alpha = 0.5,
-        colour = colour.list[3], linetype = "dashed") +
+        colour = colour.list[2], linetype = "dashed") +
     # Truth:
     geom_line(aes(y = truth_indirect_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX(r"(Var$(U_{i,1})^{0.5}$)"),
+        name = TeX(r"(Var$(U_i(.,1))^{0.5}$)"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +

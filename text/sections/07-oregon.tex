@@ -32,8 +32,8 @@ Additionally, individuals' choice of provider likely depend on neighbourhood-bas
     Panel A shows the estimates of the first-stage propensity to use healthcare in the year following the health insurance experiment.
     It uses a logit specification, controlling for household size and whether losing the lottery $\pi(0; \vec X_i)$, or winning the lottery $\pi(1; \vec X_i)$.
     Average utilisaition after having lost the lottery is roughly $\Egiven{D_i}{Z_i = 0} = \E{\pi(0; \vec X_i)} = 0.715$, and after winning $\Egiven{D_i}{Z_i = 1} = \E{\pi(1; \vec X_i)} = 0.750$.
-    Panel B shows the estimated MTE, using the spline specification in \autoref{sec:semiparametric-mte}.
-    The shaded region refers to the AIE, where the average causal effect is calculated by integrating across the region of mediator compliers, with $\pi(0; \vec X_i) \leq U_i < \pi(1; \vec X_i)$ --- i.e., between 0.715 and 0.750 at the average covariate values.
+    Panel B shows an estimated point-wise Mediator MTE in the lottery loser $Z_i = 0$ subsample, using local IV for the estimation procedure.
+    The shaded region refers to the AIE(0), where the average causal effect is calculated by integrating across the region of mediator compliers, with $\pi(0; \vec X_i) \leq U_i < \pi(1; \vec X_i)$ --- i.e., between 0.715 and 0.750 at the average covariate values.
 \end{figure}
 
 Initial results with unadjusted CM estimates suggest almost no mediating role for healthcare usage; the unadjusted estimates of the AIE are close to zero for both outcomes, contradicting intuitive suggestive evidence.
@@ -50,7 +50,9 @@ These numbers are reported in \autoref{tab:cm-oregon}, where panel A shows the C
     \caption{CM Effect Estimates for Wait-list Lottery Effects on Health and Well-being.}
     \begin{tabular}{l c c c c c}
         \\[-1.8ex]\hline \hline \\[-1.8ex] 
-        & First-stage & ATE & ADE & AIE & AIE / ATE \\
+        %& First-stage & ATE & ADE & AIE & AIE / ATE \\
+        %\textbf {NEW, NEEDS CODE REORDerING}
+        & First-stage & ATE & ADE(1) & AIE(0) & AIE(0) / ATE \\
         \cmidrule(lr){2-6}
         & (1) & (2) & (3) & (4) & (5) \\
         \midrule
@@ -67,7 +69,7 @@ These numbers are reported in \autoref{tab:cm-oregon}, where panel A shows the C
     \footnotesize
     \textbf{Note:}
     This table shows the point estimates (and SEs in brackets) of applying the proposed CM methods to replication data from the Oregon Health Insurance Experiment \citep{icspr2014oregon}.
-    The first-stage column refers to the average effect of winning the wait-list lottery on healthcare usage (mediator first-stage), ATE average effect on surveyed health and well-being, ADE and AIE to respective CM effects through and absent healthcare usage.
+    The first-stage column refers to the average effect of winning the wait-list lottery on healthcare usage (mediator first-stage), ATE average effect on surveyed health and well-being, AIE and ADE to respective CM effects through and absent healthcare usage.
     SEs were calculated with 1,000 bootstrap replications.
     The numbers are pp increases in the binary outcome, so an estimate of 4.7 in row 1 column 1 means an increase in 4.7 pp of using healthcare in the last 12 months after winning the wait-list lottery.
 \end{table}
@@ -83,4 +85,3 @@ Nevertheless, this analysis is subject to notable limitations.
 The IV is not ideal, and potentially more important mediators (such as explicit health insurance status) would require additional IVs beyond the wait-list lottery itself, presenting a challenging identification issue.
 Furthermore, the 95\% confidence intervals for both ADE and AIE estimates (based on bootstrapped SEs) remain large, though statistically significant and excluding zero.
 This uncertainty underscores common challenges in applied CM analyses, where statistical precision can be limited by data constraints.
-%my approach remains honest regarding the statistical uncertainty in gauging exactly how much the mediator mechanism channels explains the average causal effect. 

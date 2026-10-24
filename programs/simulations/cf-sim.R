@@ -6,7 +6,8 @@
 # Show the date:
 print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
 
-## Load libraries
+## Load packages, in the RENV environment
+renv::load()
 # Functions for data manipulation and visualisation
 library(tidyverse)
 # Package for distributions to sample from.
@@ -51,11 +52,13 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
     # Second covariate (instrument for the control function).
     X_IV <- runif(sample.size, -1, 1)
     # Simulate the unobserved error terms.
-    mu.vector <- c(0, 0, 0)
+    mu.vector <- c(0, 0, 0, 0, 0)
     sigma.matrix <- matrix(c(
-        sigma_0^2,               rho * sigma_0 * sigma_1, 0,
-        rho * sigma_0 * sigma_1, sigma_1^2,               0,
-        0,                       0,                       sigma_C^2),
+        sigma_0^2,               rho * sigma_0 * sigma_1, sigma_0^2,               rho * sigma_0 * sigma_1, 0,
+        rho * sigma_0 * sigma_1, sigma_1^2,               rho * sigma_0 * sigma_1, sigma_1^2,               0,
+        sigma_0^2,               rho * sigma_0 * sigma_1, sigma_0^2,               rho * sigma_0 * sigma_1, 0,
+        rho * sigma_0 * sigma_1, sigma_1^2,               rho * sigma_0 * sigma_1, sigma_1^2,               0,
+        0,                       0,                       0,                       0,                       sigma_C^2),
         ncol = 3)
     # Simulate a joint normal, from which a prob integral transform can get
     # any other (potentially correlated) distribution. 
@@ -63,15 +66,19 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
         empirical = FALSE)
     # Get the desired distribution.
     if (error.dist == "normal"){
-        U_0 <- U_all[, 1]
-        U_1 <- U_all[, 2]
-        U_C <- U_all[, 3]
+        U_0_0 <- U_all[, 1]
+        U_0_1 <- U_all[, 2]
+        U_1_0 <- U_all[, 3]
+        U_1_1 <- U_all[, 4]
+        U_C <- U_all[, 5]
     } 
     else if (error.dist == "uniform"){
         # uniform errors (centred on zero), with SD = sigma_0,1,C.
-        U_0 <- (2 * pnorm(U_all[, 1], mean = 0, sd = sigma_0) - 1) * sigma_0 * sqrt(3)
-        U_1 <- (2 * pnorm(U_all[, 2], mean = 0, sd = sigma_1) - 1) * sigma_1 * sqrt(3)
-        U_C <- (2 * pnorm(U_all[, 3], mean = 0, sd = sigma_C) - 1) * sigma_C * sqrt(3)
+        U_0_0 <- (2 * pnorm(U_all[, 1], mean = 0, sd = sigma_0) - 1) * sigma_0 * sqrt(3)
+        U_0_1 <- (2 * pnorm(U_all[, 2], mean = 0, sd = sigma_1) - 1) * sigma_1 * sqrt(3)
+        U_1_0 <- (2 * pnorm(U_all[, 3], mean = 0, sd = sigma_0) - 1) * sigma_0 * sqrt(3)
+        U_1_1 <- (2 * pnorm(U_all[, 4], mean = 0, sd = sigma_1) - 1) * sigma_1 * sqrt(3)
+        U_C <- (2 * pnorm(U_all[, 5], mean = 0, sd = sigma_C) - 1) * sigma_C * sqrt(3)
     }
     else { stop("Choose an error.dist from `normal`, `uniform`.")
     }
@@ -82,11 +89,11 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
     mu_cost_z_X <- function(z, x_minus, x_iv){
         return(- 3 * z + x_minus - x_iv)
     }
-    # Mean outcomes: Y_i(z, d) = mu_d(z; X_i) + U_D
-    Y_0_0 <- mu_outcome_z_d_X(0, 0, X_minus) + U_0
-    Y_0_1 <- mu_outcome_z_d_X(0, 1, X_minus) + U_1
-    Y_1_0 <- mu_outcome_z_d_X(1, 0, X_minus) + U_0
-    Y_1_1 <- mu_outcome_z_d_X(1, 1, X_minus) + U_1
+    # Mean outcomes: Y_i(z, d) = mu_d(z; X_i) + U_z_d
+    Y_0_0 <- mu_outcome_z_d_X(0, 0, X_minus) + U_0_0
+    Y_0_1 <- mu_outcome_z_d_X(0, 1, X_minus) + U_0_1
+    Y_1_0 <- mu_outcome_z_d_X(1, 0, X_minus) + U_1_0
+    Y_1_1 <- mu_outcome_z_d_X(1, 1, X_minus) + U_1_1
     # Roy selection: D_i(z) = 1{ Y(z, 1) - Y(z, 0) >= C_i }
     D_0 <- as.integer(Y_0_1 - Y_0_0 >= mu_cost_z_X(0, X_minus, X_IV) + U_C)
     D_1 <- as.integer(Y_1_1 - Y_1_0 >= mu_cost_z_X(1, X_minus, X_IV) + U_C)
@@ -108,7 +115,7 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
         D_0, D_1,
         Y_0_0, Y_0_1, Y_1_0, Y_1_1,
         #mu0_Z0_X, mu1_Z0_X, mu0_Z1_X, mu1_Z1_X, muC_Z0_X, muC_Z1_X, 
-        U_0, U_1, U_C)
+        U_0_0, U_0_1, U_1_0, U_1_1, U_C)
     # Return the simulated data as a data frame.
     return(combined.data)
 }
@@ -131,8 +138,10 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
     Y_0_1 <- sim.data$Y_0_1
     Y_1_0 <- sim.data$Y_1_0
     Y_1_1 <- sim.data$Y_1_1
-    U_0 <- sim.data$U_0
-    U_1 <- sim.data$U_1
+    U_0_0 <- sim.data$U_0_0
+    U_0_1 <- sim.data$U_0_1
+    U_1_0 <- sim.data$U_1_0
+    U_1_1 <- sim.data$U_1_1
     U_C <- sim.data$U_C
     # Get the true first-stage effects
     first_stage <- D_1 - D_0
@@ -143,13 +152,12 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
         (Y_1_1 - Y_0_1) * (D_1 == 1 & D_0 == 1) +
         (Y_1_0 - Y_0_0) * (D_1 == 0 & D_0 == 0)
     average_total_effect <- mean(total_effect)
-    # Get the theoretical indirect effect.
-    indirect_effect <-
-        (Z * (Y_1_1 - Y_1_0) + (1 - Z) * (Y_0_1 - Y_0_0))
+    # Get the theoretical indirect effect, AIE(0)
+    indirect_effect <- (Y_0_1 - Y_0_0)
     controlled_indirect_effect <- mean(indirect_effect)
     average_indirect_effect <- mean((D_1 == 1 & D_0 == 0) * indirect_effect)
-    # Get the theoretical direct effect.
-    direct_effect <- (D * (Y_1_1 - Y_0_1) + (1 - D) * (Y_1_0 - Y_0_0))
+    # Get the theoretical direct effect, ADE(1)
+    direct_effect <- (Y_1_1 - Y_0_1)
     average_direct_effect <- mean(direct_effect)
     # Show the real underlying values.
     if (print.truth == TRUE){
@@ -164,6 +172,8 @@ theoretical.values <- function(sim.data, digits.no = 3, print.truth = FALSE){
         print(paste0(c("The average first-stage:",     as.numeric(average_first_stage))))
         print(paste0(c("The average direct effect:",   as.numeric(average_direct_effect))))
         print(paste0(c("The average indirect effect:", as.numeric(average_indirect_effect))))
+        U_0 <- (1 - Z) * U_0_0 + Z * U_1_0
+        U_1 <- (1 - Z) * U_0_1 + Z * U_1_1
         print(paste0(c("Cov(V, U_1):", cov(U_C - U_1 + U_0, U_0))))
         print(paste0(c("Cov(V, U_0):", cov(U_C - U_1 + U_0, U_1))))
     }

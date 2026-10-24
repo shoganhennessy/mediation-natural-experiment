@@ -1,5 +1,5 @@
 
-R version 4.5.1 (2025-06-13) -- "Great Square Root"
+R version 4.5.2 (2025-10-31) -- "[Not] Part in a Rumble"
 Copyright (C) 2025 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu
 
@@ -17,20 +17,24 @@ Type 'q()' to quit R.
 
 > #!/usr/bin/R
 > ## Senan Hogan-Hennessy, 7 May 2025
-> ## Plot the estimates for indirect + direct effects, with semiparametric MTE.
+> ## Plot the estimates for indirect + direct effects, with semi-parametric MTE.
 > # Show the date:
 > print(format(Sys.time(), "%H:%M %Z %A, %d %B %Y"))
-[1] "13:04 EDT Wednesday, 08 October 2025"
+[1] "21:33 BST Saturday, 24 October 2026"
 > 
-> ## Load libraries
+> ## Load packages, in the RENV environment
+> renv::load()
+- Project '~/Dropbox/mediation-natural-experiment' loaded. [renv 1.2.0]
+- One or more packages recorded in the lockfile are not installed.
+- Use `renv::status()` for more details.
 > # Functions for data manipulation and visualisation
 > library(tidyverse)
 ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-✔ dplyr     1.1.4     ✔ readr     2.1.5
-✔ forcats   1.0.0     ✔ stringr   1.5.1
-✔ ggplot2   3.5.2     ✔ tibble    3.2.1
-✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-✔ purrr     1.0.4     
+✔ dplyr     1.2.1     ✔ readr     2.2.0
+✔ forcats   1.0.1     ✔ stringr   1.6.0
+✔ ggplot2   4.0.3     ✔ tibble    3.3.1
+✔ lubridate 1.9.5     ✔ tidyr     1.3.2
+✔ purrr     1.2.2     
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
@@ -212,7 +216,7 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > # Save this plot
 > ggsave(file.path(output.folder, "ols-direct-dist.png"),
 +     plot = direct_dist.plot,
-+     units = "cm", width = fig.width, height = fig.height)
++     units = "cm", dpi = 300, width = fig.width, height = fig.height)
 > 
 > # AIE estimates, by type.
 > indirect_dist.plot <- normal.data %>%
@@ -239,7 +243,7 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > # Save this plot
 > ggsave(file.path(output.folder, "ols-indirect-dist.png"),
 +     plot = indirect_dist.plot,
-+     units = "cm", width = fig.width, height = fig.height)
++     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 > 
 > 
 > ################################################################################
@@ -256,23 +260,23 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 +         x = 0.45, y = 7,
 +         fontface = "bold",
 +         label = ("Conventional CM"),
-+         size = 4.25, hjust = 0.5, vjust = 0) +
++         size = 4, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[1],
 +         x = 0.5, y = 6.875,
 +         xend = -0.3, yend = 5.25,
 +         linewidth = 0.75, curvature = -0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
 +     # Dist of MTE estimates.
-+     geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
++     geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
 +         y = after_stat(density)), adjust = 2,
 +         colour = "black", fill = colour.list[2], alpha = 0.75) +
 +     annotate("text", colour = colour.list[2],
-+         x = 0.5, y = 2.5,
++         x = 0.4, y = 3.5,
 +         fontface = "bold",
-+         label = ("Parametric MTE"),
-+         size = 4.25, hjust = 0.5, vjust = 0) +
++         label = ("Semi-parametric MTE"),
++         size = 4, hjust = 0.5, vjust = 0) +
 +     annotate("curve", colour = colour.list[2],
-+         x = 0.5, y = 2.375,
++         x = 0.4, y = 3.375,
 +         xend = 0.25, yend = 1.25,
 +         linewidth = 0.75, curvature = -0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
@@ -294,7 +298,7 @@ dbl (27): truth_direct_effect, truth_indirect_effect, ols_direct_effect, ols...
 > # Save this plot
 > ggsave(file.path(output.folder, "normal-direct-dist.png"),
 +     plot = direct_dist.plot,
-+     units = "cm", width = fig.width, height = fig.height)
++     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 > 
 > # AIE estimates, by type.
 > indirect_dist.plot <- normal.data %>%
@@ -327,7 +331,7 @@ Duplicated aesthetics after name standardisation: adjust
 > # Save this plot
 > ggsave(file.path(output.folder, "normal-indirect-dist.png"),
 +     plot = indirect_dist.plot,
-+     units = "cm", width = fig.width, height = fig.height)
++     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 > 
 > 
 > ################################################################################
@@ -350,20 +354,20 @@ Duplicated aesthetics after name standardisation: adjust
 +         xend = -0.3, yend = 5.25,
 +         linewidth = 0.75, curvature = -0.25,
 +         arrow = arrow(length = unit(0.25, 'cm'))) +
-+     # Dist of Heckit estimates.
-+     geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
-+         y = after_stat(density)), adjust = 2,
-+         colour = "black", fill = colour.list[2], alpha = 0.75) +
++     ## Dist of Heckit estimates.
++     #geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
++     #    y = after_stat(density)), adjust = 2,
++     #    colour = "black", fill = colour.list[2], alpha = 0.75) +
 +     # Dist of MTE estimates.
 +     geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
 +         y = after_stat(density)), adjust = 2,
-+         colour = "black", fill = colour.list[3], alpha = 0.75) +
-+     annotate("text", colour = colour.list[3],
++         colour = "black", fill = colour.list[2], alpha = 0.75) +
++     annotate("text", colour = colour.list[2],
 +         x = 0.4, y = 4,
 +         fontface = "bold",
 +         label = ("Semi-parametric MTE"),
 +         size = 4.25, hjust = 0.5, vjust = 0) +
-+     annotate("curve", colour = colour.list[3],
++     annotate("curve", colour = colour.list[2],
 +         x = 0.5, y = 3.875,
 +         xend = 0.25, yend = 0.75,
 +         linewidth = 0.75, curvature = -0.25,
@@ -387,7 +391,7 @@ Duplicated aesthetics after name standardisation: adjust
 > # Save this plot
 > ggsave(file.path(output.folder, "uniform-direct-dist.png"),
 +     plot = direct_dist.plot,
-+     units = "cm", width = fig.width, height = fig.height)
++     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 > 
 > # AIE estimates, by type.
 > indirect_dist.plot <- uniform.data %>%
@@ -423,7 +427,7 @@ Duplicated aesthetics after name standardisation: adjust
 > # Save this plot
 > ggsave(file.path(output.folder, "uniform-indirect-dist.png"),
 +     plot = indirect_dist.plot,
-+     units = "cm", width = fig.width, height = fig.height)
++     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 > 
 > 
 > ################################################################################
@@ -454,11 +458,11 @@ Duplicated aesthetics after name standardisation: adjust
 +     # MTE est + 95 % CI
 +     geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
 +     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
-+         fill = colour.list[3], alpha = 0.2) +
++         fill = colour.list[2], alpha = 0.2) +
 +     geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
-+         colour = colour.list[3], linetype = "dashed") +
++         colour = colour.list[2], linetype = "dashed") +
 +     geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
-+         colour = colour.list[3], linetype = "dashed") +
++         colour = colour.list[2], linetype = "dashed") +
 +     annotate("text", colour = colour.list[3],
 +         x = -0.5, y = 2.25,
 +         fontface = "bold",
@@ -502,141 +506,7 @@ Duplicated aesthetics after name standardisation: adjust
 > # Save this plot
 > ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
 +     plot = rho_directeffect_bias.plot, dpi = 300,
-+     units = "cm", width = fig.width, height = fig.height)
-> 
-> # Plot the bias in indirect effect est vs rho
-> rho_indirecteffect_bias.plot <- rho.data %>%
-+     ggplot(aes(x = rho)) +
-+     # OLS est + 95 % CI
-+     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
-+     geom_ribbon(aes(ymin = ols_indirect_effect_low, ymax = ols_indirect_effect_up),
-+         fill = colour.list[1], alpha = 0.2) +
-+     geom_line(aes(y = (ols_indirect_effect_low)), alpha = 0.5,
-+         colour = colour.list[1], linetype = "dashed") +
-+     geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
-+         colour = colour.list[1], linetype = "dashed") +
-+     # MTE est + 95 % CI
-+     geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
-+     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
-+         fill = colour.list[3], alpha = 0.2) +
-+     geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
-+         colour = colour.list[3], linetype = "dashed") +
-+     geom_line(aes(y = (cf_indirect_effect_up)), alpha = 0.5,
-+         colour = colour.list[3], linetype = "dashed") +
-+     # Truth:
-+     geom_line(aes(y = (truth_indirect_effect)),
-+         colour = "black", linetype = "dashed", linewidth = 1) +
-+     # Presentation options
-+     theme_bw() +
-+     scale_x_continuous(
-+         name = TeX(r"(Corr$(U_{i,0}, U_{i,1})$)"),
-+         expand = c(0, 0),
-+         breaks = seq(-1, 1, by = 0.25),
-+         limits = c(-1.025, 1.025)) +
-+     scale_y_continuous(name = "",
-+         breaks = seq(0, 2.5, by = 0.25),
-+         limits = c(0, 2.5),
-+         expand = c(0.01, 0.01)) +
-+     ggtitle("Estimate") +
-+     theme(plot.title = element_text(hjust = 0, size = rel(1)),
-+         plot.title.position = "plot",
-+         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
-+         axis.title.x = element_text(vjust = -0.25))
-> # Save this plot
-> ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
-+     plot = rho_indirecteffect_bias.plot, dpi = 300,
-+     units = "cm", width = fig.width, height = fig.height)
-> 
-> 
-> ################################################################################
-> ## Plot the MTE effect estimates, by OLS + MTE, different $\sigma_1$ values.
-> 
-> # Plot the bias in direct effect est vs sigma_1
-> sigma_1_directeffect_bias.plot <- sigma_1.data %>%
-+     ggplot(aes(x = sigma_1)) +
-+     # OLS est + 95 % CI
-+     geom_point(aes(y = ols_direct_effect), colour = colour.list[1]) +
-+     geom_ribbon(aes(ymin = ols_direct_effect_low, ymax = ols_direct_effect_up),
-+         fill = colour.list[1], alpha = 0.2) +
-+     geom_line(aes(y = (ols_direct_effect_low)), alpha = 0.5,
-+         colour = colour.list[1], linetype = "dashed") +
-+     geom_line(aes(y = (ols_direct_effect_up)), alpha = 0.5,
-+         colour = colour.list[1], linetype = "dashed") +
-+     # MTE est + 95 % CI
-+     geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
-+     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
-+         fill = colour.list[3], alpha = 0.2) +
-+     geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
-+         colour = colour.list[3], linetype = "dashed") +
-+     geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
-+         colour = colour.list[3], linetype = "dashed") +
-+     # Truth:
-+     geom_line(aes(y = truth_direct_effect),
-+         colour = "black", linetype = "dashed", linewidth = 1) +
-+     # Presentation options
-+     theme_bw() +
-+     scale_x_continuous(
-+         name = TeX(r"(Var$(U_{i,1})^{0.5}$)"),
-+         expand = c(0, 0),
-+         breaks = seq(0, 2, by = 0.25),
-+         limits = c(-0.02, 2.02)) +
-+     scale_y_continuous(name = "",
-+         breaks = seq(0, 2.5, by = 0.25),
-+         limits = c(0, 2.5),
-+         expand = c(0.01, 0.01)) +
-+     ggtitle("Estimate") +
-+     theme(plot.title = element_text(hjust = 0, size = rel(1)),
-+         plot.title.position = "plot",
-+         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
-+         axis.title.x = element_text(vjust = -0.25))
-> # Save this plot
-> ggsave(file.path(output.folder, "sigma1-directeffect-bias.png"),
-+     plot = sigma_1_directeffect_bias.plot, dpi = 300,
-+     units = "cm", width = fig.width, height = fig.height)
-> 
-> # Plot the bias in indirect effect est vs sigma_1
-> sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
-+     ggplot(aes(x = sigma_1)) +
-+     # Ols est + 95% CI
-+     geom_point(aes(y = ols_indirect_effect), colour = colour.list[1]) +
-+     geom_ribbon(aes(ymin = ols_indirect_effect_low, ymax = ols_indirect_effect_up),
-+         fill = colour.list[1], alpha = 0.2) +
-+     geom_line(aes(y = (ols_indirect_effect_low)), alpha = 0.5,
-+         colour = colour.list[1], linetype = "dashed") +
-+     geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
-+         colour = colour.list[1], linetype = "dashed") +
-+     # MTE est + 95 % CI
-+     geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
-+     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
-+         fill = colour.list[3], alpha = 0.2) +
-+     geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
-+         colour = colour.list[3], linetype = "dashed") +
-+     geom_line(aes(y = (cf_indirect_effect_up)), alpha = 0.5,
-+         colour = colour.list[3], linetype = "dashed") +
-+     # Truth:
-+     geom_line(aes(y = truth_indirect_effect),
-+         colour = "black", linetype = "dashed", linewidth = 1) +
-+     # Presentation options
-+     theme_bw() +
-+     scale_x_continuous(
-+         name = TeX(r"(Var$(U_{i,1})^{0.5}$)"),
-+         expand = c(0, 0),
-+         breaks = seq(0, 2, by = 0.25),
-+         limits = c(-0.02, 2.02)) +
-+     scale_y_continuous(name = "",
-+         breaks = seq(0, 2.5, by = 0.25),
-+         limits = c(0, 2.5),
-+         expand = c(0.01, 0.01)) +
-+     ggtitle("Estimate") +
-+     theme(plot.title = element_text(hjust = 0, size = rel(1)),
-+         plot.title.position = "plot",
-+         plot.margin = unit(c(0.5, 3, 1.5, 0.25), "mm"),
-+         axis.title.x = element_text(vjust = -0.25))
-> # Save this plot
-> ggsave(file.path(output.folder, "sigma1-indirecteffect-bias.png"),
-+     plot = sigma_1_indirecteffect_bias.plot, dpi = 300,
-+     units = "cm", width = fig.width, height = fig.height)
-> 
-> proc.time()
-   user  system elapsed 
-  7.116   0.237   7.846 
++     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
+Error in ggsave(file.path(output.folder, "rho-directeffect-bias.png"),  : 
+  formal argument "dpi" matched by multiple actual arguments
+Execution halted
