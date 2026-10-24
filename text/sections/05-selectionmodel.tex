@@ -152,14 +152,13 @@ Assume it is finite for all values, and is absolutely continuous and its derivat
     + (1-p) g_{z,0}(p)
     + p g_{z,1}(p), \]
     for each $p \in \mathcal P_{z} \left(\vec X_i^- \right)$ and $z=0,1$.
-    $alpha, \beta, \gamma, \delta$ are the same parameters as in \autoref{sec:applied}, and $g_{z,0}, g_{z,1}$ are the CFs defined above (with an assumed restricted shape).
-
+    $\alpha, \beta, \gamma, \delta$ are the same parameters as in \autoref{sec:applied}, and $g_{z,0}, g_{z,1}$ are the CFs defined above (with an assumed restricted shape).
     Furthermore, the average Mediator MTE is point-wise identified on the propensity score support, as the difference between conditional means
     \[ m\big(p'; z, \vec X_i^-\big) - m\big(p\,; z, \vec X_i^-\big)
     = \int_p^{p'} \operatorname{MTE}(u; z, \vec X_i^-) \,du, \]
     for any $p<p'$ such that
     $\big[ p,p' \big] \subseteq \mathcal P_z(\vec X_i^-)$, and $z = 0,1$.
-    Proof: see \appendixref{appendix:mte-secondstage}.
+    Proof: see \appendixref{appendix:mte-ade-aie}.
 \end{proposition}
 
 The mean difference of the mediator MTE is identified under the \ref{thm:mte-identification} assumptions, thanks to instrumental variation in $\vec X_i^{\text{IV}}$.

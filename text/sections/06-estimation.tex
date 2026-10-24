@@ -224,8 +224,8 @@ Suppose data observed to the researcher $Z_i, D_i, Y_i, \vec X_i$ are drawn from
 $n = 5,000$ for this simulation.
 \[ Z_i \sim \text{Binom}\left(0.5 \right),
     \;\; \vec X_i^- \sim N(4, 1),
-    \;\; \vec X_i^{\text{IV}} \sim \text{Uniform}\left( -1, 1 \right),
-    \;\; \left( U_i,(0,0), U_i(0,1), U_i(1,0), U_i(1,1), U_{C,i} \right) \sim
+    \;\; \vec X_i^{\text{IV}} \sim \text{Uniform}\left( -1, 1 \right), \]
+\[ \left( U_i,(0,0), U_i(0,1), U_i(1,0), U_i(1,1), U_{C,i} \right) \sim
     N\left( \vec 0, \mat \Sigma \right) \]
 $\mat \Sigma$ is the matrix of parameters which controls the level of confounding from unobserved costs and benefits.\footnote{
     The correlation and relative standard deviations for $U_i(.,0), U_i(.,1)$ affect how large selection bias in conventional CM estimates; correlation for these with unobserved costs $U_{C,i}$ does not particularly matter, though increased variance in unobserved costs makes estimates less precise for both OLS and MTE methods.
