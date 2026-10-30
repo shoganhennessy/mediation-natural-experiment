@@ -289,7 +289,7 @@ mediate.semiparametric <- function(example.data,
     #    method = "REML", data = outcome_Z0.data)
     #iv.degree <- length(unique(outcome_Z0.data$pi.est)) - 1
     cf_outcome_Z0.reg <- lm(
-        Y ~ 1 + X_minus + poly(pi.est, degree = 6),
+        Y ~ 1 + X_minus + poly(pi.est, degree = 5),
         data = outcome_Z0.data)
     # 5. Evaluate the same Z = 0 outcome curve at both endpoint propensities.
     predict_pi0.data <- endpoint_Z0.data
