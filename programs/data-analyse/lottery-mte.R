@@ -75,8 +75,14 @@ mte.data$initial_health_location <- factor(
 #   D_i = any_healthcare
 #   excluded mediator IV = initial_health_location
 mediator.firststage.reg <- glm(any_healthcare ~
-    1 + lottery_iv * hh_size * initial_health_location,
-    family = quasibinomial(link = "logit"),
+    1 + lottery_iv + hh_size + initial_health_location +
+    initial_dia_diagnosis +
+    initial_ast_diagnosis +
+    initial_hbp_diagnosis +
+    initial_emp_diagnosis +
+    initial_chf_diagnosis +
+    initial_dep_diagnosis,
+    family = quasibinomial(link = "probit"),
     weights = survey_weight,
     data = mte.data)
 mte.data$pi.est <- fitted(mediator.firststage.reg)
@@ -96,11 +102,11 @@ pi.plot <- mte.data %>%
         colour = "black",
         alpha = 0.75) +
     theme_bw() +
-    scale_x_continuous(expand = c(0.01, 0.01),
-        limits = c(0.4, 0.85),
+    scale_x_continuous(expand = c(0, 0),
+        limits = c(0.25, 1.05),
         #name = TeX(r"(Unobserved Cost to Healthcare Utilisation, \textit{$U_i$})"),
         name = TeX(r"(Estimated Healthcare Utilisation Propensity, \textit{$pi(z; \textbf{X}_i)$})"),
-        breaks = seq(0, 1, by = 0.1)) +
+        breaks = seq(0, 1, by = 0.2)) +
     scale_y_continuous(expand = c(0.001, 0, 0.1, 0),
         name = "") +
     ggtitle(TeX(r"(Observations, \textit{$n$})")) +
@@ -108,7 +114,7 @@ pi.plot <- mte.data %>%
         plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0.5, 3, 0, 0), "mm")) +
-    facet_wrap(~ healthcare_label) 
+    facet_wrap(~ healthcare_label)
 # Save the resulting figure.
 ggsave(file.path(figures.folder, "oregon-pi-est.png"),
     plot = pi.plot,
@@ -118,123 +124,87 @@ ggsave(file.path(figures.folder, "oregon-pi-est.png"),
 ################################################################################
 ## Local IV MTE curve for healthcare utilisation.
 
+# Local Iv package
 library(localIV)
+localiv.bandwidth <- 0.2
 
-mod <- mte(
-    selection = any_healthcare ~ 1 + lottery_iv + hh_size +
-        initial_health_location,
-    outcome = Y_happy ~ 1 + lottery_iv + hh_size,
+# Estimate MTE by Local IV
+health.mte <- mte(
+    selection = any_healthcare ~
+        1 + lottery_iv + hh_size + initial_health_location +
+        initial_dia_diagnosis +
+        initial_ast_diagnosis +
+        initial_hbp_diagnosis +
+        initial_emp_diagnosis +
+        initial_chf_diagnosis +
+        initial_dep_diagnosis,
+    outcome = Y_health ~ 
+        1 + lottery_iv + hh_size +
+        initial_dia_diagnosis +
+        initial_ast_diagnosis +
+        initial_hbp_diagnosis +
+        initial_emp_diagnosis +
+        initial_chf_diagnosis +
+        initial_dep_diagnosis,
     method = "localIV",
     data = mte.data,
-    bw = 0.1)
-# fitted propensity score model
-summary(mod$ps_model)
-mte_vals <- mte_at(u = seq(0.3, 0.95, 0.01), model = mod)
+    bw = localiv.bandwidth)
+# fitted model
+health_mte.data <- mte_at(u = seq(0.25, 0.95, 0.01), model = health.mte)
 
-# SHow the Local IV MTE(u) curve
-localiv.plot <- ggplot(mte_vals, aes(x = u, y = value)) +
-  geom_line(size = 1) +
-  xlab("Latent Resistance U") +
-  ylab("Estimates of MTE at Average values of X") +
-  theme_minimal(base_size = 14)
-
-
-################################################################################
-## Estimate a restricted MTE curve for healthcare utilisation.
-
-# Estimate GAM outcome equation for health well-being
-health.gam <- gam(Y_health ~ 1 + lottery_iv * hh_size +
-    s(pi.est, bs = "cr"),
-    weights = survey_weight,
-    method = "REML",
-    data = mte.data)
-print(summary(health.gam))
-plot(health.gam, pages = 1, shade = TRUE)
-
-# Estimate GAM outcome equation for happiness.
-happy.gam <- gam(Y_happy ~ 1 + lottery_iv * hh_size +
-    s(pi.est, bs = "cr"),
-    weights = survey_weight,
-    method = "REML",
-    data = mte.data)
-print(summary(happy.gam))
-plot(happy.gam, pages = 1, shade = TRUE)
-
-# Recover MTE curve from numerical derivative of the GAM.
-alpha <- 0.05
-p.lower <- quantile(mte.data$pi.est, alpha / 2, na.rm = TRUE)
-p.upper <- quantile(mte.data$pi.est, 1 - alpha / 2, na.rm = TRUE)
-p.grid <- seq(p.lower, p.upper, length.out = 100)
-
-# Small perturbation for central finite differences.
-eps <- 0.001 * (p.upper - p.lower)
-mte.health.grid <- data.frame(
-    pi.est = p.grid,
-    mte = NA_real_)
-mte.happy.grid <- data.frame(
-    pi.est = p.grid,
-    mte = NA_real_)
-
-# Operate the grid
-for (j in 1:NROW(p.grid)){
-    data.plus <- mte.data
-    data.minus <- mte.data
-    data.plus$pi.est <- p.grid[j] + eps
-    data.minus$pi.est <- p.grid[j] - eps
-    # Project the pi predictions around the epsilon neighbourhood
-    health.plus <- predict(health.gam,
-        newdata = data.plus,
-        type = "response")
-    health.minus <- predict(health.gam,
-        newdata = data.minus,
-        type = "response")
-    happy.plus <- predict(happy.gam,
-        newdata = data.plus,
-        type = "response")
-    happy.minus <- predict(happy.gam,
-        newdata = data.minus,
-        type = "response")
-    # Calculate the implied slope.
-    mte.health.grid$mte[j] <- weighted.mean(
-        (health.plus - health.minus) / (2 * eps),
-        w = mte.data$survey_weight,
-        na.rm = TRUE)
-    mte.happy.grid$mte[j] <- weighted.mean(
-        (happy.plus - happy.minus) / (2 * eps),
-        w = mte.data$survey_weight,
-        na.rm = TRUE)
-}
+# Estimate MTE by Local IV
+happy.mte <- mte(
+    selection = any_healthcare ~
+        1 + lottery_iv + hh_size + initial_health_location +
+        initial_dia_diagnosis +
+        initial_ast_diagnosis +
+        initial_hbp_diagnosis +
+        initial_emp_diagnosis +
+        initial_chf_diagnosis +
+        initial_dep_diagnosis,
+    outcome = Y_happy ~ 
+        1 + lottery_iv + hh_size +
+        initial_dia_diagnosis +
+        initial_ast_diagnosis +
+        initial_hbp_diagnosis +
+        initial_emp_diagnosis +
+        initial_chf_diagnosis +
+        initial_dep_diagnosis,
+    method = "localIV",
+    data = mte.data,
+    bw = localiv.bandwidth)
+# fitted model
+happy_mte.data <- mte_at(u = seq(0.25, 0.95, 0.01), model = happy.mte)
 
 # Collect the outcomes in the grids.
-mte.health.grid <- mte.health.grid %>%
+mte.health.grid <- health_mte.data %>%
     mutate(outcome_name = "Health overall good?")
-mte.happy.grid <- mte.happy.grid %>%
+mte.happy.grid <- happy_mte.data %>%
     mutate(outcome_name = "Happy overall?")
-mte.gam.plot.data <- bind_rows(
-    mte.health.grid,
-    mte.happy.grid)
+mte_plot.data <- bind_rows(mte.health.grid, mte.happy.grid)
 
 # Calculate the extrapolation region
 pi0 <- mean(mte.data$any_healthcare[mte.data$lottery_iv == 0])
 pi1 <- mean(mte.data$any_healthcare[mte.data$lottery_iv == 1])
 
-# Plot the GAM-based MTE curves.
-mte.plot <- mte.gam.plot.data %>%
-    mutate(mte.fill = ifelse(pi0 <= pi.est & pi.est <= pi1, mte, NA)) %>%
-    ggplot(aes(x = pi.est)) +
-    geom_line(aes(y = mte, colour = outcome_name), linewidth = 1.5) +
+# Plot the MTE curves.
+mte.plot <- mte_plot.data %>%
+    mutate(mte.fill = ifelse(pi0 <= u & u <= pi1, value, NA)) %>%
+    ggplot(aes(x = u)) +
+    geom_line(aes(y = value, colour = outcome_name), linewidth = 1.5) +
     geom_ribbon(aes(ymin = 0, ymax = mte.fill, fill = outcome_name), alpha = 0.35) +
-    geom_hline(yintercept = 0, linetype = "dashed") +
+    #geom_hline(yintercept = 0, linetype = "dashed") +
     theme_bw() +
     scale_x_continuous(expand = c(0.01, 0.01),
-        limits = c(0.4, 0.825),
+        limits = c(0.3, 1),
         name = TeX(r"(Unobserved Cost to Healthcare Utilisation, \textit{$U_i$})"),
-        breaks = seq(0, 1, by = 0.1)) +
+        breaks = seq(0, 1, by = 0.2)) +
     scale_y_continuous(expand = c(0.001, 0, 0.1, 0),
-        breaks = seq(0, 1, by = 0.05),
+        limits = c(0, 0.75),
+        breaks = seq(0, 1, by = 0.1),
         name = "") +
-    ggtitle(TeX(r"(MTE estimate, \textit{E$[ Y_i(1) - Y_i(0) \; | \; U_i \, ]$})")) +
-    theme(legend.position = c(0.25, 0.75),
+    ggtitle(TeX(r"(Local IV Point Estimate)")) +
+    theme(legend.position = c(0.75, 0.96),
         legend.title = element_blank(),
         plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",

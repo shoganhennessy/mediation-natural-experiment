@@ -6,6 +6,13 @@
 # Note:
 # "R CMD BATCH" runs an Rscript, and logs output in a corresponding *.Rout file.
 
+## Enact simulation evidence, and figures.
+cd simulations
+# Run the semi-parametric simulation, and plot its results
+R CMD BATCH --no-save cf-sim.R
+R CMD BATCH --no-save cf-plot.R
+# R CMD BATCH --no-save cf-sim.R & disown ; watch tail --lines=52 cf-sim.Rout
+
 ## Analyse Oregon Health Insurance Experiment (Finkelstein+ 2012) data. 
 # Extract data
 cd data-build
@@ -16,15 +23,9 @@ cd ..
 cd data-analyse
 R CMD BATCH --no-save lottery-effect.R
 R CMD BATCH --no-save lottery-mediation.R
+R CMD BATCH --no-save lottery-mte.R
 # R CMD BATCH --no-save lottery-mediation.R & disown ; watch tail --lines=52 lottery-mediation.Rout
 cd ..
-
-## Enact simulation evidence, and figures.
-cd simulations
-# Run the semi-parametric simulation, and plot its results
-R CMD BATCH --no-save cf-sim.R
-R CMD BATCH --no-save cf-plot.R
-# R CMD BATCH --no-save cf-sim.R & disown ; watch tail --lines=52 cf-sim.Rout
 
 # Go back to base folder.
 cd ..

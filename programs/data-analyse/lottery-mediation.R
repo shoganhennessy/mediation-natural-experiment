@@ -1,26 +1,24 @@
 #!/usr/bin/R
-## Senan Hogan-Hennessy, 11 July 2025.
-## Script to to extract relevant data from Oregon Health Insurance rep package.
+## Senan Hogan-Hennessy, 5 November 2026.
+## Estimate CM effects in the Oregon Health Insurance Experiment.
+## Updated to identify AIE(0) from the Z = 0 conditional-outcome curve,
+## then estimate ADE(1) = ATE - AIE(0).
 print(Sys.time())
 set.seed(47)
 
 ## Load packages, in the RENV environment
 renv::load()
-# functions for data manipulation and visualisation
+# Functions for data manipulation and visualisation.
 library(tidyverse)
-# Functions for bootstrapping.
+# Functions for bootstrapping and applied regressions.
 library(boot)
 library(fixest)
-# Package forsemi-parametric MTE by splines.
-library(mgcv)
-library(splines)
 # Library for better colour choice.
 library(ggthemes)
 # Library for equations in plots
 library(latex2exp)
 # Package for LaTeX tables
 library(xtable)
-
 
 # Define folder paths (1) input data (2) clean data.
 data.folder <- file.path("..", "..", "data", "oregon-lottery-icspr")
@@ -55,7 +53,7 @@ analysis.data$hh_size <- factor(analysis.data$hh_size)
 analysis.data$initial_health_location <- factor(
     analysis.data$initial_health_location)
 
-# List all the observed control variables
+# List all the observed control variables.
 diagnosis.list <- c(
     "initial_dia_diagnosis",
     "initial_ast_diagnosis",
@@ -68,350 +66,294 @@ nocontrols.list <- "hh_size"
 
 
 ################################################################################
-## Define the functions to use.
+## Define the estimation functions.
 
-# Estimate the values, given a first and second-stages
-estimated.values <- function(firststage.reg, secondstage.reg, totaleffect.reg,
-    data, complier.adjustment = NULL){
-    ### Inputs:
-    ## data, a data frame simulated from above.
-    input_Z0.data <- data
-    input_Z1.data <- data
+# Create counterfactual treatment copies for prediction.
+treatment.copies <- function(example.data){
+    example_Z0.data <- example.data
+    example_Z1.data <- example.data
+    example_Z0.data$Z <- 0
+    example_Z1.data$Z <- 1
+    return(list(Z0 = example_Z0.data, Z1 = example_Z1.data))
+}
+
+# Summarise whether endpoint propensity scores lie in the observed Z = 0 range.
+# With the categorical IV, the restricted polynomial and rank condition provide
+# identification. These quantities remain useful warnings about extrapolation.
+support.summary <- function(pi_realised_Z0, pi_0_Z0, pi_1_Z0){
+    support.lower <- min(pi_realised_Z0, na.rm = TRUE)
+    support.upper <- max(pi_realised_Z0, na.rm = TRUE)
+    endpoint.lower <- pmin(pi_0_Z0, pi_1_Z0)
+    endpoint.upper <- pmax(pi_0_Z0, pi_1_Z0)
+    return(list(
+        support.lower = support.lower,
+        support.upper = support.upper,
+        share.pi0.in.support = mean(pi_0_Z0 >= support.lower &
+            pi_0_Z0 <= support.upper, na.rm = TRUE),
+        share.pi1.in.support = mean(pi_1_Z0 >= support.lower &
+            pi_1_Z0 <= support.upper, na.rm = TRUE),
+        share.interval.in.support = mean(endpoint.lower >= support.lower &
+            endpoint.upper <= support.upper, na.rm = TRUE)))
+}
+
+# Estimate mediation without correcting for selection into the mediator.
+mediate.unadjusted <- function(Y, Z, D, X_iv, data,
+        X_minus = NULL, indices = NULL){
+    # Bootstrap sample, if indices are provided.
+    if (!is.null(indices)){
+        data <- data[indices, ]
+    }
+    # Make the names consistent.
+    data$Y <- data[[Y]]
+    data$Z <- data[[Z]]
+    data$D <- data[[D]]
+    # Define the estimating equations.
+    total.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus))
+    firststage.formula <- formula(paste0(
+        "D ~ 1 + Z * (", X_iv, ") + ", X_minus))
+    secondstage.formula <- formula(paste0(
+        "Y ~ 1 + Z * D + ", X_minus))
+    # Counterfactual copies.
+    copies <- treatment.copies(data)
+    input_Z0.data <- copies$Z0
+    input_Z1.data <- copies$Z1
     input_D0.data <- data
     input_D1.data <- data
-    input_Z0.data$Z <- 0
-    input_Z1.data$Z <- 1
     input_D0.data$D <- 0
     input_D1.data$D <- 1
-    # calculate the first-stage by prediction
-    firststage.est <- predict(
-        firststage.reg, newdata = input_Z1.data, type = "response") - predict(
-            firststage.reg, newdata = input_Z0.data, type = "response")
-    # Calculate the total effect estimate by prediction.
-    totaleffect.est <- predict(
-        totaleffect.reg, newdata = input_Z1.data) - predict(
-            totaleffect.reg, newdata = input_Z0.data)
-    # calculate the second-stage direct effect
-    direct.est <- predict(
-        secondstage.reg, newdata = input_Z1.data) - predict(
-            secondstage.reg, newdata = input_Z0.data)
-    # calculate the second-stage (controlled) indirect effect
-    indirect.est <- predict(
+    # Count estimated coefficients.
+    count.coef <- 0
+    # 0. Total effect regression.
+    totaleffect.reg <- lm(total.formula, data = data)
+    totaleffect.est <- mean(
+        predict(totaleffect.reg, newdata = input_Z1.data) -
+        predict(totaleffect.reg, newdata = input_Z0.data),
+        na.rm = TRUE)
+    count.coef <- count.coef + length(totaleffect.reg$coefficients)
+    # 1. Mediator first stage.
+    firststage.reg <- glm(
+        firststage.formula,
+        family = binomial(link = "probit"),
+        data = data)
+    pi_0.est <- predict(firststage.reg, newdata = input_Z0.data,
+        type = "response")
+    pi_1.est <- predict(firststage.reg, newdata = input_Z1.data,
+        type = "response")
+    pi.bar <- mean(pi_1.est - pi_0.est, na.rm = TRUE)
+    count.coef <- count.coef + length(firststage.reg$coefficients)
+    # 2. Naive outcome regression.
+    secondstage.reg <- lm(secondstage.formula, data = data)
+    count.coef <- count.coef + length(secondstage.reg$coefficients)
+    mediator.effect.0 <- predict(
         secondstage.reg, newdata = input_D1.data) - predict(
             secondstage.reg, newdata = input_D0.data)
-    # Add the Kline Walters (2019) IV-type complier adjustment (provided externally).
-    if (!is.null(complier.adjustment)) {
-        indirect.est <- indirect.est + complier.adjustment
-    }
-    # Return the mean estimates.
-    output.list <- list(
-        "first-stage"     = mean(firststage.est, na.rm = TRUE),
-        "total-effect"    = mean(totaleffect.est, na.rm = TRUE),
-        "direct-effect"   = mean(direct.est, na.rm = TRUE),
-        "indirect-effect" = mean(firststage.est * indirect.est, na.rm = TRUE))
-    # Return the output.list
-    return(output.list)
-}
-
-# Define a function to estimate mediation, in two-stages (no adjustment).
-mediate.unadjusted <- function(Y, Z, D, X_iv, data,
-    X_minus = NULL, control_iv = NULL, indices = NULL){
-    # Bootstrap sample, if indices provided.
-    if (!is.null(indices)){
-        data <- data[indices, ]
-    }
-    # Make the names consistent
-    data$Y <- data[[Y]]
-    data$Z <- data[[Z]]
-    data$D <- data[[D]]
-    total.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus, " + ", X_iv))
-    firststage.formula <- formula(paste0("D ~ 1 + Z * (", X_iv, ") +", X_minus))
-    secondstage.formula <- formula(paste0("Y ~ 1 + Z * D + ", X_minus, " + ", X_iv))
-    # Start counting coefficients estimated.
-    count.coef <- 0
-    # 0. Total effect regression.
-    totaleffect.reg <- lm(total.formula, data = data)
-    count.coef <- count.coef + length(totaleffect.reg$coefficients)
-    # 1. Regular first-stage (well identified).
-    firststage.reg <- lm(firststage.formula, data = data)
-    count.coef <- count.coef + length(firststage.reg$coefficients)
-    # 2. Estimate second-stage (naive case has no MTEs).
-    unadjusted_secondstage.reg <- lm(secondstage.formula, data = data)
-    count.coef <- count.coef + length(unadjusted_secondstage.reg$coefficients)
-    # Compile the estimates.
-    unadjusted.est <- estimated.values(
-        firststage.reg, unadjusted_secondstage.reg,
-        totaleffect.reg, data,
-        complier.adjustment = NULL)
-    # Return the off-setting estimates.
-    output.list <- c(
-        unadjusted.est$"first-stage",
-        unadjusted.est$"total-effect",
-        unadjusted.est$"direct-effect",
-        unadjusted.est$"indirect-effect",
-        count.coef)
-    return(output.list)
-}
-
-#! Test it out, with the specification I want.
-mediate.est <- mediate.unadjusted(
-    Y = "Y_health", Z = "lottery_iv", D = "any_insurance",
-    X_iv = "initial_health_location",
-    X_minus = controls.list,
-    analysis.data)# %>% sample_frac(prop = 1, replace = TRUE))
-print(mediate.est)
-
-## Define a function to Heckman selection correct mediation est, in two-stages.
-# First the Mills ratio selection correction term(s)
-mills.ratio <- function(pi.est){
-    # Inv Mills ratio, taking as input the estimated mediator propensity.
-    return(dnorm(qnorm(pi.est)) / pnorm(qnorm(pi.est)))
-    }
-# The two-stage mediation model.
-mediate.heckit <- function(Y, Z, D, X_iv, data,
-    X_minus = NULL, indices = NULL){
-    # Bootstrap sample, if indices provided.
-    if (!is.null(indices)){
-        data <- data[indices, ]
-    }
-    # Make the names consistent
-    data$Y <- data[[Y]]
-    data$Z <- data[[Z]]
-    data$D <- data[[D]]
-    total.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus))
-    firststage.formula <- formula(paste0("D ~ 1 + Z * (", X_iv, ") +", X_minus))
-    secondstage.formula <- formula(paste0("Y ~ 1 + Z * D + ", X_minus,
-        " + lambda_0 + lambda_1"))
-    # Start counting coefficients estimated.
-    count.coef <- 0
-    # 0. Total effect regression.
-    totaleffect.reg <- lm(total.formula, data = data)
-    count.coef <- count.coef + length(totaleffect.reg$coefficients)
-    # 1. Probit first-stage (well identified).
-    heckit_firststage.reg <- glm(firststage.formula,
-        family = binomial(link = "probit"),
-        data = data)
-    count.coef <- count.coef + length(heckit_firststage.reg$coefficients)
-    # 2. Define the MTEs --- for assumed N(0,1) dist.
-    pi.est <- predict(heckit_firststage.reg, type = "response")
-    data$lambda_0 <- (1 - data$D) * mills.ratio(pi.est) * (
-        - pi.est / (1 - pi.est))
-    data$lambda_1 <- data$D * mills.ratio(pi.est)
-    # 3. Estimate second-stage, including the MTEs.
-    heckit_secondstage.reg <- lm(secondstage.formula, data = data)
-    count.coef <- count.coef + length(heckit_secondstage.reg$coefficients)
-    # Compensate complier difference in AIE, by Kline Walters (2019) IV-type adjustment.
-    input_Z0.data <- data
-    input_Z1.data <- data
-    input_Z0.data$Z <- 0
-    input_Z1.data$Z <- 1
-    pi_0.est <- predict(heckit_firststage.reg, newdata = input_Z0.data)
-    pi_1.est <- predict(heckit_firststage.reg, newdata = input_Z1.data)
-    Gamma.big <-  (pi_1.est * mills.ratio(pi_1.est)
-        - pi_0.est * mills.ratio(pi_0.est)) / (pi_1.est - pi_0.est)
-    rho_0 <- as.numeric(coef(heckit_secondstage.reg)["lambda_0"])
-    rho_1 <- as.numeric(coef(heckit_secondstage.reg)["lambda_1"])
-    complier.adjustment <- (rho_1 - rho_0) * Gamma.big
-    # Compile the estimates.
-    heckit.est <- estimated.values(
-        heckit_firststage.reg, heckit_secondstage.reg,
-        totaleffect.reg, data,
-        complier.adjustment = complier.adjustment)
-    # Return the off-setting estimates.
-    output.list <- c(
-        heckit.est$"first-stage",
-        heckit.est$"total-effect",
-        heckit.est$"direct-effect",
-        heckit.est$"indirect-effect",
-        count.coef)
-    return(output.list)
-}
-
-#! Test it out, with the specification I want.
-mediate.est <- mediate.heckit(
-    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "initial_health_location",
-    X_minus = controls.list,
-    data = analysis.data)# %>% sample_frac(prop = 1, replace = TRUE))
-print(mediate.est)
-
-# Define a function to two-stage semi-parametric MTE for CM effects.
-mediate.semiparametric <- function(Y, Z, D, X_iv, data,
-    X_minus = NULL, indices = NULL){
-    # Bootstrap sample, if indices provided.
-    if (!is.null(indices)){
-        data <- data[indices, ]
-    }
-    # Make the names consistent
-    data$Y <- data[[Y]]
-    data$Z <- data[[Z]]
-    data$D <- data[[D]]
-    total.formula <- formula(paste0("Y ~ 1 + Z +", X_minus))
-    firststage.formula <- formula(paste0("D ~ 1 + Z * (", X_iv, ") +", X_minus))
-    secondstage.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus,
-        " + s(pi.est, bs = 'cr')"))
-    # Get relevant columns for imputation.
-    input_Z0.data <- data
-    input_Z1.data <- data
-    input_D0.data <- data
-    input_D1.data <- data
-    input_Z0.data$Z <- 0
-    input_Z1.data$Z <- 1
-    input_D0.data$D <- 0
-    input_D1.data$D <- 1
-    # Start counting coefficients estimated.
-    count.coef <- 0
-    # 1. Total effect regression.
-    totaleffect.reg <- lm(total.formula, data = data)
-    totaleffect.est <- mean(predict(
-        totaleffect.reg, newdata = input_Z1.data) - predict(
-            totaleffect.reg, newdata = input_Z0.data))
-    count.coef <- count.coef + length(totaleffect.reg$coefficients)
-    # 2. Semi-parametric first-stage
-    mte_firststage.reg <- glm(firststage.formula,
-        family = binomial(link = "probit"),
-        data = data)
-    data$pi.est <- predict(mte_firststage.reg, type = "response")
-    pi_0.est <- predict(mte_firststage.reg, newdata = input_Z0.data, type = "response")
-    pi_1.est <- predict(mte_firststage.reg, newdata = input_Z1.data, type = "response")
-    pi.bar <- mean(pi_1.est - pi_0.est)
-    count.coef <- count.coef + length(mte_firststage.reg$coefficients)
-    # Calculate the levels of pi, accounting for few values in the IV.
-    distinct_mte.values <- min(
-        length(unique(data$pi.est)) - 2, as.integer(nrow(data) / 2000))
-    # 3. Semi-parametric series estimation of the second-stage.
-    mte_secondstage_D0.reg <- gam(secondstage.formula,
-        method = "REML", data = data, subset = (D == 0))
-    mte_secondstage_D1.reg <- gam(secondstage.formula,
-        method = "REML", data = data, subset = (D == 1))
-    count.coef <- count.coef + length(mte_secondstage_D0.reg$coefficients)
-    count.coef <- count.coef + length(mte_secondstage_D1.reg$coefficients)
-    # 4. Compose the CM effects from this object.
-    D_0 <- 1 - mean(data$D)
-    D_1 <- 1 - D_0
-    # 4.1 ADE point estimate, from the MTE model.
-    gammma.est <- coef(mte_secondstage_D0.reg)["Z"]
-    delta_plus.est <- coef(mte_secondstage_D1.reg)["Z"]
-    ade.est <- as.numeric(D_0 * gammma.est + D_1 * delta_plus.est)
-    # 4.2 AIE by using ADE estimate, relative to ATE.
-    # (Avoiding semi-parametric extrapolation, see notes on ATE comparison)
-    delta.est <- delta_plus.est - gammma.est
-    ade_Z0.est <- gammma.est + delta.est * mean(
-        data$D[data$Z == 0])
-    ade_Z1.est <- gammma.est + delta.est * mean(
-        data$D[data$Z == 1])
-    aie.est <- (totaleffect.est - mean(
-        (1 - data$Z) * ade_Z1.est + (data$Z) * ade_Z0.est))
-    # Return the estimates.
+    # 3. Conventional plug-in AIE(0), and ADE(1) as the remainder.
+    aie0.est <- mean(
+        (pi_1.est - pi_0.est) * mediator.effect.0,
+        na.rm = TRUE)
+    ade1.est <- totaleffect.est - aie0.est
+    # Return the estimates in the established order.
     output.list <- c(
         pi.bar,
         totaleffect.est,
-        ade.est,
-        aie.est,
+        ade1.est,
+        aie0.est,
         count.coef)
     return(output.list)
 }
 
-#! Test it out, with the specification I want.
-mediate.est <- mediate.semiparametric(
-    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "initial_health_location",
-    X_minus = controls.list,
-    data = analysis.data)# %>% sample_frac(prop = 1, replace = TRUE))
-print(mediate.est)
+# Estimate AIE(0) from the Z = 0 restricted conditional-outcome curve,
+# then estimate ADE(1) = ATE - AIE(0).
+mediate.semiparametric <- function(Y, Z, D, X_iv, data,
+        X_minus = NULL, indices = NULL,
+        support.warning = FALSE, return.models = FALSE){
+    ### The estimator follows the new identification argument:
+    ## 1. Estimate the mediator propensity score on the full sample.
+    ## 2. Estimate m(p;0,X^-) in the Z = 0 subsample.
+    ## 3. Predict m at pi(1;X) and pi(0;X) for Z = 0 observations.
+    ## 4. Average endpoint differences to estimate AIE(0).
+    ## 5. Estimate ADE(1) = ATE - AIE(0).
 
-# Define a function to bootstrap.
+    # Bootstrap sample, if indices are provided.
+    if (!is.null(indices)){
+        data <- data[indices, ]
+    }
+    # Make the names consistent.
+    data$Y <- data[[Y]]
+    data$Z <- data[[Z]]
+    data$D <- data[[D]]
+    # Define equations.
+    total.formula <- formula(paste0("Y ~ 1 + Z + ", X_minus))
+    firststage.formula <- formula(paste0(
+        "D ~ 1 + Z * (", X_iv, ") + ", X_minus))
+    outcome.formula <- formula(paste0(
+        "Y ~ 1 + ", X_minus,
+        " + poly(pi.est, degree = 5, raw = TRUE, simple = TRUE)"))
+    # Counterfactual treatment copies.
+    copies <- treatment.copies(data)
+    input_Z0.data <- copies$Z0
+    input_Z1.data <- copies$Z1
+    # Count estimated coefficients.
+    count.coef <- 0
+    # 1. Estimate the total effect from quasi-random treatment assignment.
+    totaleffect.reg <- lm(total.formula, data = data)
+    totaleffect.est <- mean(
+        predict(totaleffect.reg, newdata = input_Z1.data) -
+            predict(totaleffect.reg, newdata = input_Z0.data),
+                na.rm = TRUE)
+    count.coef <- count.coef + length(totaleffect.reg$coefficients)
+    # 2. Estimate the mediator propensity score.
+    mte_firststage.reg <- glm(
+        firststage.formula,
+        family = binomial(link = "probit"),
+        data = data)
+    data$pi.est <- predict(mte_firststage.reg, type = "response")
+    pi_0.est <- predict(mte_firststage.reg,
+        newdata = input_Z0.data, type = "response")
+    pi_1.est <- predict(mte_firststage.reg,
+        newdata = input_Z1.data, type = "response")
+    pi.bar <- mean(pi_1.est - pi_0.est, na.rm = TRUE)
+    count.coef <- count.coef + length(mte_firststage.reg$coefficients)
+    # 3. Restrict outcome-curve estimation and standardisation to Z = 0.
+    outcome_Z0.data <- data[data$Z == 0, , drop = FALSE]
+    endpoint_Z0.data <- outcome_Z0.data
+    endpoint_Z0.data$pi_0.est <- pi_0.est[data$Z == 0]
+    endpoint_Z0.data$pi_1.est <- pi_1.est[data$Z == 0]
+    # Support warning.
+    support.est <- support.summary(
+        pi_realised_Z0 = outcome_Z0.data$pi.est,
+        pi_0_Z0 = endpoint_Z0.data$pi_0.est,
+        pi_1_Z0 = endpoint_Z0.data$pi_1.est)
+    if (support.warning == TRUE &&
+            support.est$share.interval.in.support < 1){
+        warning(paste0(
+            round(100 * (1 - support.est$share.interval.in.support), 2),
+            "% of Z = 0 observations have at least one endpoint outside the ",
+            "observed Z = 0 propensity-score range."))
+    }
+    # 4. Estimate m(p;0,X^-) in the Z = 0 subsample.
+    mte_outcome_Z0.reg <- lm(outcome.formula, data = outcome_Z0.data)
+    count.coef <- count.coef + length(mte_outcome_Z0.reg$coefficients)
+    # Full-column-rank diagnostic for the maintained restricted model.
+    outcome.design <- model.matrix(mte_outcome_Z0.reg)
+    rank.diagnostic <- c(rank = qr(outcome.design)$rank,
+        columns = ncol(outcome.design))
+    # 5. Evaluate the same Z = 0 curve at both endpoint propensities.
+    predict_pi0.data <- endpoint_Z0.data
+    predict_pi1.data <- endpoint_Z0.data
+    predict_pi0.data$pi.est <- endpoint_Z0.data$pi_0.est
+    predict_pi1.data$pi.est <- endpoint_Z0.data$pi_1.est
+    m_pi0.est <- predict(mte_outcome_Z0.reg, newdata = predict_pi0.data,
+        type = "response")
+    m_pi1.est <- predict(mte_outcome_Z0.reg, newdata = predict_pi1.data,
+        type = "response")
+    # 6. Estimate AIE(0), and ADE(1) as the remainder from the ATE.
+    conditional.aie0.est <- m_pi1.est - m_pi0.est
+    aie0.est <- mean(conditional.aie0.est, na.rm = TRUE)
+    ade1.est <- totaleffect.est - aie0.est
+    # Return models and diagnostics for one-shot inspection, but retain the
+    # compact numeric output expected by the bootstrap and reporting code.
+    if (return.models == TRUE){
+        return(list(
+            estimates = c(
+                pi.bar,
+                totaleffect.est,
+                ade1.est,
+                aie0.est,
+                count.coef),
+            support = support.est,
+            rank = rank.diagnostic,
+            firststage.reg = mte_firststage.reg,
+            outcome.reg = mte_outcome_Z0.reg,
+            conditional.aie = conditional.aie0.est))
+    }
+    output.list <- c(
+        pi.bar,
+        totaleffect.est,
+        ade1.est,
+        aie0.est,
+        count.coef)
+    return(output.list)
+}
+
+# Define a function to bootstrap the complete estimation procedure.
 mediate.bootstrap <- function(Y, Z, D, X_iv, data,
-        X_minus = NULL, type = "parametric", boot.reps = 10){
-    # Define an empty data.frame.
+        X_minus = NULL, type = "semi-parametric", boot.reps = 10){
+    # Define an empty data frame.
     boot.data <- data.frame(matrix(ncol = 4, nrow = 0))
     names(boot.data) <- c(
         "First-stage", "ATE", "ADE", "AIE")
-    j <- 1
-    for (i in 1:boot.reps){
-        if ((boot.reps >= 100) & ((100 * i / boot.reps) %% 5 == 0)){
-            cat(paste0(i, " out of ", boot.reps, ", ", 100 * (i / boot.reps),
-                "% done.", "\n"))
+    for (i in seq_len(boot.reps)){
+        if ((boot.reps >= 100) && ((100 * i / boot.reps) %% 5 == 0)){
+            cat(paste0(i, " out of ", boot.reps, ", ",
+                100 * (i / boot.reps), "% done.", "\n"))
         }
-        boot.indices <- sample(1:nrow(data), nrow(data), replace = TRUE)
-        if (type == "parametric"){
-            point.est <- mediate.heckit(Y, Z, D, X_iv, data,
+        boot.indices <- sample(
+            seq_len(nrow(data)), nrow(data), replace = TRUE)
+        if (type == "semi-parametric"){
+            point.est <- mediate.semiparametric(
+                Y, Z, D, X_iv, data,
                 X_minus = X_minus, indices = boot.indices)
-            }
-            else if (type == "semi-parametric"){
-                point.est <- mediate.semiparametric(
-                    Y, Z, D, X_iv, data,
-                    X_minus = X_minus, indices = boot.indices)
-            }
-            else if (type == "unadjusted"){
-                point.est <- mediate.unadjusted(Y, Z, D, X_iv, data,
-                    X_minus = X_minus, indices = boot.indices)
-            }
-            else {
-                stop(paste0("The type option only takes values of ",
-                    'c("parametric", "semi-parametric", "unadjusted").'))
-            }
-        boot.data[i, ] <- point.est
+        }
+        else if (type == "unadjusted"){
+            point.est <- mediate.unadjusted(
+                Y, Z, D, X_iv, data,
+                X_minus = X_minus, indices = boot.indices)
+        }
+        else {
+            stop(paste0("The type option only takes values of ",
+                'c("semi-parametric", "unadjusted").'))
+        }
+        boot.data[i, ] <- point.est[1:4]
     }
     return(boot.data)
 }
 
-#! Test it out.
-mediate.boot <- mediate.bootstrap(
-    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "initial_health_location",
-    X_minus = controls.list,
-    data = analysis.data, type = "unadjusted", boot.reps = 10)
-print(mediate.boot)
-
-## Define a function to wrap around all the others.
+# Define a wrapper around the point estimates and bootstrap.
 mediate.selection <- function(Y, Z, D, X_iv, X_minus, data,
-    type = "parametric", boot.reps = 10){
+        type = "semi-parametric", boot.reps = 10){
     # Calculate the point estimates.
-    if (type == "parametric"){
-        point.est <- mediate.heckit(Y, Z, D, X_iv, data, X_minus = X_minus)
-    }
-    else if (type == "semi-parametric"){
-        point.est <- mediate.semiparametric(Y, Z, D, X_iv, data, X_minus = X_minus)
+    if (type == "semi-parametric"){
+        point.est <- mediate.semiparametric(
+            Y, Z, D, X_iv, data, X_minus = X_minus)
     }
     else if (type == "unadjusted"){
-        point.est <- mediate.unadjusted(Y, Z, D, X_iv, data, X_minus = X_minus)
+        point.est <- mediate.unadjusted(
+            Y, Z, D, X_iv, data, X_minus = X_minus)
     }
     else {
         stop(paste0("The type option only takes values of ",
-            'c("parametric", "semi-parametric", "unadjusted").'))
+            'c("semi-parametric", "unadjusted").'))
     }
     count.coef <- point.est[5]
-    # Calculate the SEs by a non-parametric bootstrap.
+    # Calculate SEs by non-parametric bootstrap.
     if (!is.null(boot.reps)){
         if (boot.reps < 500){
             print(paste0("Attempting to bootstrap with fewer than 500 reps.",
-                "  Are you sure?  This is likely not enough for convergence."))
+                " Are you sure? This is likely not enough for convergence."))
         }
         point.boot <- mediate.bootstrap(
             Y = Y, Z = Z, D = D, X_minus = X_minus, X_iv = X_iv,
             data = data, type = type, boot.reps = boot.reps)
         point.se <- as.matrix(c(
-            sd(100 * point.boot$"First-stage"),
-            sd(100 * point.boot$"ATE"),
-            sd(100 * point.boot$"ADE"),
-            sd(100 * point.boot$"AIE"),
-            sd(point.boot$"AIE" / point.boot$"ATE")))
+            sd(100 * point.boot$"First-stage", na.rm = TRUE),
+            sd(100 * point.boot$"ATE", na.rm = TRUE),
+            sd(100 * point.boot$"ADE", na.rm = TRUE),
+            sd(100 * point.boot$"AIE", na.rm = TRUE),
+            sd(point.boot$"AIE" / point.boot$"ATE", na.rm = TRUE)))
     }
     else {
-        point.se <- as.matrix(c(
-            NA,
-            NA,
-            NA,
-            NA,
-            NA))
+        point.se <- as.matrix(rep(NA, 5))
     }
-    # Report output
-    point.est <- as.matrix(c(100 * point.est[1:4], point.est[4] / point.est[2]))
+    # Report output.
+    point.est <- as.matrix(c(
+        100 * point.est[1:4],
+        point.est[4] / point.est[2]))
     tratio <- as.matrix(point.est / point.se)
-    ptratio <- as.matrix(2 * pt(abs(tratio),
-        df = nrow(data) - count.coef, lower.tail = FALSE))
-    # Preapred object to putput.
+    ptratio <- as.matrix(2 * pt(
+        abs(tratio),
+        df = nrow(data) - count.coef,
+        lower.tail = FALSE))
     out <- list(
         coefficients = point.est,
         SE = point.se,
@@ -421,10 +363,10 @@ mediate.selection <- function(Y, Z, D, X_iv, X_minus, data,
         variables = paste(Z, D, Y, sep = ", "),
         boot.reps = boot.reps)
     rownames(out$coefficients) <-
-        c("First-stage", "ATE", "ADE", "AIE", "Proportion, AIE / ATE")
-    rownames(out$SE)      <-rownames(out$coefficients)
-    rownames(out$tratio)  <-rownames(out$coefficients)
-    rownames(out$ptratio) <-rownames(out$coefficients)
+        c("First-stage", "ATE", "ADE(1)", "AIE(0)", "Proportion, AIE(0) / ATE")
+    rownames(out$SE) <- rownames(out$coefficients)
+    rownames(out$tratio) <- rownames(out$coefficients)
+    rownames(out$ptratio) <- rownames(out$coefficients)
     class(out) <- "mediate.selection"
     return(out)
 }
@@ -436,7 +378,8 @@ print.mediate.selection <- function(x, digits = 4, ...){
     cat("\n")
     est <- cbind(x$coefficients, x$SE)
     colnames(est) <- c("Coefficients", "SE")
-    cat(paste0("\n", x$type, " Estimates, With SEs from ", x$boot.reps, " bootstrap replications."))
+    cat(paste0("\n", x$type, " Estimates, With SEs from ",
+        x$boot.reps, " bootstrap replications."))
     cat("\n\n")
     print.default(format(est, digits = digits), quote = FALSE)
 }
@@ -446,9 +389,9 @@ summary.mediate.selection <- function(object, ...){
     TAP <- cbind(
         Estimate = coef(object),
         SE = object$SE,
-        ptratio = object$ptratio )
+        ptratio = object$ptratio)
     colnames(TAP) <- c("Estimate", "SE", "P")
-    res <- list(variables = object$variables, coefficients = TAP)  
+    res <- list(variables = object$variables, coefficients = TAP)
     class(res) <- "summary.larf"
     return(res)
 }
@@ -460,6 +403,30 @@ print.summary.mediate.selection <- function(x, digits = 4, ...){
     cat("\n")
     print.default(round(x$coefficients, digits = digits), quote = FALSE)
 }
+
+
+################################################################################
+## One-shot tests of the updated estimators.
+
+unadjusted.test <- mediate.unadjusted(
+    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
+    X_iv = "initial_health_location",
+    X_minus = controls.list,
+    data = analysis.data)
+print(unadjusted.test)
+
+semiparametric.test <- mediate.semiparametric(
+    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
+    X_iv = "initial_health_location",
+    X_minus = controls.list,
+    data = analysis.data,
+    support.warning = TRUE,
+    return.models = TRUE)
+print(semiparametric.test$estimates)
+print(semiparametric.test$support)
+print(semiparametric.test$rank)
+print(summary(semiparametric.test$firststage.reg))
+print(summary(semiparametric.test$outcome.reg))
 
 
 ################################################################################
@@ -490,28 +457,27 @@ location.data <- analysis.data %>%
     summarise(
         any_healthcare_mean = mean(any_healthcare, na.rm = TRUE),
         any_healthcare_sd = sd(any_healthcare, na.rm = TRUE),
-        count = n()) %>%
-    ungroup() %>%
-    mutate(any_healthcare_se = any_healthcare_sd / (count^(0.5)),
-        any_healthcare_mean_lower = any_healthcare_mean - 1.96 * any_healthcare_se,
-        any_healthcare_mean_upper = any_healthcare_mean + 1.96 * any_healthcare_se)
+        count = n(),
+        .groups = "drop") %>%
+    mutate(any_healthcare_se = any_healthcare_sd / sqrt(count),
+        any_healthcare_mean_lower = any_healthcare_mean -
+            1.96 * any_healthcare_se,
+        any_healthcare_mean_upper = any_healthcare_mean +
+            1.96 * any_healthcare_se)
 
-# Draw the horizontal bar chart
 location.plot <- location.data %>%
     ggplot(aes(x = initial_health_location_name)) +
-    # Bars of the mean
     geom_bar(aes(y = any_healthcare_mean, fill = initial_health_location_name),
         colour = "black", stat = "identity") +
-    # Error bars
     geom_errorbar(
-        aes(ymin = any_healthcare_mean_lower, ymax = any_healthcare_mean_upper),
+        aes(ymin = any_healthcare_mean_lower,
+            ymax = any_healthcare_mean_upper),
         width = 0.2, position = position_dodge(0.9)) +
-    # Make horizontal and format.
     coord_flip() +
     theme_bw() +
     scale_x_discrete(name = "", limits = initial_health_location.list[7:1]) +
     scale_y_continuous(expand = c(0, 0),
-        name = TeX(r"(Visited healthcare in following 12 months, $\Pr( \,D_i = 1 \, | \, X^{IV}_i \,)$)"),
+        name = TeX(r"(Visited healthcare in following 12 months, $\Pr(\,D_i=1\mid X_i^{IV}\,)$)"),
         limits = c(0, 1.025), oob = scales::rescale_none,
         breaks = seq(0, 1, by = 0.1)) +
     ggtitle("Usual Healthcare Location") +
@@ -520,44 +486,55 @@ location.plot <- location.data %>%
         plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 2, 0, 0), "mm"))
-# Save the plot.
+
 ggsave(file.path(figures.folder, "location-effects.png"),
     plot = location.plot,
     units = "cm", width = fig.width, height = fig.height)
 
+# First-stage relevance diagnostics.
+print(mean(analysis.data$any_healthcare, na.rm = TRUE))
+location.reg <- lm(
+    formula(paste0("any_healthcare ~ 1 + factor(initial_health_location)",
+        " + lottery_iv * ", nocontrols.list)),
+    data = analysis.data)
+print(summary(location.reg))
+iv.list <- paste0("factor(initial_health_location)", 2:7)
+print(car::linearHypothesis(location.reg, test = "F", iv.list))
+print(100 * table(
+    analysis.data$initial_health_location,
+    exclude = NULL) / NROW(analysis.data))
+
 
 ################################################################################
-## Examine the reported effects of healthcare on subjective health + well-being.
+## Examine associations between healthcare use and outcomes.
 
-# Library for better colour choice and additional graphing.
+## Library for better colour choice and additional graphing.
 library(ggthemes)
+# remotes::install_github("coolbutuseless/ggpattern")
 library(ggpattern)
 
-# SHow a figure of the OLS correlation of healthcare on outcomes.
 outcome_name.list <- "0               1\n" %>%
     paste0(c("Health overall good?", "Happy overall?"))
 healthcare.data <- analysis.data %>%
     group_by(any_healthcare) %>%
     summarise(
         health_mean = mean(Y_health),
-        health_se   = sd(Y_health) / sqrt(n() - 1),
-        happy_mean  = mean(Y_happy),
-        happy_se    = sd(Y_happy) / sqrt(n() - 1)) %>%
-    ungroup() %>%
+        health_se = sd(Y_health) / sqrt(n() - 1),
+        happy_mean = mean(Y_happy),
+        happy_se = sd(Y_happy) / sqrt(n() - 1),
+        .groups = "drop") %>%
     pivot_longer(cols = c(health_mean, health_se, happy_mean, happy_se),
         names_to = c("outcome_name", ".value"),
         names_pattern = "(.*)_(mean|se)") %>%
-    mutate(ci_lower = mean - 1.96 * se, ci_upper = mean + 1.96 * se) %>%
+    mutate(ci_lower = mean - 1.96 * se,
+        ci_upper = mean + 1.96 * se) %>%
     mutate(outcome_name =
         ifelse(outcome_name == "health", outcome_name.list[1],
             ifelse(outcome_name == "happy", outcome_name.list[2], "")))
 
-# Plot it.
+#Plot it.
 healthcare.plot <- healthcare.data %>%
     ggplot(aes(x = outcome_name, group = any_healthcare)) +
-    #geom_bar(aes(group = Z_iv,
-    #    fill = outcome_name, x = outcome_name, y = outcome_value),
-    #    colour = 1, position = "dodge", stat = "identity") +
     geom_col_pattern(
         aes(pattern = any_healthcare, fill = outcome_name, y = mean),
         position = "dodge",
@@ -570,28 +547,24 @@ healthcare.plot <- healthcare.data %>%
         size = 0.5, alpha = 0.5,
         stat = "identity", position = position_dodge(0.9), width = 1 / 3) +
     theme_bw() +
-    scale_x_discrete(name = "Outcome, attending healthcare or not.", limits = outcome_name.list) +
+    scale_x_discrete(name = "Outcome, attending healthcare or not.",
+        limits = outcome_name.list) +
     scale_fill_manual("", values = colour.list[c(2, 2)]) +
-    scale_y_continuous(expand = c(0, 0),
-        name = "",
+    scale_y_continuous(expand = c(0, 0), name = "",
         limits = c(0.275, 0.825), oob = scales::rescale_none,
         breaks = seq(0, 1, by = 0.1)) +
     theme(legend.position = "none",
         plot.title = element_text(hjust = 0, size = rel(1)),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 0, 0, 0), "mm"))
-
 # Save this plot for the presentation.
 ggsave(file.path(figures.folder, "healthcare-ols.png"),
     plot = healthcare.plot,
     units = "cm", width = 0.8 * fig.width, height = 0.65 * fig.height)
 
-healthcare.plot <- healthcare.data %>%
+healthcare.presentation.plot <- healthcare.data %>%
     filter(outcome_name != "0               1\nHealth overall good?") %>%
     ggplot(aes(x = outcome_name, group = any_healthcare)) +
-    #geom_bar(aes(group = Z_iv,
-    #    fill = outcome_name, x = outcome_name, y = outcome_value),
-    #    colour = 1, position = "dodge", stat = "identity") +
     geom_col_pattern(
         aes(pattern = any_healthcare, fill = outcome_name, y = mean),
         position = "dodge",
@@ -606,8 +579,7 @@ healthcare.plot <- healthcare.data %>%
     theme_bw() +
     scale_x_discrete(name = "Outcome, attending healthcare or not.") +
     scale_fill_manual("", values = colour.list[c(2, 2)]) +
-    scale_y_continuous(expand = c(0, 0),
-        name = "",
+    scale_y_continuous(expand = c(0, 0), name = "",
         limits = c(0.275, 0.825), oob = scales::rescale_none,
         breaks = seq(0, 1, by = 0.1)) +
     theme(legend.position = "none",
@@ -615,13 +587,11 @@ healthcare.plot <- healthcare.data %>%
         plot.title.position = "plot",
         plot.margin = unit(c(0, 0, 0, 0), "mm"))
 
-# Save this plot for the presentation.
 ggsave(file.path(figures.folder, "healthcare-ols-presentation.png"),
-    plot = healthcare.plot,
+    plot = healthcare.presentation.plot,
     units = "cm", width = 0.5 * fig.width, height = 0.65 * fig.height)
 
-# Show the OLS correlation between D (mediator) and Y (outcome.)
-library(margins)
+# OLS correlations.
 health.reg <- lm(
     formula(paste0("Y_health ~ 1 + any_healthcare + ", nocontrols.list)),
     data = analysis.data)
@@ -631,7 +601,6 @@ happy.reg <- lm(
     data = analysis.data)
 print(summary(happy.reg))
 
-# And add controls 
 health_controls.reg <- lm(
     formula(paste0("Y_health ~ 1 + any_healthcare + ", controls.list)),
     data = analysis.data)
@@ -641,20 +610,19 @@ happy_controls.reg <- lm(
     data = analysis.data)
 print(summary(happy_controls.reg))
 
-# Show the IV effect between D (mediator) and Y (outcome.)
-library(fixest)
+# IV associations.
 health.iv <- feols(
     formula(paste0("Y_health ~ 1 + ", nocontrols.list,
-        "| any_healthcare ~ factor(initial_health_location)")),
+        " | any_healthcare ~ factor(initial_health_location)")),
     data = analysis.data)
 print(summary(health.iv))
 happy.iv <- feols(
     formula(paste0("Y_happy ~ 1 + ", nocontrols.list,
-    "| any_healthcare ~ factor(initial_health_location)")),
+        " | any_healthcare ~ factor(initial_health_location)")),
     data = analysis.data)
 print(summary(happy.iv))
 
-# Show the structural estimate for mediator complier's D -> Y effect.
+# Implied average mediator effect among mediator compliers.
 mediate.est <- mediate.selection(
     Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
     X_iv = "initial_health_location",
@@ -662,7 +630,7 @@ mediate.est <- mediate.selection(
     boot.reps = NULL,
     type = "semi-parametric",
     data = analysis.data)
-print(coeftable(mediate.est)["AIE", "Estimate"] /
+print(coeftable(mediate.est)["AIE(0)", "Estimate"] /
     coeftable(mediate.est)["First-stage", "Estimate"])
 mediate.est <- mediate.selection(
     Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
@@ -671,123 +639,77 @@ mediate.est <- mediate.selection(
     boot.reps = NULL,
     type = "semi-parametric",
     data = analysis.data)
-print(coeftable(mediate.est)["AIE", "Estimate"] /
+print(coeftable(mediate.est)["AIE(0)", "Estimate"] /
     coeftable(mediate.est)["First-stage", "Estimate"])
-
-# Get the F statistic, for location -> D (healthcare.)
-library(car)
-print(mean(analysis.data$any_healthcare, na.rm = TRUE))
-location.reg <- lm(
-    formula(paste0("any_healthcare ~ 1 + factor(initial_health_location)",
-        " + lottery_iv * ", nocontrols.list)),
-    data = analysis.data)
-print(summary(location.reg))
-iv.list <- paste0("factor(initial_health_location)", 2:7)
-print(car::linearHypothesis(location.reg, test = "F", iv.list))
-
-# Show the rates of people in each category.
-print(100 * table(analysis.data$initial_health_location, exclude = NULL) / NROW(analysis.data))
 
 
 ################################################################################
-## Estimate the CM effects with my methods.
+## Estimate the CM effects with the conventional and MTE methods.
 
 # State how many bootstrap replications are needed.
 boot.reps <- 10^3
 
-## Panel A: Self-reported healthiness.
-# Naive selection-on-observables
-unadjusted.est <- mediate.selection(
-    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "initial_health_location", X_minus = controls.list,
-    type = "unadjusted",
-    data = analysis.data,
-    boot.reps = boot.reps)
-print(unadjusted.est)
-# Parametric MTE
-parametric.est <- mediate.selection(
-    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "initial_health_location", X_minus = controls.list,
-    type = "parametric",
-    data = analysis.data,
-    boot.reps = boot.reps)
-print(parametric.est)
-# Semi-parametric MTE
-semiparametric.est <- mediate.selection(
-    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "initial_health_location", X_minus = controls.list,
-    type = "semi-parametric",
-    data = analysis.data,
-    boot.reps = boot.reps)
-print(semiparametric.est)
-
-# Show the inferred indirect effect among mediator compliers.
-print(100 * (coef(summary(unadjusted.est))["AIE", "Estimate"] / 100) /
-    (coef(summary(unadjusted.est))["First-stage", "Estimate"] / 100))
-print(100 * (coef(summary(parametric.est))["AIE", "Estimate"] / 100) /
-    (coef(summary(parametric.est))["First-stage", "Estimate"] / 100))
-print(100 * (coef(summary(semiparametric.est))["AIE", "Estimate"] / 100) /
-    (coef(summary(semiparametric.est))["First-stage", "Estimate"] / 100))
-
-# Extract the relevant estimates.
-panelA.data <- data.frame(
-    unadjusted_point = coef(summary(unadjusted.est))[, "Estimate"],
-    unadjusted_se = coef(summary(unadjusted.est))[, "SE"],
-    parametric_point = coef(summary(parametric.est))[, "Estimate"],
-    parametric_se = coef(summary(parametric.est))[, "SE"],
-    semiparametric_point = coef(summary(semiparametric.est))[, "Estimate"],
-    semiparametric_se = coef(summary(semiparametric.est))[, "SE"])
-
-# Save the estimates in data.
+# Extract effects for plotting.
 effects.extract <- function(mediate.est, model.name){
-    # Compile the mediation regression results.
     reg.summary <- summary(mediate.est)
-    # Get the total effect estimates.
-    total.est      <- coeftable(reg.summary)["ATE", "Estimate"]
+    total.est <- coeftable(reg.summary)["ATE", "Estimate"]
     total.ci.upper <- total.est + 1.96 * coeftable(reg.summary)["ATE", "SE"]
     total.ci.lower <- total.est - 1.96 * coeftable(reg.summary)["ATE", "SE"]
-    # Get the direct effect estimates.
-    direct.est       <- coeftable(reg.summary)["ADE", "Estimate"]
-    direct.ci.upper  <- direct.est + 1.96 * coeftable(reg.summary)["ADE", "SE"]
-    direct.ci.lower  <- direct.est - 1.96 * coeftable(reg.summary)["ADE", "SE"]
-    # Get the indirect effect estimates.
-    indirect.est       <- coeftable(reg.summary)["AIE", "Estimate"]
-    indirect.ci.upper  <- indirect.est + 1.96 * coeftable(reg.summary)["AIE", "SE"]
-    indirect.ci.lower  <- indirect.est - 1.96 * coeftable(reg.summary)["AIE", "SE"]
-    # Get the percent mediated estimates.
-    permediated.est      <- coeftable(reg.summary)["Proportion, AIE / ATE", "Estimate"]
-    permediated.ci.upper <- permediated.est + 1.96 * coeftable(reg.summary)["Proportion, AIE / ATE", "SE"]
-    permediated.ci.lower <- permediated.est - 1.96 * coeftable(reg.summary)["Proportion, AIE / ATE", "SE"]
-    # Put it all into a dataframe.
+    direct.est <- coeftable(reg.summary)["ADE(1)", "Estimate"]
+    direct.ci.upper <- direct.est + 1.96 * coeftable(reg.summary)["ADE(1)", "SE"]
+    direct.ci.lower <- direct.est - 1.96 * coeftable(reg.summary)["ADE(1)", "SE"]
+    indirect.est <- coeftable(reg.summary)["AIE(0)", "Estimate"]
+    indirect.ci.upper <- indirect.est + 1.96 * coeftable(reg.summary)["AIE(0)", "SE"]
+    indirect.ci.lower <- indirect.est - 1.96 * coeftable(reg.summary)["AIE(0)", "SE"]
+    permediated.est <- coeftable(reg.summary)[
+        "Proportion, AIE(0) / ATE", "Estimate"]
+    permediated.ci.upper <- permediated.est + 1.96 * coeftable(reg.summary)[
+        "Proportion, AIE(0) / ATE", "SE"]
+    permediated.ci.lower <- permediated.est - 1.96 * coeftable(reg.summary)[
+        "Proportion, AIE(0) / ATE", "SE"]
     data.return <- data.frame(
         effect = c("Total", "Direct", "Indirect", "Percent Mediated"),
         pointest = c(total.est, direct.est, indirect.est, permediated.est),
-        upperest = c(total.ci.upper, direct.ci.upper, indirect.ci.upper, permediated.ci.upper),
-        lowerest = c(total.ci.lower, direct.ci.lower, indirect.ci.lower, permediated.ci.lower))
-    # Label it with the model name
-    data.return <- data.return %>% mutate(model = model.name)
+        upperest = c(total.ci.upper, direct.ci.upper,
+            indirect.ci.upper, permediated.ci.upper),
+        lowerest = c(total.ci.lower, direct.ci.lower,
+            indirect.ci.lower, permediated.ci.lower)) %>%
+        mutate(model = model.name)
     return(data.return)
 }
 
-# Collect estimates for plotting.
-Y_health.data <- rbind(
-    effects.extract(unadjusted.est,     "Conventional"),
-    effects.extract(parametric.est,     "Parametric MTE"),
-    effects.extract(semiparametric.est, "Semi-parametric MTE"))
+# Panel A: Self-reported health.
+unadjusted.health.est <- mediate.selection(
+    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
+    X_iv = "initial_health_location", X_minus = controls.list,
+    type = "unadjusted", data = analysis.data, boot.reps = boot.reps)
+print(unadjusted.health.est)
+semiparametric.health.est <- mediate.selection(
+    Y = "Y_health", Z = "lottery_iv", D = "any_healthcare",
+    X_iv = "initial_health_location", X_minus = controls.list,
+    type = "semi-parametric", data = analysis.data, boot.reps = boot.reps)
+print(semiparametric.health.est)
 
-# Clean up the data for a table.
+# Extract for the LaTeX table.
+panelA.data <- data.frame(
+    unadjusted_point = coef(summary(unadjusted.health.est))[, "Estimate"],
+    unadjusted_se = coef(summary(unadjusted.health.est))[, "SE"],
+    semiparametric_point = coef(summary(semiparametric.health.est))[, "Estimate"],
+    semiparametric_se = coef(summary(semiparametric.health.est))[, "SE"])
+
+Y_health.data <- rbind(
+    effects.extract(unadjusted.health.est, "Conventional"),
+    effects.extract(semiparametric.health.est, "Semi-parametric MTE"))
+
 panelA.table <- panelA.data %>%
     signif(digits.no) %>%
     format(scientific = FALSE)
-
-panelA.table$unadjusted_se <- panelA.table$unadjusted_se %>% paste0("(", ., ")")
-panelA.table$parametric_se <- panelA.table$parametric_se %>% paste0("(", ., ")")
-panelA.table$semiparametric_se <- panelA.table$semiparametric_se %>% paste0("(", ., ")")
+panelA.table$unadjusted_se <- paste0("(", panelA.table$unadjusted_se, ")")
+panelA.table$semiparametric_se <- paste0(
+    "(", panelA.table$semiparametric_se, ")")
 panelA.table <- data.frame(t(panelA.table))
-# Add on the first column
-panelA.table$model <- c(
-    "Unadjusted", "", "Parametric MTE", "", "Semi-parametric MTE", "")
-panelA.table <- panelA.table[c(6, 1:5)]
+panelA.table <- cbind(model = c(
+    "Conventional CM", "", "Semi-parametric MTE", ""), panelA.table)
 
 # Save the LaTeX table
 panelA.table %>%
@@ -804,71 +726,41 @@ panelA.table %>%
         format.args = list(big.mark = ","),
         file = file.path(tables.folder, "cm-oregon-health.tex"))
 
+# Panel B: Self-reported happiness.
+unadjusted.happy.est <- mediate.selection(
+    Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
+    X_iv = "initial_health_location", X_minus = controls.list,
+    type = "unadjusted", data = analysis.data, boot.reps = boot.reps)
+print(unadjusted.happy.est)
+semiparametric.happy.est <- mediate.selection(
+    Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
+    X_iv = "initial_health_location", X_minus = controls.list,
+    type = "semi-parametric", data = analysis.data, boot.reps = boot.reps)
+print(semiparametric.happy.est)
 
-## Panel B: Self-reported happiness.
-# Naive selection-on-observables
-unadjusted.est <- mediate.selection(
-    Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "initial_health_location", X_minus = controls.list,
-    type = "unadjusted",
-    data = analysis.data,
-    boot.reps = boot.reps)
-print(unadjusted.est)
-# Parametric MTE
-parametric.est <- mediate.selection(
-    Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "initial_health_location", X_minus = controls.list,
-    type = "parametric",
-    data = analysis.data,
-    boot.reps = boot.reps)
-print(parametric.est)
-# Semi-parametric MTE
-semiparametric.est <- mediate.selection(
-    Y = "Y_happy", Z = "lottery_iv", D = "any_healthcare",
-    X_iv = "initial_health_location", X_minus = controls.list,
-    type = "semi-parametric",
-    data = analysis.data,
-    boot.reps = boot.reps)
-print(semiparametric.est)
-
-# Extract the relevant figures.
 panelB.data <- data.frame(
-    unadjusted_point = coef(summary(unadjusted.est))[, "Estimate"],
-    unadjusted_se = coef(summary(unadjusted.est))[, "SE"],
-    parametric_point = coef(summary(parametric.est))[, "Estimate"],
-    parametric_se = coef(summary(parametric.est))[, "SE"],
-    semiparametric_point = coef(summary(semiparametric.est))[, "Estimate"],
-    semiparametric_se = coef(summary(semiparametric.est))[, "SE"])
+    unadjusted_point = coef(summary(unadjusted.happy.est))[, "Estimate"],
+    unadjusted_se = coef(summary(unadjusted.happy.est))[, "SE"],
+    semiparametric_point = coef(summary(semiparametric.happy.est))[, "Estimate"],
+    semiparametric_se = coef(summary(semiparametric.happy.est))[, "SE"])
 
-# Save for a plot.
 Y_happy.data <- rbind(
-    effects.extract(unadjusted.est,     "Conventional"),
-    effects.extract(parametric.est,     "Parametric MTE"),
-    effects.extract(semiparametric.est, "Semi-parametric MTE"))
+    effects.extract(unadjusted.happy.est, "Conventional"),
+    effects.extract(semiparametric.happy.est, "Semi-parametric MTE"))
 
-# Show the inferred controlled indirect effect.
-print(100 * (coef(summary(unadjusted.est))["AIE", "Estimate"] / 100) /
-    (coef(summary(unadjusted.est))["First-stage", "Estimate"] / 100))
-print(100 * (coef(summary(parametric.est))["AIE", "Estimate"] / 100) /
-    (coef(summary(parametric.est))["First-stage", "Estimate"] / 100))
-print(100 * (coef(summary(semiparametric.est))["AIE", "Estimate"] / 100) /
-    (coef(summary(semiparametric.est))["First-stage", "Estimate"] / 100))
-
-# Clean up the data.
+# Extract for the LaTeX table.
 panelB.table <- panelB.data %>%
     signif(digits.no) %>%
     format(scientific = FALSE)
-
-panelB.table$unadjusted_se <- panelB.table$unadjusted_se %>% paste0("(", ., ")")
-panelB.table$parametric_se <- panelB.table$parametric_se %>% paste0("(", ., ")")
-panelB.table$semiparametric_se <- panelB.table$semiparametric_se %>% paste0("(", ., ")")
+panelB.table$unadjusted_se <- paste0("(", panelB.table$unadjusted_se, ")")
+panelB.table$semiparametric_se <- paste0(
+    "(", panelB.table$semiparametric_se, ")")
 panelB.table <- data.frame(t(panelB.table))
-# Add on the first column
-panelB.table$model <- c(
-    "Unadjusted", "", "Parametric MTE", "", "Semi-parametric MTE", "")
-panelB.table <- panelB.table[c(6, 1:5)]
+panelB.table <- cbind(model = c(
+    "Conventional CM", "", "Semi-parametric MTE", ""), panelB.table)
 
-# Save the LaTeX table
+print(panelB.table)
+
 panelB.table %>%
     xtable() %>%
     print(
@@ -885,9 +777,8 @@ panelB.table %>%
 
 
 ################################################################################
-## Plot the results
+## Plot the results.
 
-# Plot health results in a bar chart.
 health_mediation.plot <- Y_health.data %>%
     filter(effect != "Percent Mediated") %>%
     ggplot(aes(
@@ -906,24 +797,22 @@ health_mediation.plot <- Y_health.data %>%
         type = colour.list[c(3, 1, 2)]) +
     scale_x_discrete(
         name = "",
-        limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
+        limits = c("Conventional", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
         limits = c(-0.5, 9.75), breaks = seq(-10, 10, by = 1),
-        oob = scales::rescale_none,
-        name = "") +
+        oob = scales::rescale_none, name = "") +
     ggtitle("Estimate, percent effect on subjective health") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
         legend.position = c(0.8, 1.025),
         legend.direction = "horizontal")
-# Save this file
+
 ggsave(file.path(figures.folder, "mediation-health.png"),
     plot = health_mediation.plot,
     units = "cm",
     width = presentation.width, height = presentation.height)
 
-# Plot happiness results in a bar chart.
 happy_mediation.plot <- Y_happy.data %>%
     filter(effect != "Percent Mediated") %>%
     ggplot(aes(
@@ -942,18 +831,17 @@ happy_mediation.plot <- Y_happy.data %>%
         type = colour.list[c(3, 1, 2)]) +
     scale_x_discrete(
         name = "",
-        limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
+        limits = c("Conventional", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
         limits = c(-0.5, 9.75), breaks = seq(-10, 10, by = 1),
-        oob = scales::rescale_none,
-        name = "") +
+        oob = scales::rescale_none, name = "") +
     ggtitle("Estimate, percent effect on subjective well-being") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0, 3, 0.25, 0), "mm"),
         legend.position = c(0.8, 1.025),
         legend.direction = "horizontal")
-# Save this file
+
 ggsave(file.path(figures.folder, "mediation-happy.png"),
     plot = happy_mediation.plot,
     units = "cm",
@@ -961,9 +849,8 @@ ggsave(file.path(figures.folder, "mediation-happy.png"),
 
 
 ################################################################################
-## Same plot, but with empty plots for the MTE parts.
+## Placeholder plots showing only conventional estimates.
 
-# Plot health results in a bar chart.
 health_mediation.placeholder <- Y_health.data %>%
     filter(effect != "Percent Mediated") %>%
     mutate(
@@ -988,11 +875,10 @@ health_mediation.placeholder <- Y_health.data %>%
         type = colour.list[c(3, 1, 2)]) +
     scale_x_discrete(
         name = "",
-        limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
+        limits = c("Conventional", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
         limits = c(-0.5, 9.75), breaks = seq(-10, 10, by = 1),
-        oob = scales::rescale_none,
-        name = "") +
+        oob = scales::rescale_none, name = "") +
     ggtitle("Estimate, percent effect on subjective health") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -1000,13 +886,11 @@ health_mediation.placeholder <- Y_health.data %>%
         legend.position = c(0.8, 1.025),
         legend.direction = "horizontal")
 
-# Save placeholder version
 ggsave(file.path(figures.folder, "mediation-health-placeholder.png"),
     plot = health_mediation.placeholder,
     units = "cm",
     width = presentation.width, height = presentation.height)
 
-# Plot happiness results in a bar chart.
 happy_mediation.placeholder <- Y_happy.data %>%
     filter(effect != "Percent Mediated") %>%
     mutate(
@@ -1031,11 +915,10 @@ happy_mediation.placeholder <- Y_happy.data %>%
         type = colour.list[c(3, 1, 2)]) +
     scale_x_discrete(
         name = "",
-        limits = c("Conventional", "Parametric MTE", "Semi-parametric MTE")) +
+        limits = c("Conventional", "Semi-parametric MTE")) +
     scale_y_continuous(expand = c(0, 0, 0.01, 0),
         limits = c(-0.5, 9.75), breaks = seq(-10, 10, by = 1),
-        oob = scales::rescale_none,
-        name = "") +
+        oob = scales::rescale_none, name = "") +
     ggtitle("Estimate, percent effect on subjective well-being") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -1043,7 +926,6 @@ happy_mediation.placeholder <- Y_happy.data %>%
         legend.position = c(0.8, 1.025),
         legend.direction = "horizontal")
 
-# Save placeholder version
 ggsave(file.path(figures.folder, "mediation-happy-placeholder.png"),
     plot = happy_mediation.placeholder,
     units = "cm",

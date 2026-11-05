@@ -78,15 +78,15 @@ denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as th
 For each $z = 0,1$ and each possible value of $\vec x_i^{\mathrm{IV}}$ in the support of $\vec X_i^{\mathrm{IV}}$, write the mediator propensity score as
 \[ \pi\big( z; \;\vec x^{\mathrm{IV}}, \vec x^- \big) = \Prob{D_i=1 \mid Z_i=z, \vec X_i^{\mathrm{IV}}=\vec x^{\mathrm{IV}}, \vec X_i^-=\vec x^-}. \]
 Write $P_i = \pi(Z_i; \vec X_i^-, \vec X_i^{\mathrm{IV}})$ for the observed propensity score, and
-$\mathcal P_{z} \left(\vec X_i^- \right) \coloneqq \operatorname{Supp}\left( P_i \mid z,\vec X_i^- \right)$ for the IV-guided propensity score support for each treatment arm $z=0,1$.
+$\mathcal P_{z} \left(\vec X_i^- \right) \coloneqq \operatorname{Supp}\left( P_i \mid Z_i = z,\vec X_i^- \right)$ for the IV-guided propensity score support for each treatment arm $z=0,1$.
 \begin{assumptionMTE}
     \label{mte:instrument}
-    Mediator take-up cost instrument: $\vec X_i^{\mathrm{IV}}$ satisifes \emph{relevance}, \emph{exclusion}, \emph{quasi-random assignment}, and \emph{complier support}.
+    Mediator take-up cost instrument: $\vec X_i^{\mathrm{IV}}$ satisifies \emph{relevance}, \emph{exclusion}, \emph{quasi-random assignment}, and \emph{complier support}.
     
     The first three are standard IV assumptions, and the last assumes for $z=0,1$ and each $(\vec x^{\mathrm{IV}},\vec x^-)$ in the relevant support,
     \[ \Big[
         \pi(0;\vec x^{\mathrm{IV}},\vec x^-), \; \pi(1;\vec x^{\mathrm{IV}},\vec x^-) \Big]
-    \subseteq \operatorname{Supp}\left( P_i \mid Z_i=z,\vec X_i^-=\vec x^- \right). \]
+    \subseteq \mathcal P_{z} \left(\vec X_i^- \right) . \]
 \end{assumptionMTE}
 Assumption \ref{mte:instrument} is requiring at least one control variable guides selection-into-$D_i$ --- an Instrumental Variable (IV).
 Relevance provides variation in the mediator propensity score.
@@ -145,14 +145,14 @@ Write $m\big(p; z, \vec X_i^-\big) = \Egiven{Y_i}{Z_i = z, \vec X_i^-, P_i = p}$
 Assume it is finite for all values, and is absolutely continuous and its derivative exists almost everywhere.
 \begin{proposition}
     \label{proposition:secondstage}
-    If assumptions \ref{mte:monotonicity}, \ref{mte:instrument} \ref{mte:joint-monotonicity}, and \ref{mte:restricted-cf} hold, then the outcome mean conditional on the propensity score is identified in observed data
+    If assumptions \ref{mte:monotonicity}, \ref{mte:instrument} \ref{mte:joint-monotonicity}, and \ref{mte:restricted-cf} hold, then the outcome mean (conditional on the propensity score) is identified in observed data:
     \[ m\big(p; z, \vec X_i^-\big)
     = \alpha + \gamma z + p \big(\beta + \delta z)
     + \phi^m(\vec X_i^-)
     + (1-p) g_{z,0}(p)
     + p g_{z,1}(p), \]
     for each $p \in \mathcal P_{z} \left(\vec X_i^- \right)$ and $z=0,1$.
-    $\alpha, \beta, \gamma, \delta$ are the same parameters as in \autoref{sec:applied}, and $g_{z,0}, g_{z,1}$ are the CFs defined above (with an assumed restricted shape).
+    $\alpha, \beta, \gamma, \delta$ are the same parameters as in \autoref{sec:applied}, and $g_{z,0}(.), g_{z,1}(.)$ are the CFs defined above (with an assumed restricted shape).
     Furthermore, the average Mediator MTE is point-wise identified on the propensity score support, as the difference between conditional means
     \[ m\big(p'; z, \vec X_i^-\big) - m\big(p\,; z, \vec X_i^-\big)
     = \int_p^{p'} \operatorname{MTE}(u; z, \vec X_i^-) \,du, \]
@@ -170,10 +170,10 @@ The final step interpolates from the Mediator MTE to mediator compliers, and thu
     \label{thm:mte-identification}
     If assumptions \ref{mte:monotonicity}, \ref{mte:instrument} \ref{mte:joint-monotonicity}, and \ref{mte:restricted-cf} hold, then the ADE and AIE are identified as a function of the parameters in Proposition \ref{proposition:secondstage}.
     \begin{align*}
-        \text{AIE}(z) &= \E{
+        \text{AIE}(z) &= \mathbb E \Big[
             m\big(\pi(1; \vec X_i^-, \vec X_i^\text{IV})\,; z, \vec X_i^- \big)
             - m\big(\pi(0; \vec X_i^-, \vec X_i^\text{IV})\,; z, \vec X_i^- \big)
-            } \\
+            \Big] \\
         \text{ADE}(1-z) &=
             \text{ATE} - \text{AIE}(z), \;\;\;\; \text{ for each } z=0,1.
     \end{align*}

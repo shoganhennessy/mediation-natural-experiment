@@ -7,7 +7,7 @@ Applying conventional CM methods to investigate this expectation would be dismis
 The wider population does not have one uniform bill of health; many people are born predisposed to ailments, due to genetic variation or other unrelated factors.
 These conditions can exist for years before being diagnosed.
 People with severe underlying conditions may visit healthcare providers more often than the rest of the population, to investigate or begin treating the ill-effects.
-It stands to reason that people with more serve underlying conditions may gain more from more often attending healthcare providers once given health insurance.
+It stands to reason that people with more severe underlying conditions may gain more from more often attending healthcare providers once given health insurance.
 These underlying causes cannot be controlled for by researchers, as we cannot hope to observe and control for health conditions that are yet to even be diagnosed.
 This means underlying health conditions are an unobserved confounder, and will bias estimates of the ADE and AIE in this setting.
 
@@ -51,7 +51,7 @@ First-stage \eqref{eqn:parametric-firststage} is identified, with $\theta + \zet
 Second-stage \eqref{eqn:parametric-secondstage} has the following definitions, and is not identified thanks to the correlated error term, $\varepsilon_i$.
 \begin{enumerate}[label=\textbf{(\alph*)}]
     \item $\alpha = \E{\mu_0(0; \vec X_i)}$ and $\varphi(\vec X_i) = \mu_0(0; \vec X_i) - \alpha$ are the intercept terms.
-    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the controlled indirect effect under $Z_i = 0$ conditional on $\vec X_i$.
+    \item $\beta = \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i)$ is the controlled mediator effect under $Z_i = 0$ conditional on $\vec X_i$.
     \item $\gamma = \mu_0(1; \vec X_i) - \mu_0(0; \vec X_i)$ is the controlled direct effect under $D_i = 0$ conditional on $\vec X_i$.
     \item $\delta = \mu_1(1; \vec X_i) - \mu_0(1; \vec X_i) - \big( \mu_1(0; \vec X_i) - \mu_0(0; \vec X_i) \big)$ is the average interaction effect conditional on $\vec X_i$.
     \item $\varepsilon_i$ is the disruptive error term, with the following definition
@@ -68,7 +68,7 @@ The ADE and AIE are averages of these random coefficients:
 where $\tilde U_i(z) = \Egiven{ U_i(z, 1) - U_i(z, 0)}{D_i(0)=0, D_i(1)=1, \vec X_i}$, for each $z=0,1$.
 Second-stage \eqref{eqn:parametric-secondstage} is not identified, so that the ADE and AIE are not identified in these regression equations --- \appendixref{appendix:regression-model} shows the omitted variables bias formulae.
 
-By construction, $\vec U_i \coloneqq \Big(U_i(z,d) \Big)_{(z,d) \in \{0,1\}^2}$ is an unobserved confounder.
+By construction, $\vec U_i \coloneqq \big(U_i(z,d) \big)_{z,d =0,1}$ is an unobserved confounder.
 The regression estimates of $\beta, \gamma, \delta$ in second-stage \eqref{eqn:parametric-secondstage} give unbiased estimates if $D_i$ is also conditionally quasi-randomly assigned: $D_i \indep  \vec U_{i} $.
 If not, then estimates of CM effects suffer from omitted variables bias from failing to adjust for the unobserved confounder, $\vec U_i$.
 
@@ -111,13 +111,13 @@ If there are any selection-into-$D_i$ benefits unobserved to the researcher, the
 \newtheorem{proposition}{Proposition}
 \begin{proposition}
     \label{prop:roy-seq-ig}
-    Suppose mediator selection follows a Roy model \eqref{eqn:roy-model}, and selection is not fully explained by costs and observed gains.
+    Suppose mediator selection follows a Roy model \eqref{eqn:roy-model}, and selection-into-mediator is not fully explained by costs and observed gains, for at least one pair of realisations $(Z_i, D_i) \in \{0,1\}^2$.
     Then mediator quasi-random assignment does not hold, and thus conventional CM estimands are at risk of selection bias.
 \end{proposition}
 
 This is an equivalence statement: selection based on costs and benefits is only consistent with mediator quasi-random assignment if the researcher observed every single source of mediator benefits.
 See \appendixref{appendix:roy-seq-ig} for the proof.
-This means than the vector of control variables $\vec X_i$ must be incredibly rich.
+This means that the vector of control variables $\vec X_i$ must be incredibly rich.
 Together, $\vec X_i$ and unobserved cost differences $U_{C,i}$ must explain selection-into-$D_i$ one hundred percent.
 In the Roy model framework, however, individuals make decisions about mediator take-up based on gains --- whether the researcher observes them or not.
 The unobserved gains are unlikely to be fully captured by an observed control set $\vec X_i$, except in very special cases.

@@ -64,7 +64,7 @@ direct_dist.plot <- normal.data %>%
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
         x = 0.5, y = 6.875,
-        xend = -0.3, yend = 5.25,
+        xend = -0.3, yend = 6,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth value
@@ -99,7 +99,7 @@ indirect_dist.plot <- normal.data %>%
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Other presentation options
     theme_bw() +
-    scale_x_continuous(expand = c(0, 0),
+    scale_x_continuous(expand = c(0.01, 0.01),
         name = TeX("Estimate $-$ True Value"),
         breaks = seq(-1.0, 1.0, by = 0.25)         ,
         limits = 0.81 * c(-1, 1)) +
@@ -126,40 +126,41 @@ direct_dist.plot <- normal.data %>%
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     annotate("text", colour = colour.list[1],
-        x = 0.45, y = 7,
+        x = 0.25, y = 8.25,
         fontface = "bold",
         label = ("Conventional CM"),
         size = 4, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.5, y = 6.875,
-        xend = -0.3, yend = 5.25,
-        linewidth = 0.75, curvature = -0.25,
+        x = 0.0375, y = 8.4,
+        xend = -0.25, yend = 7,
+        linewidth = 0.75, curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Dist of MTE estimates.
     geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     annotate("text", colour = colour.list[2],
-        x = 0.4, y = 3.5,
+        x = 0.255, y = 5.25,
         fontface = "bold",
         label = ("Semi-parametric MTE"),
         size = 4, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[2],
-        x = 0.4, y = 3.375,
-        xend = 0.25, yend = 1.25,
+        x = 0.25, y = 5,
+        xend = 0.2, yend = 1.75,
         linewidth = 0.75, curvature = -0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth value
     geom_vline(xintercept = 0,
-        colour = "black", linetype = "dashed", linewidth = 1) +
+        colour = "black", linetype = "dashed") +
     # Other presentation options
     theme_bw() +
-    scale_x_continuous(expand = c(0, 0),
+    scale_x_continuous(
         name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.25),
-        limits = 0.81 * c(-1, 1)) +
+        breaks = seq(-1.0, 1.0, by = 0.1),
+        expand = c(0.01, 0.01),
+        limits = 0.5 * c(-1, 1)) +
     scale_y_continuous(expand = c(0, 0), name = "",
-        breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
+        breaks = seq(0, 12, by = 1), limits = c(0, 11.5)) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -177,122 +178,28 @@ indirect_dist.plot <- normal.data %>%
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     # Dist of MTE estimates.
-    geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
+    geom_density(aes(x = cf_indirect_effect - truth_indirect_effect,
         y = after_stat(density)), adjust = 2, adjust = 2,
         colour = "black", fill = colour.list[2], alpha = 0.75) +
     # Truth value
     geom_vline(xintercept = 0,
-        colour = "black", linetype = "dashed", linewidth = 1) +
+        colour = "black", linetype = "dashed") +
     # Other presentation options
     theme_bw() +
-    scale_x_continuous(expand = c(0, 0),
-        name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.25)         ,
-        limits = 0.81 * c(-1, 1)) +
-    scale_y_continuous(expand = c(0, 0), name = "",
-        breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
+    scale_x_continuous(name = TeX("Estimate $-$ True Value"),
+        breaks = seq(-1.0, 1.0, by = 0.1),
+        expand = c(0.01, 0.01),
+        limits = 0.5 * c(-1, 1)) +
+    scale_y_continuous(name = "",
+        breaks = seq(0, 12, by = 1),
+        limits = c(0, 11),
+        expand = c(0, 0)) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
         plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
 # Save this plot
 ggsave(file.path(output.folder, "normal-indirect-dist.png"),
-    plot = indirect_dist.plot,
-    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
-
-
-################################################################################
-## Uniform dist errors: Plot dist of ADE and AIE estimates, around truth.
-
-# ADE estimates, by type.
-direct_dist.plot <- uniform.data %>%
-    ggplot() +
-    # Dist of OLS estimates.
-    geom_density(aes(x = (ols_direct_effect - truth_direct_effect),
-        y = after_stat(density)), adjust = 2,
-        colour = "black", fill = colour.list[1], alpha = 0.75) +
-    annotate("text", colour = colour.list[1],
-        x = 0.45, y = 7,
-        fontface = "bold",
-        label = ("Conventional CM"),
-        size = 4.25, hjust = 0.5, vjust = 0) +
-    annotate("curve", colour = colour.list[1],
-        x = 0.5, y = 6.875,
-        xend = -0.3, yend = 5.25,
-        linewidth = 0.75, curvature = -0.25,
-        arrow = arrow(length = unit(0.25, 'cm'))) +
-    ## Dist of Heckit estimates.
-    #geom_density(aes(x = (heckit_direct_effect - truth_direct_effect),
-    #    y = after_stat(density)), adjust = 2,
-    #    colour = "black", fill = colour.list[2], alpha = 0.75) +
-    # Dist of MTE estimates.
-    geom_density(aes(x = (cf_direct_effect - truth_direct_effect),
-        y = after_stat(density)), adjust = 2,
-        colour = "black", fill = colour.list[2], alpha = 0.75) +
-    annotate("text", colour = colour.list[2],
-        x = 0.4, y = 4,
-        fontface = "bold",
-        label = ("Semi-parametric MTE"),
-        size = 4.25, hjust = 0.5, vjust = 0) +
-    annotate("curve", colour = colour.list[2],
-        x = 0.5, y = 3.875,
-        xend = 0.25, yend = 0.75,
-        linewidth = 0.75, curvature = -0.25,
-        arrow = arrow(length = unit(0.25, 'cm'))) +
-    # Truth value
-    geom_vline(xintercept = 0,
-        colour = "black", linetype = "dashed", linewidth = 1) +
-    # Other presentation options
-    theme_bw() +
-    scale_x_continuous(expand = c(0, 0),
-        name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.25)         ,
-        limits = 0.81 * c(-1.0, 1.0)) +
-    scale_y_continuous(expand = c(0, 0), name = "",
-        breaks = seq(0, 100, by = 1),
-        limits = c(0, 8.5), oob = scales::rescale_none) +
-    ggtitle("Density") +
-    theme(plot.title = element_text(size = rel(1), hjust = 0),
-        plot.title.position = "plot",
-        plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
-# Save this plot
-ggsave(file.path(output.folder, "uniform-direct-dist.png"),
-    plot = direct_dist.plot,
-    units = "cm", dpi = 300, width =  fig.width, height = fig.height)
-
-# AIE estimates, by type.
-indirect_dist.plot <- uniform.data %>%
-    ggplot() +
-    # Dist of OLS estimates.
-    geom_density(aes(x = ols_indirect_effect - truth_indirect_effect,
-        y = after_stat(density)), adjust = 2,
-        colour = "black", fill = colour.list[1], alpha = 0.75) +
-    # Dist of Heckit MTE estimates.
-    geom_density(aes(x = heckit_indirect_effect - truth_indirect_effect,
-        y = after_stat(density)), adjust = 2,
-        colour = "black", fill = colour.list[2], alpha = 0.75) +
-    # Dist of semi-parametric MTE estimates.
-    geom_density(aes(x = cf_indirect_effect - truth_indirect_effect,
-        y = after_stat(density)), adjust = 2,
-        colour = "black", fill = colour.list[3], alpha = 0.75) +
-    # Truth value
-    geom_vline(xintercept = 0,
-        colour = "black", linetype = "dashed", linewidth = 1) +
-    # Other presentation options
-    theme_bw() +
-    scale_x_continuous(expand = c(0, 0),
-        name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.25)         ,
-        limits = 0.81 * c(-1.0, 1.0)) +
-    scale_y_continuous(expand = c(0, 0), name = "",
-        breaks = seq(0, 100, by = 1),
-        limits = c(0, 8.5), oob = scales::rescale_none) +
-    ggtitle("Density") +
-    theme(plot.title = element_text(size = rel(1), hjust = 0),
-        plot.title.position = "plot",
-        plot.margin = unit(c(0.5, 3, 0, 0), "mm"))
-# Save this plot
-ggsave(file.path(output.folder, "uniform-indirect-dist.png"),
     plot = indirect_dist.plot,
     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
@@ -312,58 +219,58 @@ rho_directeffect_bias.plot <- rho.data %>%
     geom_line(aes(y = (ols_direct_effect_up)), alpha = 0.5,
         colour = colour.list[1], linetype = "dashed") +
     annotate("text", colour = colour.list[1],
-        x = 0.125, y = 0.25,
+        x = 0.125, y = 1.025,
         fontface = "bold",
         label = ("Conventional CM"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.55, y = 0.325,
-        xend = 0.75, yend = 0.55,
+        x = 0.6, y = 1.05,
+        xend = 0.875, yend = 1.25,
         linewidth = 0.75,
         curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # MTE est + 95 % CI
-    geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
+    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
         colour = colour.list[2], linetype = "dashed") +
     geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
         colour = colour.list[2], linetype = "dashed") +
-    annotate("text", colour = colour.list[3],
-        x = -0.5, y = 2.25,
+    annotate("text", colour = colour.list[2],
+        x = 0, y = 2.3,
         fontface = "bold",
         label = ("Semi-parametric MTE"),
         size = 4.25, hjust = 0.5, vjust = 0) +
-    annotate("curve", colour = colour.list[3],
-        x = -0.65, y = 2.2,
-        xend = -0.55, yend = 1.65,
+    annotate("curve", colour = colour.list[2],
+        x = -0.125, y = 2.25,
+        xend = -0.35, yend = 2,
         linewidth = 0.75,
         curvature = 0.125,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth:
-    geom_line(aes(y = (truth_direct_effect)),
+    geom_line(aes(y = truth_direct_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     annotate("text", colour = "black",
-        x = 0.65, y = 1.8,
+        x = 0.5, y = 2.05,
         fontface = "bold",
         label = ("Truth"),
         size = 4.25, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = "black",
-        x = 0.65, y = 1.75,
-        xend = 0.7, yend = 1.45,
+        x = 0.55, y = 2,
+        xend = 0.65, yend = 1.625,
         linewidth = 0.75, curvature = -0.125,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX(r"(Corr$(U_{i,0}, U_{i,1})$)"),
-        expand = c(0, 0),
+        name = TeX(r"($Corr\textit{\left( U_i(z, 0), U_i(z, 1) \right)$})"),
         breaks = seq(-1, 1, by = 0.25),
-        limits = c(-1.025, 1.025)) +
+        expand = c(0.005, 0.005),
+        limits = c(-1, 1)) +
     scale_y_continuous(name = "",
-        breaks = seq(0, 2.5, by = 0.25),
-        limits = c(0, 2.5),
+        breaks = seq(0, 5, by = 0.25),
+        limits = c(1, 2.5),
         expand = c(0.01, 0.01)) +
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
@@ -372,7 +279,7 @@ rho_directeffect_bias.plot <- rho.data %>%
         axis.title.x = element_text(vjust = -0.25))
 # Save this plot
 ggsave(file.path(output.folder, "rho-directeffect-bias.png"),
-    plot = rho_directeffect_bias.plot, dpi = 300,
+    plot = rho_directeffect_bias.plot,
     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 # Plot the bias in indirect effect est vs rho
@@ -387,7 +294,7 @@ rho_indirecteffect_bias.plot <- rho.data %>%
     geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
         colour = colour.list[1], linetype = "dashed") +
     # MTE est + 95 % CI
-    geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
+    geom_point(aes(y = cf_indirect_effect), colour = colour.list[2]) +
     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
@@ -395,18 +302,18 @@ rho_indirecteffect_bias.plot <- rho.data %>%
     geom_line(aes(y = (cf_indirect_effect_up)), alpha = 0.5,
         colour = colour.list[2], linetype = "dashed") +
     # Truth:
-    geom_line(aes(y = (truth_indirect_effect)),
+    geom_line(aes(y = truth_indirect_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX(r"(Corr$(U_i(.,0)}, U_i(.,1)$)"),
-        expand = c(0, 0),
+        name = TeX(r"($Corr\textit{\left( U_i(z, 0), U_i(z, 1) \right)$})"),
+        expand = c(0.005, 0.005),
         breaks = seq(-1, 1, by = 0.25),
-        limits = c(-1.025, 1.025)) +
+        limits = c(-1, 1)) +
     scale_y_continuous(name = "",
-        breaks = seq(0, 2.5, by = 0.25),
-        limits = c(0, 2.5),
+        breaks = seq(0, 5, by = 0.25),
+        limits = c(0, 1.5),
         expand = c(0.01, 0.01)) +
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
@@ -415,7 +322,7 @@ rho_indirecteffect_bias.plot <- rho.data %>%
         axis.title.x = element_text(vjust = -0.25))
 # Save this plot
 ggsave(file.path(output.folder, "rho-indirecteffect-bias.png"),
-    plot = rho_indirecteffect_bias.plot, dpi = 300,
+    plot = rho_indirecteffect_bias.plot,
     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 
@@ -433,27 +340,57 @@ sigma_1_directeffect_bias.plot <- sigma_1.data %>%
         colour = colour.list[1], linetype = "dashed") +
     geom_line(aes(y = (ols_direct_effect_up)), alpha = 0.5,
         colour = colour.list[1], linetype = "dashed") +
+    annotate("text", colour = colour.list[1],
+        x = 0.75, y = 1.025,
+        fontface = "bold",
+        label = ("Conventional CM"),
+        size = 4.25, hjust = 0.5, vjust = 0) +
+    annotate("curve", colour = colour.list[1],
+        x = 1.225, y = 1.05,
+        xend = 1.5, yend = 1.2,
+        linewidth = 0.75, curvature = 0.25,
+        arrow = arrow(length = unit(0.25, 'cm'))) +
     # MTE est + 95 % CI
-    geom_point(aes(y = cf_direct_effect), colour = colour.list[3]) +
+    geom_point(aes(y = cf_direct_effect), colour = colour.list[2]) +
     geom_ribbon(aes(ymin = cf_direct_effect_low, ymax = cf_direct_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     geom_line(aes(y = (cf_direct_effect_low)), alpha = 0.5,
         colour = colour.list[2], linetype = "dashed") +
     geom_line(aes(y = (cf_direct_effect_up)), alpha = 0.5,
         colour = colour.list[2], linetype = "dashed") +
+    annotate("text", colour = colour.list[2],
+        x = 1.25, y = 2.3,
+        fontface = "bold",
+        label = ("Semi-parametric MTE"),
+        size = 4.25, hjust = 0.5, vjust = 0) +
+    annotate("curve", colour = colour.list[2],
+        x = 1.425, y = 2.25,
+        xend = 1.75, yend = 1.9,
+        linewidth = 0.75, curvature = -0.125,
+        arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth:
     geom_line(aes(y = truth_direct_effect),
         colour = "black", linetype = "dashed", linewidth = 1) +
+    annotate("text", colour = "black",
+        x = 0.8, y = 1.9,
+        fontface = "bold",
+        label = ("Truth"),
+        size = 4.25, hjust = 0.5, vjust = 0) +
+    annotate("curve", colour = "black",
+        x = 0.8, y = 1.875,
+        xend = 0.75, yend = 1.63,
+        linewidth = 0.75, curvature = 0.125,
+        arrow = arrow(length = unit(0.25, 'cm'))) +
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX(r"(Var$(U_i(.,1))^{0.5}$)"),
+        name = TeX(r"($\sqrt{Var \textit{\left( U_i(z, 1) \right)}}$)"),
         expand = c(0, 0),
         breaks = seq(0, 2, by = 0.25),
         limits = c(-0.02, 2.02)) +
     scale_y_continuous(name = "",
         breaks = seq(0, 2.5, by = 0.25),
-        limits = c(0, 2.5),
+        limits = c(1, 2.5),
         expand = c(0.01, 0.01)) +
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
@@ -462,7 +399,7 @@ sigma_1_directeffect_bias.plot <- sigma_1.data %>%
         axis.title.x = element_text(vjust = -0.25))
 # Save this plot
 ggsave(file.path(output.folder, "sigma1-directeffect-bias.png"),
-    plot = sigma_1_directeffect_bias.plot, dpi = 300,
+    plot = sigma_1_directeffect_bias.plot,
     units = "cm", dpi = 300, width =  fig.width, height = fig.height)
 
 # Plot the bias in indirect effect est vs sigma_1
@@ -477,7 +414,7 @@ sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
     geom_line(aes(y = (ols_indirect_effect_up)), alpha = 0.5,
         colour = colour.list[1], linetype = "dashed") +
     # MTE est + 95 % CI
-    geom_point(aes(y = cf_indirect_effect), colour = colour.list[3]) +
+    geom_point(aes(y = cf_indirect_effect), colour = colour.list[2]) +
     geom_ribbon(aes(ymin = cf_indirect_effect_low, ymax = cf_indirect_effect_up),
         fill = colour.list[2], alpha = 0.2) +
     geom_line(aes(y = (cf_indirect_effect_low)), alpha = 0.5,
@@ -490,13 +427,13 @@ sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
     # Presentation options
     theme_bw() +
     scale_x_continuous(
-        name = TeX(r"(Var$(U_i(.,1))^{0.5}$)"),
-        expand = c(0, 0),
+        name = TeX(r"($\sqrt{Var \textit{\left( U_i(z, 1) \right)}}$)"),
+        expand = c(0.01, 0.01),
         breaks = seq(0, 2, by = 0.25),
-        limits = c(-0.02, 2.02)) +
+        limits = c(0, 2)) +
     scale_y_continuous(name = "",
         breaks = seq(0, 2.5, by = 0.25),
-        limits = c(0, 2.5),
+        limits = c(0, 1.5),
         expand = c(0.01, 0.01)) +
     ggtitle("Estimate") +
     theme(plot.title = element_text(hjust = 0, size = rel(1)),
@@ -505,5 +442,5 @@ sigma_1_indirecteffect_bias.plot <- sigma_1.data %>%
         axis.title.x = element_text(vjust = -0.25))
 # Save this plot
 ggsave(file.path(output.folder, "sigma1-indirecteffect-bias.png"),
-    plot = sigma_1_indirecteffect_bias.plot, dpi = 300,
+    plot = sigma_1_indirecteffect_bias.plot,
     units = "cm", dpi = 300, width =  fig.width, height = fig.height)

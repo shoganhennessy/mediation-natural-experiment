@@ -21,18 +21,18 @@ Additionally, individuals' choice of provider likely depend on neighbourhood-bas
     \end{subfigure}
     \begin{subfigure}[c]{0.475\textwidth}
         \centering
-        \caption{MTE Estimates.}
+        \caption{Mediator MTE Estimates.}
         \includegraphics[width=\textwidth]{
             sections/figures/oregon-mte-est.png}
     \end{subfigure}
     \label{fig:oregon-est}
     \justify
-    \footnotesize    
+    \footnotesize
     \textbf{Note:}
     Panel A shows the estimates of the first-stage propensity to use healthcare in the year following the health insurance experiment.
-    It uses a logit specification, controlling for household size and whether losing the lottery $\pi(0; \vec X_i)$, or winning the lottery $\pi(1; \vec X_i)$.
+    It uses a first-stage probit specification, controlling for household size and whether losing the lottery $\pi(0; \vec X_i)$, or winning the lottery $\pi(1; \vec X_i)$.
     Average utilisaition after having lost the lottery is roughly $\Egiven{D_i}{Z_i = 0} = \E{\pi(0; \vec X_i)} = 0.715$, and after winning $\Egiven{D_i}{Z_i = 1} = \E{\pi(1; \vec X_i)} = 0.750$.
-    Panel B shows an estimated point-wise Mediator MTE in the lottery loser $Z_i = 0$ subsample, using local IV for the estimation procedure.
+    Panel B shows an estimated point-wise Mediator MTE subsample, using local IV for the estimation procedure for illustrative purposes.
     The shaded region refers to the AIE(0), where the average causal effect is calculated by integrating across the region of mediator compliers, with $\pi(0; \vec X_i) \leq U_i < \pi(1; \vec X_i)$ --- i.e., between 0.715 and 0.750 at the average covariate values.
 \end{figure}
 

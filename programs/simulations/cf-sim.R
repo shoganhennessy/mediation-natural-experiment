@@ -23,6 +23,7 @@ set.seed(47)
 digits.no <- 3
 # Define where output files go.
 output.folder <- file.path("sim-output")
+tables.folder <- file.path("..", "..", "text", "sections", "tables")
 # Define the sample size to work with.
 sample.N <- 5 * 10^3
 
@@ -43,7 +44,8 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
     # First covariate, \vec X_i^-
     X_minus <- 4 + rnorm(sample.size, mean = 0, sd = 1)
     # Second covariate, the mediator instrument.
-    X_IV <- 4 * sample(x = seq(-1, 1, length.out = 20),
+    iv.size <- 4
+    X_IV <- sample(x = seq(-iv.size, iv.size, by = 1),
         size = sample.size, replace = TRUE)
     # Simulate the five-dimensional joint error vector ordered as
     # (U(0,0), U(0,1), U(1,0), U(1,1), U_C).
@@ -79,6 +81,7 @@ roy.data <- function(rho, sigma_0, sigma_1, sigma_C,
     # Define the mean potential outcomes.
     mu_outcome_z_d_X <- function(z, d, x_minus){
         return(x_minus + z + d + z * d)
+        # return(x_minus + 2.5 * z + 2.5 * d)
     }
     mu_cost_z_X <- function(z, x_minus, x_iv){
         # Lower mediator costs under treatment increase mediator take-up.
@@ -239,8 +242,7 @@ mediate.ols <- function(example.data){
 ################################################################################
 ## Semi-parametric endpoint estimator of AIE(0) and ADE(1).
 
-mediate.semiparametric <- function(example.data,
-        spline.bs = "cr", support.warning = FALSE){
+mediate.semiparametric <- function(example.data, support.warning = FALSE){
     ### The estimator follows the paper's new identification argument:
     ## 1. Estimate the mediator propensity score on the full sample.
     ## 2. Estimate m(p;0,X^-) in the Z = 0 subsample with mgcv.
@@ -285,11 +287,11 @@ mediate.semiparametric <- function(example.data,
     # 4. Estimate m(p;0,X^-) directly in the Z = 0 subsample.
     # Use a cubic regression spline with REML smoothing selection.
     #cf_outcome_Z0.reg <- gam(
-    #    Y ~ 1 + X_minus + s(pi.est, bs = spline.bs),
+    #    Y ~ 1 + X_minus + s(pi.est, bs = "cr"),
     #    method = "REML", data = outcome_Z0.data)
-    #iv.degree <- length(unique(outcome_Z0.data$pi.est)) - 1
+    iv.degree <- length(unique(outcome_Z0.data$X_IV)) - 1
     cf_outcome_Z0.reg <- lm(
-        Y ~ 1 + X_minus + poly(pi.est, degree = 5),
+        Y ~ 1 + X_minus + poly(pi.est, degree = 5, raw = TRUE, simple = TRUE),
         data = outcome_Z0.data)
     # 5. Evaluate the same Z = 0 outcome curve at both endpoint propensities.
     predict_pi0.data <- endpoint_Z0.data
@@ -323,8 +325,7 @@ mediate.semiparametric <- function(example.data,
 estimated.loop <- function(boot.reps, example.data,
         bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
         # DGP parameters
-        rho, sigma_0, sigma_1, sigma_C,
-        spline.bs = "cr") {
+        rho, sigma_0, sigma_1, sigma_C, sample.size = sample.N) {
     # 1. Naive OLS benchmark.
     ols_total_effect <- c()
     ols_direct_effect <- c()
@@ -349,7 +350,7 @@ estimated.loop <- function(boot.reps, example.data,
         }
         else if (bootstrap == FALSE){
             boot.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
-                error.dist = error.dist)
+                error.dist = error.dist, sample.size = sample.size)
             truth.est <- theoretical.values(boot.data)
         }
         else {
@@ -362,8 +363,7 @@ estimated.loop <- function(boot.reps, example.data,
         }
         ols.est <- tryCatch(mediate.ols(boot.data),
             error = function(e) NULL)
-        cf.est <- tryCatch(mediate.semiparametric(boot.data,
-            spline.bs = spline.bs),
+        cf.est <- tryCatch(mediate.semiparametric(boot.data),
             error = function(e) NULL)
         truth_total_effect[i] <- truth.est$average_total_effect
         truth_direct_effect[i] <- truth.est$average_direct_effect
@@ -441,7 +441,7 @@ estimated.loop <- function(boot.reps, example.data,
 ################################################################################
 ## Compare estimation methods in a one-shot simulation.
 
-# DEclare the parameters
+# Declare the meaningful parameters
 rho <- 0.5
 sigma_0 <- 1
 sigma_1 <- 1.5
@@ -455,8 +455,7 @@ print(theoretical.values(simulated.data, print.truth = TRUE))
 print(mediate.ols(simulated.data))
 
 # Show the new endpoint estimator of AIE(0), then ADE(1) = ATE - AIE(0).
-cf.one.shot <- mediate.semiparametric(simulated.data,
-    spline.bs = "cr", support.warning = TRUE)
+cf.one.shot <- mediate.semiparametric(simulated.data, support.warning = TRUE)
 print(summary(cf.one.shot$outcome.reg))
 
 
@@ -464,53 +463,44 @@ print(summary(cf.one.shot$outcome.reg))
 ## Repeated-DGP simulation for normally distributed errors.
 
 # Large simulated population for approximate truth values.
-roy.data(rho, sigma_0, sigma_1, sigma_C, sample.size = 10^6,
-    error.dist = "normal") %>%
-    theoretical.values(print.truth = TRUE) %>%
-    print()
+large.data <- roy.data(rho, sigma_0, sigma_1, sigma_C, sample.size = 10^6,
+    error.dist = "normal")
+truth.values <- large.data %>% theoretical.values(print.truth = TRUE)
 
-# Generate the data.
+# Save the values in text files for the paper autoupdate.
+mean(large.data$D) %>%
+    round(2) %>%
+    prettyNum(big.mark = ",", scientific = FALSE) %>%
+    writeLines(file.path(tables.folder, "sim-meanD.txt"))
+(100 * truth.values$average_first_stage) %>%
+    round(2) %>%
+    prettyNum(big.mark = ",", scientific = FALSE) %>%
+    writeLines(file.path(tables.folder, "sim-complier-size.txt"))
+truth.values$average_total_effect %>%
+    round(2) %>%
+    prettyNum(big.mark = ",", scientific = FALSE) %>%
+    writeLines(file.path(tables.folder, "sim-ate.txt"))
+truth.values$average_direct_effect %>%
+    round(2) %>%
+    prettyNum(big.mark = ",", scientific = FALSE) %>%
+    writeLines(file.path(tables.folder, "sim-ade.txt"))
+truth.values$average_indirect_effect %>%
+    round(2) %>%
+    prettyNum(big.mark = ",", scientific = FALSE) %>%
+    writeLines(file.path(tables.folder, "sim-aie.txt"))
+
+# Generate the data (with a realistic sample size).
 normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
     error.dist = "normal")
 
-# Change to 10^4 for the final simulation. A smaller value is useful for testing.
+# Simulate 10^3 times.  (smaller in testing)
 sim.reps <- 10^3
 normal.est <- estimated.loop(sim.reps, normal.data,
     bootstrap = FALSE, print.progress = TRUE, error.dist = "normal",
-    rho, sigma_0, sigma_1, sigma_C,
-    spline.bs = "cr")
+    rho, sigma_0, sigma_1, sigma_C, sample.size = sample.N)
 
 # Save the simulated data.
-#normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
-
-#! Test: show the plot.
-## Plot repeated-DGP estimation errors.
-plot.data <- normal.est$data %>%
-    transmute(
-        OLS_AIE0 = ols_indirect_effect - truth_indirect_effect,
-        MTE_AIE0 = cf_indirect_effect - truth_indirect_effect,
-        OLS_ADE1 = ols_direct_effect - truth_direct_effect,
-        MTE_ADE1 = cf_direct_effect - truth_direct_effect) %>%
-    pivot_longer(cols = everything(), names_to = "estimand_method",
-        values_to = "error") %>%
-    separate(estimand_method, into = c("method", "estimand"), sep = "_") %>%
-    mutate(
-        method = recode(method,
-            "OLS" = "Conventional CM",
-            "MTE" = "Semi-parametric MTE"),
-        estimand = recode(estimand,
-            "AIE0" = "AIE(0)",
-            "ADE1" = "ADE(1)"))
-
-error.plot <- ggplot(plot.data, aes(x = error, fill = method, colour = method)) +
-    geom_density(alpha = 0.25, na.rm = TRUE) +
-    geom_vline(xintercept = 0, linetype = "dashed", colour = "black") +
-    facet_wrap(~ estimand, scales = "free") +
-    labs(x = "Estimate minus true effect", y = "Density",
-        fill = NULL, colour = NULL) +
-    theme_minimal()
-
-print(error.plot)
+normal.est$data %>% write_csv(file.path(output.folder, "normal-cf-data.csv"))
 
 
 ################################################################################
@@ -518,7 +508,7 @@ print(error.plot)
 
 # Define an empty dataframe, to start adding to.
 rho_normal.data <- roy.data(rho, sigma_0, sigma_1, sigma_C,
-    error.dist = "normal")
+    error.dist = "normal", sample.size = 10^4)
 rho.data <- estimated.loop(1, rho_normal.data,
     bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
     rho, sigma_0, sigma_1, sigma_C)$estimates
@@ -527,15 +517,18 @@ rho.data <- rho.data[0, ]
 # Define values in rho \in [-1, 1] to go across
 rho.values <- seq(-1, 1, by = 0.25)
 # Define the number of boot reps for each
-boot.reps <- 10^1
+boot.reps <- 10^3
 i <- 0
+
+# Give it appropriate parameters, minimising variance from cost decision.
+sigma_C <- 0.01
 
 # Start the rho loop
 for (rho.value in rho.values){
     i <- i + 1
     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
     rho_sim.data <- roy.data(rho.value, sigma_0, sigma_1, sigma_C,
-        error.dist = "normal")
+        error.dist = "normal", sample.size = 10^4)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
     rho.boot <- estimated.loop(boot.reps, rho_sim.data,
         bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
@@ -570,12 +563,15 @@ sigma_1.values <- seq(0, 2, by = 0.25)
 boot.reps <- 10^3
 i <- 0
 
+# Give it appropriate parameters, minimising variance from cost decision.
+sigma_C <- 0.01
+
 # Start the sigma_1 loop
 for (sigma_1.value in sigma_1.values){
     i <- i + 1
     # Simulate the data: rho, sigma_0, sigma_1, sigma_C
     sigma_1_sim.data <- roy.data(rho, sigma_0, sigma_1.value, sigma_C,
-        error.dist = "normal")
+        error.dist = "normal", sample.size = 10^4)
     # Get the truth + estimates + bootstrapped SEs, and save rho value
     sigma_1.boot <- estimated.loop(boot.reps, sigma_1_sim.data,
         bootstrap = TRUE, print.progress = FALSE, error.dist = "normal",
