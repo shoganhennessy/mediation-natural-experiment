@@ -77,7 +77,7 @@ For notation purposes, suppose the vector of control variables $\vec X_i$ has at
 denote $\vec X_i^{\text{IV}}$ as one entry in the vector, and $\vec X_i^-$ as the remaining.
 For each $z = 0,1$ and each possible value of $\vec x_i^{\mathrm{IV}}$ in the support of $\vec X_i^{\mathrm{IV}}$, write the mediator propensity score as
 \[ \pi\big( z; \;\vec x^{\mathrm{IV}}, \vec x^- \big) = \Prob{D_i=1 \mid Z_i=z, \vec X_i^{\mathrm{IV}}=\vec x^{\mathrm{IV}}, \vec X_i^-=\vec x^-}. \]
-Write $P_i = \pi(Z_i; \vec X_i^-, \vec X_i^{\mathrm{IV}})$ for the observed propensity score, and
+Write $P_i = \pi(Z_i; \vec X_i^{\mathrm{IV}}, \vec X_i^-)$ for the observed propensity score, and
 $\mathcal P_{z} \left(\vec X_i^- \right) \coloneqq \operatorname{Supp}\left( P_i \mid Z_i = z,\vec X_i^- \right)$ for the IV-guided propensity score support for each treatment arm $z=0,1$.
 \begin{assumptionMTE}
     \label{mte:instrument}

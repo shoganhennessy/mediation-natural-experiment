@@ -58,26 +58,27 @@ direct_dist.plot <- normal.data %>%
         y = after_stat(density)), adjust = 2,
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     annotate("text", colour = colour.list[1],
-        x = 0.45, y = 7,
+        x = 0.25, y = 8.25,
         fontface = "bold",
         label = ("Conventional CM"),
-        size = 4.25, hjust = 0.5, vjust = 0) +
+        size = 4, hjust = 0.5, vjust = 0) +
     annotate("curve", colour = colour.list[1],
-        x = 0.5, y = 6.875,
-        xend = -0.3, yend = 6,
-        linewidth = 0.75, curvature = -0.25,
+        x = 0.0375, y = 8.4,
+        xend = -0.25, yend = 7,
+        linewidth = 0.75, curvature = 0.25,
         arrow = arrow(length = unit(0.25, 'cm'))) +
     # Truth value
     geom_vline(xintercept = 0,
-        colour = "black", linetype = "dashed", linewidth = 1) +
+        colour = "black", linetype = "dashed") +
     # Other presentation options
     theme_bw() +
-    scale_x_continuous(expand = c(0, 0),
+    scale_x_continuous(
         name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.25),
-        limits = 0.81 * c(-1, 1)) +
+        breaks = seq(-1.0, 1.0, by = 0.1),
+        expand = c(0.01, 0.01),
+        limits = 0.5 * c(-1, 1)) +
     scale_y_continuous(expand = c(0, 0), name = "",
-        breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
+        breaks = seq(0, 12, by = 1), limits = c(0, 11.5)) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -96,15 +97,16 @@ indirect_dist.plot <- normal.data %>%
         colour = "black", fill = colour.list[1], alpha = 0.75) +
     # Truth value
     geom_vline(xintercept = 0,
-        colour = "black", linetype = "dashed", linewidth = 1) +
+        colour = "black", linetype = "dashed") +
     # Other presentation options
     theme_bw() +
-    scale_x_continuous(expand = c(0.01, 0.01),
+    scale_x_continuous(
         name = TeX("Estimate $-$ True Value"),
-        breaks = seq(-1.0, 1.0, by = 0.25)         ,
-        limits = 0.81 * c(-1, 1)) +
+        breaks = seq(-1.0, 1.0, by = 0.1),
+        expand = c(0.01, 0.01),
+        limits = 0.5 * c(-1, 1)) +
     scale_y_continuous(expand = c(0, 0), name = "",
-        breaks = seq(0, 10, by = 1), limits = c(0, 8.5)) +
+        breaks = seq(0, 12, by = 1), limits = c(0, 11.5)) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
@@ -190,10 +192,8 @@ indirect_dist.plot <- normal.data %>%
         breaks = seq(-1.0, 1.0, by = 0.1),
         expand = c(0.01, 0.01),
         limits = 0.5 * c(-1, 1)) +
-    scale_y_continuous(name = "",
-        breaks = seq(0, 12, by = 1),
-        limits = c(0, 11),
-        expand = c(0, 0)) +
+    scale_y_continuous(expand = c(0, 0), name = "",
+        breaks = seq(0, 12, by = 1), limits = c(0, 11.5)) +
     ggtitle("Density") +
     theme(plot.title = element_text(size = rel(1), hjust = 0),
         plot.title.position = "plot",
