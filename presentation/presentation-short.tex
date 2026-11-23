@@ -1,4 +1,4 @@
-\documentclass[dvipsnames,handout]{beamer} % Use handout option to remove pauses.
+\documentclass[dvipsnames]{beamer} % Use handout option to remove pauses.
 \usetheme{default}
 \usefonttheme{structurebold}
 \usefonttheme[onlymath]{serif}
@@ -7,7 +7,7 @@
 % Slide title background color
 \definecolor{background}{HTML}{ede6d8}
 % Slide title text color
-\definecolor{titleText}{HTML}{2c898f}
+\definecolor{titleText}{HTML}{2c8f7d}
 % and for structural objects
 % Add slide numbers in bottom right corner
 \defbeamertemplate{headline}{my header}{
@@ -107,7 +107,7 @@
 }
 \author[Senan Hogan-Hennessy, IESR Jinan University]{
     Senan Hogan-Hennessy \\
-    \vskip0.125cm
+    \vskip0.25cm
     International Research Fellow \\
     %IESR Jinan University \\
     %\href{mailto:seh325@cornell.edu}{\textcolor{blue}{seh325@cornell.edu}}
@@ -132,7 +132,7 @@
         %\vspace{0.5cm}
         \vskip0pt plus 1filll
         \par\noindent\rule{\textwidth}{0.4pt}
-        IESR-CHUK Joint Workshop \\
+        IESR-CUHK Joint Workshop \\
         24 November 2026
     \end{center}
 \end{frame}
@@ -148,7 +148,7 @@
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{This paper:}
     \begin{enumerate}
-        \item Develop selection bias concept for CM in observational settings, where bias can crowd out inference
+        \item Develop selection bias concept for CM in economics settings, where bias can crowd out inference
         \item Build an MTE--based model to tackle the identification problem
         \item Illustrate method in the Oregon Health Insurance Experiment.
     \end{enumerate}
@@ -181,7 +181,7 @@
     \frametitle{Oregon Health Insurance Experiment}
     In the USA, healthcare is only provided by the government in special cases
 
-    $\to$ Medicaid is the government programme which provides health insurance for those close to the poverty line ($>70$ million people in 2025).
+    $\to$ Medicaid provides health insurance close to the poverty line ($>70$ million people in 2025).
     \vskip-0.5cm
     \begin{figure}
         \centering
@@ -194,7 +194,7 @@
     \frametitle{Oregon Health Insurance Experiment}
     In the USA, healthcare is only provided by the government in special cases
 
-    $\to$ Medicaid is the government programme which provides health insurance for those close to the poverty line ($>70$ million people in 2025).
+    $\to$ Medicaid provides health insurance close to the poverty line ($>70$ million people in 2025).
     \begin{figure}
         \centering
         \begin{tikzpicture}[
@@ -243,18 +243,15 @@
             \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
             \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\  well-being};
             % Label the effect sizes.
-            \pause
             \path[->, thick] (treatment) edge (mediator);
             \node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
             \node[color=ForestGreen] [above=-0.15cm of firststage] {+4pp};
-            \pause
             \node[color=red] [below=0.7cm of mediator] {+8pp};
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
         \end{tikzpicture}
     \end{figure}
     \par\noindent\rule{\textwidth}{0.4pt}
     \vskip-0.125cm
-    \pause
     \textbf{Suggestive evidence:}
     \begin{itemize}
         \item If first-stage $\neq 0$, then \textcolor{ForestGreen}{healthcare} may be a mediating mechanism
@@ -317,8 +314,8 @@
     \end{figure}
     \par\noindent\rule{\textwidth}{0.4pt}
     \vskip-0.125cm
-    There is one missing piece to make a \textbf{definitive conclusion}:
     \pause
+    There is one missing piece to make a \textbf{definitive conclusion}:
     \[ \text{Size of causal effect }
     \textcolor{ForestGreen}{D_i} \to \textcolor{red}{Y_i} \hdots \]
     \vskip-0.125cm
@@ -407,6 +404,7 @@
 \begin{frame}
     \frametitle{Causal Mediation }
     Identification of the ADE $+$ AIE needs further assumptions.
+    \vskip-0.1cm
     \par\noindent\rule{\textwidth}{0.4pt}
     \vskip-0.5cm
     \begin{figure}
@@ -433,53 +431,44 @@
         \end{tikzpicture}
     \end{figure}
 
+    \vskip-0.35cm
+
     \par\noindent\rule{\textwidth}{0.4pt}
-    Conventional CM relies on two identifying assumptions,
+    Conventional CM: two identifying assumptions
     \begin{enumerate}
-        \item \textcolor{blue}{Treatment $Z_i$} is randomly assigned
-        \item \textcolor{ForestGreen}{Mediator $D_i$} is randomly assigned, conditional on \textcolor{blue}{$Z_i$}.
+        \item \textcolor{blue}{Treatment $Z_i$} is randomly assigned (\textcolor{blue}{wait-list lottery})
+        \item \textcolor{ForestGreen}{Mediator $D_i$} is randomly assigned, conditional on \textcolor{blue}{$Z_i$} (\textcolor{ForestGreen}{healthcare}).
     \end{enumerate}
-    \vskip0.25cm
+    \vskip0.1cm
     $\implies$ ADE + AIE are separately identified (Imai Keele Yamamoto 2010).
-\end{frame}%-------------------------------------------------------------------------------
-\begin{frame}
-    \frametitle{Causal Mediation }
-    This approach (conventional CM) is used heavily in epidemiology and medicine to give evidence for the channels of a treatment effect, but there is a reason why this is not prominent in economics.
-    \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{Identifying assumptions:}
-    \begin{enumerate}
-        \item \textcolor{blue}{Treatment $Z_i$} is randomly assigned
-        \item \textcolor{ForestGreen}{Mediator $D_i$} is randomly assigned, conditional on \textcolor{blue}{$Z_i$}.
-    \end{enumerate}
-    \vskip0.25cm
 
-    \colorbox{yellow}{\textbf{Translation:} Healthcare is a quasi-random choice, conditional on wait-list} \\\colorbox{yellow}{lottery realisation (and control variables).}
-    
-    \vskip0.25cm
-
+    \vskip-0.1cm
     \par\noindent\rule{\textwidth}{0.4pt}
-    Would this be plausible in settings economists study?
+    \colorbox{yellow}{\textbf{Translation:} Healthcare is random, conditional on} \\\colorbox{yellow}{lottery outcome $+$ control variables.}
+    \pause
+    $\hdots$Plausible in economic settings?
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Causal Mediation --- Costs and Benefits}
-    Consider the case that people, after the lottery, choose to \textcolor{ForestGreen}{visit the doctor in the next 12 months} based on subjective costs and benefits,
+    Consider the case that people, after the lottery, choose to \textcolor{ForestGreen}{visit the doctor in the next 12 months} based on \textcolor{red}{subjective well-being} costs and benefits,
     \[ \textcolor{ForestGreen}{D_i} \left( z \right) = \indicator{ \;
     \underbrace{C_i}_{\text{Costs}} \;\; \leq \;\;
         \underbrace{
             \textcolor{red}{Y_i}\left( z, \eqhighlight{ForestGreen}{1} \right) - \textcolor{red}{Y_i}\left( z, \eqhighlight{ForestGreen}{0} \right)}_{\text{Benefits}}
     \;}. \]
-    \begin{itemize}
+    \textbf{Conventional CM assumptions:}
+    \begin{enumerate}
         \item \textcolor{blue}{Wait-list lottery} has no strategic selection (lottery$\hdots$)
         \item \textcolor{ForestGreen}{Visiting healthcare} is a \textbf{choice}.
-    \end{itemize}
+    \end{enumerate}
 
     \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{Theorem:}
     If choice to attend healthcare is based on costs and benefits, and control variables do not explain all benefits
     
     $\implies$
-    \textcolor{ForestGreen}{Mediator (healthcare)} is not random, CM has confounding.
+    \textcolor{ForestGreen}{Mediator (healthcare)} is not random.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -557,7 +546,7 @@
                 \includegraphics[width=\textwidth]{
                     ../text/sections/figures/ols-direct-dist.png}
             \end{subfigure}
-            \caption{Simulated Distribution from 10,000 simulated datasets.}
+            \caption{Distribution from 10,000 simulated datasets.}
         \end{figure}
     }}
 \end{frame}
@@ -568,7 +557,6 @@
     Conventional CM does not identify ADE $+$ AIE in economic settings, so I build a structural model for natural experiment settings.
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
     Take as given that $\textcolor{blue}{Z_i}$ is quasi-randomly assigned, but $\textcolor{ForestGreen}{D_i}$ is not:
 
     \vskip-0.5cm
@@ -648,7 +636,7 @@
     
     \par\noindent\rule{\textwidth}{0.4pt}
     \pause
-    \textbf{(1)} First-stage monotonicity,
+    \textbf{(1)} First-stage monotonicity $\implies$ \textcolor{ForestGreen}{Mediator MTE} exists,
     %\[ \Prob{\textcolor{ForestGreen}{D_i}(0) \leq \textcolor{ForestGreen}{D_i}(1)} = 1. \]
     %2. Mediator take-up cost IV
     %\[ \text{Requires IV, } \textcolor{RoyalPurple}{\vec X_i^{\text{IV}}}, \text{ affects } \textcolor{red}{Y_i} \text{ only via } \textcolor{ForestGreen}{D_i}. \]
@@ -759,10 +747,10 @@
     \vskip-0.75cm
 
     \par\noindent\rule{\textwidth}{0.4pt}
-    \textbf{(3)} Common selection index for \textcolor{blue}{$Z_i$} and \textcolor{RoyalPurple}{IV}.
+    \textbf{(3)} Common \textcolor{ForestGreen}{Mediator} selection index along \textcolor{blue}{$Z_i$} and \textcolor{RoyalPurple}{IV}.
     \vfill
     \textbf{Key example:}
-    Selection-on-gains (Roy model), people consider \textcolor{ForestGreen}{healthcare gains} and \textcolor{RoyalPurple}{costs}.
+    Selection-on-gains (Roy model), people consider \textcolor{ForestGreen}{healthcare gains} and \textcolor{RoyalPurple}{costs} on the same margin.
 \end{frame}
 %-------------------------------------------------------------------------------
 \begin{frame}
@@ -817,7 +805,7 @@
 
     \vfill \par\noindent\rule{\textwidth}{0.4pt}
     \textbf{\textcolor{ForestGreen}{AIE} Intuition:}
-    Interpolate indirect effects across \textcolor{ForestGreen}{healthcare MTE}.
+    Interpolate indirect effects across \textcolor{ForestGreen}{Mediator MTE}.
     
     \vskip0.2cm
     \textbf{\textcolor{blue}{ADE} Intuition:}
@@ -843,7 +831,7 @@
                 \includegraphics[width=\textwidth]{
                     ../text/sections/figures/normal-direct-dist.png}
             \end{subfigure}
-            \caption{Simulated Distribution from 10,000 simulated datasets.}
+            \caption{Distribution from 10,000 simulated datasets.}
         \end{figure}
     }}
 \end{frame}
@@ -910,12 +898,11 @@
         \end{tikzpicture}
     \end{figure}
     \par\noindent\rule{\textwidth}{0.4pt}
-    \pause
     \textbf{Suggestive evidence:}
     \hfill \textcolor{ForestGreen}{Healthcare} is a mechanism.
     \vfill
     \textbf{Plausible direct effects:}
-    \hfill \textcolor{blue}{Stress reduction} and psychological gains.
+    \hfill \textcolor{blue}{Stress reduction} and income effect.
 \end{frame}
 %-------------------------------------------------------------------------------
 %\begin{frame}
@@ -951,8 +938,9 @@
 %-------------------------------------------------------------------------------
 \begin{frame}
     \frametitle{Oregon --- Selection Bias}
-    OLS Estimates had negative or little effects of \textcolor{ForestGreen}{healthcare} $\to$ \textcolor{red}{subjective well-being}.
-    \vskip-1cm
+    Conventional CM had effect of \textcolor{ForestGreen}{healthcare} $\to$ \textcolor{red}{subjective well-being} \textcolor{orange}{$\approx 0$}.
+    \vskip-0.5cm
+    
     \begin{figure}
         \centering
         \singlespacing
@@ -964,23 +952,26 @@
             \path[->, thick] (treatment) edge (mediator);
             \path[->, thick] (mediator)  edge (outcome);
             \path[->, thick] (treatment) edge[bend right=30] (outcome);
-            % Label Z_i, D, Y_i
+            % Label Z_i, D_i, Y_i
             \node[color=ForestGreen] [above=0.25cm of mediator] {Healthcare};
             \node[color=blue,align=right] [left=0.1cm of treatment] {Wait-list \\ lottery};
             \node[color=red,align=left] [right=0.1cm of outcome] {Subjective \\  well-being};
             % Label the effect sizes.
             %\node[color=black] (firststage) at ($(mediator)!0.5!(treatment)$) {.};
             %\node[color=orange] [above=-0.15cm of firststage] {First-stage};
-            %\node[color=orange] [below=0.7cm of mediator] {Direct effect};
+            \node[color=black] (indirect) at ($(mediator)!0.5!(outcome)$) {.};
+            \node[color=orange] [above=-0.15cm of indirect] {$\approx 0$};
             \pause
             \node[state, thick,dashed,thick,RoyalBlue] (confounderU) [
-                above=0.5cm of outcome] {$\vec U_i$};
+                above=0.75cm of outcome] {$\vec U_i$};
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (mediator);
             \path[->,thick,dashed,color=RoyalBlue] (confounderU) edge (outcome);
         \end{tikzpicture}
     \end{figure}
-    \vskip-0.5cm
+
+    \vskip-0.25cm
     \par\noindent\rule{\textwidth}{0.4pt}
+    \pause
     \textbf{Example confounder:} undiagnosed conditions among those without health insurance, near or below the poverty line.
 
     \vskip0.5cm
@@ -1060,7 +1051,7 @@
     \frametitle{Conclusion}
     \textbf{Overview:}
     \begin{enumerate}
-        \item Selection bias in conventional CM analyses when mediator mechanism strategically selected into.
+        \item Selection bias in conventional CM analyses for mediator mechanism in economic settings.
         \item Connect CM with labour theory $+$ selection-into-treatment $+$ MTEs.
     \end{enumerate}
     \par\noindent\rule{\textwidth}{0.4pt}
